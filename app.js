@@ -944,15 +944,21 @@ async function fetchQuotes(symbols,{realtimeOnly=false}={}){
 }
 
 async function renderPositions(){
-  const symbols=[...new Set(state.positions.filter(p=>Number(p.quantity)>0).map(p=>p.symbol))];
-  const q=await fetchQuotes(symbols,{realtimeOnly:true});
+  const rows=state.positions.filter(p=>Number(p.quantity)>0);
+  const symbols=[...new Set(rows.map(p=>p.symbol))];
+  const q=await fetchQuotes(symbols,{realtimeOnly:false});
   $("#main").innerHTML=`
     <article class="panel modulePanel">
       <div class="panelHead unifiedModuleHead">
-        <div><h2>当前持仓明细</h2><p>仅使用数据源确认的实时行情；非实时数据不参与市值与盈亏计算</p></div>
+        <div><h2>当前持仓明细</h2><p>使用免费公开行情源的最新可用报价，并显示数据更新时间</p></div>
         <div class="toolbar unifiedActions"><button class="btn" id="refreshPositions">刷新持仓</button></div>
       </div>
-      <div class="tableWrap moduleContent"><table class="dataTable"><thead><tr><th>客户</th><th>股票</th><th>市场</th><th>数量</th><th>平均成本</th><th>实时价</th><th>市值</th><th>未实现盈亏</th><th>已实现盈亏</th></tr></thead><tbody>${state.positions.filter(p=>Number(p.quantity)>0).map(p=>{const live=q[p.symbol]?.realtime===true&&Number.isFinite(Number(q[p.symbol]?.price)),px=live?Number(q[p.symbol].price):null,mv=live?Number(p.quantity)*px:null,u=live?Number(p.quantity)*(px-Number(p.avg_cost)):null;return`<tr><td>${esc(p.customers?.name||"--")}</td><td class="link">${esc(p.symbol)}</td><td>${esc(p.market)}</td><td>${num(p.quantity,4)}</td><td>${money(p.avg_cost,p.currency)}</td><td>${live?money(px,p.currency):'<span class="delayBadge">实时未确认</span>'}</td><td>${mv==null?"--":money(mv,p.currency)}</td><td class="${u==null?"":u>=0?"up":"down"}">${u==null?"--":money(u,p.currency)}</td><td class="${Number(p.realized_pnl)>=0?"up":"down"}">${money(p.realized_pnl,p.currency)}</td></tr>`}).join("")}</tbody></table></div>
+      <div class="tableWrap moduleContent"><table class="dataTable"><thead><tr><th>客户</th><th>股票</th><th>市场</th><th>数量</th><th>平均成本</th><th>行情价</th><th>更新时间</th><th>市值</th><th>未实现盈亏</th><th>已实现盈亏</th></tr></thead><tbody>${rows.map(p=>{
+        const x=q[p.symbol],usable=x&&!x.error&&Number.isFinite(Number(x.price));
+        const px=usable?Number(x.price):null,mv=usable?Number(p.quantity)*px:null,u=usable?Number(p.quantity)*(px-Number(p.avg_cost)):null;
+        const stamp=usable&&x.lastTradeAt?dt(x.lastTradeAt):"--";
+        return`<tr><td>${esc(p.customers?.name||"--")}</td><td class="link">${esc(p.symbol)}</td><td>${esc(p.market)}</td><td>${num(p.quantity,4)}</td><td>${money(p.avg_cost,p.currency)}</td><td>${px==null?"--":money(px,p.currency)}</td><td>${stamp}</td><td>${mv==null?"--":money(mv,p.currency)}</td><td class="${u==null?"":u>=0?"up":"down"}">${u==null?"--":money(u,p.currency)}</td><td class="${Number(p.realized_pnl)>=0?"up":"down"}">${money(p.realized_pnl,p.currency)}</td></tr>`
+      }).join("")}</tbody></table></div>
     </article>`;
   $("#refreshPositions").onclick=refreshAll;
 }
@@ -961,7 +967,7 @@ async function renderMarket(){
   const presetOptions=Object.entries(MARKET_PRESETS).map(([k,v])=>`<option value="${k}" ${k==="RO"?"selected":""}>${v.label}</option>`).join("");
   $("#main").innerHTML=`\n    <section class="grid2 marketUnifiedGrid">
       <article class="panel">
-        <div class="panelHead"><div><h2>多国家行情</h2><p>实时数据优先；图表悬停显示数据与十字辅助线</p></div><div class="marketControls"><select id="marketCountry" class="select">${presetOptions}</select><input id="marketSymbols" class="input" value="${MARKET_PRESETS.RO.symbols.join(",")}"></div></div>
+        <div class="panelHead"><div><h2>多国家行情</h2><p>免费公开行情源 · 显示最新报价与罗马尼亚时间</p></div><div class="marketControls"><select id="marketCountry" class="select">${presetOptions}</select><input id="marketSymbols" class="input" value="${MARKET_PRESETS.RO.symbols.join(",")}"></div></div>
         <div class="panelBody"><div class="quoteHeader"><div><span class="link" id="mSymbol">--</span><h3 id="mName">选择股票</h3><p class="muted" id="mExchange">--</p><p class="muted" id="mFresh">--</p></div><div><div id="mPrice" class="quotePrice">--</div><div id="mChange">--</div></div></div></div>
         <div class="chartBox"><canvas id="marketChart"></canvas></div>
       </article>
@@ -976,9 +982,8 @@ async function renderMarket(){
     const rows=syms.map(s=>q[s]).filter(Boolean);
     $("#marketRows").innerHTML=rows.map(x=>{
       const usable=!x.error&&Number.isFinite(Number(x.price));
-      const live=usable&&x.realtime===true;
-      const delayText=x.delaySeconds===900?"官方延迟 15m":x.delaySeconds?("延迟 "+Math.round(Number(x.delaySeconds)/60)+"m"):"参考行情";
-      return `<div class="marketRow marketPick" data-symbol="${x.symbol}"><span class="link">${esc(x.symbol)}</span><span>${esc(x.name||x.symbol)}</span><span>${esc(x.country||"--")}</span><span>${esc(x.exchange||"--")}</span><span>${usable?money(x.price,x.currency||"USD"):"--"}</span><span class="${usable&&Number(x.changePct)>=0?"up":usable?"down":""}">${usable&&x.changePct!=null?((Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%"):"--"}</span><span>${live?'<span class="liveBadge">实时</span>':usable?'<span class="delayBadge">'+esc(delayText)+'</span>':'<span class="delayBadge">无数据</span>'}</span></div>`;
+      const stamp=usable&&x.lastTradeAt?dt(x.lastTradeAt):"--";
+      return `<div class="marketRow marketPick" data-symbol="${x.symbol}"><span class="link">${esc(x.symbol)}</span><span>${esc(x.name||x.symbol)}</span><span>${esc(x.country||"--")}</span><span>${esc(x.exchange||"--")}</span><span>${usable?money(x.price,x.currency||"USD"):"--"}</span><span class="${usable&&Number(x.changePct)>=0?"up":usable?"down":""}">${usable&&x.changePct!=null?((Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%"):"--"}</span><span class="quoteTimeBadge">${esc(stamp)}</span></div>`;
     }).join("")||'<div class="empty">暂无行情数据</div>';
     $$(".marketPick").forEach(r=>r.onclick=()=>drawMarket(q[r.dataset.symbol]));
     const first=rows.find(x=>!x.error&&Number.isFinite(Number(x.price)));
@@ -999,12 +1004,10 @@ async function renderMarket(){
 }
 function drawMarket(x){
   const usable=x&&!x.error&&Number.isFinite(Number(x.price));
-  const live=usable&&x.realtime===true;
   $("#mSymbol").textContent=x?.symbol||"--";
   $("#mName").textContent=usable?(x.name||x.symbol):"暂无可用行情";
   $("#mExchange").textContent=[x?.country,x?.exchange,x?.currency,x?.source].filter(Boolean).join(" · ");
-  const delayLabel=live?"实时":x?.delaySeconds===900?"官方延迟 15 分钟":"非实时";
-  $("#mFresh").textContent=usable?delayLabel+" · 最后成交（罗马尼亚时间）："+dt(x.lastTradeAt||new Date()):"--";
+  $("#mFresh").textContent=usable?"最新数据时间（罗马尼亚）："+dt(x.lastTradeAt||new Date()):"--";
   $("#mPrice").textContent=usable?num(x.price):"--";
   $("#mChange").textContent=usable&&x.changePct!=null?(Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%":"--";
   $("#mChange").className=usable?(Number(x.changePct)>=0?"up":"down"):"";
@@ -1013,7 +1016,7 @@ function drawMarket(x){
   const pts=(x.points||[]).filter(p=>p.close!=null);
   state.charts.market=new Chart($("#marketChart"),{
     type:"line",
-    data:{labels:pts.map(p=>new Date(p.t).toLocaleTimeString("zh-CN",{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"})),datasets:[{label:x.symbol+(live?" 实时价":" 行情价"),data:pts.map(p=>p.close),borderColor:"#d93447",backgroundColor:"rgba(217,52,71,.14)",fill:true,tension:.22,pointRadius:0,pointHoverRadius:4}]},
+    data:{labels:pts.map(p=>new Date(p.t).toLocaleTimeString("zh-CN",{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"})),datasets:[{label:x.symbol+" 行情价",data:pts.map(p=>p.close),borderColor:"#d93447",backgroundColor:"rgba(217,52,71,.14)",fill:true,tension:.22,pointRadius:0,pointHoverRadius:4}]},
     options:chartOpts()
   });
 }
