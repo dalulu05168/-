@@ -328,119 +328,116 @@ function drawLevel2Charts(buys,sells){
 }
 
 async function renderDashboard(){
-  $("#main").classList.add("dashboardViewport");
+  $("#main").classList.add("dashboardViewport","terminalMain");
   if(state.profile?.role==="level2"){renderLevel2Dashboard();return;}
+
   const openPositions=state.positions.filter(p=>Number(p.quantity)>0);
-  const holdingCustomerIds=[...new Set(openPositions.map(p=>p.customer_id))];
-  const teamCount=state.profile.role==="admin"
-    ? state.staff.filter(s=>s.role!=="admin"&&s.status==="active").length
-    : state.profile.role==="level1"
-      ? state.staff.filter(s=>s.parent_user_id===state.profile.id&&s.status==="active").length
-      : 0;
+  const recentTrades=state.trades.slice(0,6);
   const todayTrades=state.trades.filter(t=>isRomaniaToday(t.traded_at)).length;
   const dueFollowups=state.followups.filter(f=>f.next_followup_at&&new Date(f.next_followup_at)<=new Date()).length;
-  const recentTrades=state.trades.slice(0,5);
-  const visiblePositions=openPositions.slice(0,6);
-
-  const costBasisByCurrency={};
-  for(const p of openPositions){
-    const c=p.currency||"USD";
-    costBasisByCurrency[c]=(costBasisByCurrency[c]||0)+(Number(p.quantity)*Number(p.avg_cost));
-  }
-  const costBasisText=Object.entries(costBasisByCurrency).slice(0,2).map(([c,v])=>money(v,c)).join(" · ")||"—";
+  const totalCost=openPositions.reduce((sum,p)=>sum+(Number(p.quantity)*Number(p.avg_cost)),0);
+  const realized=state.positions.reduce((sum,p)=>sum+Number(p.realized_pnl||0),0);
+  const teamCount=state.profile.role==="admin"
+    ? state.staff.filter(x=>x.role!=="admin"&&x.status==="active").length
+    : state.staff.filter(x=>x.parent_user_id===state.profile.id&&x.status==="active").length;
 
   $("#main").innerHTML=`
-    <section class="executiveDashboard">
-      <div class="executiveKpis">
-        <article class="execStat accent">
-          <div class="execEyebrow">PORTFOLIO CLIENTS</div>
-          <div class="execStatHead"><span>客户总数</span><span class="execIcon">◫</span></div>
-          <div class="execValue">${state.customers.length}</div>
-          <div class="execMeta">当前权限可见</div>
-        </article>
-        <article class="execStat">
-          <div class="execEyebrow">TODAY ACTIVITY</div>
-          <div class="execStatHead"><span>今日交易</span><span class="execIcon">↗</span></div>
-          <div class="execValue">${todayTrades}</div>
-          <div class="execMeta">罗马尼亚时间</div>
-        </article>
-        <article class="execStat">
-          <div class="execEyebrow">OPEN POSITIONS</div>
-          <div class="execStatHead"><span>当前持仓</span><span class="execIcon">◔</span></div>
-          <div class="execValue">${openPositions.length}</div>
-          <div class="execMeta">${holdingCustomerIds.length} 位客户</div>
-        </article>
-        <article class="execStat">
-          <div class="execEyebrow">FOLLOW-UP RISK</div>
-          <div class="execStatHead"><span>待跟进</span><span class="execIcon">▣</span></div>
-          <div class="execValue">${dueFollowups}</div>
-          <div class="execMeta">已到跟进时间</div>
-        </article>
-        <article class="execStat">
-          <div class="execEyebrow">TEAM SCOPE</div>
-          <div class="execStatHead"><span>团队人员</span><span class="execIcon">◇</span></div>
-          <div class="execValue">${state.profile.role==="level2"?"—":teamCount}</div>
-          <div class="execMeta">${state.profile.role==="level2"?"当前为二级账户":"当前权限范围"}</div>
-        </article>
-      </div>
+    <section class="tradeflareShell">
+      <aside class="tradeflareRail">
+        <button class="railBtn active" data-view="dashboard" title="总览">总</button>
+        <button class="railBtn" data-view="customers" title="客户">客</button>
+        <button class="railBtn" data-view="positions" title="持仓">持</button>
+        <button class="railBtn" data-view="trades" title="交易">交</button>
+        <button class="railBtn" data-view="reports" title="报表">报</button>
+        <div class="railSpacer"></div>
+        <button class="railBtn" data-view="settings" title="设置">设</button>
+      </aside>
 
-      <div class="executiveMain">
-        <article class="panel executiveTablePanel">
-          <div class="panelHead compact"><div><h2>持仓客户</h2><p>OPEN CLIENT POSITIONS</p></div><span class="headMeta">${openPositions.length} POSITIONS</span></div>
-          <div class="tableWrap">
-            <table class="dataTable executiveTable">
-              <thead><tr><th>股票代码</th><th>客户</th><th>持仓数量</th><th>平均成本</th><th>市场</th><th>操作</th></tr></thead>
-              <tbody>
-                ${visiblePositions.map(p=>`<tr>
-                  <td class="symbolCell">${esc(p.symbol)}</td>
-                  <td>${esc(p.customers?.name||"--")}</td>
-                  <td class="goldData">${num(p.quantity,4)}</td>
-                  <td>${money(p.avg_cost,p.currency)}</td>
-                  <td>${esc(p.market)}</td>
-                  <td><button class="tableAction customerLink" data-id="${p.customer_id}">查看客户 ↗</button></td>
-                </tr>`).join("")}
-                ${visiblePositions.length?"":'<tr><td colspan="6"><div class="empty executiveEmpty">暂无持仓数据</div></td></tr>'}
-              </tbody>
-            </table>
+      <div class="tradeflareCanvas">
+        <div class="terminalTicker">
+          <div class="tickerIdentity">
+            <span class="tickerDot"></span>
+            <div><span class="tickerSymbol">CRM · PORTFOLIO</span><small>Brantone Veylor</small></div>
           </div>
-        </article>
+          <div class="tickerStat"><small>客户</small><span>${state.customers.length}</span></div>
+          <div class="tickerStat"><small>当前持仓</small><span>${openPositions.length}</span></div>
+          <div class="tickerStat"><small>今日交易</small><span>${todayTrades}</span></div>
+          <div class="tickerStat"><small>待跟进</small><span class="${dueFollowups?"terminalRed":""}">${dueFollowups}</span></div>
+          <div class="tickerStat"><small>成本基准</small><span>${totalCost?num(totalCost,2):"—"}</span></div>
+          <button class="tickerGear" id="terminalRefresh">刷新</button>
+        </div>
 
-        <div class="executiveSide">
-          <article class="panel executiveChartPanel">
-            <div class="panelHead compact"><div><h2>业务趋势</h2><p>14 DAY ACTIVITY</p></div><span class="headMeta">ROMANIA TIME</span></div>
-            <div class="chartBox executiveChart"><canvas id="trendChart"></canvas></div>
-          </article>
-          <article class="panel executiveAllocPanel">
-            <div class="panelHead compact"><div><h2>持仓概览</h2><p>COST BASIS</p></div><span class="headMeta">${openPositions.length} ITEMS</span></div>
-            <div class="allocBody">
-              <div class="allocTotal"><span>成本基准</span><span>${esc(costBasisText)}</span></div>
-              <div class="allocationRows">
-                ${Object.entries(costBasisByCurrency).slice(0,4).map(([c,v])=>{
-                  const total=Object.values(costBasisByCurrency).reduce((a,b)=>a+b,0)||1;
-                  const pct=Math.max(2,Math.min(100,(v/total)*100));
-                  return `<div class="allocRow"><div class="allocLabels"><span>${esc(c)}</span><span>${money(v,c)}</span></div><div class="allocTrack"><i style="width:${pct}%"></i></div></div>`
-                }).join("")||'<div class="empty executiveEmpty">暂无持仓分配数据</div>'}
+        <div class="terminalGrid">
+          <section class="terminalLeft">
+            <article class="terminalChartCard">
+              <div class="terminalChartToolbar">
+                <div class="terminalTabs">
+                  <button class="terminalTab active">趋势</button>
+                  <button class="terminalTab" data-view="positions">持仓</button>
+                  <button class="terminalTab" data-view="trades">交易</button>
+                  <button class="terminalTab" data-view="customers">客户</button>
+                </div>
+                <div class="terminalIntervals">
+                  <button>1D</button><button class="active">7D</button><button>1M</button><button>3M</button><button>1Y</button>
+                </div>
               </div>
+              <div class="terminalChartWrap"><canvas id="trendChart"></canvas></div>
+            </article>
+
+            <div class="terminalPositionList">
+              ${recentTrades.slice(0,2).map(t=>`
+                <article class="terminalPositionCard">
+                  <div class="positionTop">
+                    <div><span class="positionSymbol">${esc(t.symbol)}</span><span class="positionBadge ${t.side}">${t.side==="buy"?"买入":"卖出"}</span></div>
+                    <span class="positionState">${dt(t.traded_at)}</span>
+                  </div>
+                  <div class="positionMetrics">
+                    <div><small>客户</small><span>${esc(t.customers?.name||"--")}</span></div>
+                    <div><small>数量</small><span>${num(t.quantity,4)}</span></div>
+                    <div><small>成交价</small><span>${money(t.price,t.currency)}</span></div>
+                    <div><small>成交金额</small><span>${money(Number(t.quantity)*Number(t.price),t.currency)}</span></div>
+                  </div>
+                </article>`).join("")||'<div class="terminalEmpty">暂无近期交易</div>'}
             </div>
-          </article>
+          </section>
+
+          <aside class="terminalOrderPanel">
+            <div class="terminalSegment"><button class="active">客户</button><button>持仓</button></div>
+            <div class="terminalSegment secondary"><button>概览</button><button class="active">操作</button><button>跟进</button></div>
+
+            <div class="terminalFormCard">
+              <div class="terminalFieldRow"><label>当前账户</label><span>${esc(state.profile.display_name)}</span></div>
+              <div class="terminalFieldRow"><label>角色</label><span>${roleName(state.profile.role)}</span></div>
+              <div class="terminalFieldRow"><label>团队人员</label><span>${teamCount}</span></div>
+              <div class="terminalFieldRow"><label>已实现盈亏</label><span class="${realized>=0?"terminalGreen":"terminalRed"}">${num(realized,2)}</span></div>
+              <div class="terminalFieldRow"><label>罗马尼亚时间</label><span>${romaniaClockText()}</span></div>
+            </div>
+
+            <div class="terminalActionGrid">
+              <button class="terminalPrimary" id="terminalNewCustomer">新增客户</button>
+              <button class="terminalSecondary" data-view="customers">客户中心</button>
+              <button class="terminalSecondary" data-view="positions">持仓中心</button>
+              <button class="terminalSecondary" data-view="trades">交易记录</button>
+            </div>
+
+            <div class="terminalUsage">
+              <h3>业务使用情况</h3>
+              <div class="usageRow"><span>持仓标的</span><span>${openPositions.length}</span></div>
+              <div class="usageRow"><span>客户总数</span><span>${state.customers.length}</span></div>
+              <div class="usageRow"><span>今日交易</span><span>${todayTrades}</span></div>
+              <div class="usageRow"><span>待跟进</span><span class="${dueFollowups?"terminalRed":""}">${dueFollowups}</span></div>
+              <div class="usageBar"><i style="width:${Math.min(100,Math.max(8,state.customers.length*8))}%"></i></div>
+            </div>
+          </aside>
         </div>
       </div>
-
-      <article class="panel recentOrders">
-        <div class="panelHead compact"><div><h2>近期交易</h2><p>RECENT ORDERS</p></div><span class="headMeta">${recentTrades.length} ORDERS</span></div>
-        <div class="recentOrderGrid">
-          ${recentTrades.map(t=>`<div class="recentOrder">
-            <div class="recentOrderTop"><span class="recentSymbol">${esc(t.symbol)}</span><span class="recentMarket">${esc(t.market||"")}</span></div>
-            <div class="recentSub">${esc(t.customers?.name||"客户")} · ${dt(t.traded_at)}</div>
-            <div class="recentAmount">${t.side==="buy"?"买入":"卖出"} · ${num(t.quantity,4)} × ${money(t.price,t.currency)}</div>
-          </div>`).join("")||'<div class="empty executiveEmpty" style="grid-column:1/-1">暂无近期交易</div>'}
-        </div>
-      </article>
     </section>`;
-  drawDashboardCharts();
-  bindCustomerLinks();
-}
 
+  drawDashboardCharts();
+  $$(".tradeflareRail [data-view], .terminalTab[data-view], .terminalSecondary[data-view]").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+  $("#terminalNewCustomer").onclick=openCustomerForm;
+  $("#terminalRefresh").onclick=refreshAll;
+}
 function drawDashboardCharts(){
   const keys14=romaniaDayKeys(14);
   const labels=keys14.map(k=>k.slice(5).replace("-","/"));
