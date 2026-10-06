@@ -416,3 +416,350 @@ html,body,.app,.shell{max-width:100%;overflow-x:hidden}
   .executiveSide{grid-template-columns:1fr 1fr;grid-template-rows:auto}
   .recentOrderGrid{grid-template-columns:repeat(3,1fr)}
 }
+
+
+/* === Level 2 client holdings workspace === */
+.level2Workspace{
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto;
+  gap:10px;
+  min-height:calc(100vh - 96px);
+}
+.level2MetricGrid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:10px;
+}
+.level2Metric{
+  min-height:118px;
+  padding:13px 15px;
+  border:1px solid #294257;
+  border-radius:13px;
+  background:linear-gradient(180deg,rgba(10,31,47,.98),rgba(7,24,37,.98));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 10px 26px rgba(0,0,0,.2);
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.level2Metric.accent{
+  border-color:#6e5a23;
+  box-shadow:inset 2px 0 0 rgba(213,170,81,.85),0 10px 26px rgba(0,0,0,.2);
+}
+.level2Metric:hover{
+  transform:translateY(-3px);
+  border-color:#54738b;
+  box-shadow:0 16px 36px rgba(0,0,0,.32),0 0 0 1px rgba(213,170,81,.08);
+}
+.metricLabel{
+  color:#607a91;
+  font-size:9px;
+  letter-spacing:1.7px;
+  margin-bottom:7px;
+  font-weight:400!important;
+}
+.metricTitle{
+  color:#9aacbc;
+  font-size:12px;
+  font-weight:400!important;
+}
+.metricValue{
+  margin-top:8px;
+  color:#eef3f7;
+  font-size:24px;
+  line-height:1;
+  font-weight:400!important;
+}
+.metricFoot{
+  margin-top:10px;
+  color:#607588;
+  font-size:9px;
+  font-weight:400!important;
+}
+.level2MainGrid{
+  display:grid;
+  grid-template-columns:minmax(0,1.8fr) minmax(300px,.82fr);
+  gap:10px;
+  min-height:0;
+}
+.level2PositionsPanel{
+  height:100%;
+  min-height:0;
+}
+.level2PositionsPanel .tableWrap{
+  height:calc(100% - 46px);
+  overflow:auto;
+}
+.level2SideStack{
+  display:grid;
+  grid-template-rows:1fr 1fr;
+  gap:10px;
+  min-height:0;
+}
+.level2Chart{
+  height:calc(100% - 46px);
+  min-height:180px;
+}
+.level2PnlPanel{
+  min-height:0;
+}
+.level2SummaryList{
+  display:grid;
+  gap:8px;
+  padding:12px;
+}
+.level2SummaryList>div{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  min-height:38px;
+  padding:9px 10px;
+  border:1px solid #1c3448;
+  border-radius:8px;
+  background:#07131f;
+  color:#8397a8;
+  font-size:11px;
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.level2SummaryList>div:hover{
+  transform:translateY(-2px);
+  border-color:#43647d;
+  box-shadow:0 10px 22px rgba(0,0,0,.22);
+}
+.level2SummaryList>div span:last-child{
+  color:#e5edf3;
+  font-size:14px;
+  font-weight:400!important;
+}
+.level2OrdersPanel{
+  min-height:170px;
+}
+.level2OrdersPanel .tableWrap{
+  max-height:220px;
+}
+.level2HoldingsTable td,.level2OrdersTable td{
+  font-size:11px;
+}
+.sideBadge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:42px;
+  padding:3px 7px;
+  border-radius:999px;
+  border:1px solid;
+  font-size:10px;
+  font-weight:400!important;
+}
+.sideBadge.buy{
+  color:#55dfb0;
+  border-color:#245947;
+  background:#082119;
+}
+.sideBadge.sell{
+  color:#ff8390;
+  border-color:#6d2a34;
+  background:#241015;
+}
+
+/* === Client portfolio detail === */
+.clientPortfolioDetail{
+  background:
+    radial-gradient(circle at 88% 0,rgba(42,90,129,.12),transparent 30%),
+    linear-gradient(180deg,#050b12,#06101a 60%,#050b12);
+}
+.portfolioTop{
+  min-height:72px;
+  padding:10px 18px;
+}
+.clientIdentity h1{
+  font-size:17px;
+}
+.clientMetaLine{
+  display:flex;
+  gap:6px;
+  align-items:center;
+  margin-top:4px;
+  color:#6f8597;
+  font-size:10px;
+  font-weight:400!important;
+}
+.portfolioTopActions{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.clientOwner{
+  color:#72899b;
+  font-size:10px;
+  border:1px solid #213b50;
+  border-radius:8px;
+  padding:7px 9px;
+}
+.clientPortfolioBody{
+  padding:12px 16px 18px;
+}
+.clientMetricStrip{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:8px;
+  margin-bottom:10px;
+}
+.clientMetricStrip article{
+  min-height:100px;
+  padding:11px 12px;
+  border:1px solid #294257;
+  border-radius:11px;
+  background:linear-gradient(180deg,rgba(10,28,42,.98),rgba(7,20,31,.98));
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.clientMetricStrip article:hover{
+  transform:translateY(-3px);
+  border-color:#496d88;
+  box-shadow:0 14px 28px rgba(0,0,0,.28);
+}
+.clientMetricStrip label{
+  display:block;
+  color:#718698;
+  font-size:10px;
+  font-weight:400!important;
+}
+.clientMetricStrip span{
+  display:block;
+  margin-top:9px;
+  color:#edf2f6;
+  font-size:20px;
+  line-height:1;
+  font-weight:400!important;
+}
+.clientMetricStrip small{
+  display:block;
+  margin-top:10px;
+  color:#536a7d;
+  font-size:8px;
+  letter-spacing:.7px;
+  font-weight:400!important;
+}
+.clientPortfolioGrid{
+  display:grid;
+  grid-template-columns:minmax(0,1.85fr) minmax(300px,.75fr);
+  gap:10px;
+  margin-bottom:10px;
+}
+.clientPositionsPanel{
+  min-height:300px;
+}
+.clientProfilePanel{
+  min-height:300px;
+}
+.clientAllocationChart{
+  height:190px;
+}
+.clientProfileMini{
+  display:grid;
+  gap:6px;
+  padding:0 12px 12px;
+}
+.clientProfileMini>div{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:8px 9px;
+  border:1px solid #1b3347;
+  border-radius:7px;
+  background:#07131f;
+  color:#778b9b;
+  font-size:10px;
+}
+.clientProfileMini>div span:last-child{
+  color:#dce5ec;
+  font-size:11px;
+}
+.clientTradeSplit{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:10px;
+}
+.tradeSidePanel{
+  min-height:260px;
+}
+.tradeSidePanel .tableWrap{
+  max-height:290px;
+}
+.buyPanel{
+  box-shadow:inset 2px 0 0 rgba(46,211,160,.35),0 8px 24px rgba(0,0,0,.22);
+}
+.sellPanel{
+  box-shadow:inset 2px 0 0 rgba(217,52,71,.35),0 8px 24px rgba(0,0,0,.22);
+}
+.tradeDetailTable td,.completeTradeTable td,.portfolioTable td{
+  font-size:11px;
+}
+.clientBottomGrid{
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:10px;
+  margin-bottom:10px;
+}
+.clientTradeChart{
+  height:250px;
+}
+.clientFollowList{
+  max-height:250px;
+  overflow:auto;
+  display:grid;
+  gap:7px;
+}
+.clientFollowItem{
+  padding:9px 10px;
+  border:1px solid #1b3347;
+  border-radius:8px;
+  background:#07131f;
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.clientFollowItem:hover{
+  transform:translateY(-2px);
+  border-color:#46677f;
+  box-shadow:0 10px 20px rgba(0,0,0,.22);
+}
+.clientFollowItem>div{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  color:#6d8193;
+  font-size:9px;
+}
+.followChannel{
+  color:#e7b500;
+  text-transform:uppercase;
+}
+.clientFollowItem p{
+  margin:7px 0 0;
+  color:#c1ced8;
+  font-size:11px;
+  line-height:1.45;
+}
+.clientFollowItem small{
+  display:block;
+  margin-top:7px;
+  color:#6d8193;
+  font-size:9px;
+}
+.allTradesPanel{
+  margin-bottom:2px;
+}
+.portfolioTable .liveBadge,.portfolioTable .delayBadge{
+  margin-left:5px;
+}
+@media(max-width:1350px){
+  .level2MetricGrid{grid-template-columns:repeat(3,1fr)}
+  .level2MainGrid,.clientPortfolioGrid,.clientBottomGrid{grid-template-columns:1fr}
+  .level2SideStack{grid-template-columns:1fr 1fr;grid-template-rows:auto}
+  .clientMetricStrip{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:900px){
+  .level2MetricGrid,.clientMetricStrip{grid-template-columns:repeat(2,1fr)}
+  .level2SideStack,.clientTradeSplit{grid-template-columns:1fr}
+  .portfolioTopActions{flex-wrap:wrap;justify-content:flex-end}
+}
