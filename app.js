@@ -89,8 +89,8 @@ const crosshairPlugin={
 if(window.Chart){
   Chart.register(crosshairPlugin);
   Chart.defaults.font.weight="normal";
-  Chart.defaults.devicePixelRatio=Math.min(Math.max(window.devicePixelRatio||1,1),4);
-  Chart.defaults.animation.duration=260;
+  Chart.defaults.devicePixelRatio=Math.min(Math.max(window.devicePixelRatio||1,1),2);
+  Chart.defaults.animation.duration=180;
 }
 
 function toast(msg,error=false){
@@ -226,14 +226,22 @@ async function refreshAll(){
   await renderView();
 }
 
-async function renderView(){
+async function renderView(token=viewSwitchToken){
   Object.values(state.charts).forEach(x=>{try{x.destroy()}catch{}});state.charts={};
   const main=$("#main");
-  main.className="viewEntering";
   main.dataset.view=state.activeView;
   const f={dashboard:renderDashboard,customers:renderCustomers,personnel:renderPersonnel,trades:renderTrades,positions:renderPositions,market:renderMarket,reports:renderReports,settings:renderSettings}[state.activeView]||renderDashboard;
-  await f();
-  requestAnimationFrame(()=>requestAnimationFrame(()=>main.classList.remove("viewEntering")));
+  try{
+    await f();
+  }catch(err){
+    console.error("renderView failed",state.activeView,err);
+    toast("页面加载异常："+(err?.message||"未知错误"),true);
+  }finally{
+    if(token!==viewSwitchToken&&token!==0)return;
+    main.classList.remove("viewBusy","viewLeaving","viewEntering");
+    main.classList.add("viewReveal");
+    requestAnimationFrame(()=>requestAnimationFrame(()=>main.classList.remove("viewReveal")));
+  }
 }
 
 function pageHead(title,sub,actions=""){
