@@ -89,6 +89,8 @@ const crosshairPlugin={
 if(window.Chart){
   Chart.register(crosshairPlugin);
   Chart.defaults.font.weight="normal";
+  Chart.defaults.devicePixelRatio=Math.min(Math.max(window.devicePixelRatio||1,1),4);
+  Chart.defaults.animation.duration=260;
 }
 
 function toast(msg,error=false){
@@ -186,20 +188,27 @@ function renderShell(){
     <div class="app"><div class="shell">
       <header class="topbar">
         <div class="brand"><div class="mark">BV<small>1996</small></div><div class="brandText"><b>BRANTONE VEYLOR</b><span>PRIVATE CAPITAL ADVISORY</span></div></div>
-        <nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}">${label}</button>`).join("")}</nav>
-        <div class="userArea"><span class="sysok">● 系统运行正常</span><span class="romaniaClock" id="romaniaClock"></span><span class="chip">${roleName(state.profile.role)} · ${esc(state.profile.display_name)}</span><button id="logoutBtn" class="iconBtn">退出</button></div>
+        <div class="navFrame"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}">${label}</button>`).join("")}</nav></div>
+        <div class="userArea"><span class="sysok">系统正常</span><span class="romaniaClock" id="romaniaClock"></span><span class="chip">${roleName(state.profile.role)} · ${esc(state.profile.display_name)}</span><button id="logoutBtn" class="iconBtn">退出</button></div>
       </header>
-      <main id="main"></main>
+      <main id="main" data-view="${state.activeView}"></main>
     </div></div>
     <div id="modalRoot"></div>
   `;
-  $$(".nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+  $(".nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
   $("#logoutBtn").onclick=async()=>{await supabase.auth.signOut();state.profile=null;state.session=null;renderLogin(true)};
   startRomaniaClock();
 }
 
 async function switchView(view){
-  state.activeView=view; $$(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+  if(!view)return;
+  const main=$("#main");
+  if(main){
+    main.classList.add("viewLeaving");
+    await new Promise(r=>setTimeout(r,120));
+  }
+  state.activeView=view;
+  $(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
   await renderView();
 }
 
@@ -219,9 +228,12 @@ async function refreshAll(){
 
 async function renderView(){
   Object.values(state.charts).forEach(x=>{try{x.destroy()}catch{}});state.charts={};
-  $("#main").className="";
+  const main=$("#main");
+  main.className="viewEntering";
+  main.dataset.view=state.activeView;
   const f={dashboard:renderDashboard,customers:renderCustomers,personnel:renderPersonnel,trades:renderTrades,positions:renderPositions,market:renderMarket,reports:renderReports,settings:renderSettings}[state.activeView]||renderDashboard;
   await f();
+  requestAnimationFrame(()=>requestAnimationFrame(()=>main.classList.remove("viewEntering")));
 }
 
 function pageHead(title,sub,actions=""){
@@ -372,13 +384,13 @@ async function renderDashboard(){
             <article class="terminalChartCard">
               <div class="terminalChartToolbar">
                 <div class="terminalTabs">
-                  <button class="terminalTab active">趋势</button>
+                  <button class="terminalTab active" data-action="trend">趋势</button>
                   <button class="terminalTab" data-view="positions">持仓</button>
                   <button class="terminalTab" data-view="trades">交易</button>
                   <button class="terminalTab" data-view="customers">客户</button>
                 </div>
                 <div class="terminalIntervals">
-                  <button>1D</button><button class="active">7D</button><button>1M</button><button>3M</button><button>1Y</button>
+                  <button data-days="1">1D</button><button class="active" data-days="7">7D</button><button data-days="30">1M</button><button data-days="90">3M</button><button data-days="365">1Y</button>
                 </div>
               </div>
               <div class="terminalChartWrap"><canvas id="trendChart"></canvas></div>
@@ -402,8 +414,8 @@ async function renderDashboard(){
           </section>
 
           <aside class="terminalOrderPanel">
-            <div class="terminalSegment"><button class="active">客户</button><button>持仓</button></div>
-            <div class="terminalSegment secondary"><button>概览</button><button class="active">操作</button><button>跟进</button></div>
+            <div class="terminalSegment"><button class="active" data-view="customers">客户</button><button data-view="positions">持仓</button></div>
+            <div class="terminalSegment secondary"><button data-view="dashboard">概览</button><button class="active" data-view="trades">操作</button><button data-view="customers">跟进</button></div>
 
             <div class="terminalFormCard">
               <div class="terminalFieldRow"><label>当前账户</label><span>${esc(state.profile.display_name)}</span></div>
@@ -433,18 +445,36 @@ async function renderDashboard(){
       </div>
     </section>`;
 
-  drawDashboardCharts();
-  $$(".tradeflareRail [data-view], .terminalTab[data-view], .terminalSecondary[data-view]").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+  drawDashboardCharts(7);
+  $(".tradeflareRail [data-view], .terminalTab[data-view], .terminalSecondary[data-view], .terminalSegment [data-view]").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+  const trendBtn=$('.terminalTab[data-action="trend"]');
+  if(trendBtn)trendBtn.onclick=()=>{drawDashboardCharts(7);toast("已切换业务趋势")};
+  $(".terminalIntervals [data-days]").forEach(b=>b.onclick=()=>{
+    $(".terminalIntervals [data-days]").forEach(x=>x.classList.toggle("active",x===b));
+    drawDashboardCharts(Number(b.dataset.days)||7);
+  });
   $("#terminalNewCustomer").onclick=openCustomerForm;
-  $("#terminalRefresh").onclick=refreshAll;
+  $("#terminalRefresh").onclick=async()=>{toast("正在刷新数据");await refreshAll()};
 }
-function drawDashboardCharts(){
-  const keys14=romaniaDayKeys(14);
-  const labels=keys14.map(k=>k.slice(5).replace("-","/"));
-  const newC=keys14.map(k=>state.customers.filter(x=>romaniaDateKey(x.created_at)===k).length);
-  const tradeC=keys14.map(k=>state.trades.filter(x=>romaniaDateKey(x.traded_at)===k).length);
-  state.charts.trend=new Chart($("#trendChart"),{type:"line",data:{labels,datasets:[{label:"新增客户",data:newC,borderColor:"#d93447",backgroundColor:"rgba(217,52,71,.15)",tension:.35,fill:true},{label:"交易记录",data:tradeC,borderColor:"#5aa2ef",tension:.35}]},options:chartOpts()});
-  const keys=["prospect","following","holding","closed","archived"];state.charts.status=new Chart($("#statusChart"),{type:"doughnut",data:{labels:keys.map(customerStatus),datasets:[{data:keys.map(k=>state.customers.filter(x=>x.status===k).length),backgroundColor:["#5aa2ef","#d5aa51","#2ed3a0","#8b9bad","#d93447"]}]},options:{...chartOpts(),cutout:"68%"}});
+function drawDashboardCharts(days=14){
+  const count=Math.max(1,Math.min(365,Number(days)||14));
+  const keys=romaniaDayKeys(count);
+  const labels=keys.map(k=>k.slice(5).replace("-","/"));
+  const newC=keys.map(k=>state.customers.filter(x=>romaniaDateKey(x.created_at)===k).length);
+  const tradeC=keys.map(k=>state.trades.filter(x=>romaniaDateKey(x.traded_at)===k).length);
+  if(state.charts.trend){try{state.charts.trend.destroy()}catch{};delete state.charts.trend}
+  const trendEl=$("#trendChart");
+  if(trendEl){
+    state.charts.trend=new Chart(trendEl,{type:"line",data:{labels,datasets:[
+      {label:"新增客户",data:newC,borderColor:"#14e76d",backgroundColor:"rgba(20,231,109,.10)",tension:.32,fill:true,pointRadius:0,pointHoverRadius:4},
+      {label:"交易记录",data:tradeC,borderColor:"#6e7cff",backgroundColor:"rgba(110,124,255,.05)",tension:.32,pointRadius:0,pointHoverRadius:4}
+    ]},options:chartOpts()});
+  }
+  const statusEl=$("#statusChart");
+  if(statusEl){
+    const statusKeys=["prospect","following","holding","closed","archived"];
+    state.charts.status=new Chart(statusEl,{type:"doughnut",data:{labels:statusKeys.map(customerStatus),datasets:[{data:statusKeys.map(k=>state.customers.filter(x=>x.status===k).length),backgroundColor:["#6e7cff","#d5aa51","#14e76d","#8b9bad","#d93447"]}]},options:{...chartOpts(),cutout:"68%"}});
+  }
 }
 function chartOpts(){return{
   responsive:true,maintainAspectRatio:false,
