@@ -763,3 +763,163 @@ html,body,.app,.shell{max-width:100%;overflow-x:hidden}
   .level2SideStack,.clientTradeSplit{grid-template-columns:1fr}
   .portfolioTopActions{flex-wrap:wrap;justify-content:flex-end}
 }
+
+
+/* === Viewport lock + Settings typography retune === */
+#main.dashboardViewport{
+  height:calc(100vh - 102px);
+  min-height:0;
+  overflow:hidden;
+  padding-top:10px;
+}
+#main.dashboardViewport .executiveDashboard,
+#main.dashboardViewport .level2Workspace{
+  height:100%;
+  min-height:0;
+  overflow:hidden;
+}
+#main.dashboardViewport .executiveDashboard{
+  grid-template-rows:112px minmax(0,1fr) 132px;
+}
+#main.dashboardViewport .executiveKpis,
+#main.dashboardViewport .level2MetricGrid{
+  min-height:0;
+}
+#main.dashboardViewport .execStat{
+  min-height:0;
+  height:112px;
+  padding:11px 13px 9px;
+}
+#main.dashboardViewport .execValue{
+  font-size:22px;
+  margin-top:7px;
+}
+#main.dashboardViewport .execMeta{
+  margin-top:7px;
+}
+#main.dashboardViewport .executiveMain{
+  min-height:0;
+  overflow:hidden;
+}
+#main.dashboardViewport .executiveTablePanel,
+#main.dashboardViewport .executiveChartPanel,
+#main.dashboardViewport .executiveAllocPanel{
+  min-height:0;
+  overflow:hidden;
+}
+#main.dashboardViewport .recentOrders{
+  min-height:0;
+  height:132px;
+  overflow:hidden;
+}
+#main.dashboardViewport .recentOrderGrid{
+  min-height:82px;
+}
+#main.dashboardViewport .recentOrder{
+  padding:11px 14px;
+}
+#main.dashboardViewport .executiveTable td{
+  height:44px;
+}
+#main.dashboardViewport .level2Workspace{
+  grid-template-rows:106px minmax(0,1fr) 168px;
+}
+#main.dashboardViewport .level2Metric{
+  min-height:0;
+  height:106px;
+  padding:10px 12px;
+}
+#main.dashboardViewport .metricValue{
+  font-size:21px;
+  margin-top:6px;
+}
+#main.dashboardViewport .metricFoot{
+  margin-top:7px;
+}
+#main.dashboardViewport .level2MainGrid{
+  min-height:0;
+  overflow:hidden;
+}
+#main.dashboardViewport .level2OrdersPanel{
+  min-height:0;
+  height:168px;
+  overflow:hidden;
+}
+#main.dashboardViewport .level2OrdersPanel .tableWrap{
+  max-height:120px;
+}
+
+/* System settings: consistent title/content/data scale */
+#main.settingsMain{
+  min-height:calc(100vh - 102px);
+  padding-top:12px;
+}
+.settingsGrid{
+  align-items:stretch;
+  min-height:calc(100vh - 126px);
+}
+.settingsCard{
+  min-height:0!important;
+  height:100%;
+}
+.settingsCard .panelHead{
+  min-height:52px;
+  padding:11px 14px;
+}
+.settingsCard .panelHead h2{
+  font-size:15px;
+  font-weight:700;
+  line-height:1.25;
+}
+.settingsCard .panelHead p{
+  font-size:10px;
+  font-weight:400;
+  margin-top:3px;
+}
+.settingsList{
+  gap:8px;
+  padding:13px;
+}
+.settingsList .listItem{
+  min-height:46px;
+  padding:10px 12px;
+}
+.settingsList .listItem .top{
+  align-items:center;
+}
+.settingsList .listItem .top>span:first-child{
+  color:#899cad;
+  font-size:12px;
+  font-weight:400!important;
+  line-height:1.35;
+}
+.settingsList .listItem .top>span:last-child{
+  color:#e2e9ef;
+  font-size:13px;
+  font-weight:400!important;
+  line-height:1.35;
+  text-align:right;
+  max-width:72%;
+  white-space:normal;
+  word-break:break-word;
+}
+.settingsList .listItem .top>span.up{
+  color:#2ed3a0;
+}
+@media(max-height:820px) and (min-width:1280px){
+  #main.dashboardViewport .executiveDashboard{
+    grid-template-rows:100px minmax(0,1fr) 118px;
+  }
+  #main.dashboardViewport .execStat{
+    height:100px;
+    padding:9px 12px 8px;
+  }
+  #main.dashboardViewport .execValue{font-size:20px}
+  #main.dashboardViewport .recentOrders{height:118px}
+  #main.dashboardViewport .executiveTable td{height:40px}
+  #main.dashboardViewport .level2Workspace{
+    grid-template-rows:98px minmax(0,1fr) 150px;
+  }
+  #main.dashboardViewport .level2Metric{height:98px}
+  #main.dashboardViewport .level2OrdersPanel{height:150px}
+}
