@@ -227,7 +227,106 @@ function pageHead(title,sub,actions=""){
   return actions ? `<div class="pageActions"><div class="actions">${actions}</div></div>` : "";
 }
 
+
+function renderLevel2Dashboard(){
+  const customers=state.customers;
+  const openPositions=state.positions.filter(p=>Number(p.quantity)>0);
+  const buys=state.trades.filter(t=>t.side==="buy");
+  const sells=state.trades.filter(t=>t.side==="sell");
+  const holdingCustomerIds=new Set(openPositions.map(p=>p.customer_id));
+  const realized=state.positions.reduce((sum,p)=>sum+Number(p.realized_pnl||0),0);
+  const costBasis=openPositions.reduce((sum,p)=>sum+(Number(p.quantity)*Number(p.avg_cost)),0);
+  const recentTrades=state.trades.slice(0,8);
+
+  $("#main").innerHTML=`
+    <section class="level2Workspace">
+      <div class="level2MetricGrid">
+        <article class="level2Metric accent"><div class="metricLabel">MY CLIENTS</div><div class="metricTitle">我的客户</div><div class="metricValue">${customers.length}</div><div class="metricFoot">仅当前二级账户客户</div></article>
+        <article class="level2Metric"><div class="metricLabel">HOLDING CLIENTS</div><div class="metricTitle">持仓客户</div><div class="metricValue">${holdingCustomerIds.size}</div><div class="metricFoot">持有至少 1 个标的</div></article>
+        <article class="level2Metric"><div class="metricLabel">OPEN POSITIONS</div><div class="metricTitle">当前持仓</div><div class="metricValue">${openPositions.length}</div><div class="metricFoot">客户 × 股票</div></article>
+        <article class="level2Metric"><div class="metricLabel">BUY ORDERS</div><div class="metricTitle">累计买进</div><div class="metricValue">${buys.length}</div><div class="metricFoot">完整买入流水</div></article>
+        <article class="level2Metric"><div class="metricLabel">SELL ORDERS</div><div class="metricTitle">累计卖出</div><div class="metricValue">${sells.length}</div><div class="metricFoot">完整卖出流水</div></article>
+      </div>
+
+      <div class="level2MainGrid">
+        <article class="panel level2PositionsPanel">
+          <div class="panelHead compact"><div><h2>客户持仓总览</h2><p>CLIENT HOLDINGS · 自动来自买卖流水</p></div><span class="headMeta">${openPositions.length} POSITIONS</span></div>
+          <div class="tableWrap">
+            <table class="dataTable level2HoldingsTable">
+              <thead><tr><th>客户</th><th>股票</th><th>市场</th><th>数量</th><th>平均成本</th><th>成本基准</th><th>已实现盈亏</th><th>操作</th></tr></thead>
+              <tbody>
+                ${openPositions.map(p=>`<tr>
+                  <td class="customerLink link" data-id="${p.customer_id}">${esc(p.customers?.name||"--")}</td>
+                  <td class="symbolCell">${esc(p.symbol)}</td>
+                  <td>${esc(p.market)}</td>
+                  <td class="goldData">${num(p.quantity,4)}</td>
+                  <td>${money(p.avg_cost,p.currency)}</td>
+                  <td>${money(Number(p.quantity)*Number(p.avg_cost),p.currency)}</td>
+                  <td class="${Number(p.realized_pnl)>=0?"up":"down"}">${money(p.realized_pnl,p.currency)}</td>
+                  <td><button class="tableAction customerLink" data-id="${p.customer_id}">详情 ↗</button></td>
+                </tr>`).join("")}
+                ${openPositions.length?"":'<tr><td colspan="8"><div class="empty executiveEmpty">暂无客户持仓</div></td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <div class="level2SideStack">
+          <article class="panel">
+            <div class="panelHead compact"><div><h2>买卖结构</h2><p>ORDER MIX</p></div><span class="headMeta">${state.trades.length} ORDERS</span></div>
+            <div class="chartBox level2Chart"><canvas id="level2SideChart"></canvas></div>
+          </article>
+          <article class="panel level2PnlPanel">
+            <div class="panelHead compact"><div><h2>账户业务汇总</h2><p>PORTFOLIO BASIS</p></div></div>
+            <div class="level2SummaryList">
+              <div><span>持仓成本基准</span><span>${costBasis?num(costBasis,2):"—"}</span></div>
+              <div><span>已实现盈亏</span><span class="${realized>=0?"up":"down"}">${num(realized,2)}</span></div>
+              <div><span>客户总数</span><span>${customers.length}</span></div>
+              <div><span>交易总数</span><span>${state.trades.length}</span></div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <article class="panel level2OrdersPanel">
+        <div class="panelHead compact"><div><h2>最近买进 / 卖出明细</h2><p>RECENT CLIENT ORDERS · 罗马尼亚时间</p></div><span class="headMeta">${recentTrades.length} RECENT</span></div>
+        <div class="tableWrap">
+          <table class="dataTable level2OrdersTable">
+            <thead><tr><th>时间</th><th>客户</th><th>股票</th><th>方向</th><th>数量</th><th>成交价</th><th>成交金额</th><th>手续费</th><th>备注</th></tr></thead>
+            <tbody>
+              ${recentTrades.map(t=>`<tr>
+                <td>${dt(t.traded_at)}</td>
+                <td class="customerLink link" data-id="${t.customer_id}">${esc(t.customers?.name||"--")}</td>
+                <td class="symbolCell">${esc(t.symbol)}</td>
+                <td><span class="sideBadge ${t.side}">${t.side==="buy"?"买进":"卖出"}</span></td>
+                <td>${num(t.quantity,4)}</td>
+                <td>${money(t.price,t.currency)}</td>
+                <td>${money(Number(t.quantity)*Number(t.price),t.currency)}</td>
+                <td>${money(t.fees,t.currency)}</td>
+                <td>${esc(t.note||"--")}</td>
+              </tr>`).join("")}
+              ${recentTrades.length?"":'<tr><td colspan="9"><div class="empty executiveEmpty">暂无买卖记录</div></td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </section>`;
+  drawLevel2Charts(buys,sells);
+  bindCustomerLinks();
+}
+
+function drawLevel2Charts(buys,sells){
+  const el=$("#level2SideChart");
+  if(!el)return;
+  state.charts.level2Side=new Chart(el,{
+    type:"doughnut",
+    data:{labels:["买进","卖出"],datasets:[{data:[buys.length,sells.length],backgroundColor:["#2ed3a0","#d93447"],borderColor:["#2ed3a0","#d93447"],borderWidth:1}]},
+    options:{...chartOpts(),cutout:"68%"}
+  });
+}
+
 async function renderDashboard(){
+  if(state.profile?.role==="level2"){renderLevel2Dashboard();return;}
   const openPositions=state.positions.filter(p=>Number(p.quantity)>0);
   const holdingCustomerIds=[...new Set(openPositions.map(p=>p.customer_id))];
   const teamCount=state.profile.role==="admin"
@@ -405,54 +504,139 @@ async function saveCustomer(e){
 
 async function openCustomer(id){
   const c=state.customers.find(x=>x.id===id);if(!c)return;state.activeCustomer=c;
-  const pos=state.positions.filter(x=>x.customer_id===id);const trades=state.trades.filter(x=>x.customer_id===id).sort((a,b)=>new Date(a.traded_at)-new Date(b.traded_at));const follows=state.followups.filter(x=>x.customer_id===id);
-  const symbols=[...new Set(pos.filter(p=>Number(p.quantity)>0).map(p=>p.symbol))];const q=await fetchQuotes(symbols,{realtimeOnly:true});
-  const livePos=pos.filter(p=>q[p.symbol]?.realtime===true&&Number.isFinite(Number(q[p.symbol]?.price)));
+  const pos=state.positions.filter(x=>x.customer_id===id);
+  const trades=state.trades.filter(x=>x.customer_id===id).sort((a,b)=>new Date(b.traded_at)-new Date(a.traded_at));
+  const chartTrades=[...trades].sort((a,b)=>new Date(a.traded_at)-new Date(b.traded_at));
+  const follows=state.followups.filter(x=>x.customer_id===id);
+  const buys=trades.filter(t=>t.side==="buy");
+  const sells=trades.filter(t=>t.side==="sell");
+  const openPos=pos.filter(p=>Number(p.quantity)>0);
+  const symbols=[...new Set(openPos.map(p=>p.symbol))];
+  const q=await fetchQuotes(symbols,{realtimeOnly:false});
+  const livePos=openPos.filter(p=>q[p.symbol]?.realtime===true&&Number.isFinite(Number(q[p.symbol]?.price)));
   const currentValue=livePos.reduce((a,p)=>a+Number(p.quantity)*Number(q[p.symbol].price),0);
   const unreal=livePos.reduce((a,p)=>a+(Number(p.quantity)*(Number(q[p.symbol].price)-Number(p.avg_cost))),0);
+  const realized=pos.reduce((a,p)=>a+Number(p.realized_pnl||0),0);
+  const costBasis=openPos.reduce((a,p)=>a+(Number(p.quantity)*Number(p.avg_cost)),0);
+
   $("#modalRoot").innerHTML=`
-    <section class="customerDetail">
-      <div class="detailTop"><button class="btn" id="backCustomers">← 返回</button><div><h1>${esc(c.name)}</h1><span class="muted">${esc(c.customer_code)} · ${customerStatus(c.status)}</span></div><div style="margin-left:auto" class="actions"><button class="btn gold" id="addTradeBtn">新增交易</button><button class="btn" id="addFollowBtn">记录跟进</button></div></div>
-      <div class="detailBody">
-        <section class="kpis">
-          <article class="kpi"><label>当前持仓市值</label><strong>${livePos.length?money(currentValue,pos[0]?.currency||"USD"):"--"}</strong><small>仅使用已确认实时行情</small></article>
-          <article class="kpi"><label>未实现盈亏</label><strong class="${unreal>=0?"up":"down"}">${livePos.length?money(unreal,pos[0]?.currency||"USD"):"--"}</strong><small>非实时数据不参与计算</small></article>
-          <article class="kpi"><label>持仓股票</label><strong>${pos.filter(p=>Number(p.quantity)>0).length}</strong><small>当前数量大于 0</small></article>
-          <article class="kpi"><label>累计交易</label><strong>${trades.length}</strong><small>买入 + 卖出</small></article>
-          <article class="kpi"><label>跟进记录</label><strong>${follows.length}</strong><small>客户沟通历史</small></article>
-          <article class="kpi"><label>最近跟进</label><strong style="font-size:14px">${follows[0]?dt(follows[0].created_at):"--"}</strong><small>最近一条记录</small></article>
-        </section>
-        <div class="grid2">
-          <article class="panel"><div class="panelHead"><div><h2>当前持仓</h2><p>买卖记录自动计算，不手工伪造持仓</p></div></div><div class="tableWrap">${positionTable(pos,q)}</div></article>
-          <article class="panel"><div class="panelHead"><div><h2>持仓结构</h2><p>鼠标经过图表查看数据</p></div></div><div class="chartBox"><canvas id="customerHoldingsChart"></canvas></div></article>
+    <section class="customerDetail clientPortfolioDetail">
+      <div class="detailTop portfolioTop">
+        <button class="btn" id="backCustomers">← 返回</button>
+        <div class="clientIdentity">
+          <h1>${esc(c.name)}</h1>
+          <div class="clientMetaLine"><span>${esc(c.customer_code)}</span><span>·</span><span>${customerStatus(c.status)}</span><span>·</span><span>${esc(c.region||"未设置地区")}</span></div>
         </div>
-        <div class="grid2" style="margin-top:13px">
-          <article class="panel"><div class="panelHead"><div><h2>交易轨迹</h2><p>按时间累计净投入</p></div></div><div class="chartBox"><canvas id="customerTradeChart"></canvas></div></article>
-          <article class="panel"><div class="panelHead"><div><h2>客户资料</h2><p>基础信息</p></div></div><div class="panelBody list">
-            <div class="listItem"><div class="top"><span>负责人</span><span>${esc(state.staff.find(s=>s.id===c.owner_user_id)?.display_name||"--")}</span></div></div>
-            <div class="listItem"><div class="top"><span>电话</span><span>${esc(c.phone||"--")}</span></div></div>
-            <div class="listItem"><div class="top"><span>邮箱</span><span>${esc(c.email||"--")}</span></div></div>
-            <div class="listItem"><div class="top"><span>地区</span><span>${esc(c.region||"--")}</span></div></div>
-            <div class="listItem"><p>${esc(c.notes||"暂无备注")}</p></div>
-          </div></article>
-        </div>
-        <div class="grid2" style="margin-top:13px">
-          <article class="panel"><div class="panelHead"><div><h2>买卖记录</h2><p>完整交易流水</p></div></div><div class="tableWrap">${tradeTable(trades)}</div></article>
-          <article class="panel"><div class="panelHead"><div><h2>跟进时间轴</h2><p>沟通与下次跟进</p></div></div><div class="panelBody list">${follows.map(f=>`<div class="listItem"><div class="top"><span>${esc(f.channel)}</span><small>${dt(f.created_at)}</small></div><p>${esc(f.content)}</p>${f.next_followup_at?`<small>下次跟进：${dt(f.next_followup_at)}</small>`:""}</div>`).join("")||'<div class="empty">暂无跟进记录</div>'}</div></article>
+        <div class="portfolioTopActions">
+          <span class="clientOwner">负责人：${esc(state.staff.find(s=>s.id===c.owner_user_id)?.display_name||"--")}</span>
+          <button class="btn gold" id="addTradeBtn">新增交易</button>
+          <button class="btn" id="addFollowBtn">记录跟进</button>
         </div>
       </div>
+
+      <div class="detailBody clientPortfolioBody">
+        <section class="clientMetricStrip">
+          <article><label>持仓成本</label><span>${openPos.length?num(costBasis,2):"—"}</span><small>OPEN COST BASIS</small></article>
+          <article><label>实时市值</label><span>${livePos.length?num(currentValue,2):"—"}</span><small>仅确认实时行情</small></article>
+          <article><label>未实现盈亏</label><span class="${unreal>=0?"up":"down"}">${livePos.length?num(unreal,2):"—"}</span><small>LIVE UNREALIZED</small></article>
+          <article><label>已实现盈亏</label><span class="${realized>=0?"up":"down"}">${num(realized,2)}</span><small>REALIZED P/L</small></article>
+          <article><label>持仓标的</label><span>${openPos.length}</span><small>OPEN POSITIONS</small></article>
+          <article><label>累计交易</label><span>${trades.length}</span><small>${buys.length} 买进 / ${sells.length} 卖出</small></article>
+        </section>
+
+        <section class="clientPortfolioGrid">
+          <article class="panel clientPositionsPanel">
+            <div class="panelHead compact"><div><h2>客户持仓详情</h2><p>POSITIONS · 由买卖记录自动计算</p></div><span class="headMeta">${openPos.length} OPEN</span></div>
+            <div class="tableWrap">${positionTable(pos,q)}</div>
+          </article>
+          <article class="panel clientProfilePanel">
+            <div class="panelHead compact"><div><h2>持仓结构</h2><p>ALLOCATION BY COST BASIS</p></div></div>
+            <div class="chartBox clientAllocationChart"><canvas id="customerHoldingsChart"></canvas></div>
+            <div class="clientProfileMini">
+              <div><span>电话</span><span>${esc(c.phone||"--")}</span></div>
+              <div><span>邮箱</span><span>${esc(c.email||"--")}</span></div>
+              <div><span>风险级别</span><span>${esc(c.risk_level||"--")}</span></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="clientTradeSplit">
+          <article class="panel tradeSidePanel buyPanel">
+            <div class="panelHead compact"><div><h2>买进明细</h2><p>BUY ORDERS</p></div><span class="headMeta">${buys.length} BUY</span></div>
+            <div class="tableWrap">${tradeSideTable(buys,"buy")}</div>
+          </article>
+          <article class="panel tradeSidePanel sellPanel">
+            <div class="panelHead compact"><div><h2>卖出明细</h2><p>SELL ORDERS</p></div><span class="headMeta">${sells.length} SELL</span></div>
+            <div class="tableWrap">${tradeSideTable(sells,"sell")}</div>
+          </article>
+        </section>
+
+        <section class="clientBottomGrid">
+          <article class="panel">
+            <div class="panelHead compact"><div><h2>交易资金轨迹</h2><p>NET CAPITAL FLOW · 罗马尼亚时间</p></div></div>
+            <div class="chartBox clientTradeChart"><canvas id="customerTradeChart"></canvas></div>
+          </article>
+          <article class="panel">
+            <div class="panelHead compact"><div><h2>跟进时间轴</h2><p>FOLLOW-UP HISTORY</p></div><span class="headMeta">${follows.length} NOTES</span></div>
+            <div class="panelBody clientFollowList">
+              ${follows.map(f=>`<div class="clientFollowItem"><div><span class="followChannel">${esc(f.channel)}</span><span>${dt(f.created_at)}</span></div><p>${esc(f.content)}</p>${f.next_followup_at?`<small>下次跟进：${dt(f.next_followup_at)}</small>`:""}</div>`).join("")||'<div class="empty">暂无跟进记录</div>'}
+            </div>
+          </article>
+        </section>
+
+        <article class="panel allTradesPanel">
+          <div class="panelHead compact"><div><h2>全部买卖流水</h2><p>COMPLETE ORDER LEDGER</p></div><span class="headMeta">${trades.length} ORDERS</span></div>
+          <div class="tableWrap">${tradeTable(trades)}</div>
+        </article>
+      </div>
     </section>`;
+
   $("#backCustomers").onclick=()=>{$("#modalRoot").innerHTML="";state.activeCustomer=null};
   $("#addTradeBtn").onclick=()=>openTradeForm(c);
   $("#addFollowBtn").onclick=()=>openFollowForm(c);
-  drawCustomerCharts(pos,trades,q);
+  drawCustomerCharts(pos,chartTrades,q);
 }
 
 function positionTable(rows,q){
-  return `<table class="dataTable"><thead><tr><th>股票</th><th>市场</th><th>数量</th><th>平均成本</th><th>实时价</th><th>未实现盈亏</th><th>已实现盈亏</th></tr></thead><tbody>${rows.filter(p=>Number(p.quantity)>0||Number(p.realized_pnl)!==0).map(p=>{const live=q[p.symbol]?.realtime===true&&Number.isFinite(Number(q[p.symbol]?.price));const last=live?Number(q[p.symbol].price):null,u=live?Number(p.quantity)*(last-Number(p.avg_cost)):null;return`<tr><td class="link">${esc(p.symbol)}</td><td>${esc(p.market)}</td><td>${num(p.quantity,4)}</td><td>${money(p.avg_cost,p.currency)}</td><td>${live?money(last,p.currency):'<span class="delayBadge">实时未确认</span>'}</td><td class="${u==null?"":u>=0?"up":"down"}">${u==null?"--":money(u,p.currency)}</td><td class="${Number(p.realized_pnl)>=0?"up":"down"}">${money(p.realized_pnl,p.currency)}</td></tr>`}).join("")}</tbody></table>`
+  const visible=rows.filter(p=>Number(p.quantity)>0||Number(p.realized_pnl)!==0);
+  return `<table class="dataTable portfolioTable"><thead><tr><th>股票</th><th>市场</th><th>数量</th><th>平均成本</th><th>成本基准</th><th>行情价</th><th>市值</th><th>未实现盈亏</th><th>已实现盈亏</th></tr></thead><tbody>${visible.map(p=>{
+    const usable=!q[p.symbol]?.error&&Number.isFinite(Number(q[p.symbol]?.price));
+    const live=usable&&q[p.symbol]?.realtime===true;
+    const last=usable?Number(q[p.symbol].price):null;
+    const mv=last==null?null:Number(p.quantity)*last;
+    const u=last==null?null:Number(p.quantity)*(last-Number(p.avg_cost));
+    const badge=live?'<span class="liveBadge">实时</span>':usable?'<span class="delayBadge">参考</span>':'<span class="delayBadge">无行情</span>';
+    return `<tr>
+      <td class="symbolCell">${esc(p.symbol)}</td>
+      <td>${esc(p.market)}</td>
+      <td class="goldData">${num(p.quantity,4)}</td>
+      <td>${money(p.avg_cost,p.currency)}</td>
+      <td>${money(Number(p.quantity)*Number(p.avg_cost),p.currency)}</td>
+      <td>${last==null?"--":money(last,p.currency)} ${badge}</td>
+      <td>${mv==null?"--":money(mv,p.currency)}</td>
+      <td class="${u==null?"":u>=0?"up":"down"}">${u==null?"--":money(u,p.currency)}</td>
+      <td class="${Number(p.realized_pnl)>=0?"up":"down"}">${money(p.realized_pnl,p.currency)}</td>
+    </tr>`
+  }).join("")}${visible.length?"":'<tr><td colspan="9"><div class="empty">暂无持仓数据</div></td></tr>'}</tbody></table>`
 }
+
+function tradeSideTable(rows,side){
+  return `<table class="dataTable tradeDetailTable"><thead><tr><th>时间</th><th>股票</th><th>数量</th><th>成交价</th><th>成交金额</th><th>手续费</th></tr></thead><tbody>${rows.map(t=>`<tr>
+    <td>${dt(t.traded_at)}</td><td class="symbolCell">${esc(t.symbol)}</td><td>${num(t.quantity,4)}</td><td>${money(t.price,t.currency)}</td><td class="${side==="buy"?"goldData":"up"}">${money(Number(t.quantity)*Number(t.price),t.currency)}</td><td>${money(t.fees,t.currency)}</td>
+  </tr>`).join("")}${rows.length?"":`<tr><td colspan="6"><div class="empty">暂无${side==="buy"?"买进":"卖出"}记录</div></td></tr>`}</tbody></table>`
+}
+
 function tradeTable(rows){
-  return `<table class="dataTable"><thead><tr><th>时间</th><th>股票</th><th>类型</th><th>数量</th><th>价格</th><th>手续费</th></tr></thead><tbody>${rows.map(t=>`<tr><td>${dt(t.traded_at)}</td><td class="link">${esc(t.symbol)}</td><td class="${t.side==="buy"?"up":"down"}">${t.side==="buy"?"买入":"卖出"}</td><td>${num(t.quantity,4)}</td><td>${money(t.price,t.currency)}</td><td>${money(t.fees,t.currency)}</td></tr>`).join("")}</tbody></table>`
+  return `<table class="dataTable completeTradeTable"><thead><tr><th>时间</th><th>股票</th><th>方向</th><th>数量</th><th>价格</th><th>成交金额</th><th>手续费</th><th>备注</th></tr></thead><tbody>${rows.map(t=>`<tr>
+    <td>${dt(t.traded_at)}</td>
+    <td class="symbolCell">${esc(t.symbol)}</td>
+    <td><span class="sideBadge ${t.side}">${t.side==="buy"?"买进":"卖出"}</span></td>
+    <td>${num(t.quantity,4)}</td>
+    <td>${money(t.price,t.currency)}</td>
+    <td>${money(Number(t.quantity)*Number(t.price),t.currency)}</td>
+    <td>${money(t.fees,t.currency)}</td>
+    <td>${esc(t.note||"--")}</td>
+  </tr>`).join("")}${rows.length?"":'<tr><td colspan="8"><div class="empty">暂无交易记录</div></td></tr>'}</tbody></table>`
 }
 
 function drawCustomerCharts(pos,trades,q){
