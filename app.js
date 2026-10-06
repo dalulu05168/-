@@ -219,6 +219,7 @@ async function refreshAll(){
 
 async function renderView(){
   Object.values(state.charts).forEach(x=>{try{x.destroy()}catch{}});state.charts={};
+  $("#main").className="";
   const f={dashboard:renderDashboard,customers:renderCustomers,personnel:renderPersonnel,trades:renderTrades,positions:renderPositions,market:renderMarket,reports:renderReports,settings:renderSettings}[state.activeView]||renderDashboard;
   await f();
 }
@@ -229,6 +230,7 @@ function pageHead(title,sub,actions=""){
 
 
 function renderLevel2Dashboard(){
+  $("#main").classList.add("dashboardViewport");
   const customers=state.customers;
   const openPositions=state.positions.filter(p=>Number(p.quantity)>0);
   const buys=state.trades.filter(t=>t.side==="buy");
@@ -326,6 +328,7 @@ function drawLevel2Charts(buys,sells){
 }
 
 async function renderDashboard(){
+  $("#main").classList.add("dashboardViewport");
   if(state.profile?.role==="level2"){renderLevel2Dashboard();return;}
   const openPositions=state.positions.filter(p=>Number(p.quantity)>0);
   const holdingCustomerIds=[...new Set(openPositions.map(p=>p.customer_id))];
@@ -810,11 +813,12 @@ async function renderReports(){
 }
 
 async function renderSettings(){
-  $("#main").innerHTML=pageHead("系统设置","当前账户与数据连接状态。")+`
-    <section class="grid3">
-      <article class="panel"><div class="panelHead"><div><h2>当前账户</h2><p>登录身份</p></div></div><div class="panelBody list"><div class="listItem"><div class="top"><span>账号</span><span>${esc(state.profile.username)}</span></div></div><div class="listItem"><div class="top"><span>姓名</span><span>${esc(state.profile.display_name)}</span></div></div><div class="listItem"><div class="top"><span>角色</span><span>${roleName(state.profile.role)}</span></div></div></div></article>
-      <article class="panel"><div class="panelHead"><div><h2>数据库</h2><p>Supabase</p></div></div><div class="panelBody list"><div class="listItem"><div class="top"><span>项目</span><span>brantone-veyor-crm</span></div></div><div class="listItem"><div class="top"><span>区域</span><span>Singapore</span></div></div><div class="listItem"><div class="top"><span>RLS</span><span class="up">已启用</span></div></div></div></article>
-      <article class="panel"><div class="panelHead"><div><h2>行情数据</h2><p>当前模式</p></div></div><div class="panelBody list"><div class="listItem"><div class="top"><span>覆盖市场</span><span>RO / US / FR / DE / GB / IT / ES / NL / CH / PL / JP</span></div></div><div class="listItem"><div class="top"><span>数据规则</span><span>实时优先；非实时必须明确标注</span></div></div><div class="listItem"><div class="top"><span>罗马尼亚</span><span>BVB 官方；无实时权限时回退官方 15 分钟延迟</span></div></div></div></article>
+  $("#main").classList.add("settingsMain");
+  $("#main").innerHTML=`
+    <section class="grid3 settingsGrid">
+      <article class="panel settingsCard"><div class="panelHead"><div><h2>当前账户</h2><p>登录身份</p></div></div><div class="panelBody list settingsList"><div class="listItem"><div class="top"><span>账号</span><span>${esc(state.profile.username)}</span></div></div><div class="listItem"><div class="top"><span>姓名</span><span>${esc(state.profile.display_name)}</span></div></div><div class="listItem"><div class="top"><span>角色</span><span>${roleName(state.profile.role)}</span></div></div></div></article>
+      <article class="panel settingsCard"><div class="panelHead"><div><h2>数据库</h2><p>Supabase</p></div></div><div class="panelBody list settingsList"><div class="listItem"><div class="top"><span>项目</span><span>brantone-veyor-crm</span></div></div><div class="listItem"><div class="top"><span>区域</span><span>Singapore</span></div></div><div class="listItem"><div class="top"><span>RLS</span><span class="up">已启用</span></div></div></div></article>
+      <article class="panel settingsCard"><div class="panelHead"><div><h2>行情数据</h2><p>当前模式</p></div></div><div class="panelBody list settingsList"><div class="listItem"><div class="top"><span>覆盖市场</span><span>RO / US / FR / DE / GB / IT / ES / NL / CH / PL / JP</span></div></div><div class="listItem"><div class="top"><span>数据规则</span><span>实时优先；非实时必须明确标注</span></div></div><div class="listItem"><div class="top"><span>罗马尼亚</span><span>BVB 官方；无实时权限时回退官方 15 分钟延迟</span></div></div></div></article>
     </section>`;
 }
 
