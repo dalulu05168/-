@@ -1743,3 +1743,589 @@ html,body{
 @media(min-width:1280px){
   body{min-width:1280px}
 }
+
+
+/* =========================================================
+   CANVA UNIFIED TERMINAL DESIGN SYSTEM
+   Applies the main dashboard visual language to every page.
+   Typography rule: only page/module titles may be bold.
+   ========================================================= */
+:root{
+  --tv-bg:#0b0910;
+  --tv-bg-2:#111016;
+  --tv-surface:#17141b;
+  --tv-surface-2:#1d1921;
+  --tv-surface-3:#221e26;
+  --tv-line:#2c2831;
+  --tv-line-soft:#24202a;
+  --tv-green:#14e76d;
+  --tv-green-soft:#0e2c1b;
+  --tv-gold:#d9ad3d;
+  --tv-red:#ff626e;
+  --tv-text:#edf1ee;
+  --tv-text-2:#aaa6ae;
+  --tv-text-3:#77727d;
+  --tv-shadow:0 16px 40px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.02);
+  --tv-radius:18px;
+}
+
+/* global background + typography */
+html,body{
+  background:
+    radial-gradient(circle at 86% 0,rgba(20,231,109,.035),transparent 28%),
+    radial-gradient(circle at 6% 100%,rgba(126,80,150,.06),transparent 34%),
+    linear-gradient(180deg,#0b0910,#0d0b12 60%,#09080d);
+  color:var(--tv-text);
+}
+body,button,input,select,textarea,.dataTable,.listItem,.marketRow,.chip,.romaniaClock,.sysok{
+  font-weight:400!important;
+}
+h1,h2,h3,.panelHead h2,.modalHead h2,.loginCard h2,.detailTop h1{
+  font-weight:700!important;
+}
+strong,b{
+  font-weight:400!important;
+}
+
+/* core surface language */
+.panel,
+.kpi,
+.execStat,
+.level2Metric,
+.settingsCard,
+.listItem,
+.marketRow,
+.loginCard,
+.modalCard,
+.clientMetricStrip article,
+.clientFollowItem,
+.terminalPositionCard,
+.terminalFormCard,
+.terminalOrderPanel,
+.terminalChartCard,
+.tradeflareRail,
+.terminalTicker{
+  background:linear-gradient(180deg,var(--tv-surface-2),var(--tv-surface));
+  border-color:var(--tv-line);
+  border-radius:var(--tv-radius);
+  box-shadow:var(--tv-shadow);
+}
+.panel:hover,
+.kpi:hover,
+.execStat:hover,
+.level2Metric:hover,
+.settingsCard:hover,
+.listItem:hover,
+.marketRow:hover,
+.loginCard:hover,
+.clientMetricStrip article:hover,
+.clientFollowItem:hover,
+.terminalPositionCard:hover,
+.terminalFormCard:hover{
+  transform:translateY(-2px);
+  border-color:#3a4d40;
+  box-shadow:0 18px 42px rgba(0,0,0,.34),0 0 0 1px rgba(20,231,109,.05),inset 0 1px 0 rgba(255,255,255,.025);
+}
+
+/* panel header scale */
+.panelHead,
+.panelHead.compact{
+  min-height:48px;
+  padding:10px 14px;
+  border-bottom:1px solid var(--tv-line);
+}
+.panelHead h2,
+.panelHead.compact h2{
+  margin:0;
+  font-size:14px;
+  line-height:1.2;
+  color:var(--tv-text);
+}
+.panelHead p,
+.panelHead.compact p{
+  margin:3px 0 0;
+  font-size:9px;
+  line-height:1.3;
+  color:var(--tv-text-3);
+  letter-spacing:.7px;
+  font-weight:400!important;
+}
+.headMeta{
+  color:#6d6872;
+  font-size:9px;
+  letter-spacing:1.2px;
+  font-weight:400!important;
+}
+
+/* inputs/buttons/selects */
+.input,.select,.textarea{
+  min-height:38px;
+  border:1px solid var(--tv-line);
+  border-radius:11px;
+  background:#151219;
+  color:var(--tv-text);
+  font-size:12px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.014);
+}
+.input:hover,.select:hover,.textarea:hover,
+.input:focus,.select:focus,.textarea:focus{
+  border-color:#3f5546;
+  box-shadow:0 8px 20px rgba(0,0,0,.18),0 0 0 1px rgba(20,231,109,.04);
+  outline:none;
+}
+.input::placeholder,.textarea::placeholder{color:#68646d}
+.btn{
+  min-height:36px;
+  padding:7px 11px;
+  border:1px solid var(--tv-line);
+  border-radius:10px;
+  background:#1c1820;
+  color:#b9b6bd;
+  font-size:11px;
+  font-weight:400!important;
+}
+.btn:hover{
+  color:#e6e9e6;
+  border-color:#3d4f42;
+  background:#211d24;
+  transform:translateY(-2px);
+}
+.btn.primary,.terminalPrimary{
+  border-color:var(--tv-green);
+  background:var(--tv-green);
+  color:#071109;
+  box-shadow:0 0 18px rgba(20,231,109,.14);
+}
+.btn.gold{
+  border-color:#62531e;
+  background:#241f10;
+  color:#e6bd49;
+}
+.btn.danger{
+  border-color:#5f3038;
+  background:#241216;
+  color:#ff818b;
+}
+
+/* tables */
+.dataTable{
+  width:100%;
+  color:#cfd5d1;
+  font-size:11px;
+}
+.dataTable th{
+  height:38px;
+  padding:9px 12px;
+  background:#16131a;
+  border-bottom:1px solid var(--tv-line);
+  color:#6f6b74;
+  font-size:10px;
+  letter-spacing:.3px;
+  font-weight:400!important;
+}
+.dataTable td{
+  height:44px;
+  padding:9px 12px;
+  border-bottom:1px solid #24212a;
+  color:#d3d8d4;
+  font-size:11px;
+  font-weight:400!important;
+}
+.dataTable tbody tr{
+  transition:background .14s ease,box-shadow .14s ease;
+}
+.dataTable tbody tr:hover{
+  background:rgba(20,231,109,.025);
+  box-shadow:inset 2px 0 0 rgba(20,231,109,.5);
+}
+.link,.symbolCell{color:#eef2ee!important}
+.goldData{color:var(--tv-gold)!important}
+.up{color:#2de889!important}
+.down{color:#ff6974!important}
+
+/* page action strip */
+.pageActions{
+  height:38px;
+  min-height:38px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  margin:0;
+}
+.pageActions .actions{gap:7px}
+
+/* login page - same terminal identity */
+.loginPage{
+  width:100vw;
+  height:100vh;
+  min-height:0;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns:minmax(0,1.2fr) minmax(360px,.62fr);
+  background:
+    radial-gradient(circle at 14% 26%,rgba(20,231,109,.055),transparent 30%),
+    radial-gradient(circle at 8% 88%,rgba(107,72,132,.08),transparent 32%),
+    linear-gradient(135deg,#0b0910,#111017 58%,#0a090e);
+}
+.loginHero{
+  position:relative;
+  min-height:0;
+  padding:7vw;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  background:transparent;
+  overflow:hidden;
+}
+.loginHero::after{
+  content:"";
+  position:absolute;
+  left:7vw;right:7vw;bottom:10vh;
+  height:1px;
+  background:linear-gradient(90deg,var(--tv-green),transparent 72%);
+  opacity:.5;
+}
+.heroMark{
+  color:var(--tv-green);
+  font-family:Georgia,serif;
+  font-size:64px;
+  letter-spacing:1px;
+  text-shadow:0 0 24px rgba(20,231,109,.10);
+}
+.heroRule{
+  width:86px;
+  height:2px;
+  margin:17px 0;
+  background:linear-gradient(90deg,var(--tv-green),var(--tv-gold));
+}
+.loginHero h1{
+  max-width:760px;
+  margin:0 0 12px;
+  color:#f0f3f0;
+  font-size:36px;
+  line-height:1.16;
+}
+.loginHero p{
+  max-width:700px;
+  color:#77727d;
+  font-size:12px;
+  line-height:1.7;
+}
+.loginSide{
+  min-height:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:34px;
+  background:rgba(8,7,11,.28);
+  border-left:1px solid #242029;
+}
+.loginCard{
+  width:min(430px,100%);
+  padding:24px;
+  border-radius:22px;
+}
+.loginCard h2{
+  margin:0;
+  font-size:16px;
+  color:#eef2ee;
+}
+.loginCard>p{
+  margin:6px 0 16px;
+  color:#77727d;
+  font-size:10px;
+  line-height:1.5;
+}
+.loginCard .field{margin-bottom:10px}
+.loginCard .field label{
+  margin-bottom:5px;
+  color:#77727d;
+  font-size:10px;
+}
+.loginFoot{
+  margin-top:15px;
+  padding-top:12px;
+  border-top:1px solid var(--tv-line);
+  color:#5e5a63;
+  font-size:9px;
+  letter-spacing:.3px;
+}
+
+/* top nav brand language */
+.topbar{
+  background:linear-gradient(180deg,#1b181f,#121017);
+  border-color:var(--tv-line);
+}
+.navFrame{
+  background:#151219;
+  border-color:var(--tv-line);
+}
+.nav button{
+  color:#88838d;
+  font-size:11px;
+}
+.nav button.active{
+  color:#071109;
+  background:var(--tv-green);
+  border-color:var(--tv-green);
+}
+.mark{color:var(--tv-green)}
+.mark small{color:var(--tv-gold)}
+.brandText b{color:#c5cad0}
+.brandText span{color:#6e6a73}
+.sysok{color:#2de889}
+
+/* ADMIN + LEVEL 1 main page */
+#main[data-view="dashboard"] .tradeflareShell{
+  background:transparent;
+}
+.terminalTicker,
+.terminalChartCard,
+.terminalOrderPanel,
+.terminalPositionCard,
+.tradeflareRail{
+  border-color:var(--tv-line);
+}
+
+/* LEVEL 2 dashboard: same visual language as main page */
+.level2Workspace{
+  gap:9px;
+}
+.level2MetricGrid{
+  gap:9px;
+}
+.level2Metric{
+  border-color:var(--tv-line);
+  background:linear-gradient(180deg,#1b181f,#141118);
+}
+.level2Metric.accent{
+  border-color:#3f5947;
+  box-shadow:inset 2px 0 0 var(--tv-green),0 10px 26px rgba(0,0,0,.24);
+}
+.metricLabel{
+  color:#68646d;
+  letter-spacing:1.4px;
+  font-size:8px;
+}
+.metricTitle{
+  color:#8c8791;
+  font-size:11px;
+}
+.metricValue{
+  color:#eef2ee;
+  font-size:22px;
+  font-weight:400!important;
+}
+.metricFoot{
+  color:#605c65;
+  font-size:8px;
+}
+.level2PositionsPanel,
+.level2PnlPanel,
+.level2OrdersPanel,
+.level2SideStack>.panel{
+  background:linear-gradient(180deg,#1b181f,#141118);
+  border-color:var(--tv-line);
+}
+.level2SummaryList>div{
+  border-color:var(--tv-line-soft);
+  background:#151219;
+  color:#77727d;
+}
+.level2SummaryList>div span:last-child{
+  color:#e2e6e2;
+  font-weight:400!important;
+}
+.sideBadge.buy{
+  color:#2ee98a;
+  background:#0c2a1a;
+  border-color:#1d6340;
+}
+.sideBadge.sell{
+  color:#ff7580;
+  background:#2a1115;
+  border-color:#6c3038;
+}
+
+/* customers/personnel/trades/positions - one visual frame */
+#main[data-view="customers"]>.panel,
+#main[data-view="personnel"]>.panel,
+#main[data-view="trades"]>.panel,
+#main[data-view="positions"]>.panel{
+  border-color:var(--tv-line);
+  background:linear-gradient(180deg,#1a171e,#131017);
+}
+#main[data-view="customers"] .panelHead,
+#main[data-view="personnel"] .panelHead,
+#main[data-view="trades"] .panelHead,
+#main[data-view="positions"] .panelHead{
+  background:#17141b;
+}
+.toolbar{gap:7px}
+
+/* market page */
+.marketStatusBar{
+  gap:7px;
+}
+.marketStatus{
+  border-color:var(--tv-line);
+  background:#17141b;
+  color:#8b8790;
+}
+.marketStatus.live{
+  color:#31e98b;
+  border-color:#29513a;
+}
+.marketStatus.blocked{
+  color:#d8ad43;
+  border-color:#57491d;
+}
+.marketControls .select,
+.marketControls .input{
+  background:#151219;
+  border-color:var(--tv-line);
+}
+.marketRow{
+  border-color:var(--tv-line-soft);
+  background:#151219;
+}
+.liveBadge{
+  color:#2ee98a;
+  background:#0c2a1a;
+  border-color:#1d6340;
+}
+.delayBadge{
+  color:#ddb348;
+  background:#271f0e;
+  border-color:#5f4e1d;
+}
+
+/* reports */
+#main[data-view="reports"] .panel{
+  background:linear-gradient(180deg,#1a171e,#131017);
+  border-color:var(--tv-line);
+}
+
+/* settings */
+.settingsGrid{
+  gap:9px;
+}
+.settingsCard{
+  background:linear-gradient(180deg,#1a171e,#131017);
+  border-color:var(--tv-line);
+}
+.settingsList .listItem{
+  min-height:42px;
+  background:#151219;
+  border-color:var(--tv-line-soft);
+}
+.settingsList .listItem .top>span:first-child{
+  color:#77727d;
+  font-size:11px;
+}
+.settingsList .listItem .top>span:last-child{
+  color:#e0e5e1;
+  font-size:12px;
+  font-weight:400!important;
+}
+
+/* customer details and modals */
+.customerDetail{
+  background:
+    radial-gradient(circle at 92% 0,rgba(20,231,109,.025),transparent 25%),
+    linear-gradient(180deg,#0b0910,#0d0b12);
+}
+.detailTop{
+  background:rgba(16,14,20,.97);
+  border-bottom-color:var(--tv-line);
+}
+.clientMetricStrip article,
+.clientPositionsPanel,
+.clientProfilePanel,
+.tradeSidePanel,
+.clientBottomGrid>.panel,
+.allTradesPanel{
+  border-color:var(--tv-line);
+  background:linear-gradient(180deg,#1a171e,#131017);
+}
+.clientProfileMini>div,
+.clientFollowItem{
+  background:#151219;
+  border-color:var(--tv-line-soft);
+}
+.modal{
+  background:rgba(4,3,6,.78);
+}
+.modalCard{
+  background:linear-gradient(180deg,#1b181f,#141118);
+  border-color:#39343e;
+}
+.modalHead{
+  border-bottom-color:var(--tv-line);
+}
+.modalHead h2{
+  font-size:14px;
+}
+
+/* charts */
+.chartBox canvas,
+.terminalChartWrap canvas{
+  cursor:crosshair;
+}
+.chartBox{
+  background:linear-gradient(180deg,rgba(22,19,26,.25),rgba(15,13,18,.10));
+}
+
+/* exact font discipline */
+.nav button,
+.dataTable th,
+.dataTable td,
+.btn,
+.input,
+.select,
+.textarea,
+.listItem,
+.marketRow,
+.metricLabel,
+.metricTitle,
+.metricValue,
+.metricFoot,
+.execEyebrow,
+.execStatHead,
+.execValue,
+.execMeta,
+.tickerStat small,
+.tickerStat span,
+.terminalFieldRow label,
+.terminalFieldRow span,
+.positionMetrics small,
+.positionMetrics span,
+.settingsList span,
+.clientMetricStrip label,
+.clientMetricStrip span,
+.clientMetricStrip small{
+  font-weight:400!important;
+}
+
+/* 16:9 frame discipline: all page bottoms align */
+#main[data-view="customers"]>.panel,
+#main[data-view="personnel"]>.panel,
+#main[data-view="trades"]>.panel,
+#main[data-view="positions"]>.panel,
+#main[data-view="market"]>.grid2,
+#main[data-view="reports"],
+#main[data-view="settings"]>.settingsGrid,
+#main[data-view="dashboard"]>.tradeflareShell,
+#main[data-view="dashboard"]>.level2Workspace{
+  min-height:0;
+  height:100%;
+}
+
+/* mobile fallback without changing desktop 16:9 geometry */
+@media(max-width:1100px){
+  .loginPage{grid-template-columns:1fr}
+  .loginHero{display:none}
+  .loginSide{border-left:0}
+  .topbar{grid-template-columns:190px minmax(0,1fr)}
+  .userArea{grid-column:1/-1}
+}
