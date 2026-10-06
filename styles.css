@@ -2329,3 +2329,369 @@ strong,b{
   .topbar{grid-template-columns:190px minmax(0,1fr)}
   .userArea{grid-column:1/-1}
 }
+
+
+/* === Global module alignment pass: transaction-page baseline === */
+#main[data-view="customers"],
+#main[data-view="personnel"],
+#main[data-view="trades"],
+#main[data-view="positions"]{
+  display:block;
+  height:100%;
+  min-height:0;
+}
+#main .modulePanel{
+  width:100%;
+  height:100%;
+  min-height:0;
+  display:grid;
+  grid-template-rows:56px minmax(0,1fr);
+  overflow:hidden;
+}
+#main .unifiedModuleHead{
+  height:56px;
+  min-height:56px;
+  padding:8px 12px 8px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  border-bottom:1px solid var(--tv-line);
+  overflow:hidden;
+}
+#main .unifiedModuleHead>div:first-child{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+#main .unifiedModuleHead h2{
+  margin:0;
+  font-size:14px;
+  line-height:1.12;
+  color:var(--tv-text);
+  font-weight:700!important;
+  white-space:nowrap;
+}
+#main .unifiedModuleHead p{
+  margin:4px 0 0;
+  font-size:9px;
+  line-height:1.15;
+  color:var(--tv-text-3);
+  font-weight:400!important;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#main .unifiedActions{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:7px;
+  min-width:0;
+  flex-wrap:nowrap;
+}
+#main .unifiedActions .input{
+  width:220px;
+}
+#main .unifiedActions .select{
+  width:128px;
+}
+#main .unifiedActions .btn{
+  white-space:nowrap;
+}
+#main .moduleContent{
+  height:100%;
+  min-height:0;
+  overflow:auto;
+  padding-top:0!important;
+}
+
+/* Remove the old extra action strip so all modules start on the same top line */
+#main[data-view="customers"]>.pageActions,
+#main[data-view="personnel"]>.pageActions,
+#main[data-view="trades"]>.pageActions,
+#main[data-view="positions"]>.pageActions{
+  display:none!important;
+}
+
+/* Market now starts at the exact same y-position as transactions */
+#main[data-view="market"]{
+  display:block;
+  height:100%;
+  min-height:0;
+}
+#main[data-view="market"]>.marketUnifiedGrid{
+  width:100%;
+  height:100%;
+  min-height:0;
+  display:grid;
+  grid-template-columns:minmax(0,1.62fr) minmax(320px,.78fr);
+  gap:8px;
+}
+#main[data-view="market"]>.marketUnifiedGrid>.panel{
+  height:100%;
+  min-height:0;
+  overflow:hidden;
+}
+#main[data-view="market"]>.marketUnifiedGrid>.panel:first-child{
+  display:grid;
+  grid-template-rows:56px auto minmax(0,1fr);
+}
+#main[data-view="market"]>.marketUnifiedGrid>.panel:last-child{
+  display:grid;
+  grid-template-rows:56px minmax(0,1fr);
+}
+#main[data-view="market"] .panelHead{
+  min-height:56px;
+  height:56px;
+  padding:8px 12px 8px 16px;
+  align-items:center;
+}
+#main[data-view="market"] .marketControls{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:nowrap;
+}
+#main[data-view="market"] .marketControls .select{width:118px}
+#main[data-view="market"] .marketControls .input{width:230px}
+#main[data-view="market"] .panelBody{
+  min-height:0;
+}
+#main[data-view="market"] .chartBox,
+#main[data-view="market"] .marketList{
+  min-height:0;
+  overflow:auto;
+}
+
+/* Reports: consistent 56px module title bars and exact shared bottom line */
+#main[data-view="reports"]{
+  height:100%;
+  min-height:0;
+  display:grid;
+  grid-template-rows:minmax(0,.96fr) minmax(0,1.04fr);
+  gap:8px;
+}
+#main[data-view="reports"] .panelHead{
+  height:56px;
+  min-height:56px;
+  padding:8px 12px 8px 16px;
+  align-items:center;
+}
+#main[data-view="reports"]>.grid2,
+#main[data-view="reports"]>.grid2>.panel,
+#main[data-view="reports"]>article.panel{
+  min-height:0;
+  height:100%;
+}
+#main[data-view="reports"]>article.panel{
+  margin-top:0!important;
+}
+
+/* Settings: title bars match all business pages */
+#main[data-view="settings"]{
+  height:100%;
+  min-height:0;
+}
+#main[data-view="settings"]>.settingsGrid{
+  height:100%;
+  min-height:0;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:stretch;
+}
+#main[data-view="settings"] .settingsCard{
+  display:grid;
+  grid-template-rows:56px minmax(0,1fr);
+  height:100%;
+  min-height:0;
+}
+#main[data-view="settings"] .settingsCard .panelHead{
+  height:56px;
+  min-height:56px;
+  padding:8px 12px 8px 16px;
+  align-items:center;
+}
+#main[data-view="settings"] .settingsList{
+  min-height:0;
+  align-content:start;
+}
+
+/* Level 1 / Admin / Level 2 share the exact outer baseline */
+#main[data-view="dashboard"]{
+  height:100%;
+  min-height:0;
+}
+#main[data-view="dashboard"]>.tradeflareShell,
+#main[data-view="dashboard"]>.level2Workspace{
+  width:100%;
+  height:100%;
+  min-height:0;
+  overflow:hidden;
+}
+.level2Workspace{
+  grid-template-rows:104px minmax(0,1fr) 158px!important;
+  gap:8px;
+}
+.level2MainGrid,
+.level2SideStack,
+.level2PositionsPanel,
+.level2PnlPanel,
+.level2OrdersPanel{
+  min-height:0;
+}
+.level2PositionsPanel,
+.level2OrdersPanel,
+.level2SideStack>.panel{
+  overflow:hidden;
+}
+.level2PositionsPanel .panelHead,
+.level2OrdersPanel .panelHead,
+.level2SideStack .panelHead{
+  height:52px;
+  min-height:52px;
+  padding:8px 12px 8px 14px;
+  align-items:center;
+}
+.level2PositionsPanel .tableWrap{
+  height:calc(100% - 52px)!important;
+}
+.level2OrdersPanel .tableWrap{
+  max-height:none!important;
+  height:calc(100% - 52px);
+}
+
+/* Keep the top navigation and content frame fixed between all views */
+.shell{
+  grid-template-rows:72px minmax(0,1fr);
+}
+#main{
+  border-radius:0;
+}
+
+/* Phone/tablet: preserve alignment instead of squeezing the nav into one broken row */
+@media(max-width:1100px){
+  .shell{
+    grid-template-rows:118px minmax(0,1fr);
+    padding:8px 10px 10px;
+    gap:8px;
+  }
+  .topbar{
+    height:118px;
+    min-height:118px;
+    display:grid;
+    grid-template-columns:150px minmax(0,1fr);
+    grid-template-rows:58px 44px;
+    gap:6px 8px;
+    padding:7px 9px;
+    border-radius:18px;
+  }
+  .brand{
+    grid-column:1;
+    grid-row:1;
+  }
+  .brandText b{font-size:12px}
+  .brandText span{font-size:7px;letter-spacing:1px}
+  .mark{font-size:24px}
+  .navFrame{
+    grid-column:2;
+    grid-row:1;
+    height:52px;
+    min-width:0;
+    overflow:hidden;
+  }
+  .nav{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    grid-template-rows:repeat(2,1fr);
+    grid-auto-flow:row;
+    gap:3px;
+  }
+  .nav button{
+    height:auto;
+    min-height:20px;
+    padding:0 4px;
+    border-radius:8px;
+    font-size:9px;
+  }
+  .userArea{
+    grid-column:1 / -1;
+    grid-row:2;
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:5px;
+    min-width:0;
+    overflow:hidden;
+  }
+  .userArea .sysok{display:none}
+  .userArea .chip{
+    max-width:150px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .sysok,.romaniaClock,.chip,.iconBtn{
+    height:34px;
+    padding:0 8px;
+    font-size:9px;
+  }
+  #main .unifiedModuleHead{
+    height:60px;
+    min-height:60px;
+    padding:7px 9px 7px 12px;
+  }
+  #main .modulePanel{
+    grid-template-rows:60px minmax(0,1fr);
+  }
+  #main .unifiedModuleHead p{
+    max-width:260px;
+  }
+  #main .unifiedActions .input{width:148px}
+  #main .unifiedActions .select{width:105px}
+  #main[data-view="market"]>.marketUnifiedGrid{
+    grid-template-columns:1fr;
+    grid-template-rows:minmax(0,1.1fr) minmax(0,.9fr);
+  }
+  #main[data-view="settings"]>.settingsGrid{
+    grid-template-columns:1fr;
+    grid-template-rows:repeat(3,minmax(0,1fr));
+  }
+}
+
+/* Narrow phone: keep function keys on the same title line, shrink controls instead of moving them above */
+@media(max-width:720px){
+  .topbar{
+    grid-template-columns:118px minmax(0,1fr);
+  }
+  .brandText{display:none}
+  #main .unifiedModuleHead{
+    gap:8px;
+  }
+  #main .unifiedModuleHead h2{font-size:13px}
+  #main .unifiedModuleHead p{display:none}
+  #main .unifiedActions{
+    gap:5px;
+    max-width:68%;
+    overflow:hidden;
+  }
+  #main .unifiedActions .input{
+    width:118px;
+    min-width:0;
+    font-size:10px;
+  }
+  #main .unifiedActions .select{
+    width:90px;
+    min-width:0;
+    font-size:10px;
+  }
+  #main .unifiedActions .btn{
+    min-height:34px;
+    padding:6px 8px;
+    font-size:10px;
+  }
+  .dataTable th,.dataTable td{
+    padding-left:9px;
+    padding-right:9px;
+  }
+}
