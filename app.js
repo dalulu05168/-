@@ -600,10 +600,12 @@ function clientAvatar(c){
   return `<div class="clientAvatar ${cls}"><span>${initial}</span></div>`;
 }
 function marketStatusBadge(x){
-  if(!x||x.error||!Number.isFinite(Number(x.price)))return '<span class="delayBadge">暂无数据</span>';
-  if(x.realtime===true)return '<span class="liveBadge">实时</span>';
-  if(Number(x.delaySeconds)===900)return '<span class="delayBadge">官方延迟 15m</span>';
-  return '<span class="delayBadge">非实时</span>';
+  if(!x||x.error||!Number.isFinite(Number(x.price)))return '<span class="quoteTimeBadge">暂无数据</span>';
+  const stamp=x.lastTradeAt?new Date(x.lastTradeAt):null;
+  const time=stamp&&!Number.isNaN(stamp.getTime())
+    ? new Intl.DateTimeFormat("zh-CN",{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit",hour12:false}).format(stamp)
+    : "--:--";
+  return '<span class="quoteTimeBadge">更新 '+esc(time)+'</span>';
 }
 function marketIndexStrip(rows){
   const names={"^GSPC":"S&P 500","^DJI":"Dow Jones","^IXIC":"Nasdaq","^FCHI":"CAC 40","BET.RO":"BET"};
@@ -660,7 +662,7 @@ async function openCustomer(id){
   $("#modalRoot").innerHTML=`
     <section class="customerDetail clientPortfolioDetail shareReady" id="clientSharePage">
       <div class="shareTopbar">
-        <div class="shareBrand" id="exitShareMode" title="截图模式下点击 BV 返回">
+        <div class="shareBrand">
           <div class="shareBrandMark">BV<small>1996</small></div>
           <div><strong>BRANTONE VEYLOR</strong><span>PRIVATE CAPITAL ADVISORY</span></div>
         </div>
@@ -673,11 +675,11 @@ async function openCustomer(id){
           <strong>${romaniaClockText()}</strong>
           <small>页面生成：${dt(new Date())}</small>
         </div>
-        <div class="internalOnly shareInternalActions">
+        <div class="shareInternalActions">
           <button class="btn" id="backCustomers">返回</button>
           ${state.profile.role==="level2"?'<button class="btn" id="editNoteBtn">编辑客户备注</button>':""}
-          <button class="btn gold" id="addTradeBtn">新增交易</button>
-          <button class="btn" id="addFollowBtn">记录跟进</button>
+          <button class="btn gold screenshotHide" id="addTradeBtn">新增交易</button>
+          <button class="btn screenshotHide" id="addFollowBtn">记录跟进</button>
           <button class="btn primary" id="captureModeBtn">截图模式</button>
         </div>
       </div>
@@ -686,7 +688,7 @@ async function openCustomer(id){
 
       <div class="shareKpiRow">
         <article><label>持仓成本</label><span>${openPos.length?num(costBasis,2):"—"}</span><small>COST BASIS</small></article>
-        <article><label>当前参考市值</label><span>${pricedPos.length?num(currentValue,2):"—"}</span><small>${livePos.length}/${openPos.length} 标的确认实时</small></article>
+        <article><label>最新行情市值</label><span>${pricedPos.length?num(currentValue,2):"—"}</span><small>按最新可用行情计算</small></article>
         <article><label>未实现盈亏</label><span class="${unreal>=0?"up":"down"}">${pricedPos.length?num(unreal,2):"—"}</span><small>UNREALIZED P/L</small></article>
         <article><label>已实现盈亏</label><span class="${realized>=0?"up":"down"}">${num(realized,2)}</span><small>REALIZED P/L</small></article>
         <article><label>综合收益率</label><span class="${returnPct>=0?"up":"down"}">${(returnPct>=0?"+":"")+num(returnPct,2)}%</span><small>基于当前可用行情</small></article>
@@ -695,7 +697,7 @@ async function openCustomer(id){
 
       <div class="shareMainGrid">
         <article class="panel sharePricePanel">
-          <div class="panelHead compact"><div><h2>${primary?esc(primary.symbol)+" 价格走势":"价格走势"}</h2><p>PRICE MOVEMENT · 买入 / 卖出节点与行情状态</p></div><span class="headMeta">${primary?marketStatusBadge(q[primary.symbol]):""}</span></div>
+          <div class="panelHead compact"><div><h2>${primary?esc(primary.symbol)+" 价格走势":"价格走势"}</h2><p>PRICE MOVEMENT · 买入 / 卖出节点 · 罗马尼亚时间</p></div><span class="headMeta">${primary?marketStatusBadge(q[primary.symbol]):""}</span></div>
           <div class="chartBox sharePriceChart"><canvas id="customerPriceChart"></canvas></div>
         </article>
         <article class="panel shareReturnPanel">
@@ -728,13 +730,13 @@ async function openCustomer(id){
           <div class="shareServiceTimeline">
             ${serviceRows.map(f=>`<div><span>${dt(f.created_at)}</span><p>${esc(f.content)}</p></div>`).join("")||'<div><span>—</span><p>暂无服务纪要</p></div>'}
           </div>
-          <div class="internalOnly clientOwnerInternal">内部归属：${esc(owner?.display_name||"--")}</div>
+          <div class="clientOwnerInternal screenshotHide">内部归属：${esc(owner?.display_name||"--")}</div>
         </article>
       </div>
 
       <div class="shareFoot">
         <span>BRANTONE VEYLOR · PRIVATE CAPITAL ADVISORY</span>
-        <span>行情状态以数据源实际返回为准；延迟数据会明确标注，未确认实时的数据不标记为实时。</span>
+        <span>行情来自免费公开市场数据源；页面以各行情的最新更新时间为准。</span>
         <span>${romaniaClockText()}</span>
       </div>
     </section>`;
@@ -746,10 +748,10 @@ async function openCustomer(id){
   const capture=$("#captureModeBtn");
   if(capture)capture.onclick=()=>{
     const page=$("#clientSharePage");
-    page.classList.add("shareCapture");
-    toast("已进入截图模式；内部管理控件已隐藏。点击左上角 BV 标志可退出。");
+    const on=page.classList.toggle("screenshotMode");
+    capture.textContent=on?"恢复显示":"截图模式";
+    toast(on?"截图模式：仅隐藏内部归属、新增交易、记录跟进。":"已恢复内部操作按钮。");
   };
-  $("#exitShareMode").onclick=()=>$("#clientSharePage")?.classList.remove("shareCapture");
   drawCustomerShareCharts(pos,chartTrades,q,primary,realized,unreal);
 }
 
@@ -757,18 +759,19 @@ function positionTable(rows,q){
   const visible=rows.filter(p=>Number(p.quantity)>0||Number(p.realized_pnl)!==0);
   return `<table class="dataTable portfolioTable"><thead><tr><th>股票</th><th>市场</th><th>数量</th><th>平均成本</th><th>成本基准</th><th>行情价</th><th>市值</th><th>未实现盈亏</th><th>已实现盈亏</th></tr></thead><tbody>${visible.map(p=>{
     const usable=!q[p.symbol]?.error&&Number.isFinite(Number(q[p.symbol]?.price));
-    const live=usable&&q[p.symbol]?.realtime===true;
     const last=usable?Number(q[p.symbol].price):null;
     const mv=last==null?null:Number(p.quantity)*last;
     const u=last==null?null:Number(p.quantity)*(last-Number(p.avg_cost));
-    const badge=live?'<span class="liveBadge">实时</span>':usable?'<span class="delayBadge">参考</span>':'<span class="delayBadge">无行情</span>';
+    const quoteTime=usable&&q[p.symbol]?.lastTradeAt
+      ? new Intl.DateTimeFormat("zh-CN",{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date(q[p.symbol].lastTradeAt))
+      : null;
     return `<tr>
       <td class="symbolCell">${esc(p.symbol)}</td>
       <td>${esc(p.market)}</td>
       <td class="goldData">${num(p.quantity,4)}</td>
       <td>${money(p.avg_cost,p.currency)}</td>
       <td>${money(Number(p.quantity)*Number(p.avg_cost),p.currency)}</td>
-      <td>${last==null?"--":money(last,p.currency)} ${badge}</td>
+      <td>${last==null?"--":money(last,p.currency)+(quoteTime?'<small class="quoteCellTime"> '+esc(quoteTime)+'</small>':"")}</td>
       <td>${mv==null?"--":money(mv,p.currency)}</td>
       <td class="${u==null?"":u>=0?"up":"down"}">${u==null?"--":money(u,p.currency)}</td>
       <td class="${Number(p.realized_pnl)>=0?"up":"down"}">${money(p.realized_pnl,p.currency)}</td>
