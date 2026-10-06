@@ -224,7 +224,7 @@ async function renderView(){
 }
 
 function pageHead(title,sub,actions=""){
-  return `<div class="pageHead"><div><h1>${title}</h1><p>${sub}</p></div><div class="actions">${actions}</div></div>`
+  return actions ? `<div class="pageActions"><div class="actions">${actions}</div></div>` : "";
 }
 
 async function renderDashboard(){
@@ -467,28 +467,44 @@ async function renderPositions(){
 
 async function renderMarket(){
   const presetOptions=Object.entries(MARKET_PRESETS).map(([k,v])=>`<option value="${k}" ${k==="RO"?"selected":""}>${v.label}</option>`).join("");
-  $("#main").innerHTML=pageHead("行情中心","实时严格模式：只有数据源明确确认实时的价格才会展示；罗马尼亚优先接入 BVB 官方 Online 实时服务。")+`
+  $("#main").innerHTML=`
     <div class="marketStatusBar">
-      <div class="marketStatus live">页面时区：Europe/Bucharest</div>
-      <div class="marketStatus live">罗马尼亚：BVB 官方 Online 优先</div>
-      <div class="marketStatus blocked">其他市场：若数据源未确认实时，价格自动隐藏</div>
+      <div class="marketStatus live">时区：Europe/Bucharest</div>
+      <div class="marketStatus">罗马尼亚：BVB 官方行情</div>
+      <div class="marketStatus blocked">实时权限不可用时显示官方延迟数据，不再显示空白价格</div>
     </div>
     <section class="grid2">
-      <article class="panel"><div class="panelHead"><div><h2>多国家实时行情</h2><p>图表悬停显示数据并呈现十字辅助线</p></div><div class="marketControls"><select id="marketCountry" class="select">${presetOptions}</select><input id="marketSymbols" class="input" value="${MARKET_PRESETS.RO.symbols.join(",")}"></div></div><div class="panelBody"><div class="quoteHeader"><div><span class="link" id="mSymbol">--</span><h3 id="mName">选择股票</h3><p class="muted" id="mExchange">--</p><p class="muted" id="mFresh">--</p></div><div><div id="mPrice" class="quotePrice">--</div><div id="mChange">--</div></div></div></div><div class="chartBox"><canvas id="marketChart"></canvas></div></article>
-      <article class="panel"><div class="panelHead"><div><h2>实时股票列表</h2><p>罗马尼亚、美国、法国、德国、英国、意大利、西班牙、荷兰、瑞士、波兰、日本</p></div></div><div class="panelBody marketList" id="marketRows"></div></article>
+      <article class="panel">
+        <div class="panelHead"><div><h2>多国家行情</h2><p>实时数据优先；图表悬停显示数据与十字辅助线</p></div><div class="marketControls"><select id="marketCountry" class="select">${presetOptions}</select><input id="marketSymbols" class="input" value="${MARKET_PRESETS.RO.symbols.join(",")}"></div></div>
+        <div class="panelBody"><div class="quoteHeader"><div><span class="link" id="mSymbol">--</span><h3 id="mName">选择股票</h3><p class="muted" id="mExchange">--</p><p class="muted" id="mFresh">--</p></div><div><div id="mPrice" class="quotePrice">--</div><div id="mChange">--</div></div></div></div>
+        <div class="chartBox"><canvas id="marketChart"></canvas></div>
+      </article>
+      <article class="panel">
+        <div class="panelHead"><div><h2>股票列表</h2><p>罗马尼亚、美国、法国、德国、英国、意大利、西班牙、荷兰、瑞士、波兰、日本</p></div></div>
+        <div class="panelBody marketList" id="marketRows"></div>
+      </article>
     </section>`;
   const load=async()=>{
     const syms=$("#marketSymbols").value.split(",").map(x=>x.trim().toUpperCase()).filter(Boolean);
-    const q=await fetchQuotes(syms,{realtimeOnly:true});
+    const q=await fetchQuotes(syms,{realtimeOnly:false});
     const rows=syms.map(s=>q[s]).filter(Boolean);
     $("#marketRows").innerHTML=rows.map(x=>{
-      const live=x.realtime===true&&!x.error&&Number.isFinite(Number(x.price));
-      return `<div class="marketRow marketPick" data-symbol="${x.symbol}"><span class="link">${esc(x.symbol)}</span><span>${esc(x.name||x.symbol)}</span><span>${esc(x.country||"--")}</span><span>${esc(x.exchange||"--")}</span><span>${live?money(x.price,x.currency||"USD"):"--"}</span><span class="${live&&Number(x.changePct)>=0?"up":live?"down":""}">${live&&x.changePct!=null?((Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%"):"--"}</span><span>${live?'<span class="liveBadge">实时</span>':'<span class="delayBadge">未确认实时</span>'}</span></div>`;
-    }).join("")||'<div class="empty">暂无实时行情</div>';
+      const usable=!x.error&&Number.isFinite(Number(x.price));
+      const live=usable&&x.realtime===true;
+      const delayText=x.delaySeconds===900?"官方延迟 15m":x.delaySeconds?("延迟 "+Math.round(Number(x.delaySeconds)/60)+"m"):"参考行情";
+      return `<div class="marketRow marketPick" data-symbol="${x.symbol}"><span class="link">${esc(x.symbol)}</span><span>${esc(x.name||x.symbol)}</span><span>${esc(x.country||"--")}</span><span>${esc(x.exchange||"--")}</span><span>${usable?money(x.price,x.currency||"USD"):"--"}</span><span class="${usable&&Number(x.changePct)>=0?"up":usable?"down":""}">${usable&&x.changePct!=null?((Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%"):"--"}</span><span>${live?'<span class="liveBadge">实时</span>':usable?'<span class="delayBadge">'+esc(delayText)+'</span>':'<span class="delayBadge">无数据</span>'}</span></div>`;
+    }).join("")||'<div class="empty">暂无行情数据</div>';
     $$(".marketPick").forEach(r=>r.onclick=()=>drawMarket(q[r.dataset.symbol]));
-    const first=rows.find(x=>x.realtime===true&&!x.error);
-    if(first)drawMarket(first);else{
-      $("#mSymbol").textContent=syms[0]||"--";$("#mName").textContent="当前选择没有已确认实时行情";$("#mExchange").textContent="系统已禁止使用延迟价格";$("#mFresh").textContent="请选择其他市场或接入持牌实时数据源";$("#mPrice").textContent="--";$("#mChange").textContent="--";if(state.charts.market){state.charts.market.destroy();delete state.charts.market}
+    const first=rows.find(x=>!x.error&&Number.isFinite(Number(x.price)));
+    if(first) drawMarket(first);
+    else {
+      $("#mSymbol").textContent=syms[0]||"--";
+      $("#mName").textContent="当前股票暂无可用行情";
+      $("#mExchange").textContent="请更换股票或市场";
+      $("#mFresh").textContent="--";
+      $("#mPrice").textContent="--";
+      $("#mChange").textContent="--";
+      if(state.charts.market){state.charts.market.destroy();delete state.charts.market}
     }
   };
   $("#marketCountry").onchange=e=>{$("#marketSymbols").value=MARKET_PRESETS[e.target.value].symbols.join(",");load()};
@@ -496,18 +512,24 @@ async function renderMarket(){
   await load();
 }
 function drawMarket(x){
-  const live=x?.realtime===true&&!x.error&&Number.isFinite(Number(x.price));
+  const usable=x&&!x.error&&Number.isFinite(Number(x.price));
+  const live=usable&&x.realtime===true;
   $("#mSymbol").textContent=x?.symbol||"--";
-  $("#mName").textContent=live?(x.name||x.symbol):"实时行情未确认";
+  $("#mName").textContent=usable?(x.name||x.symbol):"暂无可用行情";
   $("#mExchange").textContent=[x?.country,x?.exchange,x?.currency,x?.source].filter(Boolean).join(" · ");
-  $("#mFresh").textContent=live?"最后成交（罗马尼亚时间）："+dt(x.lastTradeAt||new Date()):"非实时价格已按规则隐藏";
-  $("#mPrice").textContent=live?num(x.price):"--";
-  $("#mChange").textContent=live&&x.changePct!=null?(Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%":"--";
-  $("#mChange").className=live?(Number(x.changePct)>=0?"up":"down"):"";
+  const delayLabel=live?"实时":x?.delaySeconds===900?"官方延迟 15 分钟":"非实时";
+  $("#mFresh").textContent=usable?delayLabel+" · 最后成交（罗马尼亚时间）："+dt(x.lastTradeAt||new Date()):"--";
+  $("#mPrice").textContent=usable?num(x.price):"--";
+  $("#mChange").textContent=usable&&x.changePct!=null?(Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%":"--";
+  $("#mChange").className=usable?(Number(x.changePct)>=0?"up":"down"):"";
   if(state.charts.market)state.charts.market.destroy();
-  if(!live)return;
+  if(!usable)return;
   const pts=(x.points||[]).filter(p=>p.close!=null);
-  state.charts.market=new Chart($("#marketChart"),{type:"line",data:{labels:pts.map(p=>new Date(p.t).toLocaleTimeString("zh-CN",{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"})),datasets:[{label:x.symbol+" 实时价",data:pts.map(p=>p.close),borderColor:"#d93447",backgroundColor:"rgba(217,52,71,.14)",fill:true,tension:.22,pointRadius:0,pointHoverRadius:4}]},options:chartOpts()});
+  state.charts.market=new Chart($("#marketChart"),{
+    type:"line",
+    data:{labels:pts.map(p=>new Date(p.t).toLocaleTimeString("zh-CN",{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"})),datasets:[{label:x.symbol+(live?" 实时价":" 行情价"),data:pts.map(p=>p.close),borderColor:"#d93447",backgroundColor:"rgba(217,52,71,.14)",fill:true,tension:.22,pointRadius:0,pointHoverRadius:4}]},
+    options:chartOpts()
+  });
 }
 
 async function renderReports(){
@@ -527,7 +549,7 @@ async function renderSettings(){
     <section class="grid3">
       <article class="panel"><div class="panelHead"><div><h2>当前账户</h2><p>登录身份</p></div></div><div class="panelBody list"><div class="listItem"><div class="top"><span>账号</span><span>${esc(state.profile.username)}</span></div></div><div class="listItem"><div class="top"><span>姓名</span><span>${esc(state.profile.display_name)}</span></div></div><div class="listItem"><div class="top"><span>角色</span><span>${roleName(state.profile.role)}</span></div></div></div></article>
       <article class="panel"><div class="panelHead"><div><h2>数据库</h2><p>Supabase</p></div></div><div class="panelBody list"><div class="listItem"><div class="top"><span>项目</span><span>brantone-veyor-crm</span></div></div><div class="listItem"><div class="top"><span>区域</span><span>Singapore</span></div></div><div class="listItem"><div class="top"><span>RLS</span><span class="up">已启用</span></div></div></div></article>
-      <article class="panel"><div class="panelHead"><div><h2>行情数据</h2><p>当前模式</p></div></div><div class="panelBody list"><div class="listItem"><div class="top"><span>覆盖市场</span><span>RO / US / FR / DE / GB / IT / ES / NL / CH / PL / JP</span></div></div><div class="listItem"><div class="top"><span>数据规则</span><span>严格实时；延迟价格禁止展示</span></div></div><div class="listItem"><div class="top"><span>罗马尼亚</span><span class="up">BVB 官方 Online 优先</span></div></div></div></article>
+      <article class="panel"><div class="panelHead"><div><h2>行情数据</h2><p>当前模式</p></div></div><div class="panelBody list"><div class="listItem"><div class="top"><span>覆盖市场</span><span>RO / US / FR / DE / GB / IT / ES / NL / CH / PL / JP</span></div></div><div class="listItem"><div class="top"><span>数据规则</span><span>实时优先；非实时必须明确标注</span></div></div><div class="listItem"><div class="top"><span>罗马尼亚</span><span>BVB 官方；无实时权限时回退官方 15 分钟延迟</span></div></div></div></article>
     </section>`;
 }
 
