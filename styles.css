@@ -220,3 +220,199 @@ html,body,.app,.shell{max-width:100%;overflow-x:hidden}
   .nav button{font-size:11px;padding:7px 5px}
   .romaniaClock{display:inline-flex}
 }
+
+
+/* === Executive dashboard reference pass === */
+.executiveDashboard{
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto;
+  gap:10px;
+  min-height:calc(100vh - 96px);
+}
+.executiveKpis{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:10px;
+}
+.execStat{
+  min-height:128px;
+  padding:14px 16px 12px;
+  border:1px solid #294257;
+  border-radius:13px;
+  background:linear-gradient(180deg,rgba(10,31,47,.98),rgba(7,24,37,.98));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 10px 26px rgba(0,0,0,.2);
+  position:relative;
+  overflow:hidden;
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.execStat::after{
+  content:"";
+  position:absolute;
+  inset:auto 0 0 0;
+  height:2px;
+  background:linear-gradient(90deg,rgba(213,170,81,.65),transparent 62%);
+  opacity:.5;
+}
+.execStat.accent{border-color:#6e5a23;box-shadow:inset 2px 0 0 rgba(213,170,81,.85),0 10px 26px rgba(0,0,0,.2)}
+.execStat:hover{
+  transform:translateY(-3px);
+  border-color:#54738b;
+  box-shadow:0 16px 36px rgba(0,0,0,.32),0 0 0 1px rgba(213,170,81,.08);
+}
+.execEyebrow{
+  font-size:9px;
+  letter-spacing:2px;
+  color:#607a91;
+  text-transform:uppercase;
+  margin-bottom:10px;
+  font-weight:400!important;
+}
+.execStatHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  color:#9aacbc;
+  font-size:13px;
+  font-weight:400!important;
+}
+.execIcon{
+  width:32px;height:32px;border-radius:9px;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:#e0b342;border:1px solid #5e4e22;background:#182313;
+  font-size:14px;font-weight:400!important;
+}
+.execValue{
+  margin-top:10px;
+  color:#edf3f8;
+  font-size:25px;
+  line-height:1;
+  font-weight:400!important;
+  letter-spacing:.2px;
+}
+.execMeta{
+  margin-top:10px;
+  color:#5f7589;
+  font-size:9px;
+  letter-spacing:1px;
+  text-align:right;
+  text-transform:uppercase;
+  font-weight:400!important;
+}
+.executiveMain{
+  display:grid;
+  grid-template-columns:minmax(0,1.8fr) minmax(310px,.98fr);
+  gap:10px;
+  min-height:0;
+}
+.executiveSide{
+  display:grid;
+  grid-template-rows:1.08fr .92fr;
+  gap:10px;
+  min-height:0;
+}
+.executiveTablePanel,.executiveChartPanel,.executiveAllocPanel{
+  min-height:0;
+  height:100%;
+}
+.panelHead.compact{
+  min-height:46px;
+  padding:10px 14px;
+}
+.panelHead.compact h2{font-size:14px}
+.panelHead.compact p{
+  font-size:9px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+}
+.headMeta{
+  color:#688094;
+  font-size:9px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  white-space:nowrap;
+  font-weight:400!important;
+}
+.executiveTablePanel .tableWrap{
+  height:calc(100% - 46px);
+  overflow:hidden;
+}
+.executiveTable{
+  table-layout:fixed;
+}
+.executiveTable th{
+  background:rgba(16,41,58,.86);
+  color:#6f8597;
+  font-size:10px;
+  letter-spacing:.3px;
+  padding:10px 14px;
+}
+.executiveTable td{
+  height:52px;
+  padding:10px 14px;
+  color:#d9e3ea;
+  border-bottom:1px solid #142c3e;
+  font-size:12px;
+}
+.symbolCell{color:#e8edf2!important}
+.goldData{color:#e7b500!important}
+.tableAction{
+  border:0;background:transparent;color:#2ed3a0;
+  font-size:11px;padding:0;cursor:pointer;font-weight:400!important;
+}
+.tableAction:hover{color:#65e4ba}
+.executiveEmpty{padding:28px 10px}
+.executiveChart{height:calc(100% - 46px);min-height:180px;padding:12px 14px 10px}
+.executiveAllocPanel .allocBody{
+  height:calc(100% - 46px);
+  padding:16px 15px 12px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.allocTotal{
+  display:flex;justify-content:space-between;gap:18px;align-items:center;
+  padding-bottom:12px;border-bottom:1px solid #1d3547;
+  color:#7e92a3;font-size:11px;
+}
+.allocTotal span:last-child{color:#e8eef3;font-size:16px;font-weight:400!important;text-align:right}
+.allocationRows{display:grid;gap:10px;margin-top:13px}
+.allocLabels{display:flex;justify-content:space-between;gap:12px;color:#8598a9;font-size:10px}
+.allocLabels span:last-child{color:#d7e0e7}
+.allocTrack{height:5px;background:#162c3c;border-radius:999px;overflow:hidden;margin-top:5px}
+.allocTrack i{display:block;height:100%;background:linear-gradient(90deg,#e2b100,#d7c75b);border-radius:999px}
+.recentOrders{
+  min-height:144px;
+}
+.recentOrderGrid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  min-height:96px;
+}
+.recentOrder{
+  padding:16px 18px;
+  border-right:1px solid #173043;
+  min-width:0;
+  transition:background .18s ease,transform .18s ease;
+}
+.recentOrder:last-child{border-right:0}
+.recentOrder:hover{background:rgba(213,170,81,.035);transform:translateY(-2px)}
+.recentOrderTop{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.recentSymbol{font-size:14px;color:#edf2f6}
+.recentMarket{font-size:8px;color:#506a7e;text-transform:uppercase}
+.recentSub{font-size:10px;color:#6f8597;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recentAmount{font-size:12px;color:#e7b500;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#trendChart{cursor:crosshair}
+@media (max-height:850px) and (min-width:1280px){
+  .execStat{min-height:110px;padding:12px 14px 10px}
+  .execValue{font-size:22px}
+  .recentOrders{min-height:126px}
+  .recentOrder{padding:12px 15px}
+  .executiveTable td{height:46px}
+}
+@media(max-width:1250px){
+  .executiveKpis{grid-template-columns:repeat(3,1fr)}
+  .executiveMain{grid-template-columns:1fr}
+  .executiveSide{grid-template-columns:1fr 1fr;grid-template-rows:auto}
+  .recentOrderGrid{grid-template-columns:repeat(3,1fr)}
+}
