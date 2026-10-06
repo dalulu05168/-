@@ -1315,3 +1315,423 @@ html,body,.app,.shell{max-width:100%;overflow-x:hidden}
   .tickerStat:nth-of-type(5),.tickerStat:nth-of-type(6){display:none}
   .terminalGrid{grid-template-columns:minmax(0,1fr) 250px}
 }
+
+
+/* === Global 16:9 terminal shell + unified navigation === */
+html,body,#root,.app{
+  width:100%;
+  height:100%;
+  min-height:0;
+  overflow:hidden;
+}
+html,body{
+  text-rendering:geometricPrecision;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+.shell{
+  width:100%;
+  height:100vh;
+  min-height:0;
+  padding:10px 14px 14px;
+  display:grid;
+  grid-template-rows:72px minmax(0,1fr);
+  gap:10px;
+  overflow:hidden;
+}
+.topbar{
+  position:relative;
+  top:auto;
+  z-index:20;
+  width:100%;
+  height:72px;
+  min-height:72px;
+  padding:8px 10px;
+  display:grid;
+  grid-template-columns:276px minmax(0,1fr) auto;
+  align-items:center;
+  gap:12px;
+  overflow:hidden;
+  border:1px solid #29252e;
+  border-radius:20px;
+  background:linear-gradient(180deg,rgba(27,24,31,.98),rgba(18,16,23,.98));
+  box-shadow:0 12px 30px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.025);
+  backdrop-filter:blur(18px);
+}
+.brand{
+  min-width:0;
+  height:100%;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  overflow:hidden;
+}
+.mark{
+  font-size:28px;
+  flex:0 0 auto;
+}
+.mark small{
+  font-size:8px;
+  letter-spacing:2px;
+}
+.brandText{
+  min-width:0;
+}
+.brandText b{
+  font-size:16px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.brandText span{
+  font-size:8px;
+  letter-spacing:1.8px;
+  white-space:nowrap;
+}
+.navFrame{
+  min-width:0;
+  height:50px;
+  padding:5px;
+  border:1px solid #2c2831;
+  border-radius:16px;
+  background:#151219;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.018);
+  overflow:hidden;
+}
+.nav{
+  width:100%;
+  height:100%;
+  min-width:0;
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:minmax(0,1fr);
+  align-items:stretch;
+  gap:4px;
+  overflow:hidden!important;
+}
+.nav button{
+  min-width:0;
+  height:100%;
+  padding:0 7px;
+  border:1px solid transparent;
+  border-radius:11px;
+  background:transparent;
+  color:#8b8791;
+  font-size:11px;
+  line-height:1;
+  font-weight:400!important;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  transition:transform .16s ease,border-color .16s ease,background .16s ease,color .16s ease,box-shadow .16s ease;
+}
+.nav button:hover{
+  transform:translateY(-2px);
+  color:#d9ddd9;
+  border-color:#39343e;
+  background:#201c23;
+  box-shadow:0 8px 18px rgba(0,0,0,.22);
+}
+.nav button.active{
+  color:#071109;
+  border-color:#14e76d;
+  background:#14e76d;
+  box-shadow:0 0 18px rgba(20,231,109,.18);
+}
+.userArea{
+  min-width:max-content;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  font-size:10px;
+}
+.sysok,.romaniaClock,.chip,.iconBtn{
+  height:36px;
+  display:inline-flex;
+  align-items:center;
+  border:1px solid #302b35;
+  border-radius:11px;
+  background:#1b181f;
+  color:#aaa6ae;
+  padding:0 9px;
+  font-size:10px;
+  font-weight:400!important;
+}
+.sysok{
+  color:#30e88a;
+}
+.sysok::before{
+  content:"";
+  width:6px;height:6px;border-radius:50%;
+  background:#14e76d;
+  margin-right:6px;
+  box-shadow:0 0 10px rgba(20,231,109,.45);
+}
+.romaniaClock::before{
+  color:#e4ba3b;
+  border-color:#66531d;
+}
+.iconBtn:hover,.chip:hover,.romaniaClock:hover,.sysok:hover{
+  transform:translateY(-2px);
+  border-color:#3b5340;
+  box-shadow:0 10px 22px rgba(0,0,0,.22);
+}
+
+/* Unified view frame: same top/bottom baseline on every module */
+#main{
+  width:100%;
+  height:100%;
+  min-height:0!important;
+  padding:0!important;
+  overflow:hidden;
+  opacity:1;
+  transform:translateY(0) scale(1);
+  transition:opacity .18s ease,transform .18s ease,filter .18s ease;
+}
+#main.viewLeaving{
+  opacity:0;
+  transform:translateY(5px) scale(.998);
+  filter:blur(.8px);
+}
+#main.viewEntering{
+  opacity:0;
+  transform:translateY(5px) scale(.998);
+}
+#main[data-view="customers"],
+#main[data-view="personnel"],
+#main[data-view="trades"],
+#main[data-view="positions"]{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+#main[data-view="customers"]>.pageActions,
+#main[data-view="personnel"]>.pageActions{
+  flex:0 0 36px;
+  min-height:36px;
+  margin:0;
+  align-items:center;
+}
+#main[data-view="customers"]>.panel,
+#main[data-view="personnel"]>.panel,
+#main[data-view="trades"]>.panel,
+#main[data-view="positions"]>.panel{
+  flex:1 1 auto;
+  min-height:0;
+  height:auto;
+  display:grid;
+  grid-template-rows:48px minmax(0,1fr);
+}
+#main[data-view="customers"]>.panel>.tableWrap,
+#main[data-view="personnel"]>.panel>.tableWrap,
+#main[data-view="trades"]>.panel>.tableWrap,
+#main[data-view="positions"]>.panel>.tableWrap{
+  min-height:0;
+  height:100%;
+  overflow:auto;
+}
+
+/* Market keeps header row fixed and both bottom borders aligned */
+#main[data-view="market"]{
+  display:grid;
+  grid-template-rows:38px minmax(0,1fr);
+  gap:8px;
+}
+#main[data-view="market"]>.marketStatusBar{
+  margin:0;
+  align-items:center;
+  min-height:38px;
+}
+#main[data-view="market"]>.grid2{
+  min-height:0;
+  height:100%;
+  grid-template-columns:minmax(0,1.65fr) minmax(300px,.78fr);
+  gap:10px;
+}
+#main[data-view="market"]>.grid2>.panel{
+  height:100%;
+  min-height:0;
+}
+#main[data-view="market"]>.grid2>.panel:first-child{
+  display:grid;
+  grid-template-rows:48px auto minmax(0,1fr);
+}
+#main[data-view="market"]>.grid2>.panel:last-child{
+  display:grid;
+  grid-template-rows:48px minmax(0,1fr);
+}
+#main[data-view="market"] .chartBox{
+  height:auto!important;
+  min-height:0;
+}
+#main[data-view="market"] .marketList{
+  min-height:0;
+  overflow:auto;
+}
+
+/* Reports: two precise rows, second panel always lands on same bottom line */
+#main[data-view="reports"]{
+  display:grid;
+  grid-template-rows:minmax(0,.96fr) minmax(0,1.04fr);
+  gap:8px;
+}
+#main[data-view="reports"]>.grid2{
+  min-height:0;
+  height:100%;
+  gap:8px;
+}
+#main[data-view="reports"]>.grid2>.panel{
+  min-height:0;
+  height:100%;
+  display:grid;
+  grid-template-rows:48px minmax(0,1fr);
+}
+#main[data-view="reports"]>.grid2 .chartBox{
+  height:auto!important;
+  min-height:0;
+}
+#main[data-view="reports"]>article.panel{
+  min-height:0;
+  height:100%;
+  margin-top:0!important;
+  display:grid;
+  grid-template-rows:48px minmax(0,1fr);
+}
+#main[data-view="reports"]>article.panel>.tableWrap{
+  min-height:0;
+  overflow:auto;
+}
+
+/* Settings: equal-height columns, identical bottom frame */
+#main[data-view="settings"]{
+  display:block;
+}
+#main[data-view="settings"]>.settingsGrid{
+  width:100%;
+  height:100%;
+  min-height:0;
+  gap:10px;
+}
+#main[data-view="settings"] .settingsCard{
+  height:100%;
+  min-height:0;
+}
+
+/* Dashboard variants fill the same exact frame */
+#main.dashboardViewport,
+#main.terminalMain{
+  width:100%;
+  height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  padding:0!important;
+}
+#main.dashboardViewport .executiveDashboard,
+#main.dashboardViewport .level2Workspace,
+#main.terminalMain .tradeflareShell{
+  width:100%;
+  height:100%;
+  min-height:0;
+  overflow:hidden;
+}
+
+/* All charts retain data hover + crisp crosshair rendering */
+.chartBox canvas,
+.terminalChartWrap canvas{
+  width:100%!important;
+  height:100%!important;
+  image-rendering:auto;
+  cursor:crosshair;
+}
+
+/* Unified depth / hover on every box without shifting layout */
+.panel,
+.kpi,
+.listItem,
+.marketRow,
+.execStat,
+.level2Metric,
+.settingsCard,
+.terminalPositionCard,
+.terminalFormCard,
+.terminalOrderPanel,
+.terminalChartCard,
+.tradeflareRail,
+.terminalTicker,
+.clientMetricStrip article,
+.clientFollowItem{
+  transform:translateZ(0);
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,background .16s ease;
+}
+.panel:hover,
+.kpi:hover,
+.listItem:hover,
+.marketRow:hover,
+.execStat:hover,
+.level2Metric:hover,
+.settingsCard:hover,
+.terminalPositionCard:hover,
+.terminalFormCard:hover,
+.clientMetricStrip article:hover,
+.clientFollowItem:hover{
+  transform:translateY(-2px);
+  border-color:#405248;
+  box-shadow:0 16px 34px rgba(0,0,0,.30),0 0 0 1px rgba(20,231,109,.055),inset 0 1px 0 rgba(255,255,255,.02);
+}
+
+/* Tables never change page geometry; only their own viewport scrolls */
+.tableWrap{
+  min-width:0;
+  min-height:0;
+  scrollbar-width:thin;
+  scrollbar-color:#343039 #17141b;
+}
+.tableWrap::-webkit-scrollbar,
+.marketList::-webkit-scrollbar,
+.clientFollowList::-webkit-scrollbar{
+  width:6px;
+  height:6px;
+}
+.tableWrap::-webkit-scrollbar-thumb,
+.marketList::-webkit-scrollbar-thumb,
+.clientFollowList::-webkit-scrollbar-thumb{
+  background:#343039;
+  border-radius:999px;
+}
+.tableWrap::-webkit-scrollbar-track,
+.marketList::-webkit-scrollbar-track,
+.clientFollowList::-webkit-scrollbar-track{
+  background:#17141b;
+}
+
+/* High-density displays: CSS/vector UI remains sharp; increase spacing without raster stretching */
+@media(min-width:3000px){
+  .shell{
+    padding:20px 28px 28px;
+    grid-template-rows:104px minmax(0,1fr);
+    gap:16px;
+  }
+  .topbar{
+    height:104px;
+    min-height:104px;
+    grid-template-columns:390px minmax(0,1fr) auto;
+    padding:12px 16px;
+    border-radius:28px;
+  }
+  .navFrame{height:70px;border-radius:22px}
+  .nav button{font-size:16px;border-radius:15px}
+  .mark{font-size:40px}
+  .brandText b{font-size:23px}
+  .brandText span{font-size:11px}
+  .sysok,.romaniaClock,.chip,.iconBtn{height:50px;font-size:14px;padding:0 14px;border-radius:15px}
+  .panelHead h2{font-size:20px}
+  .panelHead p{font-size:13px}
+  .dataTable th{font-size:15px}
+  .dataTable td{font-size:16px}
+}
+
+/* 16:9 desktop guardrail */
+@media(min-width:1280px){
+  body{min-width:1280px}
+}
