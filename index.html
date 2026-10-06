@@ -4,43 +4,12 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Brantone Veylor · 客户股票跟踪管理系统</title>
-<style>
-:root{--bg:#050b12;--card:#081522;--line:#243b50;--red:#d73043;--gold:#d6aa4b;--blue:#5ba4f3;--green:#2dd39e;--text:#e7edf4;--muted:#8194a7}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 90% 0,#0d2237 0,transparent 34%),radial-gradient(circle at 5% 100%,#2a0c13 0,transparent 28%),var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft YaHei",sans-serif;font-weight:400}
-.shell{padding:18px 22px;min-height:100vh}.top{height:66px;display:flex;align-items:center;border-bottom:1px solid var(--line);gap:22px}.brand{min-width:300px;display:flex;gap:12px;align-items:center}.bv{font-family:Georgia,serif;font-size:32px;color:#e33749}.brand h1{font-family:Georgia,serif;font-size:21px;color:#6e9ed8;margin:0;font-weight:700}.brand small{color:#df4050;letter-spacing:2px}.nav{display:flex;gap:6px;flex:1}.nav span{padding:10px 12px;color:#90a1b1;border:1px solid transparent;border-radius:8px}.nav .on{color:#ffe2ae;border-color:#8a2631;background:#33101a}.status{font-size:12px;color:var(--green)}
-.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin:16px 0}.k{background:linear-gradient(#0b1b2b,#07121e);border:1px solid var(--line);border-left:2px solid var(--red);border-radius:12px;padding:14px}.k label{display:block;color:var(--muted);font-size:12px}.k strong{display:block;font-size:25px;font-weight:400;margin-top:5px}.k small{color:#75889a}
-.grid{display:grid;grid-template-columns:1.7fr .8fr;gap:14px}.panel{background:linear-gradient(#0a1826,#06111c);border:1px solid var(--line);border-radius:12px;overflow:hidden}.ph{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}.ph h2{margin:0;font-size:15px;font-weight:700}.ph p{margin:3px 0 0;color:var(--muted);font-size:11px}.badge{font-size:11px;color:#ffdca2;border:1px solid #6f4f22;padding:6px 8px;border-radius:7px}
-.quote{display:flex;justify-content:space-between;align-items:end;padding:18px}.quote h3{font-size:29px;margin:2px 0;font-family:Georgia,serif;font-weight:700}.quote p{color:var(--muted);margin:0}.big{font-size:38px}.up{color:var(--green)}.down{color:#ff6574}
-svg{width:100%;height:250px;display:block}.gridline{stroke:#173047;stroke-width:1}.path{fill:none;stroke:#e53e51;stroke-width:2.5}.area{fill:url(#g)}
-.marketstate{padding:12px 16px}.marketstate div{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #173047;font-size:12px}.marketstate span{color:var(--muted)}
-.tablePanel{margin-top:14px}.toolbar{display:flex;gap:10px}.toolbar input,.toolbar select{background:#07131f;color:#dce5ee;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-weight:400}
-.table{width:100%;border-collapse:collapse;font-size:12px}.table th,.table td{padding:11px 13px;border-bottom:1px solid #173047;text-align:left;font-weight:400}.table th{color:#71869a}.sym{color:#e4b552}.note{padding:9px 13px;color:#e7b958;background:#261c0a;border:1px solid #6a4e20;border-radius:8px;font-size:11px}
-@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr}.nav{display:none}.brand{min-width:0}.top{justify-content:space-between}}
-</style>
+<link rel="stylesheet" href="/styles.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
-<div class="shell">
-<header class="top"><div class="brand"><div class="bv">BV</div><div><h1>BRANTONE VEYLOR</h1><small>PRIVATE CAPITAL ADVISORY</small></div></div><div class="nav"><span class="on">总览大盘</span><span>客户中心</span><span>人员中心</span><span>交易记录</span><span>持仓中心</span><span>行情中心</span><span>统计报表</span></div><div class="status">● 系统运行正常</div></header>
-<section class="kpis"><div class="k"><label>客户总数</label><strong>2,856</strong><small>CRM 数据</small></div><div class="k"><label>一级人员</label><strong>24</strong><small>团队负责人</small></div><div class="k"><label>二级人员</label><strong>86</strong><small>客户经理</small></div><div class="k"><label>持仓客户</label><strong>1,482</strong><small>当前持仓</small></div><div class="k"><label>美股行情</label><strong id="usCount">--</strong><small>NASDAQ / NYSE</small></div><div class="k"><label>法国行情</label><strong id="frCount">--</strong><small>Euronext Paris</small></div></section>
-<section class="grid"><article class="panel"><div class="ph"><div><h2>多市场行情</h2><p>美股 · 法股统一呈现</p></div><div class="badge" id="mode">免费行情</div></div><div class="quote"><div><span id="symbol" class="sym">AAPL</span><h3 id="name">加载中…</h3><p id="exchange">--</p></div><div><div id="price" class="big">--</div><div id="change">--</div></div></div><svg id="chart" viewBox="0 0 900 250" preserveAspectRatio="none"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d73043" stop-opacity=".3"/><stop offset="1" stop-color="#d73043" stop-opacity="0"/></linearGradient></defs><line class="gridline" x1="0" y1="50" x2="900" y2="50"/><line class="gridline" x1="0" y1="125" x2="900" y2="125"/><line class="gridline" x1="0" y1="200" x2="900" y2="200"/><path id="area" class="area"/><path id="path" class="path"/></svg></article><aside class="panel"><div class="ph"><div><h2>行情连接状态</h2><p>免费数据源</p></div></div><div class="marketstate"><div><span>美国市场</span><b class="up">已连接</b></div><div><span>法国市场</span><b class="up">已连接</b></div><div><span>数据源</span><b>Yahoo Finance 公共接口</b></div><div><span>刷新频率</span><b>60 秒</b></div><div><span>数据性质</span><b style="color:#e5b250">免费延迟 / 不保证实时</b></div></div></aside></section>
-<article class="panel tablePanel"><div class="ph"><div><h2>股票列表</h2><p>点击任意标的切换上方图表</p></div><div class="toolbar"><input id="q" placeholder="搜索代码 / 公司"/><select id="market"><option value="">全部市场</option><option value="US">美股</option><option value="FR">法国</option></select></div></div><table class="table"><thead><tr><th>代码</th><th>公司</th><th>市场</th><th>币种</th><th>最新价</th><th>涨跌</th><th>状态</th></tr></thead><tbody id="tbody"></tbody></table></article>
-<p class="note">说明：当前采用无需 API Key 的免费公共行情源，适合展示与内部跟踪；交易决策或对外展示前应切换到持牌实时数据源。</p>
-</div>
-<script>
-const fallback=["AAPL","NVDA","MSFT","MC.PA","OR.PA","AIR.PA"];let rows=[];
-async function load(){
- try{
-  const r=await fetch("/api/market?symbols="+fallback.join(","));
-  const j=await r.json(); rows=(j.rows||[]).filter(x=>!x.error);
-  document.getElementById("mode").textContent=j.mode||"免费行情";
-  document.getElementById("usCount").textContent=rows.filter(x=>!x.symbol.endsWith(".PA")).length;
-  document.getElementById("frCount").textContent=rows.filter(x=>x.symbol.endsWith(".PA")).length;
-  renderTable(); if(rows.length) select(rows[0].symbol);
- }catch(e){document.getElementById("name").textContent="行情连接失败";}
-}
-function select(sym){const x=rows.find(r=>r.symbol===sym);if(!x)return;symbol.textContent=x.symbol;name.textContent=x.name;exchange.textContent=(x.exchange||"")+" · "+(x.currency||"");price.textContent=x.price==null?"--":x.price.toFixed(2);change.textContent=x.changePct==null?"--":(x.changePct>=0?"+":"")+x.changePct.toFixed(2)+"%";change.className=x.changePct>=0?"up":"down";draw(x.points||[])}
-function draw(points){const p=points.filter(x=>x.close!=null);if(p.length<2){path.setAttribute("d","");area.setAttribute("d","");return}const vals=p.map(x=>x.close),min=Math.min(...vals),max=Math.max(...vals),span=max-min||1;const pts=p.map((x,i)=>[i/(p.length-1)*900,220-(x.close-min)/span*180]);const d="M"+pts.map(z=>z[0].toFixed(1)+" "+z[1].toFixed(1)).join(" L");path.setAttribute("d",d);area.setAttribute("d",d+" L900 250 L0 250 Z")}
-function renderTable(){const q=document.getElementById("q").value.toLowerCase(),m=document.getElementById("market").value;const list=rows.filter(x=>(!q||x.symbol.toLowerCase().includes(q)||(x.name||"").toLowerCase().includes(q))&&(!m||(m==="FR"?x.symbol.endsWith(".PA"):!x.symbol.endsWith(".PA"))));tbody.innerHTML=list.map(x=>`<tr onclick="select('${x.symbol}')" style="cursor:pointer"><td class="sym">${x.symbol}</td><td>${x.name||""}</td><td>${x.exchange||""}</td><td>${x.currency||""}</td><td>${x.price==null?"--":x.price.toFixed(2)}</td><td class="${(x.changePct||0)>=0?"up":"down"}">${x.changePct==null?"--":(x.changePct>=0?"+":"")+x.changePct.toFixed(2)+"%"}</td><td>${x.marketState||"--"}</td></tr>`).join("")}
-document.getElementById("q").addEventListener("input",renderTable);document.getElementById("market").addEventListener("change",renderTable);load();setInterval(load,60000);
-</script>
-</body></html>
+<div id="root"></div>
+<div id="toast" class="hidden"></div>
+<script type="module" src="/app.js"></script>
+</body>
+</html>
