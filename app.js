@@ -560,26 +560,74 @@ function eligibleOwners(){
 
 function openCustomerForm(){
   const owners=eligibleOwners();
-  modal("新增客户",`
+  const isLevel2=state.profile.role==="level2";
+  modal("客户资料",`
     <form id="customerForm" class="formGrid">
       <div class="field"><label>客户姓名</label><input class="input" name="name" required></div>
-      <div class="field"><label>负责人</label><select class="select" name="owner_user_id" required>${owners.map(o=>`<option value="${o.id}">${esc(o.display_name)} · ${roleName(o.role)}</option>`).join("")}</select></div>
-      <div class="field"><label>电话</label><input class="input" name="phone"></div>
-      <div class="field"><label>邮箱</label><input class="input" type="email" name="email"></div>
-      <div class="field"><label>地区</label><input class="input" name="region"></div>
-      <div class="field"><label>客户状态</label><select class="select" name="status"><option value="prospect">潜在客户</option><option value="following">跟进中</option><option value="holding">持仓中</option></select></div>
+      <div class="field"><label>性别</label><select class="select" name="gender"><option value="unknown">未填写</option><option value="male">男性</option><option value="female">女性</option></select></div>
+      <div class="field"><label>年龄（可选）</label><input class="input" type="number" min="18" max="120" name="age"></div>
+      <div class="field"><label>地区（可选）</label><input class="input" name="region"></div>
+      <div class="field"><label>电话（可选）</label><input class="input" name="phone"></div>
+      <div class="field"><label>邮箱（可选）</label><input class="input" type="email" name="email"></div>
+      <div class="field"><label>资金规模（可选）</label><input class="input" type="number" min="0" step="0.01" name="capital_amount"></div>
+      <div class="field"><label>资金币种</label><select class="select" name="capital_currency"><option>USD</option><option>EUR</option><option>RON</option><option>GBP</option><option>CHF</option><option>PLN</option><option>JPY</option></select></div>
+      <div class="field"><label>客户状态</label><select class="select" name="status"><option value="prospect">潜在客户</option><option value="following">服务中</option><option value="holding">持仓中</option></select></div>
       <div class="field"><label>风险级别</label><select class="select" name="risk_level"><option value="low">低</option><option value="normal" selected>普通</option><option value="high">高</option></select></div>
-      <div class="field full"><label>备注</label><textarea class="textarea" name="notes"></textarea></div>
-      <div class="field full"><button class="btn primary" type="submit">保存客户</button></div>
+      ${isLevel2
+        ? `<input type="hidden" name="owner_user_id" value="${state.profile.id}">`
+        : `<div class="field full"><label>归属二级人员</label><select class="select" name="owner_user_id" required>${owners.filter(o=>o.role==="level2").map(o=>`<option value="${o.id}">${esc(o.display_name)}</option>`).join("")}</select></div>`}
+      <div class="field full"><label>客户备注（由二级人员填写）</label><textarea class="textarea" name="notes" placeholder="填写客户偏好、重点信息、服务说明等"></textarea></div>
+      <div class="field full"><button class="btn primary" type="submit">保存客户资料</button></div>
     </form>`);
   $("#customerForm").onsubmit=saveCustomer;
 }
 
 async function saveCustomer(e){
-  e.preventDefault();const b=Object.fromEntries(new FormData(e.currentTarget).entries());const owner=state.staff.find(s=>s.id===b.owner_user_id)||state.profile;
-  b.level_one_user_id=owner.role==="level1"?owner.id:owner.role==="level2"?owner.parent_user_id:null;
-  const {error}=await supabase.from("customers").insert(b);if(error){toast(error.message,true);return}closeModal();toast("客户已创建");await refreshAll();
+  e.preventDefault();
+  const b=Object.fromEntries(new FormData(e.currentTarget).entries());
+  const owner=state.staff.find(s=>s.id===b.owner_user_id)||state.profile;
+  b.level_one_user_id=owner.role==="level2"?owner.parent_user_id:null;
+  if(!b.age)b.age=null; else b.age=Number(b.age);
+  if(!b.capital_amount)b.capital_amount=null; else b.capital_amount=Number(b.capital_amount);
+  const {error}=await supabase.from("customers").insert(b);
+  if(error){toast(error.message,true);return}
+  closeModal();toast("客户资料已保存");await refreshAll();
 }
+
+function clientAvatar(c){
+  const cls=c.gender==="male"?"male":c.gender==="female"?"female":"neutral";
+  const initial=esc((c.name||"客").trim().slice(0,1));
+  return `<div class="clientAvatar ${cls}"><span>${initial}</span></div>`;
+}
+function marketStatusBadge(x){
+  if(!x||x.error||!Number.isFinite(Number(x.price)))return '<span class="delayBadge">暂无数据</span>';
+  if(x.realtime===true)return '<span class="liveBadge">实时</span>';
+  if(Number(x.delaySeconds)===900)return '<span class="delayBadge">官方延迟 15m</span>';
+  return '<span class="delayBadge">非实时</span>';
+}
+function marketIndexStrip(rows){
+  const names={"^GSPC":"S&P 500","^DJI":"Dow Jones","^IXIC":"Nasdaq","^FCHI":"CAC 40","BET.RO":"BET"};
+  return rows.map(x=>{
+    const usable=x&&!x.error&&Number.isFinite(Number(x.price));
+    const pct=usable&&x.changePct!=null?Number(x.changePct):null;
+    return `<div class="shareMarketItem">
+      <div class="shareMarketTop"><span>${esc(names[x?.symbol]||x?.symbol||"--")}</span>${marketStatusBadge(x)}</div>
+      <div class="shareMarketPrice">${usable?num(x.price,2):"--"}</div>
+      <div class="shareMarketMeta"><span class="${pct==null?"":pct>=0?"up":"down"}">${pct==null?"--":(pct>=0?"+":"")+num(pct,2)+"%"}</span><span>${x?.lastTradeAt?dt(x.lastTradeAt):"--"}</span></div>
+    </div>`;
+  }).join("");
+}
+function openCustomerNoteForm(c){
+  modal("编辑客户备注",`<form id="customerNoteForm"><div class="field"><label>客户备注</label><textarea class="textarea" name="notes" style="min-height:180px">${esc(c.notes||"")}</textarea></div><button class="btn primary" type="submit" style="width:100%">保存备注</button></form>`);
+  $("#customerNoteForm").onsubmit=async e=>{
+    e.preventDefault();
+    const notes=String(new FormData(e.currentTarget).get("notes")||"");
+    const {error}=await supabase.from("customers").update({notes}).eq("id",c.id);
+    if(error){toast(error.message,true);return}
+    closeModal();toast("客户备注已更新");await refreshAll();await openCustomer(c.id);
+  };
+}
+
 
 async function openCustomer(id){
   const c=state.customers.find(x=>x.id===id);if(!c)return;state.activeCustomer=c;
@@ -591,89 +639,118 @@ async function openCustomer(id){
   const sells=trades.filter(t=>t.side==="sell");
   const openPos=pos.filter(p=>Number(p.quantity)>0);
   const symbols=[...new Set(openPos.map(p=>p.symbol))];
-  const q=await fetchQuotes(symbols,{realtimeOnly:false});
+  const [q,indexQ]=await Promise.all([
+    fetchQuotes(symbols,{realtimeOnly:false}),
+    fetchQuotes(["^GSPC","^DJI","^IXIC","^FCHI","BET.RO"],{realtimeOnly:false})
+  ]);
+  const indexRows=["^GSPC","^DJI","^IXIC","^FCHI","BET.RO"].map(s=>indexQ[s]||{symbol:s,error:true});
   const livePos=openPos.filter(p=>q[p.symbol]?.realtime===true&&Number.isFinite(Number(q[p.symbol]?.price)));
-  const currentValue=livePos.reduce((a,p)=>a+Number(p.quantity)*Number(q[p.symbol].price),0);
-  const unreal=livePos.reduce((a,p)=>a+(Number(p.quantity)*(Number(q[p.symbol].price)-Number(p.avg_cost))),0);
+  const pricedPos=openPos.filter(p=>!q[p.symbol]?.error&&Number.isFinite(Number(q[p.symbol]?.price)));
+  const currentValue=pricedPos.reduce((a,p)=>a+Number(p.quantity)*Number(q[p.symbol].price),0);
+  const unreal=pricedPos.reduce((a,p)=>a+(Number(p.quantity)*(Number(q[p.symbol].price)-Number(p.avg_cost))),0);
   const realized=pos.reduce((a,p)=>a+Number(p.realized_pnl||0),0);
   const costBasis=openPos.reduce((a,p)=>a+(Number(p.quantity)*Number(p.avg_cost)),0);
+  const totalPnl=realized+unreal;
+  const returnPct=costBasis?totalPnl/costBasis*100:0;
+  const latestTrade=trades[0];
+  const primary=openPos.find(p=>q[p.symbol]?.points?.length)||openPos[0]||null;
+  const owner=state.staff.find(s=>s.id===c.owner_user_id);
+  const serviceRows=follows.slice(0,4);
 
   $("#modalRoot").innerHTML=`
-    <section class="customerDetail clientPortfolioDetail">
-      <div class="detailTop portfolioTop">
-        <button class="btn" id="backCustomers">← 返回</button>
-        <div class="clientIdentity">
-          <h1>${esc(c.name)}</h1>
-          <div class="clientMetaLine"><span>${esc(c.customer_code)}</span><span>·</span><span>${customerStatus(c.status)}</span><span>·</span><span>${esc(c.region||"未设置地区")}</span></div>
+    <section class="customerDetail clientPortfolioDetail shareReady" id="clientSharePage">
+      <div class="shareTopbar">
+        <div class="shareBrand" id="exitShareMode" title="截图模式下点击 BV 返回">
+          <div class="shareBrandMark">BV<small>1996</small></div>
+          <div><strong>BRANTONE VEYLOR</strong><span>PRIVATE CAPITAL ADVISORY</span></div>
         </div>
-        <div class="portfolioTopActions">
-          <span class="clientOwner">负责人：${esc(state.staff.find(s=>s.id===c.owner_user_id)?.display_name||"--")}</span>
+        <div class="shareClientIdentity">
+          ${clientAvatar(c)}
+          <div><h1>${esc(c.name)}</h1><p>${esc(c.customer_code)} · ${esc(c.region||"地区未填写")} · ${c.age?esc(c.age+"岁"):"年龄未填写"}</p></div>
+        </div>
+        <div class="shareTimeBlock">
+          <span>ROMANIA / BUCHAREST</span>
+          <strong>${romaniaClockText()}</strong>
+          <small>页面生成：${dt(new Date())}</small>
+        </div>
+        <div class="internalOnly shareInternalActions">
+          <button class="btn" id="backCustomers">返回</button>
+          ${state.profile.role==="level2"?'<button class="btn" id="editNoteBtn">编辑客户备注</button>':""}
           <button class="btn gold" id="addTradeBtn">新增交易</button>
           <button class="btn" id="addFollowBtn">记录跟进</button>
+          <button class="btn primary" id="captureModeBtn">截图模式</button>
         </div>
       </div>
 
-      <div class="detailBody clientPortfolioBody">
-        <section class="clientMetricStrip">
-          <article><label>持仓成本</label><span>${openPos.length?num(costBasis,2):"—"}</span><small>OPEN COST BASIS</small></article>
-          <article><label>实时市值</label><span>${livePos.length?num(currentValue,2):"—"}</span><small>仅确认实时行情</small></article>
-          <article><label>未实现盈亏</label><span class="${unreal>=0?"up":"down"}">${livePos.length?num(unreal,2):"—"}</span><small>LIVE UNREALIZED</small></article>
-          <article><label>已实现盈亏</label><span class="${realized>=0?"up":"down"}">${num(realized,2)}</span><small>REALIZED P/L</small></article>
-          <article><label>持仓标的</label><span>${openPos.length}</span><small>OPEN POSITIONS</small></article>
-          <article><label>累计交易</label><span>${trades.length}</span><small>${buys.length} 买进 / ${sells.length} 卖出</small></article>
-        </section>
+      <div class="shareMarketStrip">${marketIndexStrip(indexRows)}</div>
 
-        <section class="clientPortfolioGrid">
-          <article class="panel clientPositionsPanel">
-            <div class="panelHead compact"><div><h2>客户持仓详情</h2><p>POSITIONS · 由买卖记录自动计算</p></div><span class="headMeta">${openPos.length} OPEN</span></div>
-            <div class="tableWrap">${positionTable(pos,q)}</div>
-          </article>
-          <article class="panel clientProfilePanel">
-            <div class="panelHead compact"><div><h2>持仓结构</h2><p>ALLOCATION BY COST BASIS</p></div></div>
-            <div class="chartBox clientAllocationChart"><canvas id="customerHoldingsChart"></canvas></div>
-            <div class="clientProfileMini">
-              <div><span>电话</span><span>${esc(c.phone||"--")}</span></div>
-              <div><span>邮箱</span><span>${esc(c.email||"--")}</span></div>
-              <div><span>风险级别</span><span>${esc(c.risk_level||"--")}</span></div>
-            </div>
-          </article>
-        </section>
+      <div class="shareKpiRow">
+        <article><label>持仓成本</label><span>${openPos.length?num(costBasis,2):"—"}</span><small>COST BASIS</small></article>
+        <article><label>当前参考市值</label><span>${pricedPos.length?num(currentValue,2):"—"}</span><small>${livePos.length}/${openPos.length} 标的确认实时</small></article>
+        <article><label>未实现盈亏</label><span class="${unreal>=0?"up":"down"}">${pricedPos.length?num(unreal,2):"—"}</span><small>UNREALIZED P/L</small></article>
+        <article><label>已实现盈亏</label><span class="${realized>=0?"up":"down"}">${num(realized,2)}</span><small>REALIZED P/L</small></article>
+        <article><label>综合收益率</label><span class="${returnPct>=0?"up":"down"}">${(returnPct>=0?"+":"")+num(returnPct,2)}%</span><small>基于当前可用行情</small></article>
+        <article><label>最近交易</label><span>${latestTrade?dt(latestTrade.traded_at):"—"}</span><small>${latestTrade?esc(latestTrade.symbol+" · "+(latestTrade.side==="buy"?"买入":"卖出")):"暂无交易"}</small></article>
+      </div>
 
-        <section class="clientTradeSplit">
-          <article class="panel tradeSidePanel buyPanel">
-            <div class="panelHead compact"><div><h2>买进明细</h2><p>BUY ORDERS</p></div><span class="headMeta">${buys.length} BUY</span></div>
-            <div class="tableWrap">${tradeSideTable(buys,"buy")}</div>
-          </article>
-          <article class="panel tradeSidePanel sellPanel">
-            <div class="panelHead compact"><div><h2>卖出明细</h2><p>SELL ORDERS</p></div><span class="headMeta">${sells.length} SELL</span></div>
-            <div class="tableWrap">${tradeSideTable(sells,"sell")}</div>
-          </article>
-        </section>
-
-        <section class="clientBottomGrid">
-          <article class="panel">
-            <div class="panelHead compact"><div><h2>交易资金轨迹</h2><p>NET CAPITAL FLOW · 罗马尼亚时间</p></div></div>
-            <div class="chartBox clientTradeChart"><canvas id="customerTradeChart"></canvas></div>
-          </article>
-          <article class="panel">
-            <div class="panelHead compact"><div><h2>跟进时间轴</h2><p>FOLLOW-UP HISTORY</p></div><span class="headMeta">${follows.length} NOTES</span></div>
-            <div class="panelBody clientFollowList">
-              ${follows.map(f=>`<div class="clientFollowItem"><div><span class="followChannel">${esc(f.channel)}</span><span>${dt(f.created_at)}</span></div><p>${esc(f.content)}</p>${f.next_followup_at?`<small>下次跟进：${dt(f.next_followup_at)}</small>`:""}</div>`).join("")||'<div class="empty">暂无跟进记录</div>'}
-            </div>
-          </article>
-        </section>
-
-        <article class="panel allTradesPanel">
-          <div class="panelHead compact"><div><h2>全部买卖流水</h2><p>COMPLETE ORDER LEDGER</p></div><span class="headMeta">${trades.length} ORDERS</span></div>
-          <div class="tableWrap">${tradeTable(trades)}</div>
+      <div class="shareMainGrid">
+        <article class="panel sharePricePanel">
+          <div class="panelHead compact"><div><h2>${primary?esc(primary.symbol)+" 价格走势":"价格走势"}</h2><p>PRICE MOVEMENT · 买入 / 卖出节点与行情状态</p></div><span class="headMeta">${primary?marketStatusBadge(q[primary.symbol]):""}</span></div>
+          <div class="chartBox sharePriceChart"><canvas id="customerPriceChart"></canvas></div>
         </article>
+        <article class="panel shareReturnPanel">
+          <div class="panelHead compact"><div><h2>持仓收益走势</h2><p>POSITION P/L · 基于当前行情序列</p></div></div>
+          <div class="chartBox shareReturnChart"><canvas id="customerReturnChart"></canvas></div>
+        </article>
+        <article class="panel shareAllocationPanel">
+          <div class="panelHead compact"><div><h2>持仓结构 / 收益构成</h2><p>ALLOCATION & P/L MIX</p></div></div>
+          <div class="shareDonutGrid">
+            <div><canvas id="customerHoldingsChart"></canvas><small>持仓占比</small></div>
+            <div><canvas id="customerProfitChart"></canvas><small>收益构成</small></div>
+          </div>
+        </article>
+      </div>
+
+      <div class="shareLowerGrid">
+        <article class="panel sharePositions">
+          <div class="panelHead compact"><div><h2>客户持仓与买卖记录</h2><p>HOLDINGS & ORDER LEDGER</p></div><span class="headMeta">${openPos.length} POSITIONS · ${trades.length} ORDERS</span></div>
+          <div class="tableWrap shareLedgerTable">${positionTable(pos,q)}${tradeTable(trades.slice(0,10))}</div>
+        </article>
+        <article class="panel shareServicePanel">
+          <div class="panelHead compact"><div><h2>客户资料与服务纪要</h2><p>CLIENT PROFILE · SERVICE NOTES</p></div></div>
+          <div class="shareProfileGrid">
+            <div><span>性别</span><span>${c.gender==="male"?"男性":c.gender==="female"?"女性":"未填写"}</span></div>
+            <div><span>风险级别</span><span>${esc(c.risk_level||"--")}</span></div>
+            <div><span>资金规模</span><span>${c.capital_amount?money(c.capital_amount,c.capital_currency||"USD"):"未填写"}</span></div>
+            <div><span>服务状态</span><span>${customerStatus(c.status)}</span></div>
+          </div>
+          <div class="shareNote"><span>客户备注</span><p>${esc(c.notes||"暂无客户备注")}</p></div>
+          <div class="shareServiceTimeline">
+            ${serviceRows.map(f=>`<div><span>${dt(f.created_at)}</span><p>${esc(f.content)}</p></div>`).join("")||'<div><span>—</span><p>暂无服务纪要</p></div>'}
+          </div>
+          <div class="internalOnly clientOwnerInternal">内部归属：${esc(owner?.display_name||"--")}</div>
+        </article>
+      </div>
+
+      <div class="shareFoot">
+        <span>BRANTONE VEYLOR · PRIVATE CAPITAL ADVISORY</span>
+        <span>行情状态以数据源实际返回为准；延迟数据会明确标注，未确认实时的数据不标记为实时。</span>
+        <span>${romaniaClockText()}</span>
       </div>
     </section>`;
 
-  $("#backCustomers").onclick=()=>{$("#modalRoot").innerHTML="";state.activeCustomer=null};
-  $("#addTradeBtn").onclick=()=>openTradeForm(c);
-  $("#addFollowBtn").onclick=()=>openFollowForm(c);
-  drawCustomerCharts(pos,chartTrades,q);
+  const back=$("#backCustomers");if(back)back.onclick=()=>{$("#modalRoot").innerHTML="";state.activeCustomer=null};
+  const addTrade=$("#addTradeBtn");if(addTrade)addTrade.onclick=()=>openTradeForm(c);
+  const addFollow=$("#addFollowBtn");if(addFollow)addFollow.onclick=()=>openFollowForm(c);
+  const editNote=$("#editNoteBtn");if(editNote)editNote.onclick=()=>openCustomerNoteForm(c);
+  const capture=$("#captureModeBtn");
+  if(capture)capture.onclick=()=>{
+    const page=$("#clientSharePage");
+    page.classList.add("shareCapture");
+    toast("已进入截图模式；内部管理控件已隐藏。点击左上角 BV 标志可退出。");
+  };
+  $("#exitShareMode").onclick=()=>$("#clientSharePage")?.classList.remove("shareCapture");
+  drawCustomerShareCharts(pos,chartTrades,q,primary,realized,unreal);
 }
 
 function positionTable(rows,q){
@@ -719,10 +796,49 @@ function tradeTable(rows){
 }
 
 function drawCustomerCharts(pos,trades,q){
-  const h=pos.filter(p=>Number(p.quantity)>0);state.charts.holdings=new Chart($("#customerHoldingsChart"),{type:"doughnut",data:{labels:h.map(x=>x.symbol),datasets:[{label:"成本结构",data:h.map(x=>Number(x.quantity)*Number(x.avg_cost)),backgroundColor:["#d93447","#5aa2ef","#d5aa51","#2ed3a0","#8b9bad","#8d5ed7"]}]},options:{...chartOpts(),cutout:"65%"}});
+  const h=pos.filter(p=>Number(p.quantity)>0);
+  const hEl=$("#customerHoldingsChart");
+  if(hEl)state.charts.holdings=new Chart(hEl,{type:"doughnut",data:{labels:h.map(x=>x.symbol),datasets:[{label:"成本结构",data:h.map(x=>Number(x.quantity)*Number(x.avg_cost)),backgroundColor:["#14e76d","#6e7cff","#d5aa51","#2ed3a0","#8b9bad","#8d5ed7"]}]},options:{...chartOpts(),cutout:"65%"}});
   let net=0;const data=trades.map(t=>{net+=t.side==="buy"?(Number(t.price)*Number(t.quantity)+Number(t.fees)):-((Number(t.price)*Number(t.quantity))-Number(t.fees));return{x:new Date(t.traded_at).toLocaleDateString("zh-CN"),y:net}});
-  state.charts.trades=new Chart($("#customerTradeChart"),{type:"line",data:{labels:data.map(x=>x.x),datasets:[{label:"累计净投入",data:data.map(x=>x.y),borderColor:"#d5aa51",backgroundColor:"rgba(213,170,81,.12)",fill:true,tension:.25}]},options:chartOpts()});
+  const tEl=$("#customerTradeChart");
+  if(tEl)state.charts.trades=new Chart(tEl,{type:"line",data:{labels:data.map(x=>x.x),datasets:[{label:"累计净投入",data:data.map(x=>x.y),borderColor:"#d5aa51",backgroundColor:"rgba(213,170,81,.12)",fill:true,tension:.25}]},options:chartOpts()});
 }
+
+function drawCustomerShareCharts(pos,trades,q,primary,realized,unreal){
+  const h=pos.filter(p=>Number(p.quantity)>0);
+  const hEl=$("#customerHoldingsChart");
+  if(hEl)state.charts.holdings=new Chart(hEl,{type:"doughnut",data:{labels:h.map(x=>x.symbol),datasets:[{data:h.map(x=>Number(x.quantity)*Number(x.avg_cost)),backgroundColor:["#14e76d","#5a77ff","#d5aa51","#2ed3a0","#9a68dc","#7e8995"],borderWidth:0}]},options:{...chartOpts(),cutout:"67%",plugins:{...chartOpts().plugins,legend:{display:false}}}});
+
+  const profitEl=$("#customerProfitChart");
+  if(profitEl){
+    const vals=[Math.abs(Number(realized)||0),Math.abs(Number(unreal)||0)];
+    state.charts.profit=new Chart(profitEl,{type:"doughnut",data:{labels:["已实现","未实现"],datasets:[{data:vals.some(v=>v>0)?vals:[1,0],backgroundColor:["#d5aa51","#14e76d"],borderWidth:0}]},options:{...chartOpts(),cutout:"67%",plugins:{...chartOpts().plugins,legend:{display:false}}}});
+  }
+
+  const pEl=$("#customerPriceChart"),rEl=$("#customerReturnChart");
+  if(!primary||!q[primary.symbol]||q[primary.symbol].error){
+    if(pEl)pEl.parentElement.innerHTML='<div class="empty">当前持仓暂无可用价格序列</div>';
+    if(rEl)rEl.parentElement.innerHTML='<div class="empty">当前持仓暂无可用收益序列</div>';
+    return;
+  }
+  const quote=q[primary.symbol];
+  const pts=(quote.points||[]).filter(p=>p.close!=null);
+  const labels=pts.map(p=>new Date(p.t).toLocaleTimeString("zh-CN",{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}));
+  const buys=trades.filter(t=>t.symbol===primary.symbol&&t.side==="buy");
+  const sells=trades.filter(t=>t.symbol===primary.symbol&&t.side==="sell");
+  if(pEl){
+    state.charts.customerPrice=new Chart(pEl,{type:"line",data:{labels,datasets:[
+      {label:primary.symbol,data:pts.map(p=>p.close),borderColor:"#14e76d",backgroundColor:"rgba(20,231,109,.08)",fill:true,tension:.18,pointRadius:0,pointHoverRadius:4},
+      {type:"scatter",label:"买入",data:buys.map(t=>({x:new Date(t.traded_at).toLocaleTimeString("zh-CN",{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}),y:Number(t.price)})),pointRadius:5,pointHoverRadius:7,backgroundColor:"#5a77ff"},
+      {type:"scatter",label:"卖出",data:sells.map(t=>({x:new Date(t.traded_at).toLocaleTimeString("zh-CN",{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}),y:Number(t.price)})),pointRadius:5,pointHoverRadius:7,backgroundColor:"#ff626e"}
+    ]},options:chartOpts()});
+  }
+  if(rEl){
+    const qty=Number(primary.quantity),avg=Number(primary.avg_cost);
+    state.charts.customerReturn=new Chart(rEl,{type:"line",data:{labels,datasets:[{label:"持仓浮动盈亏",data:pts.map(p=>(Number(p.close)-avg)*qty),borderColor:"#d5aa51",backgroundColor:"rgba(213,170,81,.10)",fill:true,tension:.18,pointRadius:0,pointHoverRadius:4}]},options:chartOpts()});
+  }
+}
+
 
 function openTradeForm(c){
   modal("新增交易 · "+c.name,`<form id="tradeForm" class="formGrid">
