@@ -524,7 +524,7 @@ function customerTable(rows,full=true){
     ${rows.length?"":'<tr><td colspan="7"><div class="empty">暂无客户数据</div></td></tr>'}
   </tbody></table>`
 }
-function bindCustomerLinks(){$$$(".customerLink").forEach(x=>x.onclick=()=>openCustomer(Number(x.dataset.id)))}
+function bindCustomerLinks(){$(".customerLink").forEach(x=>x.onclick=()=>openCustomer(Number(x.dataset.id)))}
 
 async function renderCustomers(){
   $("#main").innerHTML=pageHead("客户中心","按当前账户权限管理客户资料、交易与跟进。",'<button class="btn primary" id="newCustomer">新增客户</button>')+`
@@ -741,8 +741,8 @@ async function renderPersonnel(){
     ${rows.map(s=>{const parent=state.staff.find(x=>x.id===s.parent_user_id);return`<tr><td class="link">${esc(s.username)}</td><td>${esc(s.display_name)}</td><td>${roleName(s.role)}</td><td>${esc(parent?.display_name||"--")}</td><td><span class="statusDot ${s.status}"></span>${s.status}</td><td>${dt(s.created_at)}</td><td>${state.profile.role==="admin"&&s.role!=="admin"?`<button class="btn resetPwd" data-id="${s.id}">重置密码</button> <button class="btn danger toggleStaff" data-id="${s.id}" data-status="${s.status==="active"?"disabled":"active"}">${s.status==="active"?"禁用":"启用"}</button>`:"--"}</td></tr>`}).join("")}
     </tbody></table></div></article>`;
   if($("#newStaff"))$("#newStaff").onclick=openStaffForm;
-  $$$(".resetPwd").forEach(b=>b.onclick=()=>resetStaffPassword(b.dataset.id));
-  $$$(".toggleStaff").forEach(b=>b.onclick=()=>setStaffStatus(b.dataset.id,b.dataset.status));
+  $(".resetPwd").forEach(b=>b.onclick=()=>resetStaffPassword(b.dataset.id));
+  $(".toggleStaff").forEach(b=>b.onclick=()=>setStaffStatus(b.dataset.id,b.dataset.status));
 }
 
 function openStaffForm(){
@@ -820,7 +820,7 @@ async function renderMarket(){
       const delayText=x.delaySeconds===900?"官方延迟 15m":x.delaySeconds?("延迟 "+Math.round(Number(x.delaySeconds)/60)+"m"):"参考行情";
       return `<div class="marketRow marketPick" data-symbol="${x.symbol}"><span class="link">${esc(x.symbol)}</span><span>${esc(x.name||x.symbol)}</span><span>${esc(x.country||"--")}</span><span>${esc(x.exchange||"--")}</span><span>${usable?money(x.price,x.currency||"USD"):"--"}</span><span class="${usable&&Number(x.changePct)>=0?"up":usable?"down":""}">${usable&&x.changePct!=null?((Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%"):"--"}</span><span>${live?'<span class="liveBadge">实时</span>':usable?'<span class="delayBadge">'+esc(delayText)+'</span>':'<span class="delayBadge">无数据</span>'}</span></div>`;
     }).join("")||'<div class="empty">暂无行情数据</div>';
-    $$$(".marketPick").forEach(r=>r.onclick=()=>drawMarket(q[r.dataset.symbol]));
+    $(".marketPick").forEach(r=>r.onclick=()=>drawMarket(q[r.dataset.symbol]));
     const first=rows.find(x=>!x.error&&Number.isFinite(Number(x.price)));
     if(first) drawMarket(first);
     else {
