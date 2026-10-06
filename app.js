@@ -527,11 +527,29 @@ function customerTable(rows,full=true){
 function bindCustomerLinks(){$$(".customerLink").forEach(x=>x.onclick=()=>openCustomer(Number(x.dataset.id)))}
 
 async function renderCustomers(){
-  $("#main").innerHTML=pageHead("客户中心","按当前账户权限管理客户资料、交易与跟进。",'<button class="btn primary" id="newCustomer">新增客户</button>')+`
-    <article class="panel"><div class="panelHead"><div><h2>客户列表</h2><p>点击客户姓名进入独立详情页</p></div><div class="toolbar"><input id="customerSearch" class="input" placeholder="搜索姓名 / 编号 / 电话"><select id="customerStatus" class="select"><option value="">全部状态</option><option value="prospect">潜在客户</option><option value="following">跟进中</option><option value="holding">持仓中</option><option value="closed">已结束</option><option value="archived">已归档</option></select></div></div><div id="customerTable" class="tableWrap"></div></article>`;
+  $("#main").innerHTML=`
+    <article class="panel modulePanel">
+      <div class="panelHead unifiedModuleHead">
+        <div><h2>客户列表</h2><p>按当前账户权限管理客户资料、交易与跟进</p></div>
+        <div class="toolbar unifiedActions">
+          <input id="customerSearch" class="input" placeholder="搜索姓名 / 编号 / 电话">
+          <select id="customerStatus" class="select">
+            <option value="">全部状态</option><option value="prospect">潜在客户</option><option value="following">跟进中</option><option value="holding">持仓中</option><option value="closed">已结束</option><option value="archived">已归档</option>
+          </select>
+          <button class="btn primary" id="newCustomer">新增客户</button>
+        </div>
+      </div>
+      <div id="customerTable" class="tableWrap moduleContent"></div>
+    </article>`;
   $("#newCustomer").onclick=openCustomerForm;
-  const refresh=()=>{const q=$("#customerSearch").value.toLowerCase(),s=$("#customerStatus").value;const rows=state.customers.filter(c=>(!q||[c.name,c.customer_code,c.phone].some(v=>String(v||"").toLowerCase().includes(q)))&&(!s||c.status===s));$("#customerTable").innerHTML=customerTable(rows);bindCustomerLinks()};
-  $("#customerSearch").oninput=refresh;$("#customerStatus").onchange=refresh;refresh();
+  const refresh=()=>{
+    const q=$("#customerSearch").value.toLowerCase(),s=$("#customerStatus").value;
+    const rows=state.customers.filter(c=>(!q||[c.name,c.customer_code,c.phone].some(v=>String(v||"").toLowerCase().includes(q)))&&(!s||c.status===s));
+    $("#customerTable").innerHTML=customerTable(rows);bindCustomerLinks();
+  };
+  $("#customerSearch").oninput=refresh;
+  $("#customerStatus").onchange=refresh;
+  refresh();
 }
 
 function eligibleOwners(){
@@ -736,10 +754,19 @@ function openFollowForm(c){
 
 async function renderPersonnel(){
   const rows=state.staff.filter(s=>state.profile.role==="admin"||s.id===state.profile.id||s.parent_user_id===state.profile.id);
-  $("#main").innerHTML=pageHead("人员中心",state.profile.role==="admin"?"管理员可创建一级 / 二级账户、重置密码与禁用账户。":"查看本人及名下二级人员。",state.profile.role==="admin"?'<button class="btn primary" id="newStaff">新建人员账户</button>':"")+`
-    <article class="panel"><div class="panelHead"><div><h2>人员账户管理</h2><p>权限由数据库 RLS 强制执行</p></div></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>账号</th><th>姓名</th><th>角色</th><th>上级</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead><tbody>
-    ${rows.map(s=>{const parent=state.staff.find(x=>x.id===s.parent_user_id);return`<tr><td class="link">${esc(s.username)}</td><td>${esc(s.display_name)}</td><td>${roleName(s.role)}</td><td>${esc(parent?.display_name||"--")}</td><td><span class="statusDot ${s.status}"></span>${s.status}</td><td>${dt(s.created_at)}</td><td>${state.profile.role==="admin"&&s.role!=="admin"?`<button class="btn resetPwd" data-id="${s.id}">重置密码</button> <button class="btn danger toggleStaff" data-id="${s.id}" data-status="${s.status==="active"?"disabled":"active"}">${s.status==="active"?"禁用":"启用"}</button>`:"--"}</td></tr>`}).join("")}
-    </tbody></table></div></article>`;
+  const createButton=state.profile.role==="admin"?'<button class="btn primary" id="newStaff">新建人员账户</button>':"";
+  $("#main").innerHTML=`
+    <article class="panel modulePanel">
+      <div class="panelHead unifiedModuleHead">
+        <div><h2>人员账户管理</h2><p>${state.profile.role==="admin"?"管理员可创建一级 / 二级账户；权限由数据库 RLS 强制执行":"查看本人及名下二级人员；权限由数据库 RLS 强制执行"}</p></div>
+        <div class="toolbar unifiedActions">${createButton}</div>
+      </div>
+      <div class="tableWrap moduleContent">
+        <table class="dataTable"><thead><tr><th>账号</th><th>姓名</th><th>角色</th><th>上级</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead><tbody>
+        ${rows.map(s=>{const parent=state.staff.find(x=>x.id===s.parent_user_id);return`<tr><td class="link">${esc(s.username)}</td><td>${esc(s.display_name)}</td><td>${roleName(s.role)}</td><td>${esc(parent?.display_name||"--")}</td><td><span class="statusDot ${s.status}"></span>${s.status}</td><td>${dt(s.created_at)}</td><td>${state.profile.role==="admin"&&s.role!=="admin"?`<button class="btn resetPwd" data-id="${s.id}">重置密码</button> <button class="btn danger toggleStaff" data-id="${s.id}" data-status="${s.status==="active"?"disabled":"active"}">${s.status==="active"?"禁用":"启用"}</button>`:"--"}</td></tr>`}).join("")}
+        </tbody></table>
+      </div>
+    </article>`;
   if($("#newStaff"))$("#newStaff").onclick=openStaffForm;
   $$(".resetPwd").forEach(b=>b.onclick=()=>resetStaffPassword(b.dataset.id));
   $$(".toggleStaff").forEach(b=>b.onclick=()=>setStaffStatus(b.dataset.id,b.dataset.status));
@@ -766,9 +793,21 @@ async function resetStaffPassword(id){const p=prompt("请输入新密码（至�
 async function setStaffStatus(id,status){if(!confirm(status==="disabled"?"确认禁用该账户？":"确认启用该账户？"))return;const j=await callStaffFn({action:"set_status",user_id:id,status});if(j){toast("账户状态已更新");await refreshAll()}}
 
 async function renderTrades(){
-  $("#main").innerHTML=pageHead("交易记录","当前权限范围内的全部客户买入 / 卖出流水。")+`
-    <article class="panel"><div class="panelHead"><div><h2>交易流水</h2><p>持仓由此流水自动计算</p></div><div class="toolbar"><input id="tradeSearch" class="input" placeholder="搜索客户 / 股票"></div></div><div id="tradesTable" class="tableWrap"></div></article>`;
-  const refresh=()=>{const q=$("#tradeSearch").value.toLowerCase(),rows=state.trades.filter(t=>!q||[t.symbol,t.stock_name,t.customers?.name,t.customers?.customer_code].some(v=>String(v||"").toLowerCase().includes(q)));$("#tradesTable").innerHTML=`<table class="dataTable"><thead><tr><th>时间</th><th>客户</th><th>股票</th><th>市场</th><th>类型</th><th>数量</th><th>价格</th><th>手续费</th></tr></thead><tbody>${rows.map(t=>`<tr><td>${dt(t.traded_at)}</td><td>${esc(t.customers?.name||"--")}</td><td class="link">${esc(t.symbol)}</td><td>${esc(t.market)}</td><td class="${t.side==="buy"?"up":"down"}">${t.side==="buy"?"买入":"卖出"}</td><td>${num(t.quantity,4)}</td><td>${money(t.price,t.currency)}</td><td>${money(t.fees,t.currency)}</td></tr>`).join("")}</tbody></table>`};$("#tradeSearch").oninput=refresh;refresh();
+  $("#main").innerHTML=`
+    <article class="panel modulePanel">
+      <div class="panelHead unifiedModuleHead">
+        <div><h2>交易流水</h2><p>当前权限范围内全部客户买入 / 卖出流水；持仓由此自动计算</p></div>
+        <div class="toolbar unifiedActions"><input id="tradeSearch" class="input" placeholder="搜索客户 / 股票"></div>
+      </div>
+      <div id="tradesTable" class="tableWrap moduleContent"></div>
+    </article>`;
+  const refresh=()=>{
+    const q=$("#tradeSearch").value.toLowerCase();
+    const rows=state.trades.filter(t=>!q||[t.symbol,t.stock_name,t.customers?.name,t.customers?.customer_code].some(v=>String(v||"").toLowerCase().includes(q)));
+    $("#tradesTable").innerHTML=`<table class="dataTable"><thead><tr><th>时间</th><th>客户</th><th>股票</th><th>市场</th><th>类型</th><th>数量</th><th>价格</th><th>手续费</th></tr></thead><tbody>${rows.map(t=>`<tr><td>${dt(t.traded_at)}</td><td>${esc(t.customers?.name||"--")}</td><td class="link">${esc(t.symbol)}</td><td>${esc(t.market)}</td><td class="${t.side==="buy"?"up":"down"}">${t.side==="buy"?"买入":"卖出"}</td><td>${num(t.quantity,4)}</td><td>${money(t.price,t.currency)}</td><td>${money(t.fees,t.currency)}</td></tr>`).join("")}</tbody></table>`;
+  };
+  $("#tradeSearch").oninput=refresh;
+  refresh();
 }
 
 async function fetchQuotes(symbols,{realtimeOnly=false}={}){
@@ -786,20 +825,22 @@ async function fetchQuotes(symbols,{realtimeOnly=false}={}){
 }
 
 async function renderPositions(){
-  const symbols=[...new Set(state.positions.filter(p=>Number(p.quantity)>0).map(p=>p.symbol))];const q=await fetchQuotes(symbols,{realtimeOnly:true});
-  $("#main").innerHTML=pageHead("持仓中心","客户交易流水自动汇总；所有市场价格严格只使用数据源确认的实时行情。")+`
-    <article class="panel"><div class="panelHead"><div><h2>当前持仓明细</h2><p>非实时或未授权行情不显示价格，也不参与市值和盈亏计算</p></div></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>客户</th><th>股票</th><th>市场</th><th>数量</th><th>平均成本</th><th>实时价</th><th>市值</th><th>未实现盈亏</th><th>已实现盈亏</th></tr></thead><tbody>${state.positions.filter(p=>Number(p.quantity)>0).map(p=>{const live=q[p.symbol]?.realtime===true&&Number.isFinite(Number(q[p.symbol]?.price)),px=live?Number(q[p.symbol].price):null,mv=live?Number(p.quantity)*px:null,u=live?Number(p.quantity)*(px-Number(p.avg_cost)):null;return`<tr><td>${esc(p.customers?.name||"--")}</td><td class="link">${esc(p.symbol)}</td><td>${esc(p.market)}</td><td>${num(p.quantity,4)}</td><td>${money(p.avg_cost,p.currency)}</td><td>${live?money(px,p.currency):'<span class="delayBadge">实时未确认</span>'}</td><td>${mv==null?"--":money(mv,p.currency)}</td><td class="${u==null?"":u>=0?"up":"down"}">${u==null?"--":money(u,p.currency)}</td><td class="${Number(p.realized_pnl)>=0?"up":"down"}">${money(p.realized_pnl,p.currency)}</td></tr>`}).join("")}</tbody></table></div></article>`;
+  const symbols=[...new Set(state.positions.filter(p=>Number(p.quantity)>0).map(p=>p.symbol))];
+  const q=await fetchQuotes(symbols,{realtimeOnly:true});
+  $("#main").innerHTML=`
+    <article class="panel modulePanel">
+      <div class="panelHead unifiedModuleHead">
+        <div><h2>当前持仓明细</h2><p>仅使用数据源确认的实时行情；非实时数据不参与市值与盈亏计算</p></div>
+        <div class="toolbar unifiedActions"><button class="btn" id="refreshPositions">刷新持仓</button></div>
+      </div>
+      <div class="tableWrap moduleContent"><table class="dataTable"><thead><tr><th>客户</th><th>股票</th><th>市场</th><th>数量</th><th>平均成本</th><th>实时价</th><th>市值</th><th>未实现盈亏</th><th>已实现盈亏</th></tr></thead><tbody>${state.positions.filter(p=>Number(p.quantity)>0).map(p=>{const live=q[p.symbol]?.realtime===true&&Number.isFinite(Number(q[p.symbol]?.price)),px=live?Number(q[p.symbol].price):null,mv=live?Number(p.quantity)*px:null,u=live?Number(p.quantity)*(px-Number(p.avg_cost)):null;return`<tr><td>${esc(p.customers?.name||"--")}</td><td class="link">${esc(p.symbol)}</td><td>${esc(p.market)}</td><td>${num(p.quantity,4)}</td><td>${money(p.avg_cost,p.currency)}</td><td>${live?money(px,p.currency):'<span class="delayBadge">实时未确认</span>'}</td><td>${mv==null?"--":money(mv,p.currency)}</td><td class="${u==null?"":u>=0?"up":"down"}">${u==null?"--":money(u,p.currency)}</td><td class="${Number(p.realized_pnl)>=0?"up":"down"}">${money(p.realized_pnl,p.currency)}</td></tr>`}).join("")}</tbody></table></div>
+    </article>`;
+  $("#refreshPositions").onclick=refreshAll;
 }
 
 async function renderMarket(){
   const presetOptions=Object.entries(MARKET_PRESETS).map(([k,v])=>`<option value="${k}" ${k==="RO"?"selected":""}>${v.label}</option>`).join("");
-  $("#main").innerHTML=`
-    <div class="marketStatusBar">
-      <div class="marketStatus live">时区：Europe/Bucharest</div>
-      <div class="marketStatus">罗马尼亚：BVB 官方行情</div>
-      <div class="marketStatus blocked">实时权限不可用时显示官方延迟数据，不再显示空白价格</div>
-    </div>
-    <section class="grid2">
+  $("#main").innerHTML=`\n    <section class="grid2 marketUnifiedGrid">
       <article class="panel">
         <div class="panelHead"><div><h2>多国家行情</h2><p>实时数据优先；图表悬停显示数据与十字辅助线</p></div><div class="marketControls"><select id="marketCountry" class="select">${presetOptions}</select><input id="marketSymbols" class="input" value="${MARKET_PRESETS.RO.symbols.join(",")}"></div></div>
         <div class="panelBody"><div class="quoteHeader"><div><span class="link" id="mSymbol">--</span><h3 id="mName">选择股票</h3><p class="muted" id="mExchange">--</p><p class="muted" id="mFresh">--</p></div><div><div id="mPrice" class="quotePrice">--</div><div id="mChange">--</div></div></div></div>
