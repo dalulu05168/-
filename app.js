@@ -200,16 +200,21 @@ function renderShell(){
   startRomaniaClock();
 }
 
+let viewSwitchToken=0;
+
 async function switchView(view){
   if(!view)return;
+  const token=++viewSwitchToken;
   const main=$("#main");
   if(main){
+    main.classList.remove("viewReveal");
     main.classList.add("viewLeaving");
-    await new Promise(r=>setTimeout(r,120));
+    await new Promise(r=>setTimeout(r,60));
+    if(token!==viewSwitchToken)return;
   }
   state.activeView=view;
   $$(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
-  await renderView();
+  await renderView(token);
 }
 
 async function refreshAll(){
@@ -222,22 +227,40 @@ async function refreshAll(){
   ];
   const [c,t,p,f,s]=await Promise.all(q);
   if(c.error)toast(c.error.message,true);
-  state.customers=c.data||[];state.trades=t.data||[];state.positions=p.data||[];state.followups=f.data||[];state.staff=s.data||[];
-  await renderView();
+  state.customers=c.data||[];
+  state.trades=t.data||[];
+  state.positions=p.data||[];
+  state.followups=f.data||[];
+  state.staff=s.data||[];
+  await renderView(0);
 }
 
-async function renderView(token=viewSwitchToken){
-  Object.values(state.charts).forEach(x=>{try{x.destroy()}catch{}});state.charts={};
+async function renderView(token=0){
+  Object.values(state.charts).forEach(x=>{try{x.destroy()}catch{}});
+  state.charts={};
   const main=$("#main");
+  if(!main)return;
+  main.className="viewBusy";
   main.dataset.view=state.activeView;
-  const f={dashboard:renderDashboard,customers:renderCustomers,personnel:renderPersonnel,trades:renderTrades,positions:renderPositions,market:renderMarket,reports:renderReports,settings:renderSettings}[state.activeView]||renderDashboard;
+  const renderer={
+    dashboard:renderDashboard,
+    customers:renderCustomers,
+    personnel:renderPersonnel,
+    trades:renderTrades,
+    positions:renderPositions,
+    market:renderMarket,
+    reports:renderReports,
+    settings:renderSettings
+  }[state.activeView]||renderDashboard;
+
   try{
-    await f();
+    await renderer();
   }catch(err){
     console.error("renderView failed",state.activeView,err);
+    main.innerHTML='<div class="empty" style="padding:40px">页面加载失败，请点击顶部导航重新进入。</div>';
     toast("页面加载异常："+(err?.message||"未知错误"),true);
   }finally{
-    if(token!==viewSwitchToken&&token!==0)return;
+    if(token!==0 && token!==viewSwitchToken)return;
     main.classList.remove("viewBusy","viewLeaving","viewEntering");
     main.classList.add("viewReveal");
     requestAnimationFrame(()=>requestAnimationFrame(()=>main.classList.remove("viewReveal")));
