@@ -28,9 +28,15 @@ function customerStatus(s){return ({prospect:"潜在客户",following:"跟进中
 function canPersonnel(){return state.profile?.role==="admin"||state.profile?.role==="level1"}
 
 async function checkBootstrap(){
-  const {data,error}=await supabase.rpc("bootstrap_status");
-  if(error){toast("初始化状态读取失败："+error.message,true);return false}
-  return !!data?.initialized;
+  try{
+    const r=await fetch(SUPABASE_URL+"/functions/v1/bootstrap-status",{headers:{"apikey":SUPABASE_KEY}});
+    const j=await r.json();
+    if(!r.ok) throw new Error(j.error||"读取失败");
+    return !!j.initialized;
+  }catch(err){
+    toast("初始化状态读取失败："+err.message,true);
+    return false;
+  }
 }
 
 function renderLogin(initialized){
