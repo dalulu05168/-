@@ -3226,3 +3226,48 @@ strong,b{
     overflow:auto!important;
   }
 }
+
+
+/* === Screenshot mode v2: keep page in place, hide only 3 internal items === */
+.screenshotMode{
+  position:relative!important;
+  inset:auto!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:100%!important;
+  overflow:auto!important;
+}
+.screenshotMode .screenshotHide{
+  display:none!important;
+}
+.screenshotMode .shareTopbar{
+  grid-template-columns:280px minmax(320px,1fr) 260px auto!important;
+}
+.quoteTimeBadge{
+  display:inline-flex;
+  align-items:center;
+  min-height:22px;
+  padding:3px 7px;
+  border:1px solid #34303a;
+  border-radius:999px;
+  background:#18151c;
+  color:#85808a;
+  font-size:8px;
+  font-weight:400!important;
+  white-space:nowrap;
+}
+.quoteCellTime{
+  color:#69646e;
+  font-size:8px;
+  font-weight:400!important;
+  margin-left:4px;
+}
+/* legacy fullscreen capture class is no longer used */
+.shareCapture{
+  position:relative!important;
+  inset:auto!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:100%!important;
+  overflow:auto!important;
+}
