@@ -193,7 +193,7 @@ function renderShell(){
     </div></div>
     <div id="modalRoot"></div>
   `;
-  $(".nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+  $$(".nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
   $("#logoutBtn").onclick=async()=>{await supabase.auth.signOut();state.profile=null;state.session=null;renderLogin(true)};
   startRomaniaClock();
 }
