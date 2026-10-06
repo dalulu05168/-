@@ -1356,7 +1356,7 @@ html,body{
   border-radius:20px;
   background:linear-gradient(180deg,rgba(27,24,31,.98),rgba(18,16,23,.98));
   box-shadow:0 12px 30px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.025);
-  backdrop-filter:blur(18px);
+  
 }
 .brand{
   min-width:0;
@@ -1487,16 +1487,24 @@ html,body{
   overflow:hidden;
   opacity:1;
   transform:translateY(0) scale(1);
-  transition:opacity .18s ease,transform .18s ease,filter .18s ease;
+  transition:opacity .14s ease,transform .14s ease;
 }
 #main.viewLeaving{
-  opacity:0;
-  transform:translateY(5px) scale(.998);
-  filter:blur(.8px);
+  opacity:.18;
+  transform:translateY(2px);
+  pointer-events:none;
 }
-#main.viewEntering{
-  opacity:0;
-  transform:translateY(5px) scale(.998);
+#main.viewBusy{
+  opacity:.72;
+  transform:translateY(0);
+  pointer-events:none;
+}
+#main.viewReveal{
+  animation:viewReveal .14s ease both;
+}
+@keyframes viewReveal{
+  from{opacity:.55;transform:translateY(3px)}
+  to{opacity:1;transform:translateY(0)}
 }
 #main[data-view="customers"],
 #main[data-view="personnel"],
