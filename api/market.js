@@ -11,6 +11,16 @@ const MARKET_INFO = [
   [".T",  { country: "日本", countryCode: "JP", exchangeLabel: "Tokyo Stock Exchange", currency: "JPY" }]
 ];
 
+const RO_NAMES = {
+  TLV:"Banca Transilvania",
+  SNP:"OMV Petrom",
+  SNG:"Romgaz",
+  SNN:"Nuclearelectrica",
+  H2O:"Hidroelectrica",
+  BRD:"BRD Groupe Société Générale",
+  BVB:"Bursa de Valori București"
+};
+
 function marketInfo(symbol) {
   const s = symbol.toUpperCase();
   for (const [suffix, info] of MARKET_INFO) if (s.endsWith(suffix)) return info;
@@ -76,6 +86,43 @@ async function bvbRealtime(symbol) {
   };
 }
 
+async function bvbDelayed(symbol) {
+  const code = symbol.replace(/\.RO$/i, "");
+  const levelUrl = `https://ws.bvb.ro/BVBDelayedWS/Intraday.asmx/Level1?symbol=${encodeURIComponent(code)}&market=`;
+  const seriesUrl = `https://ws.bvb.ro/BVBDelayedWS/Intraday.asmx/SymbolDataSeries?symbol=${encodeURIComponent(code)}&market=&fromID=0&toID=0`;
+  const headers = { "User-Agent": "Brantone-Veylor-CRM/1.0" };
+  const [levelRes, seriesRes] = await Promise.all([
+    fetch(levelUrl, { headers, signal: AbortSignal.timeout(7000) }),
+    fetch(seriesUrl, { headers, signal: AbortSignal.timeout(7000) })
+  ]);
+  if (!levelRes.ok) throw new Error(`BVB Delayed Level1 HTTP ${levelRes.status}`);
+  const level = await levelRes.text();
+  const points = seriesRes.ok ? parseBvbTrades(await seriesRes.text()) : [];
+  const price = numberTag(level, ["Closeprice","ClosePrice","Lastprice","LastPrice","ReferencePrice"]);
+  const prev = numberTag(level, ["ReferencePrice","OfficialPrice","PreviousClose","PrevClose"]);
+  const changePct = numberTag(level, ["PrcChgFromOfficialPrice","PrcChange","PercentChange"]);
+  const lastTrade = tag(level, "LastTradeTime") || tag(level, "LastBestTime");
+  if (!Number.isFinite(price)) throw new Error("BVB 官方延迟行情价格为空");
+  return {
+    symbol,
+    name: RO_NAMES[code] || code,
+    exchange: "Bucharest Stock Exchange",
+    country: "罗马尼亚",
+    countryCode: "RO",
+    currency: "RON",
+    price,
+    previousClose: prev,
+    changePct: Number.isFinite(changePct) ? changePct : (prev ? ((price-prev)/prev)*100 : null),
+    marketState: tag(level, "SymbolStatus") || "BVB",
+    timezone: "Europe/Bucharest",
+    points,
+    source: "BVB Official Delayed",
+    realtime: false,
+    delaySeconds: 900,
+    lastTradeAt: lastTrade || (points.at(-1)?.t ? new Date(points.at(-1).t).toISOString() : null)
+  };
+}
+
 async function yahooQuote(symbol) {
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1d&interval=1m&includePrePost=false`;
   const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(7000) });
@@ -118,13 +165,25 @@ async function yahooQuote(symbol) {
 async function getQuote(symbol) {
   if (symbol.endsWith(".RO")) {
     try { return await bvbRealtime(symbol); }
-    catch (e) {
-      const fallback = await yahooQuote(symbol);
-      if (!fallback.error) {
-        fallback.bvbRealtimeError = e instanceof Error ? e.message : "BVB 实时接口不可用";
-        fallback.realtime = false;
+    catch (realtimeError) {
+      try {
+        const delayed = await bvbDelayed(symbol);
+        delayed.realtimeError = realtimeError instanceof Error ? realtimeError.message : "BVB Online 实时权限不可用";
+        return delayed;
+      } catch (delayedError) {
+        return {
+          symbol,
+          name: RO_NAMES[symbol.replace(/\.RO$/i,"")] || symbol,
+          exchange: "Bucharest Stock Exchange",
+          country: "罗马尼亚",
+          countryCode: "RO",
+          currency: "RON",
+          realtime: false,
+          delaySeconds: null,
+          source: "BVB",
+          error: delayedError instanceof Error ? delayedError.message : "BVB 行情不可用"
+        };
       }
-      return fallback;
     }
   }
   return yahooQuote(symbol);
