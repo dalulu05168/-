@@ -228,31 +228,112 @@ function pageHead(title,sub,actions=""){
 }
 
 async function renderDashboard(){
-  const holdingIds=new Set(state.positions.filter(p=>Number(p.quantity)>0).map(p=>p.customer_id));
-  const todayCustomers=state.customers.filter(c=>isRomaniaToday(c.created_at)).length;
-  const todayFollow=state.followups.filter(f=>isRomaniaToday(f.created_at)).length;
-  const teamCount=state.profile.role==="admin"?state.staff.filter(s=>s.role!=="admin").length:state.profile.role==="level1"?state.staff.filter(s=>s.parent_user_id===state.profile.id).length:0;
-  $("#main").innerHTML=pageHead(
-    state.profile.role==="admin"?"管理员总览":state.profile.role==="level1"?"一级人员工作台":"二级人员工作台",
-    "所有统计仅来自当前账户权限范围内的真实数据。"
-  )+`
-    <section class="kpis">
-      <article class="kpi"><label>客户总数</label><strong>${state.customers.length}</strong><small>当前可见客户</small></article>
-      <article class="kpi"><label>${state.profile.role==="level2"?"今日新增":"团队人员"}</label><strong>${state.profile.role==="level2"?todayCustomers:teamCount}</strong><small>${state.profile.role==="level2"?"今日创建":"当前权限范围"}</small></article>
-      <article class="kpi"><label>持仓客户</label><strong>${holdingIds.size}</strong><small>持仓数量大于 0</small></article>
-      <article class="kpi"><label>今日新增客户</label><strong>${todayCustomers}</strong><small>按创建时间统计</small></article>
-      <article class="kpi"><label>今日跟进</label><strong>${todayFollow}</strong><small>跟进记录</small></article>
-      <article class="kpi"><label>持仓标的</label><strong>${state.positions.filter(p=>Number(p.quantity)>0).length}</strong><small>客户 × 股票</small></article>
-    </section>
-    <section class="grid2">
-      <article class="panel"><div class="panelHead"><div><h2>客户与交易趋势</h2><p>最近 14 天</p></div></div><div class="chartBox"><canvas id="trendChart"></canvas></div></article>
-      <article class="panel"><div class="panelHead"><div><h2>客户状态分布</h2><p>当前客户阶段</p></div></div><div class="chartBox"><canvas id="statusChart"></canvas></div></article>
-    </section>
-    <section class="grid2" style="margin-top:13px">
-      <article class="panel"><div class="panelHead"><div><h2>最近客户</h2><p>最新创建的客户档案</p></div></div><div class="tableWrap">${customerTable(state.customers.slice(0,8),false)}</div></article>
-      <article class="panel"><div class="panelHead"><div><h2>待跟进事项</h2><p>存在下次跟进时间的记录</p></div></div><div class="panelBody list">
-        ${state.followups.filter(f=>f.next_followup_at).slice(0,7).map(f=>`<div class="listItem"><div class="top"><span>${esc(f.customers?.name||"客户")}</span><small>${dt(f.next_followup_at)}</small></div><p>${esc(f.content)}</p></div>`).join("")||'<div class="empty">暂无待跟进事项</div>'}
-      </div></article>
+  const openPositions=state.positions.filter(p=>Number(p.quantity)>0);
+  const holdingCustomerIds=[...new Set(openPositions.map(p=>p.customer_id))];
+  const teamCount=state.profile.role==="admin"
+    ? state.staff.filter(s=>s.role!=="admin"&&s.status==="active").length
+    : state.profile.role==="level1"
+      ? state.staff.filter(s=>s.parent_user_id===state.profile.id&&s.status==="active").length
+      : 0;
+  const todayTrades=state.trades.filter(t=>isRomaniaToday(t.traded_at)).length;
+  const dueFollowups=state.followups.filter(f=>f.next_followup_at&&new Date(f.next_followup_at)<=new Date()).length;
+  const recentTrades=state.trades.slice(0,5);
+  const visiblePositions=openPositions.slice(0,6);
+
+  const costBasisByCurrency={};
+  for(const p of openPositions){
+    const c=p.currency||"USD";
+    costBasisByCurrency[c]=(costBasisByCurrency[c]||0)+(Number(p.quantity)*Number(p.avg_cost));
+  }
+  const costBasisText=Object.entries(costBasisByCurrency).slice(0,2).map(([c,v])=>money(v,c)).join(" · ")||"—";
+
+  $("#main").innerHTML=`
+    <section class="executiveDashboard">
+      <div class="executiveKpis">
+        <article class="execStat accent">
+          <div class="execEyebrow">PORTFOLIO CLIENTS</div>
+          <div class="execStatHead"><span>客户总数</span><span class="execIcon">◫</span></div>
+          <div class="execValue">${state.customers.length}</div>
+          <div class="execMeta">当前权限可见</div>
+        </article>
+        <article class="execStat">
+          <div class="execEyebrow">TODAY ACTIVITY</div>
+          <div class="execStatHead"><span>今日交易</span><span class="execIcon">↗</span></div>
+          <div class="execValue">${todayTrades}</div>
+          <div class="execMeta">罗马尼亚时间</div>
+        </article>
+        <article class="execStat">
+          <div class="execEyebrow">OPEN POSITIONS</div>
+          <div class="execStatHead"><span>当前持仓</span><span class="execIcon">◔</span></div>
+          <div class="execValue">${openPositions.length}</div>
+          <div class="execMeta">${holdingCustomerIds.length} 位客户</div>
+        </article>
+        <article class="execStat">
+          <div class="execEyebrow">FOLLOW-UP RISK</div>
+          <div class="execStatHead"><span>待跟进</span><span class="execIcon">▣</span></div>
+          <div class="execValue">${dueFollowups}</div>
+          <div class="execMeta">已到跟进时间</div>
+        </article>
+        <article class="execStat">
+          <div class="execEyebrow">TEAM SCOPE</div>
+          <div class="execStatHead"><span>团队人员</span><span class="execIcon">◇</span></div>
+          <div class="execValue">${state.profile.role==="level2"?"—":teamCount}</div>
+          <div class="execMeta">${state.profile.role==="level2"?"当前为二级账户":"当前权限范围"}</div>
+        </article>
+      </div>
+
+      <div class="executiveMain">
+        <article class="panel executiveTablePanel">
+          <div class="panelHead compact"><div><h2>持仓客户</h2><p>OPEN CLIENT POSITIONS</p></div><span class="headMeta">${openPositions.length} POSITIONS</span></div>
+          <div class="tableWrap">
+            <table class="dataTable executiveTable">
+              <thead><tr><th>股票代码</th><th>客户</th><th>持仓数量</th><th>平均成本</th><th>市场</th><th>操作</th></tr></thead>
+              <tbody>
+                ${visiblePositions.map(p=>`<tr>
+                  <td class="symbolCell">${esc(p.symbol)}</td>
+                  <td>${esc(p.customers?.name||"--")}</td>
+                  <td class="goldData">${num(p.quantity,4)}</td>
+                  <td>${money(p.avg_cost,p.currency)}</td>
+                  <td>${esc(p.market)}</td>
+                  <td><button class="tableAction customerLink" data-id="${p.customer_id}">查看客户 ↗</button></td>
+                </tr>`).join("")}
+                ${visiblePositions.length?"":'<tr><td colspan="6"><div class="empty executiveEmpty">暂无持仓数据</div></td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <div class="executiveSide">
+          <article class="panel executiveChartPanel">
+            <div class="panelHead compact"><div><h2>业务趋势</h2><p>14 DAY ACTIVITY</p></div><span class="headMeta">ROMANIA TIME</span></div>
+            <div class="chartBox executiveChart"><canvas id="trendChart"></canvas></div>
+          </article>
+          <article class="panel executiveAllocPanel">
+            <div class="panelHead compact"><div><h2>持仓概览</h2><p>COST BASIS</p></div><span class="headMeta">${openPositions.length} ITEMS</span></div>
+            <div class="allocBody">
+              <div class="allocTotal"><span>成本基准</span><span>${esc(costBasisText)}</span></div>
+              <div class="allocationRows">
+                ${Object.entries(costBasisByCurrency).slice(0,4).map(([c,v])=>{
+                  const total=Object.values(costBasisByCurrency).reduce((a,b)=>a+b,0)||1;
+                  const pct=Math.max(2,Math.min(100,(v/total)*100));
+                  return `<div class="allocRow"><div class="allocLabels"><span>${esc(c)}</span><span>${money(v,c)}</span></div><div class="allocTrack"><i style="width:${pct}%"></i></div></div>`
+                }).join("")||'<div class="empty executiveEmpty">暂无持仓分配数据</div>'}
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <article class="panel recentOrders">
+        <div class="panelHead compact"><div><h2>近期交易</h2><p>RECENT ORDERS</p></div><span class="headMeta">${recentTrades.length} ORDERS</span></div>
+        <div class="recentOrderGrid">
+          ${recentTrades.map(t=>`<div class="recentOrder">
+            <div class="recentOrderTop"><span class="recentSymbol">${esc(t.symbol)}</span><span class="recentMarket">${esc(t.market||"")}</span></div>
+            <div class="recentSub">${esc(t.customers?.name||"客户")} · ${dt(t.traded_at)}</div>
+            <div class="recentAmount">${t.side==="buy"?"买入":"卖出"} · ${num(t.quantity,4)} × ${money(t.price,t.currency)}</div>
+          </div>`).join("")||'<div class="empty executiveEmpty" style="grid-column:1/-1">暂无近期交易</div>'}
+        </div>
+      </article>
     </section>`;
   drawDashboardCharts();
   bindCustomerLinks();
