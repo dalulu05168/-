@@ -5,18 +5,91 @@ const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+const ROMANIA_TZ = "Europe/Bucharest";
+const MARKET_PRESETS = {
+  RO:{label:"罗马尼亚",symbols:["TLV.RO","SNP.RO","SNG.RO","SNN.RO","H2O.RO","BRD.RO","BVB.RO"]},
+  US:{label:"美国",symbols:["AAPL","MSFT","NVDA","AMZN","TSLA"]},
+  FR:{label:"法国",symbols:["MC.PA","OR.PA","AIR.PA","BNP.PA","TTE.PA"]},
+  DE:{label:"德国",symbols:["SAP.DE","SIE.DE","ALV.DE","BMW.DE","DTE.DE"]},
+  GB:{label:"英国",symbols:["SHEL.L","AZN.L","HSBA.L","ULVR.L","BP.L"]},
+  IT:{label:"意大利",symbols:["ENI.MI","ISP.MI","ENEL.MI","STLAM.MI"]},
+  ES:{label:"西班牙",symbols:["SAN.MC","IBE.MC","ITX.MC","BBVA.MC"]},
+  NL:{label:"荷兰",symbols:["ASML.AS","INGA.AS","PHIA.AS","ADYEN.AS"]},
+  CH:{label:"瑞士",symbols:["NESN.SW","ROG.SW","NOVN.SW"]},
+  PL:{label:"波兰",symbols:["PKO.WA","CDR.WA","PKN.WA"]},
+  JP:{label:"日本",symbols:["7203.T","6758.T","9984.T","8306.T"]}
+};
+
 const state = {
   session:null, profile:null, staff:[], customers:[], trades:[], positions:[], followups:[],
   charts:{}, activeView:"dashboard", activeCustomer:null, quotes:{}
 };
+
+let romaniaClockTimer=null;
 
 const $ = (s,root=document)=>root.querySelector(s);
 const $$ = (s,root=document)=>[...root.querySelectorAll(s)];
 const esc = (v="") => String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 const money = (n,c="USD") => new Intl.NumberFormat("zh-CN",{style:"currency",currency:c||"USD",maximumFractionDigits:2}).format(Number(n||0));
 const num = (n,d=2)=>Number(n||0).toLocaleString("zh-CN",{maximumFractionDigits:d});
-const dt = (v)=>v?new Date(v).toLocaleString("zh-CN",{hour12:false}):"--";
-const todayStart = ()=>{const d=new Date();d.setHours(0,0,0,0);return d};
+const dt = (v)=>v?new Date(v).toLocaleString("zh-CN",{timeZone:ROMANIA_TZ,hour12:false}):"--";
+const romaniaDateKey = (v=new Date()) => new Intl.DateTimeFormat("en-CA",{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(v));
+const isRomaniaToday = v => romaniaDateKey(v)===romaniaDateKey();
+const romaniaClockText = () => new Intl.DateTimeFormat("zh-CN",{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false,timeZoneName:"short"}).format(new Date());
+function romaniaDayKeys(count){
+  const [y,m,d]=romaniaDateKey().split("-").map(Number);
+  const base=new Date(Date.UTC(y,m-1,d,12));
+  return Array.from({length:count},(_,i)=>{
+    const x=new Date(base);x.setUTCDate(x.getUTCDate()-(count-1-i));
+    return x.toISOString().slice(0,10);
+  });
+}
+function romaniaInputNow(){
+  const p=new Intl.DateTimeFormat("en-CA",{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date());
+  const o=Object.fromEntries(p.map(x=>[x.type,x.value]));
+  return `${o.year}-${o.month}-${o.day}T${o.hour}:${o.minute}`;
+}
+function zoneOffsetMs(ts,timeZone){
+  const d=new Date(ts);
+  const p=new Intl.DateTimeFormat("en-US",{timeZone,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).formatToParts(d);
+  const o=Object.fromEntries(p.map(x=>[x.type,x.value]));
+  return Date.UTC(+o.year,+o.month-1,+o.day,+o.hour,+o.minute,+o.second)-Math.floor(ts/1000)*1000;
+}
+function romaniaLocalToISO(value){
+  if(!value)return null;
+  const base=Date.parse(value+":00Z");
+  let utc=base-zoneOffsetMs(base,ROMANIA_TZ);
+  utc=base-zoneOffsetMs(utc,ROMANIA_TZ);
+  return new Date(utc).toISOString();
+}
+function startRomaniaClock(){
+  clearInterval(romaniaClockTimer);
+  const tick=()=>{const el=$("#romaniaClock");if(el)el.textContent=romaniaClockText()};
+  tick();romaniaClockTimer=setInterval(tick,1000);
+}
+
+const crosshairPlugin={
+  id:"bvCrosshair",
+  afterDraw(chart){
+    const active=chart.tooltip?.getActiveElements?.()||[];
+    if(!active.length)return;
+    const el=active[0].element;
+    if(!el)return;
+    const {ctx,chartArea}=chart;
+    if(!chartArea)return;
+    ctx.save();
+    ctx.strokeStyle="rgba(213,170,81,.65)";
+    ctx.lineWidth=1;
+    ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(el.x,chartArea.top);ctx.lineTo(el.x,chartArea.bottom);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(chartArea.left,el.y);ctx.lineTo(chartArea.right,el.y);ctx.stroke();
+    ctx.restore();
+  }
+};
+if(window.Chart){
+  Chart.register(crosshairPlugin);
+  Chart.defaults.font.weight="normal";
+}
 
 function toast(msg,error=false){
   let t=$("#toast"); if(!t){t=document.createElement("div");t.id="toast";document.body.appendChild(t)}
@@ -52,6 +125,7 @@ function renderLogin(initialized){
         <div class="loginCard">
           <h2>${initialized?"登录系统":"首次初始化管理员"}</h2>
           <p>${initialized?"管理员 / 一级人员 / 二级人员统一入口":"系统尚未初始化，请创建第一个管理员账户。"}</p>
+          <div class="romaniaClock" id="romaniaClock" style="margin-bottom:14px"></div>
           <form id="${initialized?"loginForm":"bootstrapForm"}">
             ${initialized?"":`<div class="field"><label>管理员姓名</label><input class="input" name="display_name" required></div>`}
             <div class="field"><label>账号</label><input class="input" name="username" autocomplete="username" required></div>
@@ -65,6 +139,7 @@ function renderLogin(initialized){
     </section>`;
   const form=$("#"+(initialized?"loginForm":"bootstrapForm"));
   form.addEventListener("submit",initialized?login:bootstrap);
+  startRomaniaClock();
 }
 
 async function bootstrap(e){
@@ -112,14 +187,15 @@ function renderShell(){
       <header class="topbar">
         <div class="brand"><div class="mark">BV<small>1996</small></div><div class="brandText"><b>BRANTONE VEYLOR</b><span>PRIVATE CAPITAL ADVISORY</span></div></div>
         <nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}">${label}</button>`).join("")}</nav>
-        <div class="userArea"><span class="sysok">● 系统运行正常</span><span class="chip">${roleName(state.profile.role)} · ${esc(state.profile.display_name)}</span><button id="logoutBtn" class="iconBtn">退出</button></div>
+        <div class="userArea"><span class="sysok">● 系统运行正常</span><span class="romaniaClock" id="romaniaClock"></span><span class="chip">${roleName(state.profile.role)} · ${esc(state.profile.display_name)}</span><button id="logoutBtn" class="iconBtn">退出</button></div>
       </header>
       <main id="main"></main>
     </div></div>
     <div id="modalRoot"></div>
   `;
-  $$(".nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+  $(".nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
   $("#logoutBtn").onclick=async()=>{await supabase.auth.signOut();state.profile=null;state.session=null;renderLogin(true)};
+  startRomaniaClock();
 }
 
 async function switchView(view){
@@ -152,10 +228,9 @@ function pageHead(title,sub,actions=""){
 }
 
 async function renderDashboard(){
-  const today=todayStart();
   const holdingIds=new Set(state.positions.filter(p=>Number(p.quantity)>0).map(p=>p.customer_id));
-  const todayCustomers=state.customers.filter(c=>new Date(c.created_at)>=today).length;
-  const todayFollow=state.followups.filter(f=>new Date(f.created_at)>=today).length;
+  const todayCustomers=state.customers.filter(c=>isRomaniaToday(c.created_at)).length;
+  const todayFollow=state.followups.filter(f=>isRomaniaToday(f.created_at)).length;
   const teamCount=state.profile.role==="admin"?state.staff.filter(s=>s.role!=="admin").length:state.profile.role==="level1"?state.staff.filter(s=>s.parent_user_id===state.profile.id).length:0;
   $("#main").innerHTML=pageHead(
     state.profile.role==="admin"?"管理员总览":state.profile.role==="level1"?"一级人员工作台":"二级人员工作台",
@@ -184,12 +259,23 @@ async function renderDashboard(){
 }
 
 function drawDashboardCharts(){
-  const labels=[];const newC=[];const tradeC=[];
-  for(let i=13;i>=0;i--){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-i);const n=new Date(d);n.setDate(d.getDate()+1);labels.push((d.getMonth()+1)+"/"+d.getDate());newC.push(state.customers.filter(x=>new Date(x.created_at)>=d&&new Date(x.created_at)<n).length);tradeC.push(state.trades.filter(x=>new Date(x.traded_at)>=d&&new Date(x.traded_at)<n).length)}
+  const keys14=romaniaDayKeys(14);
+  const labels=keys14.map(k=>k.slice(5).replace("-","/"));
+  const newC=keys14.map(k=>state.customers.filter(x=>romaniaDateKey(x.created_at)===k).length);
+  const tradeC=keys14.map(k=>state.trades.filter(x=>romaniaDateKey(x.traded_at)===k).length);
   state.charts.trend=new Chart($("#trendChart"),{type:"line",data:{labels,datasets:[{label:"新增客户",data:newC,borderColor:"#d93447",backgroundColor:"rgba(217,52,71,.15)",tension:.35,fill:true},{label:"交易记录",data:tradeC,borderColor:"#5aa2ef",tension:.35}]},options:chartOpts()});
   const keys=["prospect","following","holding","closed","archived"];state.charts.status=new Chart($("#statusChart"),{type:"doughnut",data:{labels:keys.map(customerStatus),datasets:[{data:keys.map(k=>state.customers.filter(x=>x.status===k).length),backgroundColor:["#5aa2ef","#d5aa51","#2ed3a0","#8b9bad","#d93447"]}]},options:{...chartOpts(),cutout:"68%"}});
 }
-function chartOpts(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:"#91a4b4",font:{weight:"normal"}}},tooltip:{backgroundColor:"#07131f",borderColor:"#35516a",borderWidth:1}},scales:{x:{ticks:{color:"#6f8497"},grid:{color:"#173047"}},y:{ticks:{color:"#6f8497"},grid:{color:"#173047"}}}}}
+function chartOpts(){return{
+  responsive:true,maintainAspectRatio:false,
+  interaction:{mode:"index",intersect:false},
+  hover:{mode:"index",intersect:false},
+  plugins:{
+    legend:{labels:{color:"#91a4b4",font:{weight:"normal"}}},
+    tooltip:{enabled:true,mode:"index",intersect:false,backgroundColor:"#07131f",borderColor:"#35516a",borderWidth:1,titleFont:{weight:"normal"},bodyFont:{weight:"normal"}}
+  },
+  scales:{x:{ticks:{color:"#6f8497",font:{weight:"normal"}},grid:{color:"#173047"}},y:{ticks:{color:"#6f8497",font:{weight:"normal"}},grid:{color:"#173047"}}}
+}}
 
 function customerTable(rows,full=true){
   return `<table class="dataTable"><thead><tr><th>客户编号</th><th>客户姓名</th>${full?"<th>状态</th><th>地区</th><th>负责人</th>":""}<th>建立时间</th><th>操作</th></tr></thead><tbody>
@@ -239,16 +325,17 @@ async function saveCustomer(e){
 async function openCustomer(id){
   const c=state.customers.find(x=>x.id===id);if(!c)return;state.activeCustomer=c;
   const pos=state.positions.filter(x=>x.customer_id===id);const trades=state.trades.filter(x=>x.customer_id===id).sort((a,b)=>new Date(a.traded_at)-new Date(b.traded_at));const follows=state.followups.filter(x=>x.customer_id===id);
-  const symbols=[...new Set(pos.filter(p=>Number(p.quantity)>0).map(p=>p.symbol))];const q=await fetchQuotes(symbols);
-  const currentValue=pos.reduce((a,p)=>a+Number(p.quantity)*(q[p.symbol]?.price??Number(p.avg_cost)),0);
-  const unreal=pos.reduce((a,p)=>a+(Number(p.quantity)*((q[p.symbol]?.price??Number(p.avg_cost))-Number(p.avg_cost))),0);
+  const symbols=[...new Set(pos.filter(p=>Number(p.quantity)>0).map(p=>p.symbol))];const q=await fetchQuotes(symbols,{realtimeOnly:true});
+  const livePos=pos.filter(p=>q[p.symbol]?.realtime===true&&Number.isFinite(Number(q[p.symbol]?.price)));
+  const currentValue=livePos.reduce((a,p)=>a+Number(p.quantity)*Number(q[p.symbol].price),0);
+  const unreal=livePos.reduce((a,p)=>a+(Number(p.quantity)*(Number(q[p.symbol].price)-Number(p.avg_cost))),0);
   $("#modalRoot").innerHTML=`
     <section class="customerDetail">
       <div class="detailTop"><button class="btn" id="backCustomers">← 返回</button><div><h1>${esc(c.name)}</h1><span class="muted">${esc(c.customer_code)} · ${customerStatus(c.status)}</span></div><div style="margin-left:auto" class="actions"><button class="btn gold" id="addTradeBtn">新增交易</button><button class="btn" id="addFollowBtn">记录跟进</button></div></div>
       <div class="detailBody">
         <section class="kpis">
-          <article class="kpi"><label>当前持仓市值</label><strong>${money(currentValue,pos[0]?.currency||"USD")}</strong><small>按最新可用行情估算</small></article>
-          <article class="kpi"><label>未实现盈亏</label><strong class="${unreal>=0?"up":"down"}">${money(unreal,pos[0]?.currency||"USD")}</strong><small>最新价 - 平均成本</small></article>
+          <article class="kpi"><label>当前持仓市值</label><strong>${livePos.length?money(currentValue,pos[0]?.currency||"USD"):"--"}</strong><small>仅使用已确认实时行情</small></article>
+          <article class="kpi"><label>未实现盈亏</label><strong class="${unreal>=0?"up":"down"}">${livePos.length?money(unreal,pos[0]?.currency||"USD"):"--"}</strong><small>非实时数据不参与计算</small></article>
           <article class="kpi"><label>持仓股票</label><strong>${pos.filter(p=>Number(p.quantity)>0).length}</strong><small>当前数量大于 0</small></article>
           <article class="kpi"><label>累计交易</label><strong>${trades.length}</strong><small>买入 + 卖出</small></article>
           <article class="kpi"><label>跟进记录</label><strong>${follows.length}</strong><small>客户沟通历史</small></article>
@@ -281,14 +368,14 @@ async function openCustomer(id){
 }
 
 function positionTable(rows,q){
-  return `<table class="dataTable"><thead><tr><th>股票</th><th>市场</th><th>数量</th><th>平均成本</th><th>最新价</th><th>未实现盈亏</th><th>已实现盈亏</th></tr></thead><tbody>${rows.filter(p=>Number(p.quantity)>0||Number(p.realized_pnl)!==0).map(p=>{const last=q[p.symbol]?.price??Number(p.avg_cost),u=Number(p.quantity)*(last-Number(p.avg_cost));return`<tr><td class="link">${esc(p.symbol)}</td><td>${esc(p.market)}</td><td>${num(p.quantity,4)}</td><td>${money(p.avg_cost,p.currency)}</td><td>${money(last,p.currency)}</td><td class="${u>=0?"up":"down"}">${money(u,p.currency)}</td><td class="${Number(p.realized_pnl)>=0?"up":"down"}">${money(p.realized_pnl,p.currency)}</td></tr>`}).join("")}</tbody></table>`
+  return `<table class="dataTable"><thead><tr><th>股票</th><th>市场</th><th>数量</th><th>平均成本</th><th>实时价</th><th>未实现盈亏</th><th>已实现盈亏</th></tr></thead><tbody>${rows.filter(p=>Number(p.quantity)>0||Number(p.realized_pnl)!==0).map(p=>{const live=q[p.symbol]?.realtime===true&&Number.isFinite(Number(q[p.symbol]?.price));const last=live?Number(q[p.symbol].price):null,u=live?Number(p.quantity)*(last-Number(p.avg_cost)):null;return`<tr><td class="link">${esc(p.symbol)}</td><td>${esc(p.market)}</td><td>${num(p.quantity,4)}</td><td>${money(p.avg_cost,p.currency)}</td><td>${live?money(last,p.currency):'<span class="delayBadge">实时未确认</span>'}</td><td class="${u==null?"":u>=0?"up":"down"}">${u==null?"--":money(u,p.currency)}</td><td class="${Number(p.realized_pnl)>=0?"up":"down"}">${money(p.realized_pnl,p.currency)}</td></tr>`}).join("")}</tbody></table>`
 }
 function tradeTable(rows){
   return `<table class="dataTable"><thead><tr><th>时间</th><th>股票</th><th>类型</th><th>数量</th><th>价格</th><th>手续费</th></tr></thead><tbody>${rows.map(t=>`<tr><td>${dt(t.traded_at)}</td><td class="link">${esc(t.symbol)}</td><td class="${t.side==="buy"?"up":"down"}">${t.side==="buy"?"买入":"卖出"}</td><td>${num(t.quantity,4)}</td><td>${money(t.price,t.currency)}</td><td>${money(t.fees,t.currency)}</td></tr>`).join("")}</tbody></table>`
 }
 
 function drawCustomerCharts(pos,trades,q){
-  const h=pos.filter(p=>Number(p.quantity)>0);state.charts.holdings=new Chart($("#customerHoldingsChart"),{type:"doughnut",data:{labels:h.map(x=>x.symbol),datasets:[{data:h.map(x=>Number(x.quantity)*(q[x.symbol]?.price??Number(x.avg_cost))),backgroundColor:["#d93447","#5aa2ef","#d5aa51","#2ed3a0","#8b9bad","#8d5ed7"]}]},options:{...chartOpts(),cutout:"65%"}});
+  const h=pos.filter(p=>Number(p.quantity)>0);state.charts.holdings=new Chart($("#customerHoldingsChart"),{type:"doughnut",data:{labels:h.map(x=>x.symbol),datasets:[{label:"成本结构",data:h.map(x=>Number(x.quantity)*Number(x.avg_cost)),backgroundColor:["#d93447","#5aa2ef","#d5aa51","#2ed3a0","#8b9bad","#8d5ed7"]}]},options:{...chartOpts(),cutout:"65%"}});
   let net=0;const data=trades.map(t=>{net+=t.side==="buy"?(Number(t.price)*Number(t.quantity)+Number(t.fees)):-((Number(t.price)*Number(t.quantity))-Number(t.fees));return{x:new Date(t.traded_at).toLocaleDateString("zh-CN"),y:net}});
   state.charts.trades=new Chart($("#customerTradeChart"),{type:"line",data:{labels:data.map(x=>x.x),datasets:[{label:"累计净投入",data:data.map(x=>x.y),borderColor:"#d5aa51",backgroundColor:"rgba(213,170,81,.12)",fill:true,tension:.25}]},options:chartOpts()});
 }
@@ -297,18 +384,18 @@ function openTradeForm(c){
   modal("新增交易 · "+c.name,`<form id="tradeForm" class="formGrid">
     <div class="field"><label>股票代码</label><input class="input" name="symbol" placeholder="AAPL / MC.PA" required></div>
     <div class="field"><label>股票名称</label><input class="input" name="stock_name"></div>
-    <div class="field"><label>市场</label><select class="select" name="market"><option>NASDAQ</option><option>NYSE</option><option>Euronext Paris</option><option>其他</option></select></div>
+    <div class="field"><label>市场</label><select class="select" name="market"><option>Bucharest Stock Exchange</option><option>NASDAQ</option><option>NYSE</option><option>Euronext Paris</option><option>Xetra / Frankfurt</option><option>London Stock Exchange</option><option>Borsa Italiana</option><option>Bolsa de Madrid</option><option>Euronext Amsterdam</option><option>SIX Swiss Exchange</option><option>Warsaw Stock Exchange</option><option>Tokyo Stock Exchange</option><option>其他</option></select></div>
     <div class="field"><label>交易类型</label><select class="select" name="side"><option value="buy">买入</option><option value="sell">卖出</option></select></div>
     <div class="field"><label>数量</label><input class="input" type="number" step="0.000001" min="0.000001" name="quantity" required></div>
     <div class="field"><label>价格</label><input class="input" type="number" step="0.000001" min="0" name="price" required></div>
-    <div class="field"><label>币种</label><select class="select" name="currency"><option>USD</option><option>EUR</option></select></div>
+    <div class="field"><label>币种</label><select class="select" name="currency"><option>RON</option><option>USD</option><option>EUR</option><option>GBP</option><option>CHF</option><option>PLN</option><option>JPY</option></select></div>
     <div class="field"><label>手续费</label><input class="input" type="number" step="0.01" min="0" name="fees" value="0"></div>
     <div class="field"><label>交易时间</label><input class="input" type="datetime-local" name="traded_at" required></div>
     <div class="field full"><label>备注</label><textarea class="textarea" name="note"></textarea></div>
     <div class="field full"><button class="btn primary" type="submit">保存交易</button></div>
   </form>`);
-  const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());$("[name=traded_at]").value=d.toISOString().slice(0,16);
-  $("#tradeForm").onsubmit=async e=>{e.preventDefault();const b=Object.fromEntries(new FormData(e.currentTarget).entries());b.customer_id=c.id;b.entered_by=state.profile.id;b.symbol=String(b.symbol).trim().toUpperCase();b.traded_at=new Date(String(b.traded_at)).toISOString();const {error}=await supabase.from("trades").insert(b);if(error){toast(error.message,true);return}if(b.side==="buy"&&c.status!=="holding")await supabase.from("customers").update({status:"holding"}).eq("id",c.id);closeModal();toast("交易已保存，持仓已自动重算");await refreshAll();await openCustomer(c.id)};
+  $("[name=traded_at]").value=romaniaInputNow();
+  $("#tradeForm").onsubmit=async e=>{e.preventDefault();const b=Object.fromEntries(new FormData(e.currentTarget).entries());b.customer_id=c.id;b.entered_by=state.profile.id;b.symbol=String(b.symbol).trim().toUpperCase();b.traded_at=romaniaLocalToISO(String(b.traded_at));const {error}=await supabase.from("trades").insert(b);if(error){toast(error.message,true);return}if(b.side==="buy"&&c.status!=="holding")await supabase.from("customers").update({status:"holding"}).eq("id",c.id);closeModal();toast("交易已保存，持仓已自动重算");await refreshAll();await openCustomer(c.id)};
 }
 
 function openFollowForm(c){
@@ -318,7 +405,7 @@ function openFollowForm(c){
     <div class="field full"><label>跟进内容</label><textarea class="textarea" name="content" required></textarea></div>
     <div class="field full"><button class="btn primary" type="submit">保存跟进记录</button></div>
   </form>`);
-  $("#followForm").onsubmit=async e=>{e.preventDefault();const b=Object.fromEntries(new FormData(e.currentTarget).entries());b.customer_id=c.id;b.user_id=state.profile.id;if(!b.next_followup_at)b.next_followup_at=null;else b.next_followup_at=new Date(String(b.next_followup_at)).toISOString();const {error}=await supabase.from("customer_followups").insert(b);if(error){toast(error.message,true);return}closeModal();toast("跟进记录已保存");await refreshAll();await openCustomer(c.id)};
+  $("#followForm").onsubmit=async e=>{e.preventDefault();const b=Object.fromEntries(new FormData(e.currentTarget).entries());b.customer_id=c.id;b.user_id=state.profile.id;if(!b.next_followup_at)b.next_followup_at=null;else b.next_followup_at=romaniaLocalToISO(String(b.next_followup_at));const {error}=await supabase.from("customer_followups").insert(b);if(error){toast(error.message,true);return}closeModal();toast("跟进记录已保存");await refreshAll();await openCustomer(c.id)};
 }
 
 async function renderPersonnel(){
@@ -358,26 +445,70 @@ async function renderTrades(){
   const refresh=()=>{const q=$("#tradeSearch").value.toLowerCase(),rows=state.trades.filter(t=>!q||[t.symbol,t.stock_name,t.customers?.name,t.customers?.customer_code].some(v=>String(v||"").toLowerCase().includes(q)));$("#tradesTable").innerHTML=`<table class="dataTable"><thead><tr><th>时间</th><th>客户</th><th>股票</th><th>市场</th><th>类型</th><th>数量</th><th>价格</th><th>手续费</th></tr></thead><tbody>${rows.map(t=>`<tr><td>${dt(t.traded_at)}</td><td>${esc(t.customers?.name||"--")}</td><td class="link">${esc(t.symbol)}</td><td>${esc(t.market)}</td><td class="${t.side==="buy"?"up":"down"}">${t.side==="buy"?"买入":"卖出"}</td><td>${num(t.quantity,4)}</td><td>${money(t.price,t.currency)}</td><td>${money(t.fees,t.currency)}</td></tr>`).join("")}</tbody></table>`};$("#tradeSearch").oninput=refresh;refresh();
 }
 
-async function fetchQuotes(symbols){
-  const out={};for(let i=0;i<symbols.length;i+=12){const batch=symbols.slice(i,i+12);if(!batch.length)continue;try{const r=await fetch("/api/market?symbols="+encodeURIComponent(batch.join(",")));const j=await r.json();for(const x of j.rows||[])if(!x.error)out[x.symbol]=x}catch{}}Object.assign(state.quotes,out);return out;
+async function fetchQuotes(symbols,{realtimeOnly=false}={}){
+  const out={};
+  for(let i=0;i<symbols.length;i+=20){
+    const batch=symbols.slice(i,i+20);if(!batch.length)continue;
+    try{
+      const r=await fetch("/api/market?symbols="+encodeURIComponent(batch.join(","))+"&realtimeOnly="+(realtimeOnly?"1":"0"));
+      const j=await r.json();
+      for(const x of j.rows||[])out[x.symbol]=x;
+    }catch{}
+  }
+  Object.assign(state.quotes,out);
+  return out;
 }
 
 async function renderPositions(){
-  const symbols=[...new Set(state.positions.filter(p=>Number(p.quantity)>0).map(p=>p.symbol))];const q=await fetchQuotes(symbols);
-  $("#main").innerHTML=pageHead("持仓中心","客户交易流水自动汇总后的当前持仓。")+`
-    <article class="panel"><div class="panelHead"><div><h2>当前持仓明细</h2><p>最新价来自免费行情数据源，可能存在延迟</p></div></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>客户</th><th>股票</th><th>市场</th><th>数量</th><th>平均成本</th><th>最新价</th><th>市值</th><th>未实现盈亏</th><th>已实现盈亏</th></tr></thead><tbody>${state.positions.filter(p=>Number(p.quantity)>0).map(p=>{const px=q[p.symbol]?.price??Number(p.avg_cost),mv=Number(p.quantity)*px,u=Number(p.quantity)*(px-Number(p.avg_cost));return`<tr><td>${esc(p.customers?.name||"--")}</td><td class="link">${esc(p.symbol)}</td><td>${esc(p.market)}</td><td>${num(p.quantity,4)}</td><td>${money(p.avg_cost,p.currency)}</td><td>${money(px,p.currency)}</td><td>${money(mv,p.currency)}</td><td class="${u>=0?"up":"down"}">${money(u,p.currency)}</td><td class="${Number(p.realized_pnl)>=0?"up":"down"}">${money(p.realized_pnl,p.currency)}</td></tr>`}).join("")}</tbody></table></div></article>`;
+  const symbols=[...new Set(state.positions.filter(p=>Number(p.quantity)>0).map(p=>p.symbol))];const q=await fetchQuotes(symbols,{realtimeOnly:true});
+  $("#main").innerHTML=pageHead("持仓中心","客户交易流水自动汇总；所有市场价格严格只使用数据源确认的实时行情。")+`
+    <article class="panel"><div class="panelHead"><div><h2>当前持仓明细</h2><p>非实时或未授权行情不显示价格，也不参与市值和盈亏计算</p></div></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>客户</th><th>股票</th><th>市场</th><th>数量</th><th>平均成本</th><th>实时价</th><th>市值</th><th>未实现盈亏</th><th>已实现盈亏</th></tr></thead><tbody>${state.positions.filter(p=>Number(p.quantity)>0).map(p=>{const live=q[p.symbol]?.realtime===true&&Number.isFinite(Number(q[p.symbol]?.price)),px=live?Number(q[p.symbol].price):null,mv=live?Number(p.quantity)*px:null,u=live?Number(p.quantity)*(px-Number(p.avg_cost)):null;return`<tr><td>${esc(p.customers?.name||"--")}</td><td class="link">${esc(p.symbol)}</td><td>${esc(p.market)}</td><td>${num(p.quantity,4)}</td><td>${money(p.avg_cost,p.currency)}</td><td>${live?money(px,p.currency):'<span class="delayBadge">实时未确认</span>'}</td><td>${mv==null?"--":money(mv,p.currency)}</td><td class="${u==null?"":u>=0?"up":"down"}">${u==null?"--":money(u,p.currency)}</td><td class="${Number(p.realized_pnl)>=0?"up":"down"}">${money(p.realized_pnl,p.currency)}</td></tr>`}).join("")}</tbody></table></div></article>`;
 }
 
 async function renderMarket(){
-  $("#main").innerHTML=pageHead("行情中心","美股与法国 Euronext Paris 免费行情；页面明确标注数据性质，不伪装为交易所实时授权数据。")+`
+  const presetOptions=Object.entries(MARKET_PRESETS).map(([k,v])=>`<option value="${k}" ${k==="RO"?"selected":""}>${v.label}</option>`).join("");
+  $("#main").innerHTML=pageHead("行情中心","实时严格模式：只有数据源明确确认实时的价格才会展示；罗马尼亚优先接入 BVB 官方 Online 实时服务。")+`
+    <div class="marketStatusBar">
+      <div class="marketStatus live">页面时区：Europe/Bucharest</div>
+      <div class="marketStatus live">罗马尼亚：BVB 官方 Online 优先</div>
+      <div class="marketStatus blocked">其他市场：若数据源未确认实时，价格自动隐藏</div>
+    </div>
     <section class="grid2">
-      <article class="panel"><div class="panelHead"><div><h2>多市场行情</h2><p>鼠标经过图表查看价格数据</p></div><div class="toolbar"><input id="marketSymbols" class="input" value="AAPL,NVDA,MSFT,MC.PA,OR.PA,AIR.PA"></div></div><div class="panelBody"><div class="quoteHeader"><div><span class="link" id="mSymbol">--</span><h3 id="mName">选择股票</h3><p class="muted" id="mExchange">--</p></div><div><div id="mPrice" class="quotePrice">--</div><div id="mChange">--</div></div></div></div><div class="chartBox"><canvas id="marketChart"></canvas></div></article>
-      <article class="panel"><div class="panelHead"><div><h2>股票列表</h2><p>点击股票切换图表</p></div></div><div class="panelBody marketList" id="marketRows"></div></article>
+      <article class="panel"><div class="panelHead"><div><h2>多国家实时行情</h2><p>图表悬停显示数据并呈现十字辅助线</p></div><div class="marketControls"><select id="marketCountry" class="select">${presetOptions}</select><input id="marketSymbols" class="input" value="${MARKET_PRESETS.RO.symbols.join(",")}"></div></div><div class="panelBody"><div class="quoteHeader"><div><span class="link" id="mSymbol">--</span><h3 id="mName">选择股票</h3><p class="muted" id="mExchange">--</p><p class="muted" id="mFresh">--</p></div><div><div id="mPrice" class="quotePrice">--</div><div id="mChange">--</div></div></div></div><div class="chartBox"><canvas id="marketChart"></canvas></div></article>
+      <article class="panel"><div class="panelHead"><div><h2>实时股票列表</h2><p>罗马尼亚、美国、法国、德国、英国、意大利、西班牙、荷兰、瑞士、波兰、日本</p></div></div><div class="panelBody marketList" id="marketRows"></div></article>
     </section>`;
-  const load=async()=>{const syms=$("#marketSymbols").value.split(",").map(x=>x.trim().toUpperCase()).filter(Boolean);const q=await fetchQuotes(syms);const rows=syms.map(s=>q[s]).filter(Boolean);$("#marketRows").innerHTML=rows.map(x=>`<div class="marketRow marketPick" data-symbol="${x.symbol}"><span class="link">${x.symbol}</span><span>${esc(x.name)}</span><span>${esc(x.exchange||"")}</span><span>${money(x.price,x.currency||"USD")}</span><span class="${x.changePct>=0?"up":"down"}">${x.changePct>=0?"+":""}${num(x.changePct)}%</span></div>`).join("")||'<div class="empty">暂无行情</div>';$$(".marketPick").forEach(r=>r.onclick=()=>drawMarket(q[r.dataset.symbol]));if(rows[0])drawMarket(rows[0])};
-  $("#marketSymbols").onchange=load;await load();
+  const load=async()=>{
+    const syms=$("#marketSymbols").value.split(",").map(x=>x.trim().toUpperCase()).filter(Boolean);
+    const q=await fetchQuotes(syms,{realtimeOnly:true});
+    const rows=syms.map(s=>q[s]).filter(Boolean);
+    $("#marketRows").innerHTML=rows.map(x=>{
+      const live=x.realtime===true&&!x.error&&Number.isFinite(Number(x.price));
+      return `<div class="marketRow marketPick" data-symbol="${x.symbol}"><span class="link">${esc(x.symbol)}</span><span>${esc(x.name||x.symbol)}</span><span>${esc(x.country||"--")}</span><span>${esc(x.exchange||"--")}</span><span>${live?money(x.price,x.currency||"USD"):"--"}</span><span class="${live&&Number(x.changePct)>=0?"up":live?"down":""}">${live&&x.changePct!=null?((Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%"):"--"}</span><span>${live?'<span class="liveBadge">实时</span>':'<span class="delayBadge">未确认实时</span>'}</span></div>`;
+    }).join("")||'<div class="empty">暂无实时行情</div>';
+    $$(".marketPick").forEach(r=>r.onclick=()=>drawMarket(q[r.dataset.symbol]));
+    const first=rows.find(x=>x.realtime===true&&!x.error);
+    if(first)drawMarket(first);else{
+      $("#mSymbol").textContent=syms[0]||"--";$("#mName").textContent="当前选择没有已确认实时行情";$("#mExchange").textContent="系统已禁止使用延迟价格";$("#mFresh").textContent="请选择其他市场或接入持牌实时数据源";$("#mPrice").textContent="--";$("#mChange").textContent="--";if(state.charts.market){state.charts.market.destroy();delete state.charts.market}
+    }
+  };
+  $("#marketCountry").onchange=e=>{$("#marketSymbols").value=MARKET_PRESETS[e.target.value].symbols.join(",");load()};
+  $("#marketSymbols").onchange=load;
+  await load();
 }
-function drawMarket(x){$("#mSymbol").textContent=x.symbol;$("#mName").textContent=x.name;$("#mExchange").textContent=(x.exchange||"")+" · "+(x.currency||"");$("#mPrice").textContent=x.price==null?"--":num(x.price);$("#mChange").textContent=x.changePct==null?"--":(x.changePct>=0?"+":"")+num(x.changePct)+"%";$("#mChange").className=x.changePct>=0?"up":"down";if(state.charts.market)state.charts.market.destroy();const pts=x.points||[];state.charts.market=new Chart($("#marketChart"),{type:"line",data:{labels:pts.map(p=>new Date(p.t).toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit"})),datasets:[{label:x.symbol,data:pts.map(p=>p.close),borderColor:"#d93447",backgroundColor:"rgba(217,52,71,.14)",fill:true,tension:.25}]},options:chartOpts()})}
+function drawMarket(x){
+  const live=x?.realtime===true&&!x.error&&Number.isFinite(Number(x.price));
+  $("#mSymbol").textContent=x?.symbol||"--";
+  $("#mName").textContent=live?(x.name||x.symbol):"实时行情未确认";
+  $("#mExchange").textContent=[x?.country,x?.exchange,x?.currency,x?.source].filter(Boolean).join(" · ");
+  $("#mFresh").textContent=live?"最后成交（罗马尼亚时间）："+dt(x.lastTradeAt||new Date()):"非实时价格已按规则隐藏";
+  $("#mPrice").textContent=live?num(x.price):"--";
+  $("#mChange").textContent=live&&x.changePct!=null?(Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%":"--";
+  $("#mChange").className=live?(Number(x.changePct)>=0?"up":"down"):"";
+  if(state.charts.market)state.charts.market.destroy();
+  if(!live)return;
+  const pts=(x.points||[]).filter(p=>p.close!=null);
+  state.charts.market=new Chart($("#marketChart"),{type:"line",data:{labels:pts.map(p=>new Date(p.t).toLocaleTimeString("zh-CN",{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"})),datasets:[{label:x.symbol+" 实时价",data:pts.map(p=>p.close),borderColor:"#d93447",backgroundColor:"rgba(217,52,71,.14)",fill:true,tension:.22,pointRadius:0,pointHoverRadius:4}]},options:chartOpts()});
+}
 
 async function renderReports(){
   const byOwner={};for(const c of state.customers){const o=state.staff.find(s=>s.id===c.owner_user_id)?.display_name||"未知";byOwner[o]=(byOwner[o]||0)+1}
@@ -396,7 +527,7 @@ async function renderSettings(){
     <section class="grid3">
       <article class="panel"><div class="panelHead"><div><h2>当前账户</h2><p>登录身份</p></div></div><div class="panelBody list"><div class="listItem"><div class="top"><span>账号</span><span>${esc(state.profile.username)}</span></div></div><div class="listItem"><div class="top"><span>姓名</span><span>${esc(state.profile.display_name)}</span></div></div><div class="listItem"><div class="top"><span>角色</span><span>${roleName(state.profile.role)}</span></div></div></div></article>
       <article class="panel"><div class="panelHead"><div><h2>数据库</h2><p>Supabase</p></div></div><div class="panelBody list"><div class="listItem"><div class="top"><span>项目</span><span>brantone-veyor-crm</span></div></div><div class="listItem"><div class="top"><span>区域</span><span>Singapore</span></div></div><div class="listItem"><div class="top"><span>RLS</span><span class="up">已启用</span></div></div></div></article>
-      <article class="panel"><div class="panelHead"><div><h2>行情数据</h2><p>当前模式</p></div></div><div class="panelBody list"><div class="listItem"><div class="top"><span>美股 / 法股</span><span class="up">已连接</span></div></div><div class="listItem"><div class="top"><span>数据性质</span><span>免费延迟 / 不保证实时</span></div></div><div class="listItem"><div class="top"><span>刷新</span><span>按页面请求</span></div></div></div></article>
+      <article class="panel"><div class="panelHead"><div><h2>行情数据</h2><p>当前模式</p></div></div><div class="panelBody list"><div class="listItem"><div class="top"><span>覆盖市场</span><span>RO / US / FR / DE / GB / IT / ES / NL / CH / PL / JP</span></div></div><div class="listItem"><div class="top"><span>数据规则</span><span>严格实时；延迟价格禁止展示</span></div></div><div class="listItem"><div class="top"><span>罗马尼亚</span><span class="up">BVB 官方 Online 优先</span></div></div></div></article>
     </section>`;
 }
 
