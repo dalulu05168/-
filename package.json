@@ -1,0 +1,7 @@
+{
+  "name": "brantone-veyor-crm",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": { "dev": "vercel dev" },
+  "engines": { "node": "22.x" }
+}
