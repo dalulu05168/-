@@ -168,9 +168,10 @@ export async function renderShareBoard(ctx){
     return;
   }
   const symbols=["^GSPC","^DJI","^IXIC","^FCHI","BET.RO","^GDAXI","^FTSE","FTSEMIB.MI","^IBEX","^AEX","^SSMI","WIG20.WA","^N225"];
-  const [security,quotes]=await Promise.all([
+  const [security,quotes,boardQuotes]=await Promise.all([
     fetch("/api/security-info?symbol="+encodeURIComponent(board.symbol)).then(r=>r.ok?r.json():null).catch(()=>null),
-    fetchQuotes(symbols,{realtimeOnly:false})
+    fetchQuotes(symbols,{realtimeOnly:false}),
+    fetchQuotes([board.symbol],{realtimeOnly:false})
   ]);
   const rows=symbols.map(s=>quotes[s]||{symbol:s,error:true});
   const total=Number(board.total_shares||0),remaining=Number(board.remaining_shares||0),reserved=Math.max(0,total-remaining);
@@ -182,7 +183,10 @@ export async function renderShareBoard(ctx){
   const validSlots=(state.shareSlots||[]).filter(s=>{
     const m=minutesOfRomania(s.slot_at);return m>=360&&m<=cap;
   }).sort((a,b)=>new Date(a.slot_at)-new Date(b.slot_at));
-  const latest=security&&Number.isFinite(Number(security.price))?security:null;
+  const marketQuote=boardQuotes[board.symbol];
+  const latest=marketQuote&&!marketQuote.error&&Number.isFinite(Number(marketQuote.price))
+    ? {...security,...marketQuote,companyName:security?.companyName||marketQuote.name}
+    : security&&Number.isFinite(Number(security.price))?security:null;
   $("#main").innerHTML=`
     <section class="allocationBoard" style="--energy-color:${color}">
       <div class="allocationIdentity panel">
@@ -241,21 +245,26 @@ export async function renderShareBoard(ctx){
       clearInterval(state.shareBoardRefreshTimer);state.shareBoardRefreshTimer=null;return;
     }
     try{
-      const [freshSecurity,freshQuotes]=await Promise.all([
+      const [freshSecurity,freshQuotes,freshBoardQuotes]=await Promise.all([
         fetch("/api/security-info?symbol="+encodeURIComponent(board.symbol)).then(r=>r.ok?r.json():null).catch(()=>null),
-        fetchQuotes(symbols,{realtimeOnly:false})
+        fetchQuotes(symbols,{realtimeOnly:false}),
+        fetchQuotes([board.symbol],{realtimeOnly:false})
       ]);
       const freshRows=symbols.map(s=>freshQuotes[s]||{symbol:s,error:true});
+      const marketFresh=freshBoardQuotes[board.symbol];
+      const freshLatest=marketFresh&&!marketFresh.error&&Number.isFinite(Number(marketFresh.price))
+        ? {...freshSecurity,...marketFresh}
+        : freshSecurity;
       const wall=$("#globalIndexWall");if(wall)wall.innerHTML=marketWall(freshRows,ctx);
       const priceEl=$("#allocationQuotePrice"),changeEl=$("#allocationQuoteChange"),timeEl=$("#allocationQuoteTime"),mini=$("#allocationMini");
-      if(priceEl)priceEl.textContent=freshSecurity&&Number.isFinite(Number(freshSecurity.price))?fmtNumber(freshSecurity.price,2):"--";
+      if(priceEl)priceEl.textContent=freshLatest&&Number.isFinite(Number(freshLatest.price))?fmtNumber(freshLatest.price,2):"--";
       if(changeEl){
-        const pct=safePct(freshSecurity?.changePct);
+        const pct=safePct(freshLatest?.changePct);
         changeEl.textContent=pct==null?"--":(pct>=0?"+":"")+fmtNumber(pct,2)+"%";
         changeEl.className=pct==null?"":pct>=0?"up":"down";
       }
-      if(timeEl)timeEl.textContent=freshSecurity?.lastTradeAt?dt(freshSecurity.lastTradeAt):"--";
-      if(mini)mini.innerHTML=miniCandlesHTML(freshSecurity?.points||[],board.symbol);
+      if(timeEl)timeEl.textContent=freshLatest?.lastTradeAt?dt(freshLatest.lastTradeAt):"--";
+      if(mini)mini.innerHTML=miniCandlesHTML(freshLatest?.points||[],board.symbol);
     }catch{}
   },refreshMs);
 }
