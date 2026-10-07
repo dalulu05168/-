@@ -4126,3 +4126,54 @@ body h3{font-weight:400!important}
   color:#ff626e!important;
   border-color:rgba(255,98,110,.35)!important;
 }
+
+
+/* Consistent staff confirmation dialogs — no browser-native prompt/confirm UI. */
+.confirmPanel{
+  display:grid;
+  justify-items:center;
+  gap:10px;
+  text-align:center;
+  padding:8px 4px 2px;
+}
+.confirmIcon{
+  width:44px;height:44px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(20,231,109,.28);
+  background:rgba(20,231,109,.07);
+  color:#14e76d;
+  font-size:20px;
+  font-weight:400!important;
+}
+.confirmIcon.danger{
+  border-color:rgba(255,98,110,.34);
+  background:rgba(255,98,110,.07);
+  color:#ff626e;
+}
+.confirmPanel h3{
+  margin:2px 0 0;
+  font-size:15px;
+  font-weight:700!important;
+}
+.confirmPanel p{
+  margin:0;color:#a7a2ab;font-size:12px;font-weight:400!important;
+}
+.confirmWarning{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid rgba(255,98,110,.20);
+  border-radius:10px;
+  background:rgba(255,98,110,.045);
+  color:#918b95;
+  font-size:11px;
+  line-height:1.55;
+  font-weight:400!important;
+}
+.modalActionRow{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  width:100%;
+  margin-top:4px;
+}
