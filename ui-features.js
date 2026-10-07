@@ -251,6 +251,7 @@ export async function renderShareBoard(ctx){
   const total=Number(board.total_shares||0),remaining=Number(board.remaining_shares||0),reserved=Math.max(0,total-remaining);
   const ratio=total?Math.max(0,Math.min(100,remaining/total*100)):0;
   const color=energyColor(ratio);
+  const chartColor="#d7ad24";
   const settings=state.appSettings||{market_open_time:"09:30",target_trade_time:"14:30",energy_high:60,energy_low:30};
   const openMin=hhmmToMinutes(settings.market_open_time),targetMin=hhmmToMinutes(settings.target_trade_time);
   const cap=Math.min(openMin,targetMin>0?targetMin:openMin);
@@ -304,8 +305,8 @@ export async function renderShareBoard(ctx){
 
   const labels=validSlots.map(s=>timeHHMM(s.slot_at));
   if(validSlots.length){
-    state.charts.reservedSlots=new Chart($("#reservedSlotChart"),{type:"line",data:{labels,datasets:[{label:tr("预留份额"),data:validSlots.map(s=>Number(s.reserved_shares||0)),borderColor:color,backgroundColor:color+"22",fill:true,tension:.28,pointRadius:3,pointHoverRadius:5}]},options:chartOpts()});
-    state.charts.participantSlots=new Chart($("#participantSlotChart"),{type:"bar",data:{labels,datasets:[{label:tr("参与人数"),data:validSlots.map(s=>Number(s.participant_count||0)),backgroundColor:color+"88",borderColor:color,borderWidth:1,borderRadius:5}]},options:chartOpts()});
+    state.charts.reservedSlots=new Chart($("#reservedSlotChart"),{type:"line",data:{labels,datasets:[{label:tr("预留份额"),data:validSlots.map(s=>Number(s.reserved_shares||0)),borderColor:chartColor,backgroundColor:chartColor+"20",fill:true,tension:.28,pointRadius:3,pointHoverRadius:5}]},options:chartOpts()});
+    state.charts.participantSlots=new Chart($("#participantSlotChart"),{type:"bar",data:{labels,datasets:[{label:tr("参与人数"),data:validSlots.map(s=>Number(s.participant_count||0)),backgroundColor:chartColor+"66",borderColor:chartColor,borderWidth:1,borderRadius:5}]},options:chartOpts()});
   }else{
     $("#reservedSlotChart").parentElement.innerHTML='<div class="empty">暂无有效时段份额记录</div>';
     $("#participantSlotChart").parentElement.innerHTML='<div class="empty">暂无有效时段参与记录</div>';
