@@ -201,7 +201,7 @@ function renderShell(){
     </div></div>
     <div id="modalRoot"></div>
   `;
-  $(".nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+  $$(".nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
   $("#globalLang").onchange=async e=>{state.lang=setLang(e.target.value);renderShell();await renderView(0)};
   $("#logoutBtn").onclick=async()=>{await supabase.auth.signOut();state.profile=null;state.session=null;renderLogin(true)};
   translateUI($("#root"),state.lang);
