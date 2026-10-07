@@ -386,7 +386,7 @@ function renderLevel1Dashboard(){
   const orderEl=$("#level1OrderChart");
   if(orderEl){
     const buys=trades.filter(t=>t.side==="buy").length,sells=trades.filter(t=>t.side==="sell").length;
-    state.charts.level1Order=new Chart(orderEl,{type:"doughnut",data:{labels:["买进","卖出"],datasets:[{data:[buys,sells],backgroundColor:["#2ed3a0","#d93447"],borderWidth:0}]},options:{...chartOpts(),cutout:"68%"}});
+    state.charts.level1Order=new Chart(orderEl,{type:"doughnut",data:{labels:[tr("买进",state.lang),tr("卖出",state.lang)],datasets:[{data:[buys,sells],backgroundColor:["#2ed3a0","#d93447"],borderWidth:0}]},options:{...chartOpts(),cutout:"68%"}});
   }
   $$(".level1StaffCard").forEach(card=>card.onclick=()=>openLevel2Overview(card.dataset.staffId));
 }
@@ -507,7 +507,7 @@ function drawLevel2Charts(buys,sells){
   if(!el)return;
   state.charts.level2Side=new Chart(el,{
     type:"doughnut",
-    data:{labels:["买进","卖出"],datasets:[{data:[buys.length,sells.length],backgroundColor:["#2ed3a0","#d93447"],borderColor:["#2ed3a0","#d93447"],borderWidth:1}]},
+    data:{labels:[tr("买进",state.lang),tr("卖出",state.lang)],datasets:[{data:[buys.length,sells.length],backgroundColor:["#2ed3a0","#d93447"],borderColor:["#2ed3a0","#d93447"],borderWidth:1}]},
     options:{...chartOpts(),cutout:"68%"}
   });
 }
@@ -644,8 +644,8 @@ function drawDashboardCharts(days=14){
   const trendEl=$("#trendChart");
   if(trendEl){
     state.charts.trend=new Chart(trendEl,{type:"line",data:{labels,datasets:[
-      {label:"新增客户",data:newC,borderColor:"#14e76d",backgroundColor:"rgba(20,231,109,.10)",tension:.32,fill:true,pointRadius:0,pointHoverRadius:4},
-      {label:"交易记录",data:tradeC,borderColor:"#6e7cff",backgroundColor:"rgba(110,124,255,.05)",tension:.32,pointRadius:0,pointHoverRadius:4}
+      {label:tr("新增客户",state.lang),data:newC,borderColor:"#14e76d",backgroundColor:"rgba(20,231,109,.10)",tension:.32,fill:true,pointRadius:0,pointHoverRadius:4},
+      {label:tr("交易记录",state.lang),data:tradeC,borderColor:"#6e7cff",backgroundColor:"rgba(110,124,255,.05)",tension:.32,pointRadius:0,pointHoverRadius:4}
     ]},options:chartOpts()});
   }
   const statusEl=$("#statusChart");
@@ -945,7 +945,7 @@ function positionTable(rows,q){
     const mv=last==null?null:Number(p.quantity)*last;
     const u=last==null?null:Number(p.quantity)*(last-Number(p.avg_cost));
     const quoteTime=usable&&q[p.symbol]?.lastTradeAt
-      ? new Intl.DateTimeFormat("zh-CN",{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date(q[p.symbol].lastTradeAt))
+      ? new Intl.DateTimeFormat(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date(q[p.symbol].lastTradeAt))
       : null;
     return `<tr>
       <td class="symbolCell">${esc(p.symbol)}</td>
@@ -997,7 +997,7 @@ function drawCustomerShareCharts(pos,trades,q,primary,realized,unreal){
   const profitEl=$("#customerProfitChart");
   if(profitEl){
     const vals=[Math.abs(Number(realized)||0),Math.abs(Number(unreal)||0)];
-    state.charts.profit=new Chart(profitEl,{type:"doughnut",data:{labels:["已实现","未实现"],datasets:[{data:vals.some(v=>v>0)?vals:[1,0],backgroundColor:["#d5aa51","#14e76d"],borderWidth:0}]},options:{...chartOpts(),cutout:"67%",plugins:{...chartOpts().plugins,legend:{display:false}}}});
+    state.charts.profit=new Chart(profitEl,{type:"doughnut",data:{labels:[tr("已实现",state.lang),tr("未实现",state.lang)],datasets:[{data:vals.some(v=>v>0)?vals:[1,0],backgroundColor:["#d5aa51","#14e76d"],borderWidth:0}]},options:{...chartOpts(),cutout:"67%",plugins:{...chartOpts().plugins,legend:{display:false}}}});
   }
 
   const pEl=$("#customerPriceChart"),rEl=$("#customerReturnChart");
@@ -1008,19 +1008,19 @@ function drawCustomerShareCharts(pos,trades,q,primary,realized,unreal){
   }
   const quote=q[primary.symbol];
   const pts=(quote.points||[]).filter(p=>p.close!=null);
-  const labels=pts.map(p=>new Date(p.t).toLocaleTimeString("zh-CN",{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}));
+  const labels=pts.map(p=>new Date(p.t).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}));
   const buys=trades.filter(t=>t.symbol===primary.symbol&&t.side==="buy");
   const sells=trades.filter(t=>t.symbol===primary.symbol&&t.side==="sell");
   if(pEl){
     state.charts.customerPrice=new Chart(pEl,{type:"line",data:{labels,datasets:[
       {label:primary.symbol,data:pts.map(p=>p.close),borderColor:"#14e76d",backgroundColor:"rgba(20,231,109,.08)",fill:true,tension:.18,pointRadius:0,pointHoverRadius:4},
-      {type:"scatter",label:"买入",data:buys.map(t=>({x:new Date(t.traded_at).toLocaleTimeString("zh-CN",{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}),y:Number(t.price)})),pointRadius:5,pointHoverRadius:7,backgroundColor:"#5a77ff"},
-      {type:"scatter",label:"卖出",data:sells.map(t=>({x:new Date(t.traded_at).toLocaleTimeString("zh-CN",{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}),y:Number(t.price)})),pointRadius:5,pointHoverRadius:7,backgroundColor:"#ff626e"}
+      {type:"scatter",label:tr("买入",state.lang),data:buys.map(t=>({x:new Date(t.traded_at).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}),y:Number(t.price)})),pointRadius:5,pointHoverRadius:7,backgroundColor:"#5a77ff"},
+      {type:"scatter",label:tr("卖出",state.lang),data:sells.map(t=>({x:new Date(t.traded_at).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}),y:Number(t.price)})),pointRadius:5,pointHoverRadius:7,backgroundColor:"#ff626e"}
     ]},options:chartOpts()});
   }
   if(rEl){
     const qty=Number(primary.quantity),avg=Number(primary.avg_cost);
-    state.charts.customerReturn=new Chart(rEl,{type:"line",data:{labels,datasets:[{label:"持仓浮动盈亏",data:pts.map(p=>(Number(p.close)-avg)*qty),borderColor:"#d5aa51",backgroundColor:"rgba(213,170,81,.10)",fill:true,tension:.18,pointRadius:0,pointHoverRadius:4}]},options:chartOpts()});
+    state.charts.customerReturn=new Chart(rEl,{type:"line",data:{labels,datasets:[{label:tr("持仓浮动盈亏",state.lang),data:pts.map(p=>(Number(p.close)-avg)*qty),borderColor:"#d5aa51",backgroundColor:"rgba(213,170,81,.10)",fill:true,tension:.18,pointRadius:0,pointHoverRadius:4}]},options:chartOpts()});
   }
 }
 
@@ -1333,7 +1333,7 @@ function drawMarket(x){
   if(state.charts.market)state.charts.market.destroy();
   state.charts.market=new Chart($("#marketChart"),{
     type:"line",
-    data:{labels,datasets:[{label:x.symbol+" 行情价",data:pts.map(p=>p.close),borderColor:"#d93447",backgroundColor:"rgba(217,52,71,.14)",fill:true,tension:.22,pointRadius:0,pointHoverRadius:4}]},
+    data:{labels,datasets:[{label:x.symbol+" "+tr("行情价",state.lang),data:pts.map(p=>p.close),borderColor:"#d93447",backgroundColor:"rgba(217,52,71,.14)",fill:true,tension:.22,pointRadius:0,pointHoverRadius:4}]},
     options:chartOpts()
   });
   state.charts.market.$bvSymbol=x.symbol;
@@ -1367,8 +1367,8 @@ async function renderReports(){
       <article class="panel"><div class="panelHead"><div><h2>买卖结构</h2><p>交易记录数量</p></div></div><div class="chartBox"><canvas id="sideChart"></canvas></div></article>
     </section>
     <article class="panel" style="margin-top:13px"><div class="panelHead"><div><h2>人员客户统计</h2><p>按角色层级计算可见客户数量</p></div></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>人员</th><th>角色</th><th>客户数量</th><th>持仓客户</th></tr></thead><tbody>${staffRows||'<tr><td colspan="4"><div class="empty">暂无人员数据</div></td></tr>'}</tbody></table></div></article>`;
-  state.charts.owner=new Chart($("#ownerChart"),{type:"bar",data:{labels:Object.keys(byOwner),datasets:[{label:"客户数量",data:Object.values(byOwner),backgroundColor:"#d5aa51"}]},options:chartOpts()});
-  state.charts.side=new Chart($("#sideChart"),{type:"doughnut",data:{labels:["买入","卖出"],datasets:[{data:[state.trades.filter(t=>t.side==="buy").length,state.trades.filter(t=>t.side==="sell").length],backgroundColor:["#2ed3a0","#d93447"]}]},options:{...chartOpts(),cutout:"65%"}});
+  state.charts.owner=new Chart($("#ownerChart"),{type:"bar",data:{labels:Object.keys(byOwner),datasets:[{label:tr("客户数量",state.lang),data:Object.values(byOwner),backgroundColor:"#d5aa51"}]},options:chartOpts()});
+  state.charts.side=new Chart($("#sideChart"),{type:"doughnut",data:{labels:[tr("买入",state.lang),tr("卖出",state.lang)],datasets:[{data:[state.trades.filter(t=>t.side==="buy").length,state.trades.filter(t=>t.side==="sell").length],backgroundColor:["#2ed3a0","#d93447"]}]},options:{...chartOpts(),cutout:"65%"}});
 }
 
 async function renderSettings(){
