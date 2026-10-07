@@ -238,7 +238,7 @@ export async function renderShareBoard(ctx){
   if(state.profile?.role!=="admin"){ctx.toast("仅管理员可访问",true);ctx.switchView("dashboard");return}
   const board=state.shareBoard;
   if(!board){
-    $("#main").innerHTML=`<article class="panel shareBoardEmpty"><div><div class="shareBrandMark">BV<small>1996</small></div><h2>股票份额看板尚未配置</h2><p>请在管理员总览使用“份额配置”完成股票、总份额和剩余份额设置。</p></div></article>`;
+    $("#main").innerHTML=`<article class="panel shareBoardEmpty"><div><h2>股票份额看板尚未配置</h2><p>请在管理员总览使用“份额配置”完成股票、总份额和剩余份额设置。</p></div></article>`;
     return;
   }
   const symbols=["^GSPC","^DJI","^IXIC","^FCHI","BET.RO","^GDAXI","^FTSE","FTSEMIB.MI","^IBEX","^AEX","^SSMI","WIG20.WA","^N225"];
@@ -270,6 +270,8 @@ export async function renderShareBoard(ctx){
   const reservedPct=total?Math.max(0,Math.min(100,reserved/total*100)):0;
   const quoteState=latest?(latest.realtime?"实时行情":latest.delaySeconds?"延迟行情":"可用行情"):"暂无行情";
   const boardState=boardDate===todayKey?"今日看板":boardDate>todayKey?"待开始":"历史看板";
+  const marketPoints=(latest?.points||[]).filter(p=>p&&p.close!=null&&Number.isFinite(Number(p.close))).slice(-40);
+  const hasMarketSeries=marketPoints.length>=2;
   const slotRowsHTML=validSlots.map((s,i)=>`<tr>
     <td>${timeHHMM(s.slot_at)}</td>
     <td>${num(Number(s.reserved_shares||0),2)}</td>
@@ -277,63 +279,77 @@ export async function renderShareBoard(ctx){
     <td><span class="allocationStateTag ${i===validSlots.length-1?"active":""}">${i===validSlots.length-1?"最新":"有效"}</span></td>
   </tr>`).join("")||'<tr><td colspan="4"><div class="allocationCompactEmpty">暂无有效时段记录</div></td></tr>';
   $("#main").innerHTML=`
-    <section class="allocationBoard allocationBoardV2" style="--energy-color:${color}">
-      <div class="allocationStatusStrip panel">
-        <div><span>行情状态</span><b>${quoteState}</b></div>
-        <div><span>时段数据</span><b>${validSlots.length} 条有效记录</b></div>
-        <div><span>看板状态</span><b>${boardState}</b></div>
-      </div>
+    <section class="allocationBoard allocationBoardV3" style="--energy-color:${color};--slots-row:${validSlots.length?176:86}px">
+      <article class="panel exchangeQuoteHeader">
+        <div class="exchangeSecurityIdentity">
+          <div>
+            <span class="eyebrow">SHARE ALLOCATION · ${esc(board.symbol)}</span>
+            <h1>${esc(board.company_name||security?.companyName||board.stock_name||board.symbol)}</h1>
+            <p>${esc(board.exchange||security?.exchange||"--")} · ${esc(board.currency||security?.currency||"--")} · ${esc(board.industry||security?.industry||"--")}</p>
+          </div>
+          <button class="btn allocationConfigCompact" id="allocationConfigBtn" type="button">配置</button>
+        </div>
+        <div class="exchangeQuoteBlock">
+          <span>最新价</span>
+          <strong id="allocationQuotePrice">${latest?fmtNumber(latest.price,2):"--"}</strong>
+          <b class="${safePct(latest?.changePct)>=0?"up":"down"}" id="allocationQuoteChange">${latest&&latest.changePct!=null?(Number(latest.changePct)>=0?"+":"")+fmtNumber(latest.changePct,2)+"%":"--"}</b>
+          <small id="allocationQuoteTime">${latest?.lastTradeAt?dt(latest.lastTradeAt):"--"}</small>
+        </div>
+        <div class="exchangeQuoteMini" id="allocationMini">${miniCandlesHTML(latest?.points||[],board.symbol)}</div>
+        <div class="exchangeStatusRail">
+          <span class="${latest?"live":"muted"}">${quoteState}</span>
+          <span>${boardState}</span>
+          <span>时段 ${validSlots.length}</span>
+        </div>
+      </article>
 
-      <div class="allocationSecurityBar panel">
-        <button class="allocationSearchLike" type="button" id="allocationConfigBtn"><span>⌕</span><b>${esc(board.symbol)}</b><small>配置股票 / Ticker</small></button>
-        <div><span>公司</span><b>${esc(board.company_name||security?.companyName||board.stock_name||board.symbol)}</b></div>
-        <div><span>交易所</span><b>${esc(board.exchange||security?.exchange||"--")}</b></div>
-        <div><span>币种</span><b>${esc(board.currency||security?.currency||"--")}</b></div>
-        <div><span>行业</span><b>${esc(board.industry||security?.industry||"--")}</b></div>
-        <div><span>报价</span><b id="allocationQuotePrice">${latest?fmtNumber(latest.price,2):"--"}</b><small id="allocationQuoteTime">${latest?.lastTradeAt?dt(latest.lastTradeAt):"--"}</small></div>
-      </div>
-
-      <div class="allocationKpiStrip">
+      <div class="allocationKpiStrip exchangeKpiStrip">
         <article class="panel allocationKpiCard"><span>总份额</span><strong>${num(total,2)}</strong><small>TOTAL SHARES</small></article>
-        <article class="panel allocationKpiCard"><span>已预留份额</span><strong>${num(reserved,2)}</strong><small>RESERVED · ${fmtNumber(reservedPct,2)}%</small></article>
-        <article class="panel allocationKpiCard gold"><span>剩余份额</span><strong>${num(remaining,2)}</strong><small>AVAILABLE · ${fmtNumber(ratio,2)}%</small></article>
+        <article class="panel allocationKpiCard"><span>已预留份额</span><strong>${num(reserved,2)}</strong><small>${fmtNumber(reservedPct,2)}%</small></article>
+        <article class="panel allocationKpiCard gold"><span>剩余份额</span><strong>${num(remaining,2)}</strong><small>${fmtNumber(ratio,2)}%</small></article>
         <article class="panel allocationKpiCard"><span>目标交易时间</span><strong>${String(settings.target_trade_time||"14:30").slice(0,5)}</strong><small>ROMANIA / BUCHAREST</small></article>
         <article class="panel allocationKpiCard countdown"><span>距离交易剩余</span><strong id="allocationCountdown">${countdownText(ctx,settings.target_trade_time)}</strong><small id="allocationRomaniaClock">${ctx.romaniaClockText()}</small></article>
       </div>
 
-      <div class="allocationWorkbench">
-        <article class="panel allocationTrendPanel">
+      <div class="exchangeBoardMain">
+        <article class="panel exchangeChartPanel">
           <div class="panelHead compact">
-            <div><h2>时段预留趋势</h2><p>INSTITUTIONAL RESERVATION TREND</p></div>
-            <div class="allocationQuoteMini"><span class="${safePct(latest?.changePct)>=0?"up":"down"}" id="allocationQuoteChange">${latest&&latest.changePct!=null?(Number(latest.changePct)>=0?"+":"")+fmtNumber(latest.changePct,2)+"%":"--"}</span></div>
+            <div><h2>${hasMarketSeries?"行情走势":"时段预留趋势"}</h2><p>${hasMarketSeries?"MARKET PRICE SERIES · ROMANIA TIME":"RESERVATION TREND · ROMANIA BUSINESS SLOTS"}</p></div>
+            <span class="headMeta">${esc(board.symbol)} · ${quoteState}</span>
           </div>
-          <div class="chartBox allocationPrimaryChart"><canvas id="reservedSlotChart"></canvas></div>
+          <div class="chartBox exchangePrimaryChart"><canvas id="allocationMarketChart"></canvas></div>
         </article>
 
-        <article class="panel allocationDistributionPanel">
-          <div class="panelHead compact"><div><h2>份额分配</h2><p>ALLOCATION DISTRIBUTION</p></div><span class="headMeta">${esc(board.symbol)}</span></div>
-          <div class="allocationDistributionBody">
-            <div class="allocationDistRow">
-              <div><span>剩余份额</span><b>${num(remaining,2)}</b></div>
-              <div class="allocationBar"><i style="width:${ratio}%"></i></div>
-              <small>${fmtNumber(ratio,2)}%</small>
+        <div class="exchangeSideStack">
+          <article class="panel allocationDistributionPanel">
+            <div class="panelHead compact"><div><h2>份额结构</h2><p>ALLOCATION STRUCTURE</p></div><span class="headMeta">${esc(board.symbol)}</span></div>
+            <div class="allocationDistributionBody">
+              <div class="allocationDistRow">
+                <div><span>剩余份额</span><b>${num(remaining,2)}</b></div>
+                <div class="allocationBar"><i style="width:${ratio}%"></i></div>
+                <small>${fmtNumber(ratio,2)}%</small>
+              </div>
+              <div class="allocationDistRow reserved">
+                <div><span>已预留份额</span><b>${num(reserved,2)}</b></div>
+                <div class="allocationBar"><i style="width:${reservedPct}%"></i></div>
+                <small>${fmtNumber(reservedPct,2)}%</small>
+              </div>
             </div>
-            <div class="allocationDistRow reserved">
-              <div><span>已预留份额</span><b>${num(reserved,2)}</b></div>
-              <div class="allocationBar"><i style="width:${reservedPct}%"></i></div>
-              <small>${fmtNumber(reservedPct,2)}%</small>
-            </div>
-            <div class="allocationTimingGrid">
-              <div><span>开盘时间</span><b>${String(settings.market_open_time||"09:30").slice(0,5)}</b></div>
+          </article>
+
+          <article class="panel exchangeSessionPanel">
+            <div class="panelHead compact"><div><h2>交易时段</h2><p>SESSION STATUS</p></div></div>
+            <div class="exchangeSessionGrid">
+              <div><span>开盘</span><b>${String(settings.market_open_time||"09:30").slice(0,5)}</b></div>
               <div><span>目标交易</span><b>${String(settings.target_trade_time||"14:30").slice(0,5)}</b></div>
-              <div><span>有效时段</span><b>${validSlots.length}</b></div>
-              <div><span>剩余占比</span><b>${fmtNumber(ratio,2)}%</b></div>
+              <div><span>行情</span><b>${quoteState}</b></div>
+              <div><span>看板</span><b>${boardState}</b></div>
             </div>
-          </div>
-        </article>
+          </article>
+        </div>
       </div>
 
-      <article class="panel allocationSlotsPanel">
+      <article class="panel allocationSlotsPanel ${validSlots.length?"":"is-empty"}">
         <div class="panelHead compact">
           <div><h2>有效时段记录</h2><p>ROMANIA BUSINESS SLOTS</p></div>
           <span class="headMeta">${validSlots.length} RECORDS</span>
@@ -346,14 +362,20 @@ export async function renderShareBoard(ctx){
         </div>
       </article>
 
-      <div class="globalIndexWall" id="globalIndexWall">${marketWall(rows,ctx)}</div>
+      <div class="globalIndexWall exchangeTickerWall" id="globalIndexWall">${marketWall(rows,ctx)}</div>
     </section>`;
 
-  const labels=validSlots.map(s=>timeHHMM(s.slot_at));
-  if(validSlots.length){
-    state.charts.reservedSlots=new Chart($("#reservedSlotChart"),{type:"line",data:{labels,datasets:[{label:tr("预留份额"),data:validSlots.map(s=>Number(s.reserved_shares||0)),borderColor:chartColor,backgroundColor:chartColor+"20",fill:true,tension:.28,pointRadius:3,pointHoverRadius:5}]},options:chartOpts()});
-  }else{
-    $("#reservedSlotChart").parentElement.innerHTML='<div class="allocationCompactEmpty">暂无有效时段份额记录</div>';
+  const chartEl=$("#allocationMarketChart");
+  if(chartEl){
+    if(hasMarketSeries){
+      const labels=marketPoints.map(p=>timeHHMM(p.t));
+      state.charts.allocationMarket=new Chart(chartEl,{type:"line",data:{labels,datasets:[{label:esc(board.symbol),data:marketPoints.map(p=>Number(p.close)),borderColor:chartColor,backgroundColor:chartColor+"16",fill:true,tension:.22,pointRadius:0,pointHoverRadius:4}]},options:chartOpts()});
+    }else if(validSlots.length){
+      const labels=validSlots.map(s=>timeHHMM(s.slot_at));
+      state.charts.allocationMarket=new Chart(chartEl,{type:"line",data:{labels,datasets:[{label:tr("预留份额"),data:validSlots.map(s=>Number(s.reserved_shares||0)),borderColor:chartColor,backgroundColor:chartColor+"16",fill:true,tension:.28,pointRadius:2,pointHoverRadius:4}]},options:chartOpts()});
+    }else{
+      chartEl.parentElement.innerHTML='<div class="allocationCompactEmpty">暂无可用行情序列或有效时段记录</div>';
+    }
   }
   const configBtn=$("#allocationConfigBtn");
   if(configBtn)configBtn.onclick=()=>openShareBoardConfig(ctx);
@@ -391,6 +413,14 @@ export async function renderShareBoard(ctx){
       }
       if(timeEl)timeEl.textContent=freshLatest?.lastTradeAt?dt(freshLatest.lastTradeAt):"--";
       if(mini)mini.innerHTML=miniCandlesHTML(freshLatest?.points||[],board.symbol);
+      const liveChart=state.charts.allocationMarket;
+      const freshPoints=(freshLatest?.points||[]).filter(p=>p&&p.close!=null&&Number.isFinite(Number(p.close))).slice(-40);
+      if(liveChart&&freshPoints.length>=2){
+        liveChart.data.labels=freshPoints.map(p=>timeHHMM(p.t));
+        liveChart.data.datasets[0].label=board.symbol;
+        liveChart.data.datasets[0].data=freshPoints.map(p=>Number(p.close));
+        liveChart.update("none");
+      }
     }catch{}
   },refreshMs);
 }
