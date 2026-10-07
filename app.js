@@ -24,7 +24,8 @@ const MARKET_PRESETS = {
 const state = {
   session:null, profile:null, staff:[], customers:[], trades:[], positions:[], followups:[],
   charts:{}, activeView:"dashboard", activeCustomer:null, quotes:{},
-  lang:getLang(), appSettings:null, shareBoard:null, shareSlots:[], allocationClockTimer:null
+  lang:getLang(), appSettings:null, shareBoard:null, shareSlots:[], allocationClockTimer:null,
+  marketRefreshTimer:null, customerMarketTimer:null, shareBoardRefreshTimer:null
 };
 
 let romaniaClockTimer=null;
@@ -254,7 +255,12 @@ async function refreshAll(){
 function featureCtx(){
   return {state,supabase,$,$,esc,num,money,dt,romaniaClockText,romaniaDateKey,romaniaInputNow,romaniaLocalToISO,ROMANIA_TZ,fetchQuotes,chartOpts,toast,modal,closeModal,switchView,refreshAll};
 }
+function clearMarketRefreshTimers(){
+  for(const k of ["marketRefreshTimer","customerMarketTimer","shareBoardRefreshTimer"]){if(state[k]){clearInterval(state[k]);state[k]=null}}
+  if(state.allocationClockTimer){clearInterval(state.allocationClockTimer);state.allocationClockTimer=null}
+}
 async function renderView(token=0){
+  clearMarketRefreshTimers();
   Object.values(state.charts).forEach(x=>{try{x.destroy()}catch{}});
   state.charts={};
   const main=$("#main");
