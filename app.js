@@ -849,9 +849,6 @@ async function openCustomer(id){
   const returnPct=costBasis?totalPnl/costBasis*100:0;
   const latestTrade=trades[0];
   const primary=openPos.find(p=>q[p.symbol]?.points?.length)||openPos[0]||null;
-  const primaryPoints=primary?(q[primary.symbol]?.points||[]).filter(p=>p&&Number.isFinite(Number(p.close))):[];
-  const hasTechSeries=primaryPoints.length>=2;
-  const hasRsiSeries=primaryPoints.length>=15;
   const owner=state.staff.find(s=>s.id===c.owner_user_id);
   const serviceRows=follows.slice(0,4);
 
@@ -904,14 +901,6 @@ async function openCustomer(id){
           <div class="shareDonutGrid">
             <div><canvas id="customerHoldingsChart"></canvas><small>持仓占比</small></div>
             <div><canvas id="customerProfitChart"></canvas><small>收益构成</small></div>
-          </div>
-          <div class="clientMiniTech ${hasTechSeries?"":"is-empty"}">
-            ${hasTechSeries
-              ? `${miniCandlesHTML(primaryPoints,primary.symbol)}
-                 ${hasRsiSeries
-                   ? miniRSIHTML(primaryPoints)
-                   : '<div class="miniIndicator miniIndicatorPending"><div class="miniIndicatorHead"><span>RSI(14)</span><b>数据不足</b></div><div class="miniIndicatorPendingText">至少需要 15 个有效行情点</div></div>'}`
-              : '<div class="clientTechEmpty"><span>TECHNICAL SERIES</span><b>暂无可用技术序列</b><small>行情序列恢复后将自动显示迷你K线与 RSI</small></div>'}
           </div>
         </article>
       </div>
