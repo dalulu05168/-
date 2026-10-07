@@ -25,7 +25,8 @@ const state = {
   session:null, profile:null, staff:[], customers:[], trades:[], positions:[], followups:[],
   charts:{}, activeView:"dashboard", activeCustomer:null, quotes:{},
   lang:getLang(), appSettings:null, shareBoard:null, shareSlots:[], allocationClockTimer:null,
-  marketRefreshTimer:null, positionRefreshTimer:null, customerMarketTimer:null, shareBoardRefreshTimer:null
+  marketRefreshTimer:null, positionRefreshTimer:null, customerMarketTimer:null, shareBoardRefreshTimer:null,
+  systemHealth:"loading"
 };
 
 let romaniaClockTimer=null;
@@ -212,7 +213,7 @@ function renderShell(){
       <header class="topbar">
         <div class="brand"><div class="mark">BV<small>1996</small></div><div class="brandText"><b>BRANTONE VEYLOR</b><span>PRIVATE CAPITAL ADVISORY</span></div></div>
         <div class="navFrame"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}">${tr(label,state.lang)}</button>`).join("")}</nav></div>
-        <div class="userArea"><span class="sysok">${tr("系统正常",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><span class="chip">${roleName(state.profile.role)} · ${esc(state.profile.display_name)}</span><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
+        <div class="userArea"><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${tr(state.systemHealth==="ok"?"系统正常":state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><span class="chip">${roleName(state.profile.role)} · ${esc(state.profile.display_name)}</span><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
       </header>
       <main id="main" data-view="${state.activeView}"></main>
     </div></div>
@@ -267,6 +268,12 @@ async function refreshAll(){
   ];
   const [c,t,p,f,s,settings,board]=await Promise.all(q);
   const loadError=[c,t,p,f,s,settings,board].find(x=>x?.error)?.error;
+  state.systemHealth=loadError?"error":"ok";
+  const health=$("#systemHealth");
+  if(health){
+    health.textContent=tr(loadError?"数据异常":"系统正常",state.lang);
+    health.classList.toggle("syserror",!!loadError);
+  }
   if(loadError)toast("数据读取失败："+loadError.message,true);
   if([c,t,p,f,s].some(x=>x?.truncated))toast("数据量已超过当前单次加载上限，请使用筛选缩小范围。",true);
   state.customers=c.data||[];
