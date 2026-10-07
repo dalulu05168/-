@@ -825,6 +825,7 @@ function openCustomerNoteForm(c){
 
 
 async function openCustomer(id){
+  document.body.classList.remove("screenshotCaptureMode");
   const c=state.customers.find(x=>x.id===id);if(!c)return;state.activeCustomer=c;
   const pos=state.positions.filter(x=>x.customer_id===id);
   const trades=state.trades.filter(x=>x.customer_id===id).sort((a,b)=>new Date(b.traded_at)-new Date(a.traded_at));
@@ -933,7 +934,7 @@ async function openCustomer(id){
       </div>
     </section>`;
 
-  const back=$("#backCustomers");if(back)back.onclick=()=>{if(state.customerMarketTimer){clearInterval(state.customerMarketTimer);state.customerMarketTimer=null}$("#modalRoot").innerHTML="";state.activeCustomer=null};
+  const back=$("#backCustomers");if(back)back.onclick=()=>{document.body.classList.remove("screenshotCaptureMode");if(state.customerMarketTimer){clearInterval(state.customerMarketTimer);state.customerMarketTimer=null}$("#modalRoot").innerHTML="";state.activeCustomer=null};
   const addTrade=$("#addTradeBtn");if(addTrade)addTrade.onclick=()=>openTradeForm(c);
   const addFollow=$("#addFollowBtn");if(addFollow)addFollow.onclick=()=>openFollowForm(c);
   const editNote=$("#editNoteBtn");if(editNote)editNote.onclick=()=>openCustomerNoteForm(c);
@@ -941,8 +942,9 @@ async function openCustomer(id){
   if(capture)capture.onclick=()=>{
     const page=$("#clientSharePage");
     const on=page.classList.toggle("screenshotMode");
+    document.body.classList.toggle("screenshotCaptureMode",on);
     capture.textContent=on?tr("恢复显示",state.lang):tr("截图模式",state.lang);
-    toast(on?"截图模式：已隐藏编辑客户备注、新增交易、记录跟进和内部归属。":"已恢复内部操作按钮。");
+    toast(on?"截图模式：已隐藏内部操作和管理员身份。":"已恢复内部操作按钮。");
   };
   drawCustomerShareCharts(pos,chartTrades,q,primary,realized,unreal);
   if(state.customerMarketTimer)clearInterval(state.customerMarketTimer);
