@@ -4379,3 +4379,282 @@ body h3{font-weight:400!important}
     grid-template-columns:1fr!important;
   }
 }
+
+
+/* =========================================================
+   Share Allocation redesign — navy / gold institutional terminal
+   Based on user's second reference image.
+   ========================================================= */
+#main[data-view="shareboard"]{
+  background:
+    radial-gradient(circle at 82% 0,rgba(26,72,96,.10),transparent 26%),
+    linear-gradient(180deg,#06111a 0%,#071620 48%,#06111a 100%);
+}
+#main[data-view="shareboard"] .allocationBoard{
+  --alloc-bg:#06141e;
+  --alloc-panel:#0a1d29;
+  --alloc-panel-2:#0c2230;
+  --alloc-line:#1e3a49;
+  --alloc-line-2:#294b5c;
+  --alloc-gold:#d7ad24;
+  --alloc-gold-soft:rgba(215,173,36,.12);
+  --alloc-text:#dbe5eb;
+  --alloc-muted:#6f8794;
+  --alloc-green:#22d98b;
+  gap:10px;
+}
+#main[data-view="shareboard"] .allocationBoard>.panel,
+#main[data-view="shareboard"] .allocationCharts>.panel,
+#main[data-view="shareboard"] .globalIndexWall>.indexTile{
+  background:
+    linear-gradient(180deg,rgba(11,31,43,.98),rgba(7,22,32,.99));
+  border-color:var(--alloc-line);
+  box-shadow:
+    0 14px 32px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(255,255,255,.025);
+}
+#main[data-view="shareboard"] .allocationBoard>.panel:hover,
+#main[data-view="shareboard"] .allocationCharts>.panel:hover,
+#main[data-view="shareboard"] .globalIndexWall>.indexTile:hover{
+  border-color:rgba(215,173,36,.46)!important;
+  box-shadow:
+    0 18px 38px rgba(0,0,0,.28),
+    0 0 0 1px rgba(215,173,36,.055),
+    inset 0 1px 0 rgba(255,255,255,.03);
+}
+
+/* Header card */
+#main[data-view="shareboard"] .allocationIdentity{
+  border-color:#244555;
+  background:
+    linear-gradient(90deg,rgba(12,34,47,.98),rgba(7,23,33,.98));
+  box-shadow:inset 3px 0 0 var(--alloc-gold),0 16px 34px rgba(0,0,0,.28);
+}
+#main[data-view="shareboard"] .allocationCompany .shareBrandMark{
+  color:var(--alloc-gold);
+}
+#main[data-view="shareboard"] .allocationCompany .eyebrow{
+  color:#708896;
+  letter-spacing:1.7px;
+}
+#main[data-view="shareboard"] .allocationCompany h1{
+  color:#edf5f8;
+}
+#main[data-view="shareboard"] .allocationCompany p{
+  color:#718693;
+}
+#main[data-view="shareboard"] .allocationQuote>span{
+  color:#eef5f7;
+}
+#main[data-view="shareboard"] .allocationQuote>small{
+  color:#647c89;
+}
+#main[data-view="shareboard"] .allocationQuote>b.up{
+  color:var(--alloc-green)!important;
+}
+#main[data-view="shareboard"] .allocationMini{
+  border-color:#234554;
+  background:linear-gradient(180deg,#071823,#06131c);
+}
+#main[data-view="shareboard"] .allocationMini .miniCandleLabel{
+  color:#6c8490;
+}
+
+/* Three hero blocks */
+#main[data-view="shareboard"] .allocationHero{
+  gap:10px;
+}
+#main[data-view="shareboard"] .shareTotals{
+  padding:12px;
+  gap:8px;
+}
+#main[data-view="shareboard"] .shareTotals>div{
+  border-color:#20404f;
+  background:linear-gradient(180deg,#0b2230,#091b26);
+  border-radius:12px;
+  box-shadow:inset 3px 0 0 rgba(215,173,36,.55);
+}
+#main[data-view="shareboard"] .shareTotals small{
+  color:#738b97;
+  letter-spacing:.25px;
+}
+#main[data-view="shareboard"] .shareTotals span{
+  color:#e7eef2;
+}
+#main[data-view="shareboard"] .shareTotals>div:last-child{
+  border-color:rgba(215,173,36,.38);
+  background:
+    linear-gradient(180deg,rgba(215,173,36,.055),rgba(8,27,38,.96));
+}
+#main[data-view="shareboard"] .shareTotals>div:last-child span{
+  color:var(--alloc-gold)!important;
+}
+
+/* Ratio ring */
+#main[data-view="shareboard"] .energyPanel{
+  border-color:#244959;
+  background:
+    radial-gradient(circle at center,rgba(215,173,36,.05),transparent 50%),
+    linear-gradient(180deg,#0a202d,#071924);
+}
+#main[data-view="shareboard"] .energyPanel::before{
+  background:radial-gradient(circle,var(--alloc-gold) 0%,transparent 65%);
+  opacity:.06;
+}
+#main[data-view="shareboard"] .energyRing{
+  width:164px;
+  height:164px;
+  background:conic-gradient(var(--energy-color) calc(var(--ratio)*1%),#17313e 0);
+  box-shadow:
+    0 0 0 1px rgba(215,173,36,.08),
+    0 0 32px rgba(215,173,36,.08);
+}
+#main[data-view="shareboard"] .energyRing::before{
+  inset:12px;
+  background:linear-gradient(180deg,#081b27,#06131d);
+  box-shadow:inset 0 0 0 1px #24404d;
+}
+#main[data-view="shareboard"] .energyRing small{
+  color:#718894;
+}
+#main[data-view="shareboard"] .energyRing span{
+  color:#cbd7dc;
+}
+
+/* Romania timing block */
+#main[data-view="shareboard"] .countdownPanel{
+  background:linear-gradient(180deg,#0b202c,#081824);
+  border-color:#244758;
+}
+#main[data-view="shareboard"] .countdownPanel>span{
+  color:#708896;
+  letter-spacing:1.6px;
+}
+#main[data-view="shareboard"] .countdownPanel>strong{
+  color:#e5edf1;
+}
+#main[data-view="shareboard"] .timePair{
+  border-color:#20404f;
+  background:#091b27;
+}
+#main[data-view="shareboard"] .timePair small{
+  color:#718693;
+}
+#main[data-view="shareboard"] .timePair b{
+  color:#dbe5ea;
+}
+#main[data-view="shareboard"] .countdownBox{
+  border-color:rgba(215,173,36,.44);
+  background:
+    linear-gradient(180deg,rgba(215,173,36,.07),rgba(8,25,35,.96));
+  box-shadow:0 0 22px rgba(215,173,36,.05);
+}
+#main[data-view="shareboard"] .countdownBox small{
+  color:#8c7d4d;
+}
+#main[data-view="shareboard"] .countdownBox strong{
+  color:var(--alloc-gold);
+}
+
+/* Chart section */
+#main[data-view="shareboard"] .allocationCharts{
+  gap:10px;
+}
+#main[data-view="shareboard"] .allocationChartPanel{
+  border-color:#244757;
+  background:linear-gradient(180deg,#0a1f2b,#071923);
+}
+#main[data-view="shareboard"] .allocationChartPanel .panelHead{
+  border-bottom-color:#1d3948;
+  background:rgba(8,28,40,.72);
+}
+#main[data-view="shareboard"] .allocationChartPanel .panelHead h2{
+  color:#e0e9ed;
+}
+#main[data-view="shareboard"] .allocationChartPanel .panelHead p{
+  color:#6a818e;
+}
+#main[data-view="shareboard"] .allocationChartPanel .empty{
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#6a808d;
+  font-size:11px;
+  background:
+    linear-gradient(180deg,rgba(6,19,28,.16),rgba(5,15,23,.04));
+}
+
+/* Global indices */
+#main[data-view="shareboard"] .globalIndexWall{
+  gap:8px;
+}
+#main[data-view="shareboard"] .indexTile{
+  border-color:#1f3c4b;
+  background:linear-gradient(180deg,#0a202d,#071923);
+  border-radius:13px;
+}
+#main[data-view="shareboard"] .indexTileHead span{
+  color:#a6b6bf;
+}
+#main[data-view="shareboard"] .indexTileHead small{
+  color:#5f7682;
+}
+#main[data-view="shareboard"] .indexTilePrice{
+  color:#e3ebef;
+}
+#main[data-view="shareboard"] .indexTilePct.up{
+  color:var(--alloc-green)!important;
+}
+#main[data-view="shareboard"] .miniCandleWrap{
+  padding-top:6px;
+}
+#main[data-view="shareboard"] .upC{color:#20d889}
+#main[data-view="shareboard"] .downC{color:#ff6170}
+
+/* Gold-accented hover and active terminal language */
+body:has(#main[data-view="shareboard"]) .topbar{
+  background:linear-gradient(180deg,#081923,#06131c);
+  border-color:#1f3c4a;
+}
+body:has(#main[data-view="shareboard"]) .navFrame{
+  background:#071a25;
+  border-color:#203f4e;
+}
+body:has(#main[data-view="shareboard"]) .nav button{
+  color:#8296a1;
+}
+body:has(#main[data-view="shareboard"]) .nav button:hover{
+  border-color:rgba(215,173,36,.34);
+  color:#d9e1e5;
+}
+body:has(#main[data-view="shareboard"]) .nav button.active{
+  background:linear-gradient(180deg,#cda51f,#aa8612);
+  border-color:#d7ad24;
+  color:#08131a;
+  box-shadow:0 0 18px rgba(215,173,36,.12);
+}
+body:has(#main[data-view="shareboard"]) .mark{
+  color:#d7ad24;
+}
+body:has(#main[data-view="shareboard"]) .mark small{
+  color:#9ab0bb;
+}
+body:has(#main[data-view="shareboard"]) .sysok{
+  color:#20d889;
+  border-color:#1e4b3b;
+  background:#071c1a;
+}
+
+/* Font discipline */
+#main[data-view="shareboard"] .allocationQuote span,
+#main[data-view="shareboard"] .allocationQuote b,
+#main[data-view="shareboard"] .shareTotals span,
+#main[data-view="shareboard"] .energyRing strong,
+#main[data-view="shareboard"] .energyRing span,
+#main[data-view="shareboard"] .countdownPanel strong,
+#main[data-view="shareboard"] .timePair b,
+#main[data-view="shareboard"] .indexTilePrice,
+#main[data-view="shareboard"] .indexTilePct{
+  font-weight:400!important;
+}
