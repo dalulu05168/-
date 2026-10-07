@@ -1043,7 +1043,7 @@ function openStaffEdit(id){
     ${s.role==="admin"
       ? `<div class="field"><label>上级</label><div class="input staffReadonly">最高管理员</div></div>`
       : s.role==="level1"
-        ? `<div class="field"><label>上级</label><div class="input staffReadonly">管理员 · ${esc(state.profile.display_name)}</div></div>`
+        ? `<div class="field"><label>上级</label><div class="input staffReadonly">管理员 · ${esc(parent?.display_name||state.profile.display_name)}</div></div>`
         : `<div class="field"><label>所属一级人员</label><select class="select" name="parent_user_id" required>${level1.map(x=>`<option value="${x.id}" ${x.id===s.parent_user_id?"selected":""}>${esc(x.display_name)}</option>`).join("")}</select></div>`}
     <div class="field"><label>电话</label><input class="input" name="phone" value="${esc(s.phone||"")}"></div>
     <div class="field"><label>当前状态</label><div class="input staffReadonly">${esc(s.status)}</div></div>
@@ -1249,8 +1249,29 @@ async function renderSettings(){
   const b=$("#settingsTimeBtn");if(b)b.onclick=()=>openTimeSettings(featureCtx());
 }
 
-function modal(title,html){$("#modalRoot").innerHTML=`<div class="modal"><div class="modalCard"><div class="modalHead"><h2>${esc(tr(title,state.lang))}</h2><button class="close" id="closeModal">×</button></div><div class="modalBody">${html}</div></div></div>`;$("#closeModal").onclick=closeModal;translateUI($("#modalRoot"),state.lang)}
-function closeModal(){if(state.customerMarketTimer){clearInterval(state.customerMarketTimer);state.customerMarketTimer=null}$("#modalRoot").innerHTML=""}
+function translatedModalTitle(title){
+  const raw=String(title||"");
+  const parts=raw.split(" · ");
+  if(parts.length>1)return tr(parts[0],state.lang)+" · "+parts.slice(1).join(" · ");
+  return tr(raw,state.lang);
+}
+function modal(title,html){
+  const root=$("#modalRoot");
+  const markup=`<div class="modal nestedModal"><div class="modalCard"><div class="modalHead"><h2>${esc(translatedModalTitle(title))}</h2><button class="close modalCloseBtn">×</button></div><div class="modalBody">${html}</div></div></div>`;
+  const client=root.querySelector("#clientSharePage");
+  if(client)root.insertAdjacentHTML("beforeend",markup);
+  else root.innerHTML=markup;
+  const close=[...root.querySelectorAll(".modalCloseBtn")].at(-1);
+  if(close)close.onclick=closeModal;
+  translateUI(root,state.lang);
+}
+function closeModal(){
+  const root=$("#modalRoot");
+  const nested=[...root.querySelectorAll(".nestedModal")].at(-1);
+  if(nested&&root.querySelector("#clientSharePage")){nested.remove();return}
+  if(state.customerMarketTimer){clearInterval(state.customerMarketTimer);state.customerMarketTimer=null}
+  root.innerHTML="";
+}
 
 supabase.auth.onAuthStateChange(async(event,session)=>{if(event==="SIGNED_OUT"){state.session=null;state.profile=null}});
 (async()=>{const {data:{session}}=await supabase.auth.getSession();if(session){state.session=session;await loadProfileAndStart()}else renderLogin(await checkBootstrap())})();
