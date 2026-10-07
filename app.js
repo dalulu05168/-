@@ -1,6 +1,6 @@
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261007-layout3";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261007-layout5";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
@@ -332,7 +332,10 @@ async function renderView(token=0){
     if(token!==0 && token!==viewSwitchToken)return;
     main.classList.remove("viewBusy","viewLeaving","viewEntering");
     main.classList.add("viewReveal");
-    requestAnimationFrame(()=>requestAnimationFrame(()=>main.classList.remove("viewReveal")));
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      main.classList.remove("viewReveal");
+      for(const chart of Object.values(state.charts)){if(chart.canvas?.isConnected){chart.resize();chart.update("none")}}
+    }));
   }
 }
 
@@ -392,7 +395,7 @@ function renderLevel1Dashboard(){
         </article>
         <div class="level1SideStack">
           <article class="panel">
-            <div class="panelHead compact"><div><h2>团队买卖结构</h2><p>TEAM ORDER MIX</p></div><span class="headMeta">${trades.length} ORDERS</span></div>
+            <div class="panelHead compact"><div><h2>团队买卖结构</h2><div class="panelSubtitleRow"><p>TEAM ORDER MIX</p><span class="inlineLegend up">买进 · ${trades.filter(t=>t.side==="buy").length}</span><span class="inlineLegend down">卖出 · ${trades.filter(t=>t.side==="sell").length}</span></div></div><span class="headMeta">${trades.length} ORDERS</span></div>
             <div class="chartBox level1Chart"><canvas id="level1OrderChart"></canvas></div>
           </article>
           <article class="panel level1SummaryPanel">
@@ -411,7 +414,7 @@ function renderLevel1Dashboard(){
   const orderEl=$("#level1OrderChart");
   if(orderEl){
     const buys=trades.filter(t=>t.side==="buy").length,sells=trades.filter(t=>t.side==="sell").length;
-    state.charts.level1Order=new Chart(orderEl,{type:"doughnut",data:{labels:[tr("买进",state.lang),tr("卖出",state.lang)],datasets:[{data:[buys,sells],backgroundColor:["#2ed3a0","#d93447"],borderWidth:0}]},options:{...chartOpts(),cutout:"68%"}});
+    state.charts.level1Order=new Chart(orderEl,{type:"doughnut",data:{labels:[tr("买进",state.lang),tr("卖出",state.lang)],datasets:[{data:[buys,sells],backgroundColor:["#00d59b","#ef3456"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"70%",plugins:{...chartOpts().plugins,legend:{display:false}}}});
   }
   $$(".level1StaffCard").forEach(card=>card.onclick=()=>openLevel2Overview(card.dataset.staffId));
 }
@@ -485,7 +488,7 @@ function renderLevel2Dashboard(){
 
         <div class="level2SideStack">
           <article class="panel">
-            <div class="panelHead compact"><div><h2>买卖结构</h2><p>ORDER MIX</p></div><span class="headMeta">${state.trades.length} ORDERS</span></div>
+            <div class="panelHead compact"><div><h2>买卖结构</h2><div class="panelSubtitleRow"><p>ORDER MIX</p><span class="inlineLegend up">买进 · ${buys.length}</span><span class="inlineLegend down">卖出 · ${sells.length}</span></div></div><span class="headMeta">${state.trades.length} ORDERS</span></div>
             <div class="chartBox level2Chart"><canvas id="level2SideChart"></canvas></div>
           </article>
           <article class="panel level2PnlPanel">
@@ -532,8 +535,8 @@ function drawLevel2Charts(buys,sells){
   if(!el)return;
   state.charts.level2Side=new Chart(el,{
     type:"doughnut",
-    data:{labels:[tr("买进",state.lang),tr("卖出",state.lang)],datasets:[{data:[buys.length,sells.length],backgroundColor:["#2ed3a0","#d93447"],borderColor:["#2ed3a0","#d93447"],borderWidth:1}]},
-    options:{...chartOpts(),cutout:"68%"}
+    data:{labels:[tr("买进",state.lang),tr("卖出",state.lang)],datasets:[{data:[buys.length,sells.length],backgroundColor:["#00d59b","#ef3456"],borderColor:["#00d59b","#ef3456"],borderWidth:1}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,cutout:"70%",plugins:{...chartOpts().plugins,legend:{display:false}}}
   });
 }
 
@@ -593,7 +596,7 @@ async function renderDashboard(){
                   <button data-days="1">1D</button><button class="active" data-days="7">7D</button><button data-days="30">1M</button><button data-days="90">3M</button><button data-days="365">1Y</button>
                 </div>
               </div>
-              <div class="terminalChartWrap"><canvas id="trendChart"></canvas></div>
+              <div class="terminalChartSubtitleRow panelSubtitleRow"><span class="chartSubtitle">业务趋势 · 罗马尼亚时间</span><span class="inlineLegend trendCustomerLegend">新增客户</span><span class="inlineLegend trendTradeLegend">交易记录</span></div><div class="terminalChartWrap"><canvas id="trendChart"></canvas></div>
             </article>
 
             <div class="terminalPositionList">
@@ -690,14 +693,14 @@ function drawDashboardCharts(days=14){
   const trendEl=$("#trendChart");
   if(trendEl){
     state.charts.trend=new Chart(trendEl,{type:"line",data:{labels,datasets:[
-      {label:tr("新增客户",state.lang),data:newC,borderColor:"#14e76d",backgroundColor:"rgba(20,231,109,.10)",tension:.32,fill:true,pointRadius:0,pointHoverRadius:4},
+      {label:tr("新增客户",state.lang),data:newC,borderColor:"#00d59b",backgroundColor:"rgba(0,213,155,.10)",tension:.32,fill:true,pointRadius:0,pointHoverRadius:4},
       {label:tr("交易记录",state.lang),data:tradeC,borderColor:"#6e7cff",backgroundColor:"rgba(110,124,255,.05)",tension:.32,pointRadius:0,pointHoverRadius:4}
-    ]},options:chartOpts()});
+    ]},options:{...chartOpts(),plugins:{...chartOpts().plugins,legend:{display:false}}}});
   }
   const statusEl=$("#statusChart");
   if(statusEl){
     const statusKeys=["prospect","following","holding","closed","archived"];
-    state.charts.status=new Chart(statusEl,{type:"doughnut",data:{labels:statusKeys.map(customerStatus),datasets:[{data:statusKeys.map(k=>state.customers.filter(x=>x.status===k).length),backgroundColor:["#6e7cff","#d5aa51","#14e76d","#8b9bad","#d93447"]}]},options:{...chartOpts(),cutout:"68%"}});
+    state.charts.status=new Chart(statusEl,{type:"doughnut",data:{labels:statusKeys.map(customerStatus),datasets:[{data:statusKeys.map(k=>state.customers.filter(x=>x.status===k).length),backgroundColor:["#6e7cff","#d5aa51","#00d59b","#8b9bad","#d93447"]}]},options:{...chartOpts(),cutout:"68%"}});
   }
 }
 function chartOpts(){return{
@@ -1470,7 +1473,7 @@ async function renderReports(){
       <article class="panel"><div class="panelHead"><div><h2>买卖结构</h2><div class="panelSubtitleRow"><p>交易记录数量</p><span class="inlineLegend up">买入 · ${state.trades.filter(t=>t.side==="buy").length}</span><span class="inlineLegend down">卖出 · ${state.trades.filter(t=>t.side==="sell").length}</span></div></div></div><div class="chartBox"><canvas id="sideChart"></canvas></div></article>
     </section>
     <article class="panel" style="margin-top:13px"><div class="panelHead"><div><h2>人员客户统计</h2><p>按角色层级计算可见客户数量</p></div></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>人员</th><th>角色</th><th>客户数量</th><th>持仓客户</th></tr></thead><tbody>${staffRows||'<tr><td colspan="4"><div class="empty">暂无人员数据</div></td></tr>'}</tbody></table></div></article>`;
-  state.charts.owner=new Chart($("#ownerChart"),{type:"bar",data:{labels:Object.keys(byOwner),datasets:[{label:tr("客户数量",state.lang),data:Object.values(byOwner),backgroundColor:"#d9b66b",maxBarThickness:36}]},options:{...chartOpts(),plugins:{...chartOpts().plugins,legend:{display:false}},scales:{...chartOpts().scales,y:{...chartOpts().scales.y,beginAtZero:true,ticks:{...chartOpts().scales.y.ticks,precision:0}}}}});
+  state.charts.owner=new Chart($("#ownerChart"),{type:"bar",data:{labels:Object.keys(byOwner),datasets:[{label:tr("客户数量",state.lang),data:Object.values(byOwner),backgroundColor:"#d9b66b",maxBarThickness:36}]},options:{...chartOpts(),plugins:{...chartOpts().plugins,legend:{display:false}},scales:{...chartOpts().scales,y:{...chartOpts().scales.y,beginAtZero:true,max:Math.max(10,Math.ceil(Math.max(0,...Object.values(byOwner))/10)*10),ticks:{...chartOpts().scales.y.ticks,precision:0,stepSize:10}}}}});
   state.charts.side=new Chart($("#sideChart"),{type:"doughnut",data:{labels:[tr("买入",state.lang),tr("卖出",state.lang)],datasets:[{data:[state.trades.filter(t=>t.side==="buy").length,state.trades.filter(t=>t.side==="sell").length],backgroundColor:["#00d59b","#ef3456"],borderColor:"#061722",borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:"72%",plugins:{...chartOpts().plugins,legend:{display:false}}}});
 }
 

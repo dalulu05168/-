@@ -235,10 +235,14 @@ function matchingSecurity(symbol,info){
 function validQuotePrice(value){return value!=null&&Number.isFinite(Number(value));}
 function boardQuote(symbol,security,quote){
   const info=matchingSecurity(symbol,security),market=matchingSecurity(symbol,quote);
-  return market&&validQuotePrice(market.price)?{...info,...market}:info&&validQuotePrice(info.price)?info:null;
+  const latest=market&&validQuotePrice(market.price)?{...info,...market}:info&&validQuotePrice(info.price)?info:null;
+  if(!latest)return null;
+  const usable=rows=>(rows||[]).filter(p=>p&&p.close!=null&&Number.isFinite(Number(p.close))&&Number.isFinite(new Date(p.t).getTime()));
+  const marketPoints=usable(market?.points),infoPoints=usable(info?.points);
+  return {...latest,points:marketPoints.length>=2?marketPoints:infoPoints.length>=2?infoPoints:marketPoints};
 }
 function allocationChartOptions(base){
-  return {...base,plugins:{...base.plugins,legend:{...base.plugins?.legend,display:false}},scales:{...base.scales,x:{...base.scales?.x,ticks:{...base.scales?.x?.ticks,autoSkip:true,maxTicksLimit:8,minRotation:0,maxRotation:0}}}};
+  return {...base,animation:false,plugins:{...base.plugins,legend:{...base.plugins?.legend,display:false}},scales:{...base.scales,x:{...base.scales?.x,ticks:{...base.scales?.x?.ticks,autoSkip:true,maxTicksLimit:8,minRotation:0,maxRotation:0}}}};
 }
 
 export async function renderShareBoard(ctx){
@@ -294,9 +298,10 @@ export async function renderShareBoard(ctx){
     <section class="allocationBoard allocationBoardV3" style="--energy-color:${color};--slots-row:${validSlots.length?176:86}px">
       <article class="panel exchangeQuoteHeader">
         <div class="exchangeSecurityIdentity">
-          <div>
+          <div class="allocationSymbolBlock">
             <span class="eyebrow">SHARE ALLOCATION · ${esc(board.symbol)}</span>
             <h1>${esc(board.symbol)}</h1>
+          </div><div class="allocationCompanyBlock">
             <p id="allocationCompanyName" class="allocationCompanyName">${esc(companyName)}</p>
             <p id="allocationSecurityMeta">${esc([exchange,currency,industry].filter(Boolean).join(" · "))}</p>
           </div>
@@ -378,12 +383,13 @@ export async function renderShareBoard(ctx){
     const title=$("#allocationChartTitle"),subtitle=$("#allocationChartSubtitle");
     if(title)title.textContent=market?"行情走势":"时段预留趋势";
     if(subtitle)subtitle.textContent=market?"MARKET PRICE SERIES · ROMANIA TIME":"RESERVATION TREND · ROMANIA BUSINESS SLOTS";
-    const existing=state.charts.allocationMarket;
+    let existing=state.charts.allocationMarket;
+    if(existing&&existing.canvas!==$("#allocationMarketChart")){existing.destroy();delete state.charts.allocationMarket;existing=null;}
     if(!series.length){if(existing)existing.destroy();delete state.charts.allocationMarket;$(".exchangePrimaryChart").innerHTML='<div class="allocationCompactEmpty">暂无可用行情序列或有效时段记录</div>';return}
     const labels=series.map(p=>timeHHMM(market?p.t:p.slot_at));
     const values=series.map(p=>Number(market?p.close:p.reserved_shares||0));
     const label=market?board.symbol:tr("预留份额");
-    if(existing){existing.data.labels=labels;existing.data.datasets[0].label=label;existing.data.datasets[0].data=values;existing.update("none");return}
+    if(existing){existing.data.labels=labels;existing.data.datasets[0].label=label;existing.data.datasets[0].data=values;existing.resize();existing.update("none");return}
     if(!$("#allocationMarketChart"))$(".exchangePrimaryChart").innerHTML='<canvas id="allocationMarketChart"></canvas>';
     state.charts.allocationMarket=new Chart($("#allocationMarketChart"),{type:"line",data:{labels,datasets:[{label,data:values,borderColor:chartColor,backgroundColor:chartColor+"16",fill:true,tension:.22,pointRadius:0,pointHoverRadius:4}]},options:allocationChartOptions(chartOpts())});
   };
