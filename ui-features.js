@@ -82,7 +82,7 @@ Object.assign(dictionaries.en,{
   "交易记录数量":"Trade count","人员客户统计":"Staff Client Statistics","按角色层级计算可见客户数量":"Visible client counts calculated by role hierarchy",
   "人员":"Staff","暂无人员数据":"No staff data","登录身份":"Signed-in Identity","行情数据":"Market Data","覆盖市场":"Covered Markets",
   "最新报价 + 罗马尼亚更新时间":"Latest quote + Romania update time","股票名称 / 代码自动搜索":"Automatic security name / symbol search",
-  "总":"D","客":"C","持":"P","交":"T","报":"R","设":"S","连接中":"Connecting","数据异常":"Data Error"
+  "总":"D","客":"C","持":"P","交":"T","报":"R","设":"S","连接中":"Connecting","数据异常":"Data Error","重置密码":"Reset Password","人员账号":"Staff Account","新密码":"New Password","确认新密码":"Confirm Password","取消":"Cancel","确认重置":"Confirm Reset","两次输入的密码不一致":"Passwords do not match","禁用账号":"Disable Account","启用账号":"Enable Account","确认禁用":"Confirm Disable","确认启用":"Confirm Enable","删除账号":"Delete Account","确认删除账号？":"Delete this account?","删除后该账号将无法登录，但历史业务记录会保留。存在客户或下级人员时系统会阻止删除。":"The account will no longer be able to sign in, while historical business records are retained. Deletion is blocked while clients or subordinate staff remain.","确认删除":"Confirm Delete"
 });
 Object.assign(dictionaries.ro,{
   "客户股票跟踪管理系统":"Sistem de urmărire a acțiunilor clienților",
@@ -115,7 +115,7 @@ Object.assign(dictionaries.ro,{
   "交易记录数量":"Număr tranzacții","人员客户统计":"Statistici clienți/personal","按角色层级计算可见客户数量":"Numărul de clienți vizibili calculat după ierarhia rolurilor",
   "人员":"Personal","暂无人员数据":"Fără date personal","登录身份":"Identitate conectată","行情数据":"Date de piață","覆盖市场":"Piețe acoperite",
   "最新报价 + 罗马尼亚更新时间":"Ultima cotație + ora actualizării în România","股票名称 / 代码自动搜索":"Căutare automată după nume / simbol",
-  "总":"G","客":"C","持":"P","交":"T","报":"R","设":"S","连接中":"Conectare","数据异常":"Eroare date"
+  "总":"G","客":"C","持":"P","交":"T","报":"R","设":"S","连接中":"Conectare","数据异常":"Eroare date","重置密码":"Resetare parolă","人员账号":"Cont personal","新密码":"Parolă nouă","确认新密码":"Confirmă parola","取消":"Anulare","确认重置":"Confirmă resetarea","两次输入的密码不一致":"Parolele nu coincid","禁用账号":"Dezactivare cont","启用账号":"Activare cont","确认禁用":"Confirmă dezactivarea","确认启用":"Confirmă activarea","删除账号":"Ștergere cont","确认删除账号？":"Ștergi acest cont?","删除后该账号将无法登录，但历史业务记录会保留。存在客户或下级人员时系统会阻止删除。":"Contul nu se va mai putea autentifica, iar istoricul comercial va fi păstrat. Ștergerea este blocată dacă există clienți sau personal subordonat.","确认删除":"Confirmă ștergerea"
 });
 
 export function getLang(){return localStorage.getItem(LANG_KEY)||"zh"}
