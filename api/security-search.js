@@ -1,4 +1,4 @@
-const ALLOWED=/^[A-Z0-9.^=\-\s]{1,80}$/i;
+const ALLOWED=/^[\p{L}\p{N} .^=_\-&'()]{1,80}$/u;
 
 export default async function handler(req,res){
   try{
