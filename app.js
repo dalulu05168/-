@@ -1,5 +1,6 @@
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
@@ -22,7 +23,8 @@ const MARKET_PRESETS = {
 
 const state = {
   session:null, profile:null, staff:[], customers:[], trades:[], positions:[], followups:[],
-  charts:{}, activeView:"dashboard", activeCustomer:null, quotes:{}
+  charts:{}, activeView:"dashboard", activeCustomer:null, quotes:{},
+  lang:getLang(), appSettings:null, shareBoard:null, shareSlots:[], allocationClockTimer:null
 };
 
 let romaniaClockTimer=null;
@@ -30,12 +32,12 @@ let romaniaClockTimer=null;
 const $ = (s,root=document)=>root.querySelector(s);
 const $$ = (s,root=document)=>[...root.querySelectorAll(s)];
 const esc = (v="") => String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-const money = (n,c="USD") => new Intl.NumberFormat("zh-CN",{style:"currency",currency:c||"USD",maximumFractionDigits:2}).format(Number(n||0));
-const num = (n,d=2)=>Number(n||0).toLocaleString("zh-CN",{maximumFractionDigits:d});
-const dt = (v)=>v?new Date(v).toLocaleString("zh-CN",{timeZone:ROMANIA_TZ,hour12:false}):"--";
+const money = (n,c="USD") => new Intl.NumberFormat(localeFor(state.lang),{style:"currency",currency:c||"USD",maximumFractionDigits:2}).format(Number(n||0));
+const num = (n,d=2)=>Number(n||0).toLocaleString(localeFor(state.lang),{maximumFractionDigits:d});
+const dt = (v)=>v?new Date(v).toLocaleString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour12:false}):"--";
 const romaniaDateKey = (v=new Date()) => new Intl.DateTimeFormat("en-CA",{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(v));
 const isRomaniaToday = v => romaniaDateKey(v)===romaniaDateKey();
-const romaniaClockText = () => new Intl.DateTimeFormat("zh-CN",{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false,timeZoneName:"short"}).format(new Date());
+const romaniaClockText = () => new Intl.DateTimeFormat(localeFor(state.lang),{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false,timeZoneName:"short"}).format(new Date());
 function romaniaDayKeys(count){
   const [y,m,d]=romaniaDateKey().split("-").map(Number);
   const base=new Date(Date.UTC(y,m-1,d,12));
@@ -98,8 +100,8 @@ function toast(msg,error=false){
   t.className="toast"+(error?" error":""); t.textContent=msg; clearTimeout(t._x); t._x=setTimeout(()=>t.remove(),3200)
 }
 
-function roleName(r){return r==="admin"?"管理员":r==="level1"?"一级人员":"二级人员"}
-function customerStatus(s){return ({prospect:"潜在客户",following:"跟进中",holding:"持仓中",closed:"已结束",archived:"已归档"})[s]||s}
+function roleName(r){return roleLabel(r,state.lang)}
+function customerStatus(s){return customerStatusLabel(s,state.lang)}
 function canPersonnel(){return state.profile?.role==="admin"||state.profile?.role==="level1"}
 
 async function checkBootstrap(){
@@ -127,6 +129,7 @@ function renderLogin(initialized){
         <div class="loginCard">
           <h2>${initialized?"登录系统":"首次初始化管理员"}</h2>
           <p>${initialized?"管理员 / 一级人员 / 二级人员统一入口":"系统尚未初始化，请创建第一个管理员账户。"}</p>
+          <div class="loginLangRow"><span>语言</span><select id="loginLang" class="select">${languageOptions(state.lang)}</select></div>
           <div class="romaniaClock" id="romaniaClock" style="margin-bottom:14px"></div>
           <form id="${initialized?"loginForm":"bootstrapForm"}">
             ${initialized?"":`<div class="field"><label>管理员姓名</label><input class="input" name="display_name" required></div>`}
@@ -141,6 +144,8 @@ function renderLogin(initialized){
     </section>`;
   const form=$("#"+(initialized?"loginForm":"bootstrapForm"));
   form.addEventListener("submit",initialized?login:bootstrap);
+  $("#loginLang").onchange=e=>{state.lang=setLang(e.target.value);renderLogin(initialized)};
+  translateUI($("#root"),state.lang);
   startRomaniaClock();
 }
 
@@ -182,21 +187,24 @@ async function loadProfileAndStart(){
 function renderShell(){
   const items=[
     ["dashboard","总览大盘"],["customers","客户中心"],["personnel","人员中心"],["trades","交易记录"],
-    ["positions","持仓中心"],["market","行情中心"],["reports","统计报表"],["settings","系统设置"]
-  ].filter(x=>x[0]!=="personnel"||canPersonnel());
+    ["positions","持仓中心"],["market","行情中心"],["reports","统计报表"],
+    ["shareboard","股票份额看板"],["settings","系统设置"]
+  ].filter(x=>(x[0]!=="personnel"||canPersonnel())&&(x[0]!=="shareboard"||state.profile?.role==="admin"));
   $("#root").innerHTML=`
     <div class="app"><div class="shell">
       <header class="topbar">
         <div class="brand"><div class="mark">BV<small>1996</small></div><div class="brandText"><b>BRANTONE VEYLOR</b><span>PRIVATE CAPITAL ADVISORY</span></div></div>
-        <div class="navFrame"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}">${label}</button>`).join("")}</nav></div>
-        <div class="userArea"><span class="sysok">系统正常</span><span class="romaniaClock" id="romaniaClock"></span><span class="chip">${roleName(state.profile.role)} · ${esc(state.profile.display_name)}</span><button id="logoutBtn" class="iconBtn">退出</button></div>
+        <div class="navFrame"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}">${tr(label,state.lang)}</button>`).join("")}</nav></div>
+        <div class="userArea"><span class="sysok">${tr("系统正常",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><span class="chip">${roleName(state.profile.role)} · ${esc(state.profile.display_name)}</span><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
       </header>
       <main id="main" data-view="${state.activeView}"></main>
     </div></div>
     <div id="modalRoot"></div>
   `;
-  $$(".nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+  $(".nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+  $("#globalLang").onchange=async e=>{state.lang=setLang(e.target.value);renderShell();await renderView(0)};
   $("#logoutBtn").onclick=async()=>{await supabase.auth.signOut();state.profile=null;state.session=null;renderLogin(true)};
+  translateUI($("#root"),state.lang);
   startRomaniaClock();
 }
 
@@ -223,18 +231,29 @@ async function refreshAll(){
     supabase.from("trades").select("*,customers(name,customer_code)").order("traded_at",{ascending:false}).limit(500),
     supabase.from("positions").select("*,customers(name,customer_code,owner_user_id,level_one_user_id)").order("updated_at",{ascending:false}),
     supabase.from("customer_followups").select("*,customers(name,customer_code)").order("created_at",{ascending:false}).limit(500),
-    supabase.from("profiles").select("*").order("created_at",{ascending:true})
+    supabase.from("profiles").select("*").order("created_at",{ascending:true}),
+    supabase.from("app_settings").select("*").eq("id",1).maybeSingle(),
+    state.profile?.role==="admin"?supabase.from("share_boards").select("*").order("board_date",{ascending:false}).order("updated_at",{ascending:false}).limit(1).maybeSingle():Promise.resolve({data:null,error:null})
   ];
-  const [c,t,p,f,s]=await Promise.all(q);
+  const [c,t,p,f,s,settings,board]=await Promise.all(q);
   if(c.error)toast(c.error.message,true);
   state.customers=c.data||[];
   state.trades=t.data||[];
   state.positions=p.data||[];
   state.followups=f.data||[];
   state.staff=s.data||[];
+  state.appSettings=settings.data||state.appSettings||null;
+  state.shareBoard=board.data||null;
+  if(state.shareBoard?.id){
+    const slots=await supabase.from("share_board_slots").select("*").eq("board_id",state.shareBoard.id).order("slot_at",{ascending:true});
+    state.shareSlots=slots.data||[];
+  }else state.shareSlots=[];
   await renderView(0);
 }
 
+function featureCtx(){
+  return {state,supabase,$,$,esc,num,money,dt,romaniaClockText,romaniaDateKey,romaniaInputNow,romaniaLocalToISO,ROMANIA_TZ,fetchQuotes,chartOpts,toast,modal,closeModal,switchView,refreshAll};
+}
 async function renderView(token=0){
   Object.values(state.charts).forEach(x=>{try{x.destroy()}catch{}});
   state.charts={};
@@ -250,11 +269,13 @@ async function renderView(token=0){
     positions:renderPositions,
     market:renderMarket,
     reports:renderReports,
+    shareboard:()=>renderShareBoardFeature(featureCtx()),
     settings:renderSettings
   }[state.activeView]||renderDashboard;
 
   try{
     await renderer();
+    translateUI(main,state.lang);
   }catch(err){
     console.error("renderView failed",state.activeView,err);
     main.innerHTML='<div class="empty" style="padding:40px">页面加载失败，请点击顶部导航重新进入。</div>';
@@ -461,6 +482,7 @@ async function renderDashboard(){
               <button class="terminalSecondary" data-view="customers">客户中心</button>
               <button class="terminalSecondary" data-view="positions">持仓中心</button>
               <button class="terminalSecondary" data-view="trades">交易记录</button>
+              ${state.profile.role==="admin"?'<button class="terminalSecondary" id="openShareBoardConfig">份额配置</button><button class="terminalSecondary" id="openTimeSettings">交易时段</button><button class="terminalSecondary" data-view="shareboard">份额看板</button>':""}
             </div>
 
             <div class="terminalUsage">
@@ -485,6 +507,8 @@ async function renderDashboard(){
     drawDashboardCharts(Number(b.dataset.days)||7);
   });
   $("#terminalNewCustomer").onclick=openCustomerForm;
+  const sbc=$("#openShareBoardConfig");if(sbc)sbc.onclick=()=>openShareBoardConfig(featureCtx());
+  const mts=$("#openTimeSettings");if(mts)mts.onclick=()=>openTimeSettings(featureCtx());
   $("#terminalRefresh").onclick=async()=>{toast("正在刷新数据");await refreshAll()};
 }
 function drawDashboardCharts(days=14){
@@ -709,6 +733,10 @@ async function openCustomer(id){
           <div class="shareDonutGrid">
             <div><canvas id="customerHoldingsChart"></canvas><small>持仓占比</small></div>
             <div><canvas id="customerProfitChart"></canvas><small>收益构成</small></div>
+          </div>
+          <div class="clientMiniTech">
+            ${primary?miniCandlesHTML(q[primary.symbol]?.points||[],primary.symbol):'<div class="miniNoData">--</div>'}
+            ${primary?miniRSIHTML(q[primary.symbol]?.points||[]):'<div class="miniIndicator"><span>RSI</span><b>--</b></div>'}
           </div>
         </article>
       </div>
@@ -1035,12 +1063,14 @@ async function renderReports(){
 
 async function renderSettings(){
   $("#main").classList.add("settingsMain");
+  const s=state.appSettings||{};
   $("#main").innerHTML=`
     <section class="grid3 settingsGrid">
-      <article class="panel settingsCard"><div class="panelHead"><div><h2>当前账户</h2><p>登录身份</p></div></div><div class="panelBody list settingsList"><div class="listItem"><div class="top"><span>账号</span><span>${esc(state.profile.username)}</span></div></div><div class="listItem"><div class="top"><span>姓名</span><span>${esc(state.profile.display_name)}</span></div></div><div class="listItem"><div class="top"><span>角色</span><span>${roleName(state.profile.role)}</span></div></div></div></article>
-      <article class="panel settingsCard"><div class="panelHead"><div><h2>数据库</h2><p>Supabase</p></div></div><div class="panelBody list settingsList"><div class="listItem"><div class="top"><span>项目</span><span>brantone-veyor-crm</span></div></div><div class="listItem"><div class="top"><span>区域</span><span>Singapore</span></div></div><div class="listItem"><div class="top"><span>RLS</span><span class="up">已启用</span></div></div></div></article>
-      <article class="panel settingsCard"><div class="panelHead"><div><h2>行情数据</h2><p>当前模式</p></div></div><div class="panelBody list settingsList"><div class="listItem"><div class="top"><span>覆盖市场</span><span>RO / US / FR / DE / GB / IT / ES / NL / CH / PL / JP</span></div></div><div class="listItem"><div class="top"><span>数据规则</span><span>实时优先；非实时必须明确标注</span></div></div><div class="listItem"><div class="top"><span>罗马尼亚</span><span>BVB 官方；无实时权限时回退官方 15 分钟延迟</span></div></div></div></article>
+      <article class="panel settingsCard"><div class="panelHead"><div><h2>当前账户</h2><p>登录身份</p></div></div><div class="panelBody list settingsList"><div class="listItem"><div class="top"><span>账号</span><span>${esc(state.profile.username)}</span></div></div><div class="listItem"><div class="top"><span>姓名</span><span>${esc(state.profile.display_name)}</span></div></div><div class="listItem"><div class="top"><span>角色</span><span>${roleName(state.profile.role)}</span></div></div><div class="listItem"><div class="top"><span>语言</span><span>${state.lang==="zh"?"中文":state.lang==="en"?"English":"Română"}</span></div></div></div></article>
+      <article class="panel settingsCard"><div class="panelHead"><div><h2>交易时段</h2><p>Europe/Bucharest</p></div></div><div class="panelBody list settingsList"><div class="listItem"><div class="top"><span>开盘时间</span><span>${String(s.market_open_time||"09:30").slice(0,5)}</span></div></div><div class="listItem"><div class="top"><span>目标交易时间</span><span>${String(s.target_trade_time||"14:30").slice(0,5)}</span></div></div>${state.profile.role==="admin"?'<button class="btn primary" id="settingsTimeBtn">修改交易时段</button>':""}</div></article>
+      <article class="panel settingsCard"><div class="panelHead"><div><h2>行情数据</h2><p>FREE MARKET DATA</p></div></div><div class="panelBody list settingsList"><div class="listItem"><div class="top"><span>覆盖市场</span><span>RO / US / FR / DE / GB / IT / ES / NL / CH / PL / JP</span></div></div><div class="listItem"><div class="top"><span>显示规则</span><span>最新报价 + 罗马尼亚更新时间</span></div></div><div class="listItem"><div class="top"><span>公司信息</span><span>股票名称 / 代码自动搜索</span></div></div></div></article>
     </section>`;
+  const b=$("#settingsTimeBtn");if(b)b.onclick=()=>openTimeSettings(featureCtx());
 }
 
 function modal(title,html){$("#modalRoot").innerHTML=`<div class="modal"><div class="modalCard"><div class="modalHead"><h2>${esc(title)}</h2><button class="close" id="closeModal">×</button></div><div class="modalBody">${html}</div></div></div>`;$("#closeModal").onclick=closeModal}
