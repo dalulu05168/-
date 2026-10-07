@@ -50,6 +50,74 @@ const dictionaries={
   }
 };
 
+
+Object.assign(dictionaries.en,{
+  "客户股票跟踪管理系统":"Client Stock Tracking System",
+  "客户、人员、买卖记录、持仓与多市场行情统一管理。":"Unified management of clients, staff, trades, positions and multi-market data.",
+  "管理员姓名":"Administrator Name","一次性初始化码":"One-time Setup Code",
+  "安全登录 · 数据库权限隔离 · 操作记录审计":"Secure login · Database access isolation · Audit trail",
+  "页面加载失败，请点击顶部导航重新进入。":"Page failed to load. Use the top navigation to reopen it.",
+  "数据量已超过当前单次加载上限，请使用筛选缩小范围。":"Data exceeds the current load limit. Narrow the range with filters.",
+  "查看详情 ↗":"View Details ↗","详情 ↗":"Details ↗","股票":"Security","方向":"Side",
+  "仅当前二级账户客户":"Clients assigned to this Level 2 account","持有至少 1 个标的":"Holding at least 1 security",
+  "完整买入流水":"Complete buy ledger","完整卖出流水":"Complete sell ledger","客户持仓总览":"Client Holdings Overview",
+  "自动来自买卖流水":"Automatically calculated from trade ledger","平均成本":"Average Cost","暂无客户持仓":"No client positions",
+  "买卖结构":"Buy / Sell Mix","账户业务汇总":"Account Summary","持仓成本基准":"Position Cost Basis","交易总数":"Total Trades",
+  "最近买进 / 卖出明细":"Recent Buy / Sell Details","暂无买卖记录":"No buy/sell records","暂无近期交易":"No recent trades",
+  "客户编号":"Client ID","地区":"Region","负责人":"Owner","建立时间":"Created","暂无客户数据":"No client data",
+  "按当前账户权限管理客户资料、交易与跟进":"Manage client profiles, trades and service notes within current permissions",
+  "暂无数据":"No data","保存备注":"Save Notes","页面生成：":"Generated:","按最新可用行情计算":"Calculated from latest available market data",
+  "基于当前可用行情":"Based on current available market data","买入 / 卖出节点 · 罗马尼亚时间":"Buy / Sell points · Romania time",
+  "基于当前行情序列":"Based on current market series","持仓占比":"Position Allocation","收益构成":"P/L Composition",
+  "资金规模":"Capital","服务状态":"Service Status","暂无客户备注":"No client notes","暂无服务纪要":"No service notes",
+  "内部归属：":"Internal owner:","行情来自免费公开市场数据源":"Market data from free public sources","页面以各行情的最新更新时间为准。":"Values follow each source's latest update time.",
+  "市值":"Market Value","暂无持仓数据":"No position data","当前持仓暂无可用价格序列":"No price series available for current positions",
+  "当前持仓暂无可用收益序列":"No P/L series available for current positions","其他":"Other","邮件":"Email","会议":"Meeting",
+  "请选择":"Select","当前权限范围内全部客户买入 / 卖出流水":"All client buy / sell records within current permissions",
+  "持仓由此自动计算":"Positions are calculated automatically","类型":"Type",
+  "使用免费公开行情源的最新可用报价，并显示数据更新时间":"Uses latest available quotes from free public market sources with update times",
+  "免费公开行情源 · 显示最新报价与罗马尼亚时间":"Free public market data · latest available quotes · Romania time",
+  "选择股票":"Select Security","罗马尼亚、美国、法国、德国、英国、意大利、西班牙、荷兰、瑞士、波兰、日本":"Romania, United States, France, Germany, United Kingdom, Italy, Spain, Netherlands, Switzerland, Poland, Japan",
+  "暂无行情数据":"No market data","客户归属分布":"Client Ownership Distribution","按二级负责人统计":"Grouped by Level 2 owner",
+  "交易记录数量":"Trade count","人员客户统计":"Staff Client Statistics","按角色层级计算可见客户数量":"Visible client counts calculated by role hierarchy",
+  "人员":"Staff","暂无人员数据":"No staff data","登录身份":"Signed-in Identity","行情数据":"Market Data","覆盖市场":"Covered Markets",
+  "最新报价 + 罗马尼亚更新时间":"Latest quote + Romania update time","股票名称 / 代码自动搜索":"Automatic security name / symbol search",
+  "总":"D","客":"C","持":"P","交":"T","报":"R","设":"S"
+});
+Object.assign(dictionaries.ro,{
+  "客户股票跟踪管理系统":"Sistem de urmărire a acțiunilor clienților",
+  "客户、人员、买卖记录、持仓与多市场行情统一管理。":"Administrare unificată pentru clienți, personal, tranzacții, poziții și date multi-piață.",
+  "管理员姓名":"Nume administrator","一次性初始化码":"Cod unic de configurare",
+  "安全登录 · 数据库权限隔离 · 操作记录审计":"Autentificare sigură · Izolare acces bază de date · Jurnal de audit",
+  "页面加载失败，请点击顶部导航重新进入。":"Pagina nu s-a încărcat. Folosește navigarea de sus pentru a reintra.",
+  "数据量已超过当前单次加载上限，请使用筛选缩小范围。":"Volumul de date depășește limita curentă. Restrânge intervalul cu filtre.",
+  "查看详情 ↗":"Vezi detalii ↗","详情 ↗":"Detalii ↗","股票":"Instrument","方向":"Direcție",
+  "仅当前二级账户客户":"Clienții alocați acestui cont Nivel 2","持有至少 1 个标的":"Deține cel puțin 1 instrument",
+  "完整买入流水":"Registru complet cumpărări","完整卖出流水":"Registru complet vânzări","客户持仓总览":"Prezentare poziții clienți",
+  "自动来自买卖流水":"Calculat automat din registrul tranzacțiilor","平均成本":"Cost mediu","暂无客户持仓":"Fără poziții ale clienților",
+  "买卖结构":"Structură cumpărări / vânzări","账户业务汇总":"Rezumat cont","持仓成本基准":"Bază cost poziții","交易总数":"Total tranzacții",
+  "最近买进 / 卖出明细":"Detalii recente cumpărări / vânzări","暂无买卖记录":"Fără înregistrări de cumpărare/vânzare","暂无近期交易":"Fără tranzacții recente",
+  "客户编号":"ID client","地区":"Regiune","负责人":"Responsabil","建立时间":"Creat","暂无客户数据":"Fără date client",
+  "按当前账户权限管理客户资料、交易与跟进":"Administrează profiluri, tranzacții și note de serviciu în limitele permisiunilor curente",
+  "暂无数据":"Fără date","保存备注":"Salvare notițe","页面生成：":"Generat:","按最新可用行情计算":"Calculat din cele mai recente date de piață disponibile",
+  "基于当前可用行情":"Pe baza datelor de piață disponibile","买入 / 卖出节点 · 罗马尼亚时间":"Puncte cumpărare / vânzare · ora României",
+  "基于当前行情序列":"Pe baza seriei de piață curente","持仓占比":"Alocare poziții","收益构成":"Compoziție P/L",
+  "资金规模":"Capital","服务状态":"Stare serviciu","暂无客户备注":"Fără notițe client","暂无服务纪要":"Fără note de serviciu",
+  "内部归属：":"Responsabil intern:","行情来自免费公开市场数据源":"Date de piață din surse publice gratuite","页面以各行情的最新更新时间为准。":"Valorile urmează ultima actualizare a fiecărei surse.",
+  "市值":"Valoare de piață","暂无持仓数据":"Fără date de poziție","当前持仓暂无可用价格序列":"Nu există serie de preț disponibilă pentru pozițiile curente",
+  "当前持仓暂无可用收益序列":"Nu există serie P/L disponibilă pentru pozițiile curente","其他":"Altele","邮件":"Email","会议":"Întâlnire",
+  "请选择":"Selectează","当前权限范围内全部客户买入 / 卖出流水":"Toate tranzacțiile clienților din limitele permisiunilor curente",
+  "持仓由此自动计算":"Pozițiile sunt calculate automat","类型":"Tip",
+  "使用免费公开行情源的最新可用报价，并显示数据更新时间":"Folosește cele mai recente cotații disponibile din surse publice gratuite și afișează ora actualizării",
+  "免费公开行情源 · 显示最新报价与罗马尼亚时间":"Date publice gratuite · cele mai recente cotații · ora României",
+  "选择股票":"Selectează instrument","罗马尼亚、美国、法国、德国、英国、意大利、西班牙、荷兰、瑞士、波兰、日本":"România, SUA, Franța, Germania, Regatul Unit, Italia, Spania, Țările de Jos, Elveția, Polonia, Japonia",
+  "暂无行情数据":"Fără date de piață","客户归属分布":"Distribuția clienților","按二级负责人统计":"Grupat după responsabilul Nivel 2",
+  "交易记录数量":"Număr tranzacții","人员客户统计":"Statistici clienți/personal","按角色层级计算可见客户数量":"Numărul de clienți vizibili calculat după ierarhia rolurilor",
+  "人员":"Personal","暂无人员数据":"Fără date personal","登录身份":"Identitate conectată","行情数据":"Date de piață","覆盖市场":"Piețe acoperite",
+  "最新报价 + 罗马尼亚更新时间":"Ultima cotație + ora actualizării în România","股票名称 / 代码自动搜索":"Căutare automată după nume / simbol",
+  "总":"G","客":"C","持":"P","交":"T","报":"R","设":"S"
+});
+
 export function getLang(){return localStorage.getItem(LANG_KEY)||"zh"}
 export function setLang(lang){const v=["zh","en","ro"].includes(lang)?lang:"zh";localStorage.setItem(LANG_KEY,v);return v}
 export function localeFor(lang){return lang==="ro"?"ro-RO":lang==="en"?"en-GB":"zh-CN"}
@@ -66,8 +134,10 @@ export function translateUI(root=document,lang=getLang()){
     const raw=node.nodeValue,trim=raw.trim();
     if(trim&&dict[trim])node.nodeValue=raw.replace(trim,dict[trim]);
   }
-  root.querySelectorAll?.("[placeholder]").forEach(el=>{
-    const p=el.getAttribute("placeholder");if(dict[p])el.setAttribute("placeholder",dict[p]);
+  root.querySelectorAll?.("[placeholder],[title],[aria-label]").forEach(el=>{
+    for(const attr of ["placeholder","title","aria-label"]){
+      const v=el.getAttribute(attr);if(v&&dict[v])el.setAttribute(attr,dict[v]);
+    }
   });
 }
 export function languageOptions(lang){
