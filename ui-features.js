@@ -3,7 +3,7 @@ const dictionaries={
   en:{
     "总览大盘":"Dashboard","客户中心":"Customers","人员中心":"Staff","交易记录":"Trades","持仓中心":"Positions","行情中心":"Markets","统计报表":"Reports","系统设置":"Settings","股票份额看板":"Share Allocation",
     "系统正常":"System Online","退出":"Sign out","登录系统":"Sign in","账号":"Account","密码":"Password","安全登录":"Secure login","数据库权限隔离":"Database access isolation","操作记录审计":"Audit trail",
-    "客户列表":"Customer List","新增客户":"New Client","全部状态":"All Status","潜在客户":"Prospect","服务中":"In Service","持仓中":"Holding","已结束":"Closed","已归档":"Archived",
+    "客户列表":"Customer List","新增客户":"Add Client","全部状态":"All Statuses","潜在客户":"Prospect","服务中":"Active Service","持仓中":"With Holdings","已结束":"Closed","已归档":"Archived",
     "人员账户管理":"Staff Accounts","新建人员账户":"Create Staff Account","重置密码":"Reset Password","禁用":"Disable","启用":"Enable",
     "交易流水":"Trade Ledger","当前持仓明细":"Current Positions","刷新持仓":"Refresh Positions","多国家行情":"Global Markets","股票列表":"Securities",
     "管理员":"Administrator","一级人员":"Level 1","二级人员":"Level 2","客户姓名":"Client Name","性别":"Gender","男性":"Male","女性":"Female","未填写":"Not set","年龄（可选）":"Age (optional)","地区（可选）":"Region (optional)",
@@ -12,47 +12,47 @@ const dictionaries={
     "客户持仓与买卖记录":"Client Holdings & Trades","客户资料与服务纪要":"Client Profile & Service Notes","持仓结构 / 收益构成":"Allocation / P&L Mix","持仓收益走势":"Position P/L Trend",
     "买入":"Buy","卖出":"Sell","买进":"Buy","卖出":"Sell","时间":"Time","数量":"Quantity","价格":"Price","手续费":"Fees","备注":"Notes","保存交易":"Save Trade",
     "股票份额":"Share Allocation","剩余份额":"Remaining Shares","已预留份额":"Reserved Shares","总份额":"Total Shares","剩余占比":"Remaining Ratio","距离交易剩余时间":"Time Remaining",
-    "时段预留份额":"Reserved Shares by Time","时段参与人数":"Participants by Time","罗马尼亚时间":"Romania Time","最新数据时间":"Latest Data Time","更新时间":"Updated",
-    "业务使用情况":"Business Activity","当前账户":"Current Account","角色":"Role","团队人员":"Team Members","客户总数":"Clients","今日交易":"Today Trades","待跟进":"Pending Follow-up","刷新":"Refresh",
+    "时段预留份额":"Reserved Shares by Time","时段参与人数":"Participants by Time","罗马尼亚时间":"Romanian Time","最新数据时间":"Latest Data Time","更新时间":"Updated",
+    "业务使用情况":"Business Activity","当前账户":"Current Account","角色":"Role","团队人员":"Team Members","客户总数":"Clients","今日交易":"Trades Today","待跟进":"Pending Follow-up","刷新":"Refresh",
     "语言":"Language","交易时段":"Trading Window","份额配置":"Allocation Setup","保存设置":"Save Settings","开盘时间":"Market Open","目标交易时间":"Target Trade Time",
-    "跟进中":"Following","搜索姓名 / 编号 / 电话":"Search name / ID / phone","风险级别":"Risk Level","低":"Low","普通":"Normal","高":"High","电话（可选）":"Phone (optional)","邮箱（可选）":"Email (optional)","资金规模（可选）":"Capital (optional)","资金币种":"Currency","客户状态":"Client Status","归属二级人员":"Assigned Level 2","客户备注（由二级人员填写）":"Client Notes","保存客户资料":"Save Client","市场":"Market","交易类型":"Trade Type","股票代码":"Symbol","股票名称":"Security Name","币种":"Currency","交易时间":"Trade Time","沟通渠道":"Channel","下次跟进":"Next Service","跟进内容":"Service Note","保存跟进记录":"Save Service Note","姓名":"Name","上级":"Supervisor","状态":"Status","创建时间":"Created","操作":"Action","查看":"View","客户":"Clients","持仓":"Positions","交易":"Trades","报表":"Reports","设置":"Settings","概览":"Overview","跟进":"Service","趋势":"Trend","成交价":"Price","成交金额":"Value","持仓标的":"Open Securities","当前持仓":"Current Positions","成本基准":"Cost Basis","份额看板":"Allocation Board","修改交易时段":"Edit Trading Window","显示规则":"Display Rule","公司信息":"Company Info","我的客户":"My Clients","持仓客户":"Holding Clients","今日买入":"Buys Today","今日卖出":"Sells Today","累计买进":"Total Buys","累计卖出":"Total Sells","编辑账号":"Edit Account","删除账号":"Delete Account","保存账号修改":"Save Account Changes","新建人员账户":"Create Staff Account","人员账户管理":"Staff Accounts","最高管理员":"Top Administrator","所属一级人员":"Assigned Level 1","创建账户":"Create Account","电话":"Phone","当前状态":"Current Status",
+    "跟进中":"Follow-up in Progress","搜索姓名 / 编号 / 电话":"Search name / ID / phone","风险级别":"Risk Level","低":"Low","普通":"Normal","高":"High","电话（可选）":"Phone (optional)","邮箱（可选）":"Email (optional)","资金规模（可选）":"Capital (optional)","资金币种":"Currency","客户状态":"Client Status","归属二级人员":"Assigned Level 2","客户备注（由二级人员填写）":"Client Notes","保存客户资料":"Save Client","市场":"Market","交易类型":"Trade Type","股票代码":"Symbol","股票名称":"Security Name","币种":"Currency","交易时间":"Trade Time","沟通渠道":"Channel","下次跟进":"Next Follow-up","跟进内容":"Follow-up Notes","保存跟进记录":"Save Service Note","姓名":"Name","上级":"Supervisor","状态":"Status","创建时间":"Created","操作":"Action","查看":"View","客户":"Clients","持仓":"Positions","交易":"Trades","报表":"Reports","设置":"Settings","概览":"Overview","跟进":"Follow-up","趋势":"Trend","成交价":"Price","成交金额":"Trade Value","持仓标的":"Securities Held","当前持仓":"Open Positions","成本基准":"Cost Basis","份额看板":"Allocation Board","修改交易时段":"Edit Trading Window","显示规则":"Display Rule","公司信息":"Company Info","我的客户":"My Clients","持仓客户":"Clients with Holdings","今日买入":"Buys Today","今日卖出":"Sells Today","累计买进":"Total Buys","累计卖出":"Total Sells","编辑账号":"Edit Account","删除账号":"Delete Account","保存账号修改":"Save Account Changes","新建人员账户":"Create Staff Account","人员账户管理":"Staff Accounts","最高管理员":"Top Administrator","所属一级人员":"Assigned Level 1","创建账户":"Create Account","电话":"Phone","当前状态":"Current Status",
     "罗马尼亚":"Romania","美国":"United States","法国":"France","德国":"Germany","英国":"United Kingdom","意大利":"Italy","西班牙":"Spain","荷兰":"Netherlands","瑞士":"Switzerland","波兰":"Poland","日本":"Japan",
     "首次初始化管理员":"Initial Administrator Setup","管理员 / 一级人员 / 二级人员统一入口":"Unified entry for Administrator / Level 1 / Level 2","系统尚未初始化，请创建第一个管理员账户。":"The system is not initialized. Create the first administrator account.","创建管理员并进入系统":"Create Administrator","客户资料":"Client Profile","总览":"Overview",
-    "填写客户偏好、重点信息、服务说明等":"Client preferences, key information and service notes","地区未填写":"Region not set","年龄未填写":"Age not set","暂无交易":"No trades","价格走势":"Price Movement","成本结构":"Cost Structure","累计净投入":"Net Capital Invested","已实现":"Realized","未实现":"Unrealized","持仓浮动盈亏":"Position P/L",
+    "填写客户偏好、重点信息、服务说明等":"Client preferences, key information and service notes","地区未填写":"Region not set","年龄未填写":"Age not set","暂无交易":"No trades","价格走势":"Price Movement","成本结构":"Cost Structure","累计净投入":"Net Capital Invested","已实现":"Realized","未实现":"Unrealized","持仓浮动盈亏":"Unrealized Position P/L",
     "管理员拥有最高权限：一级人员直属管理员，二级人员直属一级人员；可修改、重置、禁用与删除人员账号":"Administrator has the highest authority. Level 1 reports to Administrator and Level 2 reports to Level 1. Administrator can edit, reset, disable and delete staff accounts.","查看本人及名下二级人员；权限由数据库 RLS 强制执行":"View your own account and assigned Level 2 staff. Access is enforced by database RLS.","搜索客户 / 股票":"Search client / security","当前股票暂无可用行情":"No quote available for this security","请更换股票或市场":"Choose another security or market","暂无可用行情":"No quote available","行情价":"Market Price","未知":"Unknown","按当前权限范围实时汇总，不使用虚拟业务数据。":"Live aggregation within current permissions. No fabricated business data.","客户数量":"Client Count","中文":"Chinese",
-    "账号资料已更新":"Account updated","人员账户已创建":"Staff account created","密码已重置":"Password reset","账户状态已更新":"Account status updated","账号已删除，历史业务记录已保留":"Account deleted; historical business records retained","客户资料已保存":"Client saved","客户备注已更新":"Client notes updated","交易已保存，持仓已自动重算":"Trade saved; positions recalculated","跟进记录已保存":"Service note saved","已恢复内部操作按钮。":"Internal controls restored.","截图模式：仅隐藏内部归属、新增交易、记录跟进。":"Screenshot mode hides only internal owner, add trade and service-note controls.","二级人员团队":"Level 2 Team","团队客户":"Team Clients","团队买卖结构":"Team Order Mix","团队业务摘要":"Team Business Summary","直属当前一级人员":"Direct reports to current Level 1","全部二级人员客户":"All Level 2 clients","持有至少一个标的":"Holding at least one security","罗马尼亚交易日":"Romania trading day","到期服务任务":"Due service tasks","二级人员详情":"Level 2 Details","客户明细":"Client Details","交易记录":"Trade Records","暂无直属二级人员":"No direct Level 2 staff","暂无交易记录":"No trade records","点击卡片查看客户和交易":"Click a card to view clients and trades",
+    "账号资料已更新":"Account updated","人员账户已创建":"Staff account created","密码已重置":"Password reset","账户状态已更新":"Account status updated","账号已删除，历史业务记录已保留":"Account deleted; historical business records retained","客户资料已保存":"Client saved","客户备注已更新":"Client notes updated","交易已保存，持仓已自动重算":"Trade saved; positions recalculated","跟进记录已保存":"Service note saved","已恢复内部操作按钮。":"Internal controls restored.","截图模式：仅隐藏内部归属、新增交易、记录跟进。":"Screenshot mode hides only internal owner, add trade and service-note controls.","二级人员团队":"Level 2 Team","团队客户":"Team Clients","团队买卖结构":"Team Order Mix","团队业务摘要":"Team Business Summary","直属当前一级人员":"Direct reports to current Level 1","全部二级人员客户":"All Level 2 clients","持有至少一个标的":"Holding at least one security","罗马尼亚交易日":"Romanian trading day","到期服务任务":"Due service tasks","二级人员详情":"Level 2 Details","客户明细":"Client Details","交易记录":"Trade Records","暂无直属二级人员":"No direct Level 2 staff","暂无交易记录":"No trade records","点击卡片查看客户和交易":"Click a card to view clients and trades",
     "更新":"Updated","行情更新":"Market updated","最新数据时间（罗马尼亚）":"Latest data time (Romania)","数据读取失败":"Data load failed",
-    "读取失败":"Read failed","正在初始化…":"Initializing…","初始化失败":"Initialization failed","管理员创建成功，请登录":"Administrator created. Please sign in.","正在登录…":"Signing in…","账户未启用或无系统权限":"Account disabled or unauthorized","未知错误":"Unknown error","已切换业务趋势":"Business trend selected","正在刷新数据":"Refreshing data","编辑人员账号":"Edit Staff Account","操作失败":"Operation failed","请输入新密码（至少 8 位）":"Enter a new password (minimum 8 characters)","确认禁用该账户？":"Disable this account?","确认启用该账户？":"Enable this account?","时段记录日期必须与看板日期一致":"Slot date must match board date","时段记录必须位于有效业务时段内":"Slot must be within the valid business window","不能录入未来时段数据":"Future slot data cannot be entered","时段预留份额合计不能超过已预留份额":"Interval reserved shares cannot exceed total reserved shares","新增客户":"New Clients","成本结构":"Cost Structure","累计净投入":"Net Invested","已实现":"Realized","未实现":"Unrealized","持仓浮动盈亏":"Position Floating P/L","预留份额":"Reserved Shares","参与人数":"Participants"
+    "读取失败":"Read failed","正在初始化…":"Initializing…","初始化失败":"Initialization failed","管理员创建成功，请登录":"Administrator created. Please sign in.","正在登录…":"Signing in…","账户未启用或无系统权限":"Account disabled or unauthorized","未知错误":"Unknown error","已切换业务趋势":"Business trend selected","正在刷新数据":"Refreshing data","编辑人员账号":"Edit Staff Account","操作失败":"Operation failed","请输入新密码（至少 8 位）":"Enter a new password (minimum 8 characters)","确认禁用该账户？":"Disable this account?","确认启用该账户？":"Enable this account?","时段记录日期必须与看板日期一致":"Slot date must match board date","时段记录必须位于有效业务时段内":"Slot must be within the valid business window","不能录入未来时段数据":"Future slot data cannot be entered","时段预留份额合计不能超过已预留份额":"Interval reserved shares cannot exceed total reserved shares","新增客户":"Add Client","成本结构":"Cost Structure","累计净投入":"Net Invested","已实现":"Realized","未实现":"Unrealized","持仓浮动盈亏":"Unrealized Position P/L","预留份额":"Reserved Shares","参与人数":"Participants"
   },
   ro:{
-    "总览大盘":"Panou general","客户中心":"Clienți","人员中心":"Personal","交易记录":"Tranzacții","持仓中心":"Poziții","行情中心":"Piețe","统计报表":"Rapoarte","系统设置":"Setări","股票份额看板":"Alocare acțiuni",
+    "总览大盘":"Panou general","客户中心":"Clienți","人员中心":"Personal","交易记录":"Tranzacții","持仓中心":"Poziții","行情中心":"Piețe","统计报表":"Rapoarte","系统设置":"Setări","股票份额看板":"Panou de alocare a acțiunilor",
     "系统正常":"Sistem activ","退出":"Ieșire","登录系统":"Autentificare","账号":"Cont","密码":"Parolă","安全登录":"Autentificare securizată","数据库权限隔离":"Izolare acces bază de date","操作记录审计":"Jurnal de audit",
-    "客户列表":"Lista clienților","新增客户":"Client nou","全部状态":"Toate stările","潜在客户":"Prospect","服务中":"În servicii","持仓中":"Cu poziții","已结束":"Închis","已归档":"Arhivat",
-    "人员账户管理":"Conturi personal","新建人员账户":"Cont nou","重置密码":"Resetare parolă","禁用":"Dezactivare","启用":"Activare",
-    "交易流水":"Registru tranzacții","当前持仓明细":"Poziții curente","刷新持仓":"Actualizare poziții","多国家行情":"Piețe globale","股票列表":"Instrumente",
-    "管理员":"Administrator","一级人员":"Nivel 1","二级人员":"Nivel 2","客户姓名":"Nume client","性别":"Gen","男性":"Bărbat","女性":"Femeie","未填写":"Necompletat","年龄（可选）":"Vârstă (opțional)","地区（可选）":"Regiune (opțional)",
-    "客户备注":"Notițe client","编辑客户备注":"Editare notițe","新增交易":"Tranzacție nouă","记录跟进":"Notă de serviciu","截图模式":"Mod captură","恢复显示":"Restabilire","返回":"Înapoi",
-    "持仓成本":"Cost poziții","最新行情市值":"Valoare de piață","未实现盈亏":"P/L nerealizat","已实现盈亏":"P/L realizat","综合收益率":"Randament total","最近交易":"Ultima tranzacție",
-    "客户持仓与买卖记录":"Poziții și tranzacții client","客户资料与服务纪要":"Profil client și note de serviciu","持仓结构 / 收益构成":"Alocare / structură P&L","持仓收益走势":"Evoluție P/L",
+    "客户列表":"Lista clienților","新增客户":"Adaugă client","全部状态":"Toate stările","潜在客户":"Prospect","服务中":"Servicii active","持仓中":"Cu dețineri","已结束":"Închis","已归档":"Arhivat",
+    "人员账户管理":"Conturile personalului","新建人员账户":"Creează cont de personal","重置密码":"Resetare parolă","禁用":"Dezactivare","启用":"Activare",
+    "交易流水":"Registrul tranzacțiilor","当前持仓明细":"Detaliile pozițiilor curente","刷新持仓":"Actualizare poziții","多国家行情":"Piețe globale","股票列表":"Instrumente",
+    "管理员":"Administrator","一级人员":"Nivel 1","二级人员":"Nivel 2","客户姓名":"Numele clientului","性别":"Gen","男性":"Bărbat","女性":"Femeie","未填写":"Necompletat","年龄（可选）":"Vârstă (opțional)","地区（可选）":"Regiune (opțional)",
+    "客户备注":"Note despre client","编辑客户备注":"Editează notele clientului","新增交易":"Tranzacție nouă","记录跟进":"Adaugă notă de interacțiune","截图模式":"Mod captură","恢复显示":"Restabilire","返回":"Înapoi",
+    "持仓成本":"Baza de cost","最新行情市值":"Valoare de piață","未实现盈亏":"Profit/pierdere nerealizat(ă)","已实现盈亏":"Profit/pierdere realizat(ă)","综合收益率":"Randament total","最近交易":"Ultima tranzacție",
+    "客户持仓与买卖记录":"Deținerile și tranzacțiile clientului","客户资料与服务纪要":"Profilul clientului și note de interacțiune","持仓结构 / 收益构成":"Alocare / structură P&L","持仓收益走势":"Evoluție P/L",
     "买入":"Cumpărare","卖出":"Vânzare","买进":"Cumpărare","时间":"Timp","数量":"Cantitate","价格":"Preț","手续费":"Comision","备注":"Notițe","保存交易":"Salvare tranzacție",
-    "股票份额":"Alocare acțiuni","剩余份额":"Acțiuni rămase","已预留份额":"Acțiuni rezervate","总份额":"Total acțiuni","剩余占比":"Procent rămas","距离交易剩余时间":"Timp rămas",
+    "股票份额":"Alocarea acțiunilor","剩余份额":"Acțiuni rămase","已预留份额":"Acțiuni rezervate","总份额":"Total acțiuni","剩余占比":"Procent rămas","距离交易剩余时间":"Timp rămas",
     "时段预留份额":"Acțiuni rezervate pe interval","时段参与人数":"Participanți pe interval","罗马尼亚时间":"Ora României","最新数据时间":"Ora ultimei actualizări","更新时间":"Actualizat",
-    "业务使用情况":"Activitate","当前账户":"Cont curent","角色":"Rol","团队人员":"Membri echipă","客户总数":"Clienți","今日交易":"Tranzacții azi","待跟进":"De urmărit","刷新":"Actualizare",
-    "语言":"Limbă","交易时段":"Interval tranzacționare","份额配置":"Configurare alocare","保存设置":"Salvare setări","开盘时间":"Deschidere piață","目标交易时间":"Ora țintă",
-    "跟进中":"În urmărire","搜索姓名 / 编号 / 电话":"Caută nume / ID / telefon","风险级别":"Nivel risc","低":"Scăzut","普通":"Normal","高":"Ridicat","电话（可选）":"Telefon (opțional)","邮箱（可选）":"Email (opțional)","资金规模（可选）":"Capital (opțional)","资金币种":"Monedă","客户状态":"Stare client","归属二级人员":"Responsabil Nivel 2","客户备注（由二级人员填写）":"Notițe client","保存客户资料":"Salvare client","市场":"Piață","交易类型":"Tip tranzacție","股票代码":"Simbol","股票名称":"Denumire instrument","币种":"Monedă","交易时间":"Ora tranzacției","沟通渠道":"Canal","下次跟进":"Următor serviciu","跟进内容":"Notă serviciu","保存跟进记录":"Salvare notă","姓名":"Nume","上级":"Coordonator","状态":"Stare","创建时间":"Creat","操作":"Acțiune","查看":"Vezi","客户":"Clienți","持仓":"Poziții","交易":"Tranzacții","报表":"Rapoarte","设置":"Setări","概览":"Prezentare","跟进":"Serviciu","趋势":"Tendință","成交价":"Preț","成交金额":"Valoare","持仓标的":"Instrumente deschise","当前持仓":"Poziții curente","成本基准":"Bază cost","份额看板":"Panou alocare","修改交易时段":"Modificare interval","显示规则":"Regulă afișare","公司信息":"Informații companie","我的客户":"Clienții mei","持仓客户":"Clienți cu poziții","今日买入":"Cumpărări azi","今日卖出":"Vânzări azi","累计买进":"Cumpărări totale","累计卖出":"Vânzări totale","编辑账号":"Editare cont","删除账号":"Ștergere cont","保存账号修改":"Salvare modificări","新建人员账户":"Cont personal nou","人员账户管理":"Conturi personal","最高管理员":"Administrator principal","所属一级人员":"Nivel 1 responsabil","创建账户":"Creare cont","电话":"Telefon","当前状态":"Stare curentă",
+    "业务使用情况":"Activitate","当前账户":"Cont curent","角色":"Rol","团队人员":"Membrii echipei","客户总数":"Clienți","今日交易":"Tranzacții azi","待跟进":"De urmărit","刷新":"Actualizare",
+    "语言":"Limbă","交易时段":"Interval de tranzacționare","份额配置":"Configurare alocare","保存设置":"Salvare setări","开盘时间":"Deschidere piață","目标交易时间":"Ora țintă",
+    "跟进中":"În urmărire","搜索姓名 / 编号 / 电话":"Caută nume / ID / telefon","风险级别":"Nivel de risc","低":"Scăzut","普通":"Normal","高":"Ridicat","电话（可选）":"Telefon (opțional)","邮箱（可选）":"Email (opțional)","资金规模（可选）":"Capital (opțional)","资金币种":"Moneda capitalului","客户状态":"Starea clientului","归属二级人员":"Responsabil Nivel 2","客户备注（由二级人员填写）":"Notițe client","保存客户资料":"Salvare client","市场":"Piață","交易类型":"Tipul tranzacției","股票代码":"Simbol","股票名称":"Denumirea instrumentului","币种":"Monedă","交易时间":"Ora tranzacției","沟通渠道":"Canal","下次跟进":"Următoarea interacțiune","跟进内容":"Note de interacțiune","保存跟进记录":"Salvare notă","姓名":"Nume","上级":"Coordonator","状态":"Stare","创建时间":"Data creării","操作":"Acțiune","查看":"Vezi","客户":"Clienți","持仓":"Poziții","交易":"Tranzacții","报表":"Rapoarte","设置":"Setări","概览":"Prezentare","跟进":"Interacțiuni","趋势":"Tendință","成交价":"Preț","成交金额":"Valoarea tranzacției","持仓标的":"Instrumente deschise","当前持仓":"Poziții curente","成本基准":"Baza de cost","份额看板":"Panou de alocare","修改交易时段":"Modificare interval","显示规则":"Regulă de afișare","公司信息":"Informații despre companie","我的客户":"Clienții mei","持仓客户":"Clienți cu dețineri","今日买入":"Cumpărări azi","今日卖出":"Vânzări azi","累计买进":"Cumpărări totale","累计卖出":"Vânzări totale","编辑账号":"Editare cont","删除账号":"Ștergere cont","保存账号修改":"Salvare modificări","新建人员账户":"Creează cont de personal","人员账户管理":"Conturile personalului","最高管理员":"Administrator principal","所属一级人员":"Nivel 1 responsabil","创建账户":"Creare cont","电话":"Telefon","当前状态":"Stare curentă",
     "罗马尼亚":"România","美国":"SUA","法国":"Franța","德国":"Germania","英国":"Regatul Unit","意大利":"Italia","西班牙":"Spania","荷兰":"Țările de Jos","瑞士":"Elveția","波兰":"Polonia","日本":"Japonia",
-    "首次初始化管理员":"Configurare administrator inițial","管理员 / 一级人员 / 二级人员统一入口":"Acces unic pentru Administrator / Nivel 1 / Nivel 2","系统尚未初始化，请创建第一个管理员账户。":"Sistemul nu este inițializat. Creează primul cont de administrator.","创建管理员并进入系统":"Creează administrator","客户资料":"Profil client","总览":"Prezentare",
-    "填写客户偏好、重点信息、服务说明等":"Preferințe client, informații importante și note de serviciu","地区未填写":"Regiune necompletată","年龄未填写":"Vârstă necompletată","暂无交易":"Fără tranzacții","价格走势":"Evoluție preț","成本结构":"Structură cost","累计净投入":"Capital net investit","已实现":"Realizat","未实现":"Nerealizat","持仓浮动盈亏":"P/L poziție",
+    "首次初始化管理员":"Configurare administrator inițial","管理员 / 一级人员 / 二级人员统一入口":"Acces unic pentru Administrator / Nivel 1 / Nivel 2","系统尚未初始化，请创建第一个管理员账户。":"Sistemul nu este inițializat. Creează primul cont de administrator.","创建管理员并进入系统":"Creează administrator","客户资料":"Profilul clientului","总览":"Prezentare",
+    "填写客户偏好、重点信息、服务说明等":"Preferințe client, informații importante și note de serviciu","地区未填写":"Regiune necompletată","年龄未填写":"Vârstă necompletată","暂无交易":"Fără tranzacții","价格走势":"Evoluție preț","成本结构":"Structura costurilor","累计净投入":"Capital net investit","已实现":"Realizat","未实现":"Nerealizat","持仓浮动盈亏":"Profit/pierdere nerealizat(ă) din poziții",
     "管理员拥有最高权限：一级人员直属管理员，二级人员直属一级人员；可修改、重置、禁用与删除人员账号":"Administratorul are autoritatea maximă. Nivelul 1 raportează administratorului, iar Nivelul 2 raportează Nivelului 1. Administratorul poate edita, reseta, dezactiva și șterge conturile personalului.","查看本人及名下二级人员；权限由数据库 RLS 强制执行":"Vezi propriul cont și personalul Nivel 2 alocat. Accesul este impus prin RLS în baza de date.","搜索客户 / 股票":"Caută client / instrument","当前股票暂无可用行情":"Nu există cotație disponibilă pentru acest instrument","请更换股票或市场":"Alege alt instrument sau altă piață","暂无可用行情":"Fără cotație disponibilă","行情价":"Preț piață","未知":"Necunoscut","按当前权限范围实时汇总，不使用虚拟业务数据。":"Agregare în limitele permisiunilor curente. Fără date comerciale fabricate.","客户数量":"Număr clienți","中文":"Chineză",
     "账号资料已更新":"Cont actualizat","人员账户已创建":"Cont personal creat","密码已重置":"Parolă resetată","账户状态已更新":"Stare cont actualizată","账号已删除，历史业务记录已保留":"Cont șters; istoricul comercial a fost păstrat","客户资料已保存":"Client salvat","客户备注已更新":"Notițe client actualizate","交易已保存，持仓已自动重算":"Tranzacție salvată; pozițiile au fost recalculate","跟进记录已保存":"Notă de serviciu salvată","已恢复内部操作按钮。":"Controalele interne au fost restabilite.","截图模式：仅隐藏内部归属、新增交易、记录跟进。":"Modul captură ascunde doar responsabilul intern, tranzacția nouă și nota de serviciu.","二级人员团队":"Echipă Nivel 2","团队客户":"Clienți echipă","团队买卖结构":"Structură tranzacții echipă","团队业务摘要":"Rezumat activitate echipă","直属当前一级人员":"Raportează direct Nivelului 1 curent","全部二级人员客户":"Toți clienții Nivelului 2","持有至少一个标的":"Deține cel puțin un instrument","罗马尼亚交易日":"Zi de tranzacționare România","到期服务任务":"Sarcini de serviciu scadente","二级人员详情":"Detalii Nivel 2","客户明细":"Detalii clienți","交易记录":"Înregistrări tranzacții","暂无直属二级人员":"Nu există personal Nivel 2 direct","暂无交易记录":"Nu există tranzacții","点击卡片查看客户和交易":"Apasă cardul pentru clienți și tranzacții",
     "更新":"Actualizat","行情更新":"Piață actualizată","最新数据时间（罗马尼亚）":"Ora ultimelor date (România)","数据读取失败":"Eroare la citirea datelor",
-    "读取失败":"Citire eșuată","正在初始化…":"Se inițializează…","初始化失败":"Inițializare eșuată","管理员创建成功，请登录":"Administrator creat. Autentifică-te.","正在登录…":"Autentificare…","账户未启用或无系统权限":"Cont dezactivat sau fără permisiuni","未知错误":"Eroare necunoscută","已切换业务趋势":"Tendința activității selectată","正在刷新数据":"Se actualizează datele","编辑人员账号":"Editare cont personal","操作失败":"Operațiune eșuată","请输入新密码（至少 8 位）":"Introdu o parolă nouă (minimum 8 caractere)","确认禁用该账户？":"Dezactivezi acest cont?","确认启用该账户？":"Activezi acest cont?","时段记录日期必须与看板日期一致":"Data intervalului trebuie să corespundă datei panoului","时段记录必须位于有效业务时段内":"Intervalul trebuie să fie în fereastra de lucru validă","不能录入未来时段数据":"Nu se pot introduce date pentru intervale viitoare","时段预留份额合计不能超过已预留份额":"Totalul acțiunilor rezervate pe intervale nu poate depăși totalul rezervat","新增客户":"Clienți noi","成本结构":"Structură cost","累计净投入":"Capital net investit","已实现":"Realizat","未实现":"Nerealizat","持仓浮动盈亏":"P/L flotant poziții","预留份额":"Acțiuni rezervate","参与人数":"Participanți"
+    "读取失败":"Citire eșuată","正在初始化…":"Se inițializează…","初始化失败":"Inițializare eșuată","管理员创建成功，请登录":"Administrator creat. Autentifică-te.","正在登录…":"Autentificare…","账户未启用或无系统权限":"Cont dezactivat sau fără permisiuni","未知错误":"Eroare necunoscută","已切换业务趋势":"Tendința activității selectată","正在刷新数据":"Se actualizează datele","编辑人员账号":"Editare cont personal","操作失败":"Operațiune eșuată","请输入新密码（至少 8 位）":"Introdu o parolă nouă (minimum 8 caractere)","确认禁用该账户？":"Dezactivezi acest cont?","确认启用该账户？":"Activezi acest cont?","时段记录日期必须与看板日期一致":"Data intervalului trebuie să corespundă datei panoului","时段记录必须位于有效业务时段内":"Intervalul trebuie să fie în fereastra de lucru validă","不能录入未来时段数据":"Nu se pot introduce date pentru intervale viitoare","时段预留份额合计不能超过已预留份额":"Totalul acțiunilor rezervate pe intervale nu poate depăși totalul rezervat","新增客户":"Adaugă client","成本结构":"Structura costurilor","累计净投入":"Capital net investit","已实现":"Realizat","未实现":"Nerealizat","持仓浮动盈亏":"Profit/pierdere nerealizat(ă) din poziții","预留份额":"Acțiuni rezervate","参与人数":"Participanți"
   }
 };
 
 
 Object.assign(dictionaries.en,{
-  "客户股票跟踪管理系统":"Client Stock Tracking System",
+  "客户股票跟踪管理系统":"Client Portfolio Management System",
   "客户、人员、买卖记录、持仓与多市场行情统一管理。":"Unified management of clients, staff, trades, positions and multi-market data.",
   "管理员姓名":"Administrator Name","一次性初始化码":"One-time Setup Code",
   "安全登录 · 数据库权限隔离 · 操作记录审计":"Secure login · Database access isolation · Audit trail",
@@ -64,10 +64,10 @@ Object.assign(dictionaries.en,{
   "自动来自买卖流水":"Automatically calculated from trade ledger","平均成本":"Average Cost","暂无客户持仓":"No client positions",
   "买卖结构":"Buy / Sell Mix","账户业务汇总":"Account Summary","持仓成本基准":"Position Cost Basis","交易总数":"Total Trades",
   "最近买进 / 卖出明细":"Recent Buy / Sell Details","暂无买卖记录":"No buy/sell records","暂无近期交易":"No recent trades",
-  "客户编号":"Client ID","地区":"Region","负责人":"Owner","建立时间":"Created","暂无客户数据":"No client data",
+  "客户编号":"Client ID","地区":"Region","负责人":"Account Manager","建立时间":"Created","暂无客户数据":"No client data",
   "按当前账户权限管理客户资料、交易与跟进":"Manage client profiles, trades and service notes within current permissions",
   "暂无数据":"No data","保存备注":"Save Notes","页面生成：":"Generated:","按最新可用行情计算":"Calculated from latest available market data",
-  "基于当前可用行情":"Based on current available market data","买入 / 卖出节点 · 罗马尼亚时间":"Buy / Sell points · Romania time",
+  "基于当前可用行情":"Based on current available market data","买入 / 卖出节点 · 罗马尼亚时间":"Buy / Sell points · Romanian time",
   "基于当前行情序列":"Based on current market series","持仓占比":"Position Allocation","收益构成":"P/L Composition",
   "资金规模":"Capital","服务状态":"Service Status","暂无客户备注":"No client notes","暂无服务纪要":"No service notes",
   "内部归属：":"Internal owner:","行情来自免费公开市场数据源":"Market data from free public sources","页面以各行情的最新更新时间为准。":"Values follow each source's latest update time.",
@@ -76,16 +76,16 @@ Object.assign(dictionaries.en,{
   "请选择":"Select","当前权限范围内全部客户买入 / 卖出流水":"All client buy / sell records within current permissions",
   "持仓由此自动计算":"Positions are calculated automatically","类型":"Type",
   "使用免费公开行情源的最新可用报价，并显示数据更新时间":"Uses latest available quotes from free public market sources with update times",
-  "免费公开行情源 · 显示最新报价与罗马尼亚时间":"Free public market data · latest available quotes · Romania time",
+  "免费公开行情源 · 显示最新报价与罗马尼亚时间":"Free public market data · latest available quotes · Romanian time",
   "选择股票":"Select Security","罗马尼亚、美国、法国、德国、英国、意大利、西班牙、荷兰、瑞士、波兰、日本":"Romania, United States, France, Germany, United Kingdom, Italy, Spain, Netherlands, Switzerland, Poland, Japan",
-  "暂无行情数据":"No market data","客户归属分布":"Client Ownership Distribution","按二级负责人统计":"Grouped by Level 2 owner",
+  "暂无行情数据":"No market data","客户归属分布":"Client Distribution by Account Manager","按二级负责人统计":"Grouped by Level 2 account manager",
   "交易记录数量":"Trade count","人员客户统计":"Staff Client Statistics","按角色层级计算可见客户数量":"Visible client counts calculated by role hierarchy",
   "人员":"Staff","暂无人员数据":"No staff data","登录身份":"Signed-in Identity","行情数据":"Market Data","覆盖市场":"Covered Markets",
-  "最新报价 + 罗马尼亚更新时间":"Latest quote + Romania update time","股票名称 / 代码自动搜索":"Automatic security name / symbol search",
+  "最新报价 + 罗马尼亚更新时间":"Latest quote + Romanian update time","股票名称 / 代码自动搜索":"Automatic security name / symbol search",
   "总":"D","客":"C","持":"P","交":"T","报":"R","设":"S","连接中":"Connecting","数据异常":"Data Error","重置密码":"Reset Password","人员账号":"Staff Account","新密码":"New Password","确认新密码":"Confirm Password","取消":"Cancel","确认重置":"Confirm Reset","两次输入的密码不一致":"Passwords do not match","禁用账号":"Disable Account","启用账号":"Enable Account","确认禁用":"Confirm Disable","确认启用":"Confirm Enable","删除账号":"Delete Account","确认删除账号？":"Delete this account?","删除后该账号将无法登录，但历史业务记录会保留。存在客户或下级人员时系统会阻止删除。":"The account will no longer be able to sign in, while historical business records are retained. Deletion is blocked while clients or subordinate staff remain.","确认删除":"Confirm Delete"
 });
 Object.assign(dictionaries.ro,{
-  "客户股票跟踪管理系统":"Sistem de urmărire a acțiunilor clienților",
+  "客户股票跟踪管理系统":"Sistem de administrare a portofoliilor clienților",
   "客户、人员、买卖记录、持仓与多市场行情统一管理。":"Administrare unificată pentru clienți, personal, tranzacții, poziții și date multi-piață.",
   "管理员姓名":"Nume administrator","一次性初始化码":"Cod unic de configurare",
   "安全登录 · 数据库权限隔离 · 操作记录审计":"Autentificare sigură · Izolare acces bază de date · Jurnal de audit",
@@ -95,48 +95,65 @@ Object.assign(dictionaries.ro,{
   "仅当前二级账户客户":"Clienții alocați acestui cont Nivel 2","持有至少 1 个标的":"Deține cel puțin 1 instrument",
   "完整买入流水":"Registru complet cumpărări","完整卖出流水":"Registru complet vânzări","客户持仓总览":"Prezentare poziții clienți",
   "自动来自买卖流水":"Calculat automat din registrul tranzacțiilor","平均成本":"Cost mediu","暂无客户持仓":"Fără poziții ale clienților",
-  "买卖结构":"Structură cumpărări / vânzări","账户业务汇总":"Rezumat cont","持仓成本基准":"Bază cost poziții","交易总数":"Total tranzacții",
+  "买卖结构":"Structură cumpărări / vânzări","账户业务汇总":"Rezumat cont","持仓成本基准":"Baza de cost a pozițiilor","交易总数":"Total tranzacții",
   "最近买进 / 卖出明细":"Detalii recente cumpărări / vânzări","暂无买卖记录":"Fără înregistrări de cumpărare/vânzare","暂无近期交易":"Fără tranzacții recente",
-  "客户编号":"ID client","地区":"Regiune","负责人":"Responsabil","建立时间":"Creat","暂无客户数据":"Fără date client",
+  "客户编号":"ID client","地区":"Regiune","负责人":"Responsabil","建立时间":"Data creării","暂无客户数据":"Fără date client",
   "按当前账户权限管理客户资料、交易与跟进":"Administrează profiluri, tranzacții și note de serviciu în limitele permisiunilor curente",
   "暂无数据":"Fără date","保存备注":"Salvare notițe","页面生成：":"Generat:","按最新可用行情计算":"Calculat din cele mai recente date de piață disponibile",
   "基于当前可用行情":"Pe baza datelor de piață disponibile","买入 / 卖出节点 · 罗马尼亚时间":"Puncte cumpărare / vânzare · ora României",
-  "基于当前行情序列":"Pe baza seriei de piață curente","持仓占比":"Alocare poziții","收益构成":"Compoziție P/L",
-  "资金规模":"Capital","服务状态":"Stare serviciu","暂无客户备注":"Fără notițe client","暂无服务纪要":"Fără note de serviciu",
+  "基于当前行情序列":"Pe baza seriei de piață curente","持仓占比":"Ponderea deținerilor","收益构成":"Structura profitului/pierderii",
+  "资金规模":"Capital","服务状态":"Starea serviciului","暂无客户备注":"Fără notițe client","暂无服务纪要":"Fără note de serviciu",
   "内部归属：":"Responsabil intern:","行情来自免费公开市场数据源":"Date de piață din surse publice gratuite","页面以各行情的最新更新时间为准。":"Valorile urmează ultima actualizare a fiecărei surse.",
-  "市值":"Valoare de piață","暂无持仓数据":"Fără date de poziție","当前持仓暂无可用价格序列":"Nu există serie de preț disponibilă pentru pozițiile curente",
-  "当前持仓暂无可用收益序列":"Nu există serie P/L disponibilă pentru pozițiile curente","其他":"Altele","邮件":"Email","会议":"Întâlnire",
+  "市值":"Valoare de piață","暂无持仓数据":"Fără date de poziție","当前持仓暂无可用价格序列":"Nu există o serie de prețuri disponibilă pentru pozițiile curente",
+  "当前持仓暂无可用收益序列":"Nu există o serie de profit/pierdere disponibilă pentru pozițiile curente","其他":"Altele","邮件":"Email","会议":"Întâlnire",
   "请选择":"Selectează","当前权限范围内全部客户买入 / 卖出流水":"Toate tranzacțiile clienților din limitele permisiunilor curente",
   "持仓由此自动计算":"Pozițiile sunt calculate automat","类型":"Tip",
   "使用免费公开行情源的最新可用报价，并显示数据更新时间":"Folosește cele mai recente cotații disponibile din surse publice gratuite și afișează ora actualizării",
   "免费公开行情源 · 显示最新报价与罗马尼亚时间":"Date publice gratuite · cele mai recente cotații · ora României",
   "选择股票":"Selectează instrument","罗马尼亚、美国、法国、德国、英国、意大利、西班牙、荷兰、瑞士、波兰、日本":"România, SUA, Franța, Germania, Regatul Unit, Italia, Spania, Țările de Jos, Elveția, Polonia, Japonia",
-  "暂无行情数据":"Fără date de piață","客户归属分布":"Distribuția clienților","按二级负责人统计":"Grupat după responsabilul Nivel 2",
-  "交易记录数量":"Număr tranzacții","人员客户统计":"Statistici clienți/personal","按角色层级计算可见客户数量":"Numărul de clienți vizibili calculat după ierarhia rolurilor",
+  "暂无行情数据":"Fără date de piață","客户归属分布":"Distribuția clienților","按二级负责人统计":"Grupare după responsabilul de nivel 2",
+  "交易记录数量":"Numărul tranzacțiilor","人员客户统计":"Statistici privind clienții personalului","按角色层级计算可见客户数量":"Numărul de clienți vizibili calculat după ierarhia rolurilor",
   "人员":"Personal","暂无人员数据":"Fără date personal","登录身份":"Identitate conectată","行情数据":"Date de piață","覆盖市场":"Piețe acoperite",
   "最新报价 + 罗马尼亚更新时间":"Ultima cotație + ora actualizării în România","股票名称 / 代码自动搜索":"Căutare automată după nume / simbol",
-  "总":"G","客":"C","持":"P","交":"T","报":"R","设":"S","连接中":"Conectare","数据异常":"Eroare date","重置密码":"Resetare parolă","人员账号":"Cont personal","新密码":"Parolă nouă","确认新密码":"Confirmă parola","取消":"Anulare","确认重置":"Confirmă resetarea","两次输入的密码不一致":"Parolele nu coincid","禁用账号":"Dezactivare cont","启用账号":"Activare cont","确认禁用":"Confirmă dezactivarea","确认启用":"Confirmă activarea","删除账号":"Ștergere cont","确认删除账号？":"Ștergi acest cont?","删除后该账号将无法登录，但历史业务记录会保留。存在客户或下级人员时系统会阻止删除。":"Contul nu se va mai putea autentifica, iar istoricul comercial va fi păstrat. Ștergerea este blocată dacă există clienți sau personal subordonat.","确认删除":"Confirmă ștergerea"
+  "总":"G","客":"C","持":"P","交":"T","报":"R","设":"S","连接中":"Conectare","数据异常":"Eroare date","重置密码":"Resetare parolă","人员账号":"Cont de personal","新密码":"Parolă nouă","确认新密码":"Confirmă parola","取消":"Anulare","确认重置":"Confirmă resetarea","两次输入的密码不一致":"Parolele nu coincid","禁用账号":"Dezactivare cont","启用账号":"Activare cont","确认禁用":"Confirmă dezactivarea","确认启用":"Confirmă activarea","删除账号":"Ștergere cont","确认删除账号？":"Ștergi acest cont?","删除后该账号将无法登录，但历史业务记录会保留。存在客户或下级人员时系统会阻止删除。":"Contul nu se va mai putea autentifica, iar istoricul comercial va fi păstrat. Ștergerea este blocată dacă există clienți sau personal subordonat.","确认删除":"Confirmă ștergerea"
 });
 
+
+const subtitleTranslations={"新增客户数":["新增客户","New Clients","Clienți noi"],"TEAM ORDER MIX": ["团队交易结构", "Team Buy / Sell Mix", "Structura cumpărărilor/vânzărilor echipei"], "TEAM PORTFOLIO": ["团队业务摘要", "Team Portfolio", "Portofoliul echipei"], "LEVEL 2 TEAM": ["二级人员团队", "Level 2 Team", "Echipa de nivel 2"], "CLIENT HOLDINGS": ["客户持仓", "Client Holdings", "Deținerile clienților"], "ORDER MIX": ["买卖结构", "Buy / Sell Mix", "Structura cumpărărilor/vânzărilor"], "PORTFOLIO BASIS": ["持仓成本基准", "Portfolio Cost Basis", "Baza de cost a portofoliului"], "RECENT CLIENT ORDERS": ["近期客户交易", "Recent Client Trades", "Tranzacții recente ale clienților"], "PRICE MOVEMENT": ["价格走势", "Price Movement", "Evoluția prețului"], "POSITION P/L": ["持仓盈亏", "Position P/L", "Profit/pierdere din poziții"], "ALLOCATION & P/L MIX": ["持仓结构与收益构成", "Allocation & P/L Breakdown", "Alocarea și structura profitului/pierderii"], "HOLDINGS & ORDER LEDGER": ["持仓与交易记录", "Holdings & Trade Ledger", "Dețineri și registrul tranzacțiilor"], "CLIENT PROFILE": ["客户资料", "Client Profile", "Profilul clientului"], "SERVICE NOTES": ["服务纪要", "Service Notes", "Note de interacțiune"], "FREE MARKET DATA": ["公开市场行情", "Public Market Data", "Date publice de piață"], "ALLOCATION STRUCTURE": ["份额结构", "Allocation Structure", "Structura alocării"], "ROMANIA BUSINESS SLOTS": ["罗马尼亚业务时段", "Romanian Business Time Slots", "Intervale de activitate din România"], "MARKET PRICE SERIES": ["行情价格序列", "Market Price Series", "Seria prețurilor de piață"], "ROMANIA TIME": ["罗马尼亚时间", "Romanian Time", "Ora României"], "RESERVATION TREND": ["预留趋势", "Reservation Trend", "Evoluția rezervărilor"], "SHARE ALLOCATION": ["股票份额", "Share Allocation", "Alocarea acțiunilor"], "TOTAL SHARES": ["总股数", "Total Shares", "Total acțiuni"], "ROMANIA / BUCHAREST": ["罗马尼亚 / 布加勒斯特", "Romania / Bucharest", "România / București"]};
+Object.assign(dictionaries.en,{"新增客户数": "New Clients", "业务趋势": "Business Trends", "份额结构": "Allocation Structure", "剩余份额占比": "Remaining Allocation", "剩余份额低于 20%": "Remaining allocation below 20%", "可预留份额": "Available Allocation", "配置": "Configure", "最新价": "Latest Price", "实时行情": "Real-time Quote", "延迟行情": "Delayed Quote", "可用行情": "Quote Available", "暂无行情": "No Quote Available", "今日看板": "Today’s Board", "待开始": "Not Started", "历史看板": "Historical Board", "时段": "Time Slots", "最新": "Latest", "有效": "Valid", "暂无有效时段记录": "No Valid Time Slot Records", "有效时段记录": "Valid Time Slot Records", "行情走势": "Market Price Trend", "时段预留趋势": "Reservations by Time Slot", "距离交易剩余": "Time Until Trade", "公司信息暂不可用": "Company Information Unavailable", "今开": "Open", "最高": "High", "最低": "Low", "成交量": "Volume", "成交额": "Turnover", "昨收": "Previous Close", "股票份额看板尚未配置": "Share Allocation Board Not Configured", "请在管理员总览使用“份额配置”完成股票、总份额和剩余份额设置。": "Use Allocation Setup in the administrator dashboard to configure the security, total shares and remaining shares."});
+Object.assign(dictionaries.ro,{"新增客户数": "Clienți noi", "业务趋势": "Evoluția activității", "份额结构": "Structura alocării", "剩余份额占比": "Procentul alocării rămase", "剩余份额低于 20%": "Alocarea rămasă este sub 20%", "可预留份额": "Alocare disponibilă", "配置": "Configurează", "最新价": "Ultimul preț", "实时行情": "Cotație în timp real", "延迟行情": "Cotație întârziată", "可用行情": "Cotație disponibilă", "暂无行情": "Nicio cotație disponibilă", "今日看板": "Panoul de astăzi", "待开始": "Neînceput", "历史看板": "Panou istoric", "时段": "Intervale", "最新": "Cel mai recent", "有效": "Valid", "暂无有效时段记录": "Nu există înregistrări pentru intervale valide", "有效时段记录": "Înregistrări pentru intervale valide", "行情走势": "Evoluția prețului de piață", "时段预留趋势": "Rezervări pe intervale", "距离交易剩余": "Timp până la tranzacție", "公司信息暂不可用": "Informațiile despre companie nu sunt disponibile", "今开": "Deschidere", "最高": "Maxim", "最低": "Minim", "成交量": "Volum", "成交额": "Valoarea tranzacțiilor", "昨收": "Închiderea precedentă", "股票份额看板尚未配置": "Panoul de alocare a acțiunilor nu este configurat", "请在管理员总览使用“份额配置”完成股票、总份额和剩余份额设置。": "Folosește configurarea alocării din panoul administratorului pentru a seta instrumentul, totalul acțiunilor și acțiunile rămase."});
+Object.assign(dictionaries.en,{"默认语言": "Default Language", "看板刷新秒数": "Board Refresh Interval (seconds)", "交易所": "Exchange", "公司名称": "Company Name", "参与预留人数": "Reservation Participants", "看板日期": "Board Date", "股票名称或代码": "Security Name or Symbol", "该时段预留份额": "Allocation Reserved in This Time Slot", "买入 / 卖出节点": "Buy / Sell Markers", "按币种分列": "Shown by Currency"});
+Object.assign(dictionaries.ro,{"默认语言": "Limba implicită", "看板刷新秒数": "Interval de actualizare a panoului (secunde)", "交易所": "Bursă", "公司名称": "Denumirea companiei", "参与预留人数": "Participanți la rezervare", "看板日期": "Data panoului", "股票名称或代码": "Denumirea sau simbolul instrumentului", "该时段预留份额": "Alocarea rezervată în acest interval", "买入 / 卖出节点": "Marcaje de cumpărare/vânzare", "按币种分列": "Afișare pe monede"});
 export function getLang(){return localStorage.getItem(LANG_KEY)||"zh"}
 export function setLang(lang){const v=["zh","en","ro"].includes(lang)?lang:"zh";localStorage.setItem(LANG_KEY,v);return v}
 export function localeFor(lang){return lang==="ro"?"ro-RO":lang==="en"?"en-GB":"zh-CN"}
 export function tr(text,lang=getLang()){
-  if(lang==="zh")return text;
-  return dictionaries[lang]?.[text]||text;
-}
-export function translateUI(root=document,lang=getLang()){
-  if(lang==="zh")return;
+  const index={zh:0,en:1,ro:2}[lang]??0;
+  if(subtitleTranslations[text])return subtitleTranslations[text][index];
+  if(lang==="zh")return String(text).split(/( · |；)/).map(part=>subtitleTranslations[part]?.[0]||part).join("");
   const dict=dictionaries[lang]||{};
+  if(dict[text])return dict[text];
+  // Only translate exact UI phrases and delimited labels; never fuzzy-match client data.
+  const unit=String(text).match(/^(\d+) (POSITIONS|ORDERS|RECORDS|RECENT|ACTIVE)$/);
+  if(unit){const units={en:{POSITIONS:"positions",ORDERS:"trades",RECORDS:"records",RECENT:"recent trades",ACTIVE:"active"},ro:{POSITIONS:"poziții",ORDERS:"tranzacții",RECORDS:"înregistrări",RECENT:"tranzacții recente",ACTIVE:"activi"}};const singular={POSITIONS:"position",ORDERS:"trade",RECORDS:"record",RECENT:"recent trade",ACTIVE:"active"};return unit[1]+" "+(lang==="en"&&unit[1]==="1"?singular[unit[2]]:units[lang]?.[unit[2]]||unit[2]);}
+  return String(text).split(/( · |；)/).map(part=>subtitleTranslations[part]?.[index]||dict[part]||part.replace(/^(买进|买入|卖出|客户数量|时段)( \d+)$/,(_,label,count)=>(dict[label]||label)+count)).join("");
+}
+const originalText=new WeakMap();
+export function translateUI(root=document,lang=getLang()){
+  document.documentElement.lang=lang==="ro"?"ro":lang==="en"?"en":"zh-CN";
   const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
   const nodes=[];let n;while((n=walker.nextNode()))nodes.push(n);
   for(const node of nodes){
-    const raw=node.nodeValue,trim=raw.trim();
-    if(trim&&dict[trim])node.nodeValue=raw.replace(trim,dict[trim]);
+    if(node.parentElement?.closest("script,style,[data-no-i18n]"))continue;
+    const raw=node.nodeValue,previous=originalText.get(node);
+    const source=previous&&previous.output===raw?previous.source:raw;
+    const trim=source.trim();
+    const output=trim?source.replace(trim,tr(trim,lang)):source;
+    originalText.set(node,{source,output});node.nodeValue=output;
   }
   root.querySelectorAll?.("[placeholder],[title],[aria-label]").forEach(el=>{
     for(const attr of ["placeholder","title","aria-label"]){
-      const v=el.getAttribute(attr);if(v&&dict[v])el.setAttribute(attr,dict[v]);
+      const v=el.getAttribute(attr);if(v)el.setAttribute(attr,tr(v,lang));
     }
   });
 }
@@ -439,6 +456,7 @@ export async function renderShareBoard(ctx){
       if(sessionStatus)sessionStatus.textContent=freshState;
       if(chartMeta)chartMeta.textContent=board.symbol+" · "+freshState;
       drawAllocationChart(freshLatest);
+      translateUI($("#main"),state.lang);
     }catch{}
   },refreshMs);
 }

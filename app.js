@@ -1,6 +1,6 @@
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261007-layout5";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261007-i18n1";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
@@ -223,13 +223,14 @@ function renderShell(){
     <div id="modalRoot"></div>
   `;
   $$(".nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
-  $("#globalLang").onchange=async e=>{state.lang=setLang(e.target.value);renderShell();await renderView(0)};
+  $("#globalLang").onchange=async e=>{state.lang=setLang(e.target.value);renderShell();await switchView(state.activeView)};
   $("#logoutBtn").onclick=async()=>{clearMarketRefreshTimers();await supabase.auth.signOut();state.profile=null;state.session=null;state.activeCustomer=null;state.activeView="dashboard";renderLogin(true)};
   translateUI($("#root"),state.lang);
   startRomaniaClock();
 }
 
 let viewSwitchToken=0;
+let viewRenderQueue=Promise.resolve();
 
 async function switchView(view){
   if(!view)return;
@@ -237,13 +238,19 @@ async function switchView(view){
   const main=$("#main");
   if(main){
     main.classList.remove("viewReveal");
+    void main.offsetWidth;
     main.classList.add("viewLeaving");
-    await new Promise(r=>setTimeout(r,60));
-    if(token!==viewSwitchToken)return;
+    if(!matchMedia("(prefers-reduced-motion: reduce)").matches)await new Promise(r=>setTimeout(r,180));
   }
-  state.activeView=view;
-  $$(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
-  await renderView(token);
+  // Serialize asynchronous renderers so an older response cannot replace the latest page.
+  const task=async()=>{
+    if(token!==viewSwitchToken)return;
+    state.activeView=view;
+    $$(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+    await renderView(token);
+  };
+  viewRenderQueue=viewRenderQueue.then(task,task);
+  await viewRenderQueue;
 }
 
 async function fetchPagedRows(makeQuery,{pageSize=1000,maxPages=25}={}){
@@ -333,7 +340,6 @@ async function renderView(token=0){
     main.classList.remove("viewBusy","viewLeaving","viewEntering");
     main.classList.add("viewReveal");
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      main.classList.remove("viewReveal");
       for(const chart of Object.values(state.charts)){if(chart.canvas?.isConnected){chart.resize();chart.update("none")}}
     }));
   }
@@ -596,7 +602,7 @@ async function renderDashboard(){
                   <button data-days="1">1D</button><button class="active" data-days="7">7D</button><button data-days="30">1M</button><button data-days="90">3M</button><button data-days="365">1Y</button>
                 </div>
               </div>
-              <div class="terminalChartSubtitleRow panelSubtitleRow"><span class="chartSubtitle">业务趋势 · 罗马尼亚时间</span><span class="inlineLegend trendCustomerLegend">新增客户</span><span class="inlineLegend trendTradeLegend">交易记录</span></div><div class="terminalChartWrap"><canvas id="trendChart"></canvas></div>
+              <div class="terminalChartSubtitleRow panelSubtitleRow"><span class="chartSubtitle">业务趋势 · 罗马尼亚时间</span><span class="inlineLegend trendCustomerLegend">${tr("新增客户数",state.lang)}</span><span class="inlineLegend trendTradeLegend">交易记录</span></div><div class="terminalChartWrap"><canvas id="trendChart"></canvas></div>
             </article>
 
             <div class="terminalPositionList">
@@ -693,7 +699,7 @@ function drawDashboardCharts(days=14){
   const trendEl=$("#trendChart");
   if(trendEl){
     state.charts.trend=new Chart(trendEl,{type:"line",data:{labels,datasets:[
-      {label:tr("新增客户",state.lang),data:newC,borderColor:"#00d59b",backgroundColor:"rgba(0,213,155,.10)",tension:.32,fill:true,pointRadius:0,pointHoverRadius:4},
+      {label:tr("新增客户数",state.lang),data:newC,borderColor:"#00d59b",backgroundColor:"rgba(0,213,155,.10)",tension:.32,fill:true,pointRadius:0,pointHoverRadius:4},
       {label:tr("交易记录",state.lang),data:tradeC,borderColor:"#6e7cff",backgroundColor:"rgba(110,124,255,.05)",tension:.32,pointRadius:0,pointHoverRadius:4}
     ]},options:{...chartOpts(),plugins:{...chartOpts().plugins,legend:{display:false}}}});
   }
@@ -895,7 +901,7 @@ async function openCustomer(id){
 
       <div class="shareMainGrid">
         <article class="panel sharePricePanel">
-          <div class="panelHead compact"><div><h2>${primary?esc(primary.symbol)+" 价格走势":"价格走势"}</h2><p>PRICE MOVEMENT · 买入 / 卖出节点 · 罗马尼亚时间</p></div><span class="headMeta">${primary?marketStatusBadge(q[primary.symbol]):""}</span></div>
+          <div class="panelHead compact"><div><h2>${primary?esc(primary.symbol)+" "+tr("价格走势",state.lang):"价格走势"}</h2><p>PRICE MOVEMENT · 买入 / 卖出节点 · 罗马尼亚时间</p></div><span class="headMeta">${primary?marketStatusBadge(q[primary.symbol]):""}</span></div>
           <div class="chartBox sharePriceChart"><canvas id="customerPriceChart"></canvas></div>
         </article>
         <article class="panel shareReturnPanel">
@@ -921,9 +927,9 @@ async function openCustomer(id){
             <div><span>资金规模</span><span>${c.capital_amount?money(c.capital_amount,c.capital_currency||"USD"):"未填写"}</span></div>
             <div><span>服务状态</span><span>${customerStatus(c.status)}</span></div>
           </div>
-          <div class="shareNote"><span>客户备注</span><p>${esc(c.notes||"暂无客户备注")}</p></div>
+          <div class="shareNote"><span>客户备注</span><p data-no-i18n>${c.notes?esc(c.notes):tr("暂无客户备注",state.lang)}</p></div>
           <div class="shareServiceTimeline">
-            ${serviceRows.map(f=>`<div><span>${dt(f.created_at)}</span><p>${esc(f.content)}</p></div>`).join("")||'<div><span>—</span><p>暂无服务纪要</p></div>'}
+            ${serviceRows.map(f=>`<div><span>${dt(f.created_at)}</span><p data-no-i18n>${esc(f.content)}</p></div>`).join("")||'<div><span>—</span><p>暂无服务纪要</p></div>'}
           </div>
           <div class="clientOwnerInternal screenshotHide">内部归属：${esc(owner?.display_name||"--")}</div>
         </article>
@@ -936,6 +942,7 @@ async function openCustomer(id){
       </div>
     </section>`;
 
+  translateUI($("#clientSharePage"),state.lang);
   const back=$("#backCustomers");if(back)back.onclick=()=>{document.body.classList.remove("screenshotCaptureMode");if(state.customerMarketTimer){clearInterval(state.customerMarketTimer);state.customerMarketTimer=null}$("#modalRoot").innerHTML="";state.activeCustomer=null};
   const addTrade=$("#addTradeBtn");if(addTrade)addTrade.onclick=()=>openTradeForm(c);
   const addFollow=$("#addFollowBtn");if(addFollow)addFollow.onclick=()=>openFollowForm(c);
