@@ -4658,3 +4658,70 @@ body:has(#main[data-view="shareboard"]) .sysok{
 #main[data-view="shareboard"] .indexTilePct{
   font-weight:400!important;
 }
+
+
+/* === Customer allocation donut cleanup ===
+   Remove the unused technical-series row and give the two doughnuts
+   a clean, centered, square presentation with labels lower underneath. */
+.shareAllocationPanel{
+  grid-template-rows:50px minmax(0,1fr)!important;
+}
+.shareDonutGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:stretch;
+  justify-items:stretch;
+  gap:14px;
+  min-height:0;
+  padding:12px 14px 14px;
+}
+.shareDonutGrid>div{
+  min-width:0;
+  min-height:0;
+  display:grid;
+  grid-template-rows:minmax(0,1fr) 28px;
+  align-items:center;
+  justify-items:center;
+  text-align:center;
+  padding:6px 4px 0;
+}
+.shareDonutGrid canvas{
+  width:136px!important;
+  height:136px!important;
+  max-width:136px!important;
+  max-height:136px!important;
+  aspect-ratio:1/1!important;
+  align-self:center;
+  justify-self:center;
+  display:block;
+}
+.shareDonutGrid small{
+  align-self:end;
+  margin-top:8px;
+  padding-top:2px;
+  color:#807a84;
+  font-size:9px;
+  line-height:1.1;
+  font-weight:400!important;
+  letter-spacing:.2px;
+}
+@media(min-width:1500px) and (min-height:850px){
+  .shareDonutGrid canvas{
+    width:148px!important;
+    height:148px!important;
+    max-width:148px!important;
+    max-height:148px!important;
+  }
+}
+@media(max-height:820px) and (min-width:1200px){
+  .shareDonutGrid{
+    padding-top:8px;
+    padding-bottom:10px;
+  }
+  .shareDonutGrid canvas{
+    width:122px!important;
+    height:122px!important;
+    max-width:122px!important;
+    max-height:122px!important;
+  }
+}
