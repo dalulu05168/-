@@ -205,11 +205,7 @@ export function miniRSIHTML(points=[]){
   return `<div class="miniIndicator" title="RSI(14): ${fmtNumber(r.at(-1),1)}"><div class="miniIndicatorHead"><span>RSI(14)</span><b>${fmtNumber(r.at(-1),1)}</b></div><svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><line x1="0" y1="${h*.3}" x2="${w}" y2="${h*.3}" /><line x1="0" y1="${h*.7}" x2="${w}" y2="${h*.7}" /><polyline points="${pts}"/></svg></div>`;
 }
 
-function energyColor(ratio){
-  if(ratio>60)return"#14e76d";
-  if(ratio>30)return"#d9ad3d";
-  return"#ff626e";
-}
+function energyColor(ratio){return ratio<20?"#f2b544":"#00d59b";}
 function countdownText(ctx,target){
   const date=ctx.romaniaDateKey();
   const iso=ctx.romaniaLocalToISO(date+"T"+String(target||"14:30").slice(0,5));
@@ -280,7 +276,8 @@ export async function renderShareBoard(ctx){
   const latest=boardQuote(board.symbol,security,marketQuote);
   const companyName=security?.companyName||matchingSecurity(board.symbol,marketQuote)?.name||"公司信息暂不可用";
   const exchange=security?.exchange||latest?.exchange||"—";
-  const currency=latest?.currency||security?.currency||"—";
+  const currency=latest?.currency||security?.currency||board.currency||"—";
+  const allocationAmount=value=>({USD:"$",EUR:"€",GBP:"£",JPY:"¥",CHF:"CHF ",RON:"RON "}[currency]||currency+" ")+num(value,2);
   const industry=security?.industry||"";
   const reservedPct=total?Math.max(0,Math.min(100,reserved/total*100)):0;
   const quoteState=latest?(latest.realtime?"实时行情":latest.delaySeconds?"延迟行情":"可用行情"):"暂无行情";
@@ -289,7 +286,7 @@ export async function renderShareBoard(ctx){
   const hasMarketSeries=marketPoints.length>=2;
   const slotRowsHTML=validSlots.map((s,i)=>`<tr>
     <td>${timeHHMM(s.slot_at)}</td>
-    <td>${num(Number(s.reserved_shares||0),2)}</td>
+    <td>${allocationAmount(Number(s.reserved_shares||0))}</td>
     <td>${num(Number(s.participant_count||0),0)}</td>
     <td><span class="allocationStateTag ${i===validSlots.length-1?"active":""}">${i===validSlots.length-1?"最新":"有效"}</span></td>
   </tr>`).join("")||'<tr><td colspan="4"><div class="allocationCompactEmpty">暂无有效时段记录</div></td></tr>';
@@ -321,8 +318,8 @@ export async function renderShareBoard(ctx){
 
       <div class="allocationKpiStrip exchangeKpiStrip">
         <article class="panel allocationKpiCard"><span>总份额</span><strong>${num(total,2)}</strong><small>TOTAL SHARES</small></article>
-        <article class="panel allocationKpiCard"><span>已预留份额</span><strong>${num(reserved,2)}</strong><small>${fmtNumber(reservedPct,2)}%</small></article>
-        <article class="panel allocationKpiCard gold"><span>剩余份额</span><strong>${num(remaining,2)}</strong><small>${fmtNumber(ratio,2)}%</small></article>
+        <article class="panel allocationKpiCard"><span>已预留份额</span><strong>${allocationAmount(reserved)}</strong><small>${fmtNumber(reservedPct,2)}%</small></article>
+        <article class="panel allocationKpiCard gold"><span>剩余份额</span><strong>${allocationAmount(remaining)}</strong><small>${fmtNumber(ratio,2)}%</small></article>
         <article class="panel allocationKpiCard"><span>目标交易时间</span><strong>${String(settings.target_trade_time||"14:30").slice(0,5)}</strong><small>ROMANIA / BUCHAREST</small></article>
         <article class="panel allocationKpiCard countdown"><span>距离交易剩余</span><strong id="allocationCountdown">${countdownText(ctx,settings.target_trade_time)}</strong><small id="allocationRomaniaClock">${ctx.romaniaClockText()}</small></article>
       </div>
@@ -339,31 +336,24 @@ export async function renderShareBoard(ctx){
         <div class="exchangeSideStack">
           <article class="panel allocationDistributionPanel">
             <div class="panelHead compact"><div><h2>份额结构</h2><p>ALLOCATION STRUCTURE</p></div><span class="headMeta">${esc(board.symbol)}</span></div>
-            <div class="allocationDistributionBody">
+            <div class="allocationDistributionBody"><div class="allocationRemainingHero"><span>剩余份额占比</span><strong>${fmtNumber(ratio,2)}<small>%</small></strong><p>${ratio<20?"剩余份额低于 20%":"可预留份额"}</p></div>
               <div class="allocationDistRow">
-                <div><span>剩余份额</span><b>${num(remaining,2)}</b></div>
+                <div><span>剩余份额</span><b>${allocationAmount(remaining)}</b></div>
                 <div class="allocationBar"><i style="width:${ratio}%"></i></div>
                 <small>${fmtNumber(ratio,2)}%</small>
               </div>
               <div class="allocationDistRow reserved">
-                <div><span>已预留份额</span><b>${num(reserved,2)}</b></div>
+                <div><span>已预留份额</span><b>${allocationAmount(reserved)}</b></div>
                 <div class="allocationBar"><i style="width:${reservedPct}%"></i></div>
                 <small>${fmtNumber(reservedPct,2)}%</small>
               </div>
             </div>
           </article>
 
-          <article class="panel exchangeSessionPanel">
-            <div class="panelHead compact"><div><h2>交易时段</h2><p>SESSION STATUS</p></div></div>
-            <div class="exchangeSessionGrid">
-              <div><span>开盘</span><b>${String(settings.market_open_time||"09:30").slice(0,5)}</b></div>
-              <div><span>目标交易</span><b>${String(settings.target_trade_time||"14:30").slice(0,5)}</b></div>
-              <div><span>行情</span><b id="allocationSessionQuoteState">${quoteState}</b></div>
-              <div><span>看板</span><b>${boardState}</b></div>
-            </div>
-          </article>
         </div>
       </div>
+
+      <div class="globalIndexWall exchangeTickerWall" id="globalIndexWall">${marketWall(rows,ctx)}</div>
 
       <article class="panel allocationSlotsPanel ${validSlots.length?"":"is-empty"}">
         <div class="panelHead compact">
@@ -378,7 +368,7 @@ export async function renderShareBoard(ctx){
         </div>
       </article>
 
-      <div class="globalIndexWall exchangeTickerWall" id="globalIndexWall">${marketWall(rows,ctx)}</div>
+
     </section>`;
 
   const drawAllocationChart=quote=>{

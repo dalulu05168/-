@@ -1,6 +1,6 @@
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261007-board2";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261007-layout3";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
@@ -34,7 +34,7 @@ let romaniaClockTimer=null;
 const $ = (s,root=document)=>root.querySelector(s);
 const $$ = (s,root=document)=>[...root.querySelectorAll(s)];
 const esc = (v="") => String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-const money = (n,c="USD") => new Intl.NumberFormat(localeFor(state.lang),{style:"currency",currency:c||"USD",maximumFractionDigits:2}).format(Number(n||0));
+const money = (n,c="USD") => new Intl.NumberFormat(localeFor(state.lang),{style:"currency",currencyDisplay:"narrowSymbol",currency:c||"USD",maximumFractionDigits:2}).format(Number(n||0));
 const num = (n,d=2)=>Number(n||0).toLocaleString(localeFor(state.lang),{maximumFractionDigits:d});
 const dt = (v)=>v?new Date(v).toLocaleString(localeFor(state.lang),{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}):"--";
 const romaniaDateKey = (v=new Date()) => new Intl.DateTimeFormat("en-CA",{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(v));
@@ -708,7 +708,7 @@ function chartOpts(){return{
     legend:{labels:{color:"#91a4b4",font:{weight:"normal"}}},
     tooltip:{enabled:true,mode:"index",intersect:false,backgroundColor:"#07131f",borderColor:"#35516a",borderWidth:1,titleFont:{weight:"normal"},bodyFont:{weight:"normal"}}
   },
-  scales:{x:{ticks:{color:"#6f8497",font:{weight:"normal"}},grid:{color:"#173047"}},y:{ticks:{color:"#6f8497",font:{weight:"normal"}},grid:{color:"#173047"}}}
+  scales:{x:{ticks:{color:"#6f8497",font:{weight:"normal",size:10},maxTicksLimit:7,maxRotation:0,autoSkip:true},grid:{color:"#173047"}},y:{ticks:{color:"#6f8497",font:{weight:"normal"}},grid:{color:"#173047"}}}
 }}
 
 function customerTable(rows,full=true){
@@ -835,18 +835,20 @@ async function openCustomer(id){
   const sells=trades.filter(t=>t.side==="sell");
   const openPos=pos.filter(p=>Number(p.quantity)>0);
   const symbols=[...new Set(openPos.map(p=>p.symbol))];
+  const portfolioAmount=(rows,value)=>Object.entries(rows.reduce((groups,p)=>{const c=p.currency||"USD";groups[c]=(groups[c]||0)+value(p);return groups},{})).map(([c,n])=>money(n,c)).join(" / ")||"—";
   const [q,indexQ]=await Promise.all([
     fetchQuotes(symbols,{realtimeOnly:false}),
     fetchQuotes(["^GSPC","^DJI","^IXIC","^FCHI","BET.RO"],{realtimeOnly:false})
   ]);
   const indexRows=["^GSPC","^DJI","^IXIC","^FCHI","BET.RO"].map(s=>indexQ[s]||{symbol:s,error:true});
   const livePos=openPos.filter(p=>q[p.symbol]?.realtime===true&&Number.isFinite(Number(q[p.symbol]?.price)));
-  const pricedPos=openPos.filter(p=>!q[p.symbol]?.error&&Number.isFinite(Number(q[p.symbol]?.price)));
+  const pricedPos=openPos.filter(p=>q[p.symbol]?.price!=null&&!q[p.symbol]?.error&&Number.isFinite(Number(q[p.symbol]?.price)));
   const currentValue=pricedPos.reduce((a,p)=>a+Number(p.quantity)*Number(q[p.symbol].price),0);
   const unreal=pricedPos.reduce((a,p)=>a+(Number(p.quantity)*(Number(q[p.symbol].price)-Number(p.avg_cost))),0);
   const realized=pos.reduce((a,p)=>a+Number(p.realized_pnl||0),0);
   const costBasis=openPos.reduce((a,p)=>a+(Number(p.quantity)*Number(p.avg_cost)),0);
   const totalPnl=realized+unreal;
+  const mixedCurrency=new Set(pos.map(p=>p.currency||"USD")).size>1;
   const returnPct=costBasis?totalPnl/costBasis*100:0;
   const latestTrade=trades[0];
   const primary=openPos.find(p=>q[p.symbol]?.points?.length)||openPos[0]||null;
@@ -880,11 +882,11 @@ async function openCustomer(id){
       <div class="shareMarketStrip">${marketIndexStrip(indexRows)}</div>
 
       <div class="shareKpiRow">
-        <article><label>持仓成本</label><span>${openPos.length?num(costBasis,2):"—"}</span><small>COST BASIS</small></article>
-        <article><label>最新行情市值</label><span>${pricedPos.length?num(currentValue,2):"—"}</span><small>按最新可用行情计算</small></article>
-        <article><label>未实现盈亏</label><span class="${unreal>=0?"up":"down"}">${pricedPos.length?num(unreal,2):"—"}</span><small>UNREALIZED P/L</small></article>
-        <article><label>已实现盈亏</label><span class="${realized>=0?"up":"down"}">${num(realized,2)}</span><small>REALIZED P/L</small></article>
-        <article><label>综合收益率</label><span class="${returnPct>=0?"up":"down"}">${(returnPct>=0?"+":"")+num(returnPct,2)}%</span><small>基于当前可用行情</small></article>
+        <article><label>持仓成本</label><span>${openPos.length?portfolioAmount(openPos,p=>Number(p.quantity)*Number(p.avg_cost)):"—"}</span><small>COST BASIS</small></article>
+        <article><label>最新行情市值</label><span>${pricedPos.length?portfolioAmount(pricedPos,p=>Number(p.quantity)*Number(q[p.symbol].price)):"—"}</span><small>按最新可用行情计算</small></article>
+        <article><label>未实现盈亏</label><span class="${unreal>=0?"up":"down"}">${pricedPos.length?portfolioAmount(pricedPos,p=>Number(p.quantity)*(Number(q[p.symbol].price)-Number(p.avg_cost))):"—"}</span><small>UNREALIZED P/L</small></article>
+        <article><label>已实现盈亏</label><span class="${realized>=0?"up":"down"}">${portfolioAmount(pos,p=>Number(p.realized_pnl||0))}</span><small>REALIZED P/L</small></article>
+        <article><label>综合收益率</label><span class="${returnPct>=0?"up":"down"}">${mixedCurrency?"按币种分列":(returnPct>=0?"+":"")+num(returnPct,2)+"%"}</span><small>基于当前可用行情</small></article>
         <article><label>最近交易</label><span>${latestTrade?dt(latestTrade.traded_at):"—"}</span><small>${latestTrade?esc(latestTrade.symbol+" · "+(latestTrade.side==="buy"?"买入":"卖出")):"暂无交易"}</small></article>
       </div>
 
@@ -899,10 +901,7 @@ async function openCustomer(id){
         </article>
         <article class="panel shareAllocationPanel">
           <div class="panelHead compact"><div><h2>持仓结构 / 收益构成</h2><p>ALLOCATION & P/L MIX</p></div></div>
-          <div class="shareDonutGrid">
-            <div><canvas id="customerHoldingsChart"></canvas><small>持仓占比</small></div>
-            <div><canvas id="customerProfitChart"></canvas><small>收益构成</small></div>
-          </div>
+          <div class="portfolioBreakdown" id="customerPortfolioBreakdown"></div>
         </article>
       </div>
 
@@ -961,14 +960,15 @@ async function openCustomer(id){
       const freshRows=["^GSPC","^DJI","^IXIC","^FCHI","BET.RO"].map(s=>freshIndexQ[s]||{symbol:s,error:true});
       const strip=page.querySelector(".shareMarketStrip");
       if(strip)strip.innerHTML=marketIndexStrip(freshRows);
-      const priced=openPos.filter(p=>!freshQ[p.symbol]?.error&&Number.isFinite(Number(freshQ[p.symbol]?.price)));
+      const priced=openPos.filter(p=>freshQ[p.symbol]?.price!=null&&!freshQ[p.symbol]?.error&&Number.isFinite(Number(freshQ[p.symbol]?.price)));
       const freshValue=priced.reduce((a,p)=>a+Number(p.quantity)*Number(freshQ[p.symbol].price),0);
       const freshUnreal=priced.reduce((a,p)=>a+Number(p.quantity)*(Number(freshQ[p.symbol].price)-Number(p.avg_cost)),0);
+      renderPortfolioBreakdown(pos,freshQ,realized,freshUnreal);
       const freshReturn=costBasis?(realized+freshUnreal)/costBasis*100:0;
       const kpis=page.querySelectorAll(".shareKpiRow article span");
-      if(kpis[1])kpis[1].textContent=priced.length?num(freshValue,2):"—";
-      if(kpis[2]){kpis[2].textContent=priced.length?num(freshUnreal,2):"—";kpis[2].className=freshUnreal>=0?"up":"down";}
-      if(kpis[4]){kpis[4].textContent=(freshReturn>=0?"+":"")+num(freshReturn,2)+"%";kpis[4].className=freshReturn>=0?"up":"down";}
+      if(kpis[1])kpis[1].textContent=priced.length?portfolioAmount(priced,p=>Number(p.quantity)*Number(freshQ[p.symbol].price)):"—";
+      if(kpis[2]){kpis[2].textContent=priced.length?portfolioAmount(priced,p=>Number(p.quantity)*(Number(freshQ[p.symbol].price)-Number(p.avg_cost))):"—";kpis[2].className=freshUnreal>=0?"up":"down";}
+      if(kpis[4]){kpis[4].textContent=mixedCurrency?"按币种分列":(freshReturn>=0?"+":"")+num(freshReturn,2)+"%";kpis[4].className=freshReturn>=0?"up":"down";}
       const timeSmall=$("#customerDataUpdated");
       if(timeSmall)timeSmall.textContent=tr("行情更新",state.lang)+"："+dt(new Date());
       const liveTable=$("#customerPositionLive");
@@ -986,7 +986,7 @@ async function openCustomer(id){
 function positionTable(rows,q){
   const visible=rows.filter(p=>Number(p.quantity)>0||Number(p.realized_pnl)!==0);
   return `<table class="dataTable portfolioTable"><thead><tr><th>股票</th><th>市场</th><th>数量</th><th>平均成本</th><th>成本基准</th><th>行情价</th><th>市值</th><th>未实现盈亏</th><th>已实现盈亏</th></tr></thead><tbody>${visible.map(p=>{
-    const usable=!q[p.symbol]?.error&&Number.isFinite(Number(q[p.symbol]?.price));
+    const usable=q[p.symbol]?.price!=null&&!q[p.symbol]?.error&&Number.isFinite(Number(q[p.symbol]?.price));
     const last=usable?Number(q[p.symbol].price):null;
     const mv=last==null?null:Number(p.quantity)*last;
     const u=last==null?null:Number(p.quantity)*(last-Number(p.avg_cost));
@@ -1035,16 +1035,20 @@ function drawCustomerCharts(pos,trades,q){
   if(tEl)state.charts.trades=new Chart(tEl,{type:"line",data:{labels:data.map(x=>x.x),datasets:[{label:tr("累计净投入",state.lang),data:data.map(x=>x.y),borderColor:"#d5aa51",backgroundColor:"rgba(213,170,81,.12)",fill:true,tension:.25}]},options:chartOpts()});
 }
 
+function renderPortfolioBreakdown(pos,q,realized,unreal){
+  const el=$("#customerPortfolioBreakdown");if(!el)return;
+  const holdings=pos.filter(p=>Number(p.quantity)>0),groups={};
+  for(const p of holdings){const c=p.currency||"USD";(groups[c]||=([])).push(p)}
+  el.innerHTML=Object.entries(groups).map(([currency,rows])=>{
+    const total=rows.reduce((a,p)=>a+Number(p.quantity)*Number(p.avg_cost),0);
+    const priced=rows.filter(p=>q[p.symbol]?.price!=null&&!q[p.symbol].error&&Number.isFinite(Number(q[p.symbol].price)));
+    const floating=priced.reduce((a,p)=>a+Number(p.quantity)*(Number(q[p.symbol].price)-Number(p.avg_cost)),0);
+    const booked=pos.filter(p=>(p.currency||"USD")===currency).reduce((a,p)=>a+Number(p.realized_pnl||0),0);
+    return `<section class="portfolioCurrencyGroup"><div class="breakdownLabel">持仓成本占比 · ${esc(currency)}</div>${rows.map(p=>{const cost=Number(p.quantity)*Number(p.avg_cost),ratio=total?cost/total*100:0;return `<div class="holdingBreakdownRow"><div><b>${esc(p.symbol)}</b><span>${money(cost,currency)}</span></div><div class="allocationBar"><i style="width:${ratio}%"></i></div><small>${num(ratio,1)}%</small></div>`}).join("")}<div class="profitBreakdownRow"><span>已实现盈亏</span><b class="${booked>=0?"up":"down"}">${money(booked,currency)}</b></div><div class="profitBreakdownRow"><span>未实现盈亏</span><b class="${floating>=0?"up":"down"}">${priced.length?money(floating,currency):"暂无行情"}</b></div></section>`;
+  }).join("")||'<div class="empty">暂无持仓结构</div>';
+}
 function drawCustomerShareCharts(pos,trades,q,primary,realized,unreal){
-  const h=pos.filter(p=>Number(p.quantity)>0);
-  const hEl=$("#customerHoldingsChart");
-  if(hEl)state.charts.holdings=new Chart(hEl,{type:"doughnut",data:{labels:h.map(x=>x.symbol),datasets:[{data:h.map(x=>Number(x.quantity)*Number(x.avg_cost)),backgroundColor:["#14e76d","#5a77ff","#d5aa51","#2ed3a0","#9a68dc","#7e8995"],borderWidth:0}]},options:{...chartOpts(),cutout:"67%",plugins:{...chartOpts().plugins,legend:{display:false}}}});
-
-  const profitEl=$("#customerProfitChart");
-  if(profitEl){
-    const vals=[Math.abs(Number(realized)||0),Math.abs(Number(unreal)||0)];
-    state.charts.profit=new Chart(profitEl,{type:"doughnut",data:{labels:[tr("已实现",state.lang),tr("未实现",state.lang)],datasets:[{data:vals.some(v=>v>0)?vals:[1,0],backgroundColor:["#d5aa51","#14e76d"],borderWidth:0}]},options:{...chartOpts(),cutout:"67%",plugins:{...chartOpts().plugins,legend:{display:false}}}});
-  }
+  renderPortfolioBreakdown(pos,q,realized,unreal);
 
   const pEl=$("#customerPriceChart"),rEl=$("#customerReturnChart");
   if(!primary||!q[primary.symbol]||q[primary.symbol].error){
@@ -1059,9 +1063,9 @@ function drawCustomerShareCharts(pos,trades,q,primary,realized,unreal){
   const sells=trades.filter(t=>t.symbol===primary.symbol&&t.side==="sell");
   if(pEl){
     state.charts.customerPrice=new Chart(pEl,{type:"line",data:{labels,datasets:[
-      {label:primary.symbol,data:pts.map(p=>p.close),borderColor:"#14e76d",backgroundColor:"rgba(20,231,109,.08)",fill:true,tension:.18,pointRadius:0,pointHoverRadius:4},
-      {type:"scatter",label:tr("买入",state.lang),data:buys.map(t=>({x:new Date(t.traded_at).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}),y:Number(t.price)})),pointRadius:5,pointHoverRadius:7,backgroundColor:"#5a77ff"},
-      {type:"scatter",label:tr("卖出",state.lang),data:sells.map(t=>({x:new Date(t.traded_at).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}),y:Number(t.price)})),pointRadius:5,pointHoverRadius:7,backgroundColor:"#ff626e"}
+      {label:primary.symbol,data:pts.map(p=>p.close),borderColor:"#00d59b",backgroundColor:"rgba(20,231,109,.08)",fill:true,tension:.18,pointRadius:0,pointHoverRadius:4},
+      {type:"scatter",label:tr("买入",state.lang),data:buys.map(t=>({x:new Date(t.traded_at).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}),y:Number(t.price)})),pointRadius:5,pointHoverRadius:7,backgroundColor:"#d9b66b"},
+      {type:"scatter",label:tr("卖出",state.lang),data:sells.map(t=>({x:new Date(t.traded_at).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}),y:Number(t.price)})),pointRadius:5,pointHoverRadius:7,backgroundColor:"#ef3456"}
     ]},options:chartOpts()});
   }
   if(rEl){
@@ -1094,12 +1098,7 @@ function updateCustomerShareMarketCharts(pos,trades,q,primary,realized,unreal){
     returnChart.data.datasets[0].data=pts.map(p=>(Number(p.close)-avg)*qty);
     returnChart.update("none");
   }
-  const profitChart=state.charts.profit;
-  if(profitChart){
-    const vals=[Math.abs(Number(realized)||0),Math.abs(Number(unreal)||0)];
-    profitChart.data.datasets[0].data=vals.some(v=>v>0)?vals:[1,0];
-    profitChart.update("none");
-  }
+
 }
 
 function openTradeForm(c){
@@ -1358,8 +1357,8 @@ async function renderMarket(){
   const presetOptions=Object.entries(MARKET_PRESETS).map(([k,v])=>`<option value="${k}" ${k==="RO"?"selected":""}>${v.label}</option>`).join("");
   $("#main").innerHTML=`\n    <section class="grid2 marketUnifiedGrid">
       <article class="panel">
-        <div class="panelHead"><div><h2><img class="sectionIcon" src="/assets/globe2.svg" alt="">多国家行情</h2><p>免费公开行情源 · 显示最新报价与罗马尼亚时间</p></div><div class="marketControls"><select id="marketCountry" class="select">${presetOptions}</select><input id="marketSymbols" class="input" value="${MARKET_PRESETS.RO.symbols.join(",")}"></div></div>
-        <div class="panelBody"><div class="quoteHeader"><div><span class="link" id="mSymbol">--</span><span id="mExchangeBadge" class="exchangeBadge"></span><h3 id="mName">选择股票</h3><p class="muted" id="mExchange">--</p><p class="muted" id="mFresh">--</p></div><div><div class="quotePrice"><span id="mPrice">--</span><small id="mCurrency"></small></div><div id="mChange" class="quoteChange">--</div></div></div></div>
+        <div class="panelHead"><div><h2><img class="sectionIcon" src="/assets/globe2.svg" alt="">多国家行情</h2></div><div class="marketControls"><select id="marketCountry" class="select">${presetOptions}</select><input id="marketSymbols" class="input" value="${MARKET_PRESETS.RO.symbols.join(",")}"></div></div>
+        <div class="panelBody"><div class="quoteHeader"><div><span class="link" id="mSymbol">--</span><span id="mExchangeBadge" class="exchangeBadge"></span><h3 id="mName">选择股票</h3><p class="muted" id="mExchange">--</p></div><div><div class="quotePrice"><span id="mPrice">--</span><small id="mCurrency"></small></div><div id="mChange" class="quoteChange">--</div></div></div></div>
         <div class="marketMetrics" id="marketMetrics"></div>
         <div class="chartBox"><div class="marketRangeBar" role="group" aria-label="图表时间范围">${["1D","1W","1M","3M","6M","1Y","全部"].map((r,i)=>`<button type="button" data-range="${r}" class="${i===0?"active":""}" aria-pressed="${i===0}">${r}</button>`).join("")}<span class="marketRangeNote" id="marketRangeNote"></span></div><div class="marketCanvas"><canvas id="marketChart"></canvas></div></div>
       </article>
@@ -1385,7 +1384,6 @@ async function renderMarket(){
       $("#mSymbol").textContent=syms[0]||"--";
       $("#mName").textContent="当前股票暂无可用行情";
       $("#mExchange").textContent="请更换股票或市场";
-      $("#mFresh").textContent="--";
       $("#mPrice").textContent="--";
       $("#mChange").textContent="--";
       currentMarketQuote=null;
@@ -1407,7 +1405,6 @@ function drawMarket(x){
   $("#mSymbol").textContent=x?.symbol||"--";
   $("#mName").textContent=usable?(x.name||x.symbol):"暂无可用行情";
   $("#mExchange").textContent=[x?.country,x?.exchange,x?.currency,x?.source].filter(Boolean).join(" · ");
-  $("#mFresh").textContent=usable?tr("最新数据时间（罗马尼亚）",state.lang)+"："+dt(x.lastTradeAt||new Date()):"--";
   $("#mPrice").textContent=usable?num(x.price):"--";
   $("#mChange").textContent=usable&&x.changePct!=null?(Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%":"--";
   $("#mChange").className="quoteChange "+(usable&&x.changePct!=null?(Number(x.changePct)>=0?"up":"down"):"");
@@ -1427,7 +1424,7 @@ function drawMarket(x){
   const days={"1D":1,"1W":7,"1M":30,"3M":90,"6M":180,"1Y":365}[marketRange];
   const last=sourcePoints.at(-1)?.t||Date.now();
   const pts=days?sourcePoints.filter(p=>p.t>=last-days*86400000):sourcePoints;
-  $("#marketRangeNote").textContent=tr("行情价",state.lang)+" · "+(sourcePoints.length?dt(sourcePoints[0].t)+" – "+dt(last):"—");
+  $("#marketRangeNote").textContent=x.symbol+" "+tr("行情价",state.lang);
   const labels=pts.map(p=>new Date(p.t).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}));
   if(state.charts.market&&state.charts.market.$bvSymbol===x.symbol){
     state.charts.market.data.labels=labels;
@@ -1440,7 +1437,7 @@ function drawMarket(x){
   state.charts.market=new Chart($("#marketChart"),{
     type:"line",
     data:{labels,datasets:[{label:x.symbol+" "+tr("行情价",state.lang),data:pts.map(p=>p.close),borderColor:"#ef3456",backgroundColor:"rgba(239,52,86,.18)",fill:true,tension:.35,pointRadius:0,pointHoverRadius:4}]},
-    options:chartOpts()
+    options:{...chartOpts(),plugins:{...chartOpts().plugins,legend:{display:false}}}
   });
   state.charts.market.$bvSymbol=x.symbol;
 }
@@ -1469,12 +1466,12 @@ async function renderReports(){
 
   $("#main").innerHTML=pageHead("统计报表","按当前权限范围实时汇总，不使用虚拟业务数据。")+`
     <section class="grid2">
-      <article class="panel"><div class="panelHead"><div><h2>客户归属分布</h2><p>按二级负责人统计</p></div></div><div class="chartBox"><canvas id="ownerChart"></canvas></div></article>
-      <article class="panel"><div class="panelHead"><div><h2>买卖结构</h2><p>交易记录数量</p></div></div><div class="chartBox"><canvas id="sideChart"></canvas></div></article>
+      <article class="panel"><div class="panelHead"><div><h2>客户归属分布</h2><div class="panelSubtitleRow"><p>按二级负责人统计</p><span class="inlineLegend goldLegend">客户数量 · ${state.customers.length}</span></div></div></div><div class="chartBox"><canvas id="ownerChart"></canvas></div></article>
+      <article class="panel"><div class="panelHead"><div><h2>买卖结构</h2><div class="panelSubtitleRow"><p>交易记录数量</p><span class="inlineLegend up">买入 · ${state.trades.filter(t=>t.side==="buy").length}</span><span class="inlineLegend down">卖出 · ${state.trades.filter(t=>t.side==="sell").length}</span></div></div></div><div class="chartBox"><canvas id="sideChart"></canvas></div></article>
     </section>
     <article class="panel" style="margin-top:13px"><div class="panelHead"><div><h2>人员客户统计</h2><p>按角色层级计算可见客户数量</p></div></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>人员</th><th>角色</th><th>客户数量</th><th>持仓客户</th></tr></thead><tbody>${staffRows||'<tr><td colspan="4"><div class="empty">暂无人员数据</div></td></tr>'}</tbody></table></div></article>`;
-  state.charts.owner=new Chart($("#ownerChart"),{type:"bar",data:{labels:Object.keys(byOwner),datasets:[{label:tr("客户数量",state.lang),data:Object.values(byOwner),backgroundColor:"#d5aa51"}]},options:chartOpts()});
-  state.charts.side=new Chart($("#sideChart"),{type:"doughnut",data:{labels:[tr("买入",state.lang),tr("卖出",state.lang)],datasets:[{data:[state.trades.filter(t=>t.side==="buy").length,state.trades.filter(t=>t.side==="sell").length],backgroundColor:["#2ed3a0","#d93447"]}]},options:{...chartOpts(),cutout:"65%"}});
+  state.charts.owner=new Chart($("#ownerChart"),{type:"bar",data:{labels:Object.keys(byOwner),datasets:[{label:tr("客户数量",state.lang),data:Object.values(byOwner),backgroundColor:"#d9b66b",maxBarThickness:36}]},options:{...chartOpts(),plugins:{...chartOpts().plugins,legend:{display:false}},scales:{...chartOpts().scales,y:{...chartOpts().scales.y,beginAtZero:true,ticks:{...chartOpts().scales.y.ticks,precision:0}}}}});
+  state.charts.side=new Chart($("#sideChart"),{type:"doughnut",data:{labels:[tr("买入",state.lang),tr("卖出",state.lang)],datasets:[{data:[state.trades.filter(t=>t.side==="buy").length,state.trades.filter(t=>t.side==="sell").length],backgroundColor:["#00d59b","#ef3456"],borderColor:"#061722",borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:"72%",plugins:{...chartOpts().plugins,legend:{display:false}}}});
 }
 
 async function renderSettings(){
