@@ -1063,7 +1063,7 @@ function openTradeForm(c){
     <div class="field"><label>市场</label><select class="select" name="market"><option>Bucharest Stock Exchange</option><option>NASDAQ</option><option>NYSE</option><option>Euronext Paris</option><option>Xetra / Frankfurt</option><option>London Stock Exchange</option><option>Borsa Italiana</option><option>Bolsa de Madrid</option><option>Euronext Amsterdam</option><option>SIX Swiss Exchange</option><option>Warsaw Stock Exchange</option><option>Tokyo Stock Exchange</option><option>其他</option></select></div>
     <div class="field"><label>交易类型</label><select class="select" name="side"><option value="buy">买入</option><option value="sell">卖出</option></select></div>
     <div class="field"><label>数量</label><input class="input" type="number" step="0.000001" min="0.000001" name="quantity" required></div>
-    <div class="field"><label>价格</label><input class="input" type="number" step="0.000001" min="0" name="price" required></div>
+    <div class="field"><label>价格</label><input class="input" type="number" step="0.000001" min="0.000001" name="price" required></div>
     <div class="field"><label>币种</label><select class="select" name="currency"><option>RON</option><option>USD</option><option>EUR</option><option>GBP</option><option>CHF</option><option>PLN</option><option>JPY</option></select></div>
     <div class="field"><label>手续费</label><input class="input" type="number" step="0.01" min="0" name="fees" value="0"></div>
     <div class="field"><label>交易时间</label><input class="input" type="datetime-local" name="traded_at" required></div>
@@ -1340,13 +1340,33 @@ function drawMarket(x){
 }
 
 async function renderReports(){
-  const byOwner={};for(const c of state.customers){const o=state.staff.find(s=>s.id===c.owner_user_id)?.display_name||"未知";byOwner[o]=(byOwner[o]||0)+1}
+  const byOwner={};
+  for(const c of state.customers){
+    const o=state.staff.find(s=>s.id===c.owner_user_id)?.display_name||"未知";
+    byOwner[o]=(byOwner[o]||0)+1;
+  }
+
+  const reportStaff=state.profile.role==="admin"
+    ? state.staff.filter(s=>s.status==="active"&&s.role!=="admin")
+    : state.profile.role==="level1"
+      ? state.staff.filter(s=>s.status==="active"&&s.role==="level2"&&s.parent_user_id===state.profile.id)
+      : [state.profile];
+
+  const staffRows=reportStaff.map(s=>{
+    const cs=s.role==="level1"
+      ? state.customers.filter(c=>c.level_one_user_id===s.id)
+      : state.customers.filter(c=>c.owner_user_id===s.id);
+    const ids=new Set(cs.map(c=>c.id));
+    const holding=new Set(state.positions.filter(p=>Number(p.quantity)>0&&ids.has(p.customer_id)).map(p=>p.customer_id));
+    return `<tr><td>${esc(s.display_name)}</td><td>${roleName(s.role)}</td><td>${cs.length}</td><td>${holding.size}</td></tr>`;
+  }).join("");
+
   $("#main").innerHTML=pageHead("统计报表","按当前权限范围实时汇总，不使用虚拟业务数据。")+`
     <section class="grid2">
-      <article class="panel"><div class="panelHead"><div><h2>客户归属分布</h2><p>按负责人统计</p></div></div><div class="chartBox"><canvas id="ownerChart"></canvas></div></article>
+      <article class="panel"><div class="panelHead"><div><h2>客户归属分布</h2><p>按二级负责人统计</p></div></div><div class="chartBox"><canvas id="ownerChart"></canvas></div></article>
       <article class="panel"><div class="panelHead"><div><h2>买卖结构</h2><p>交易记录数量</p></div></div><div class="chartBox"><canvas id="sideChart"></canvas></div></article>
     </section>
-    <article class="panel" style="margin-top:13px"><div class="panelHead"><div><h2>人员客户统计</h2><p>可见人员的客户数量</p></div></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>人员</th><th>角色</th><th>客户数量</th><th>持仓客户</th></tr></thead><tbody>${state.staff.filter(s=>s.status==="active").map(s=>{const cs=state.customers.filter(c=>c.owner_user_id===s.id),ids=new Set(state.positions.filter(p=>Number(p.quantity)>0&&cs.some(c=>c.id===p.customer_id)).map(p=>p.customer_id));return`<tr><td>${esc(s.display_name)}</td><td>${roleName(s.role)}</td><td>${cs.length}</td><td>${ids.size}</td></tr>`}).join("")}</tbody></table></div></article>`;
+    <article class="panel" style="margin-top:13px"><div class="panelHead"><div><h2>人员客户统计</h2><p>按角色层级计算可见客户数量</p></div></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>人员</th><th>角色</th><th>客户数量</th><th>持仓客户</th></tr></thead><tbody>${staffRows||'<tr><td colspan="4"><div class="empty">暂无人员数据</div></td></tr>'}</tbody></table></div></article>`;
   state.charts.owner=new Chart($("#ownerChart"),{type:"bar",data:{labels:Object.keys(byOwner),datasets:[{label:"客户数量",data:Object.values(byOwner),backgroundColor:"#d5aa51"}]},options:chartOpts()});
   state.charts.side=new Chart($("#sideChart"),{type:"doughnut",data:{labels:["买入","卖出"],datasets:[{data:[state.trades.filter(t=>t.side==="buy").length,state.trades.filter(t=>t.side==="sell").length],backgroundColor:["#2ed3a0","#d93447"]}]},options:{...chartOpts(),cutout:"65%"}});
 }
