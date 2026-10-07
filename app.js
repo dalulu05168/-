@@ -270,7 +270,7 @@ async function refreshAll(){
 }
 
 function featureCtx(){
-  return {state,supabase,$,$,esc,num,money,dt,romaniaClockText,romaniaDateKey,romaniaInputNow,romaniaLocalToISO,ROMANIA_TZ,fetchQuotes,chartOpts,toast,modal,closeModal,switchView,refreshAll};
+  return {state,supabase,$,$$,esc,num,money,dt,romaniaClockText,romaniaDateKey,romaniaInputNow,romaniaLocalToISO,ROMANIA_TZ,fetchQuotes,chartOpts,toast,modal,closeModal,switchView,refreshAll};
 }
 function clearMarketRefreshTimers(){
   for(const k of ["marketRefreshTimer","positionRefreshTimer","customerMarketTimer","shareBoardRefreshTimer"]){if(state[k]){clearInterval(state[k]);state[k]=null}}
@@ -1252,7 +1252,7 @@ async function renderPositions(){
       }).join("")}</tbody></table></div>
     </article>`;
   const refreshQuotesOnly=async()=>{
-    const liveRows=$(".positionQuoteRow");
+    const liveRows=$$(".positionQuoteRow");
     const symbols=[...new Set(liveRows.map(r=>r.dataset.symbol).filter(Boolean))];
     const fresh=await fetchQuotes(symbols,{realtimeOnly:false});
     liveRows.forEach(r=>{
