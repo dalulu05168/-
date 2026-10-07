@@ -68,7 +68,10 @@ function romaniaLocalToISO(value){
 }
 function startRomaniaClock(){
   clearInterval(romaniaClockTimer);
-  const tick=()=>{const el=$("#romaniaClock");if(el)el.textContent=romaniaClockText()};
+  const tick=()=>{
+    const value=romaniaClockText();
+    $(".romaniaClock,[data-romania-clock]").forEach(el=>el.textContent=value);
+  };
   tick();romaniaClockTimer=setInterval(tick,1000);
 }
 
@@ -841,8 +844,8 @@ async function openCustomer(id){
         </div>
         <div class="shareTimeBlock">
           <span>ROMANIA / BUCHAREST</span>
-          <strong>${romaniaClockText()}</strong>
-          <small>页面生成：${dt(new Date())}</small>
+          <strong data-romania-clock>${romaniaClockText()}</strong>
+          <small id="customerDataUpdated">页面生成：${dt(new Date())}</small>
         </div>
         <div class="shareInternalActions">
           <button class="btn" id="backCustomers">返回</button>
@@ -888,7 +891,7 @@ async function openCustomer(id){
       <div class="shareLowerGrid">
         <article class="panel sharePositions">
           <div class="panelHead compact"><div><h2>客户持仓与买卖记录</h2><p>HOLDINGS & ORDER LEDGER</p></div><span class="headMeta">${openPos.length} POSITIONS · ${trades.length} ORDERS</span></div>
-          <div class="tableWrap shareLedgerTable">${positionTable(pos,q)}${tradeTable(trades.slice(0,10))}</div>
+          <div class="tableWrap shareLedgerTable"><div id="customerPositionLive">${positionTable(pos,q)}</div>${tradeTable(trades.slice(0,10))}</div>
         </article>
         <article class="panel shareServicePanel">
           <div class="panelHead compact"><div><h2>客户资料与服务纪要</h2><p>CLIENT PROFILE · SERVICE NOTES</p></div></div>
@@ -909,7 +912,7 @@ async function openCustomer(id){
       <div class="shareFoot">
         <span>BRANTONE VEYLOR · PRIVATE CAPITAL ADVISORY</span>
         <span>行情来自免费公开市场数据源；页面以各行情的最新更新时间为准。</span>
-        <span>${romaniaClockText()}</span>
+        <span data-romania-clock>${romaniaClockText()}</span>
       </div>
     </section>`;
 
@@ -947,8 +950,10 @@ async function openCustomer(id){
       if(kpis[1])kpis[1].textContent=priced.length?num(freshValue,2):"—";
       if(kpis[2]){kpis[2].textContent=priced.length?num(freshUnreal,2):"—";kpis[2].className=freshUnreal>=0?"up":"down";}
       if(kpis[4]){kpis[4].textContent=(freshReturn>=0?"+":"")+num(freshReturn,2)+"%";kpis[4].className=freshReturn>=0?"up":"down";}
-      const timeSmall=page.querySelector(".shareTimeBlock small");
+      const timeSmall=$("#customerDataUpdated");
       if(timeSmall)timeSmall.textContent=tr("行情更新",state.lang)+"："+dt(new Date());
+      const liveTable=$("#customerPositionLive");
+      if(liveTable)liveTable.innerHTML=positionTable(pos,freshQ);
       const primaryNow=openPos.find(p=>freshQ[p.symbol]?.points?.length)||primary;
       const tech=page.querySelector(".clientMiniTech");
       if(primaryNow&&tech){
