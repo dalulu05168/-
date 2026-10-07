@@ -96,7 +96,9 @@ export function miniCandlesHTML(points=[],label=""){
     const top=(hi-h)/span*100,bottom=(l-lo)/span*100;
     const bodyTop=(hi-Math.max(o,c))/span*100,bodyBottom=(Math.min(o,c)-lo)/span*100;
     const bodyH=Math.max(6,100-bodyTop-bodyBottom);
-    return `<i class="miniCandle ${c>=o?"upC":"downC"}" style="--x:${i};--top:${top}%;--bottom:${bottom}%;--bodyTop:${bodyTop}%;--bodyH:${bodyH}%"></i>`;
+    const stamp=x.t?timeHHMM(x.t):"--:--";
+    const tip=`${stamp}  O ${fmtNumber(o,2)}  H ${fmtNumber(h,2)}  L ${fmtNumber(l,2)}  C ${fmtNumber(c,2)}`;
+    return `<i class="miniCandle ${c>=o?"upC":"downC"}" title="${tip}" style="--x:${i};--top:${top}%;--bottom:${bottom}%;--bodyTop:${bodyTop}%;--bodyH:${bodyH}%"></i>`;
   }).join("");
   return `<div class="miniCandleWrap"><div class="miniCandleLabel">${label}</div><div class="miniCandles" style="--count:${p.length}">${candles}</div></div>`;
 }
@@ -116,7 +118,7 @@ export function miniRSIHTML(points=[]){
   if(!r.length)return '<div class="miniIndicator"><span>RSI</span><b>--</b></div>';
   const w=180,h=54;
   const pts=r.map((v,i)=>`${(i/(Math.max(1,r.length-1))*w).toFixed(1)},${(h-(v/100*h)).toFixed(1)}`).join(" ");
-  return `<div class="miniIndicator"><div class="miniIndicatorHead"><span>RSI(14)</span><b>${fmtNumber(r.at(-1),1)}</b></div><svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><line x1="0" y1="${h*.3}" x2="${w}" y2="${h*.3}" /><line x1="0" y1="${h*.7}" x2="${w}" y2="${h*.7}" /><polyline points="${pts}"/></svg></div>`;
+  return `<div class="miniIndicator" title="RSI(14): ${fmtNumber(r.at(-1),1)}"><div class="miniIndicatorHead"><span>RSI(14)</span><b>${fmtNumber(r.at(-1),1)}</b></div><svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><line x1="0" y1="${h*.3}" x2="${w}" y2="${h*.3}" /><line x1="0" y1="${h*.7}" x2="${w}" y2="${h*.7}" /><polyline points="${pts}"/></svg></div>`;
 }
 
 function energyColor(ratio){
