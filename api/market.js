@@ -219,6 +219,14 @@ async function getQuote(symbol) {
         delayed.realtimeError = realtimeError instanceof Error ? realtimeError.message : "BVB Online 实时权限不可用";
         return delayed;
       } catch (delayedError) {
+        const yahoo = await yahooQuote(symbol);
+        if (!yahoo.error && Number.isFinite(Number(yahoo.price))) {
+          yahoo.source = "Yahoo Finance Free Fallback";
+          yahoo.realtime = false;
+          yahoo.bvbRealtimeError = realtimeError instanceof Error ? realtimeError.message : "BVB Online 实时接口不可用";
+          yahoo.bvbDelayedError = delayedError instanceof Error ? delayedError.message : "BVB 官方延迟接口不可用";
+          return yahoo;
+        }
         return {
           symbol,
           name: RO_NAMES[symbol.replace(/\.RO$/i,"")] || symbol,
@@ -228,8 +236,8 @@ async function getQuote(symbol) {
           currency: "RON",
           realtime: false,
           delaySeconds: null,
-          source: "BVB",
-          error: delayedError instanceof Error ? delayedError.message : "BVB 行情不可用"
+          source: "BVB + Yahoo Finance",
+          error: [delayedError instanceof Error ? delayedError.message : "BVB 行情不可用", yahoo.error].filter(Boolean).join(" / ")
         };
       }
     }
