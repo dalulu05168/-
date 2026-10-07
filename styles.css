@@ -3843,3 +3843,96 @@ strong,b{
 .customerDetail{
   isolation:isolate;
 }
+
+
+/* =========================================================
+   V5.2 QA typography + visual consistency pass
+   ========================================================= */
+/* Only page/module titles carry emphasis. Operational text and numeric data stay Regular. */
+body b,
+body strong,
+.btn,.input,.select,.textarea,
+.dataTable th,.dataTable td,
+.nav button,.chip,.romaniaClock,.sysok,.iconBtn,
+.metricValue,.tickerStat span,.positionMetrics span,
+.shareKpiRow span,.shareMarketPrice,.allocationQuote>span,.allocationQuote>b,
+.energyRing strong,.countdownBox strong,.timePair b,.indexTilePrice{
+  font-weight:400!important;
+}
+h1,h2,h3,
+.pageHead h1,.panelHead h2,.modalHead h2,.loginHero h1,.loginCard h2,
+.shareClientIdentity h1,.allocationCompany h1,.terminalUsage h3,.metricTitle{
+  font-weight:700!important;
+}
+
+/* Minimum readable sizes for the 16:9 desktop layout and client screenshots. */
+.nav button{font-size:10px}
+.sysok,.romaniaClock,.chip,.iconBtn{font-size:10px}
+.brandText span{font-size:9px}
+.panelHead p,.panelHead.compact p,#main .unifiedModuleHead p{font-size:10px}
+.metricLabel,.metricFoot,.headMeta{font-size:9.5px}
+.shareBrand span,.shareTimeBlock span,.shareTimeBlock small,
+.shareMarketMeta span,.shareKpiRow small,.shareDonutGrid small,
+.shareProfileGrid span:first-child,.shareNote>span,.shareServiceTimeline span,
+.clientOwnerInternal,.shareFoot,.quoteTimeBadge,.quoteCellTime{
+  font-size:9px;
+}
+.shareMarketTop>span:first-child,.shareKpiRow label,.shareServiceTimeline p{font-size:10px}
+.allocationCompany .eyebrow,.allocationQuote>small,.countdownPanel>span,
+.timePair small,.countdownBox small,.indexTileHead span,.indexTilePct{
+  font-size:9px;
+}
+.indexTileHead small,.miniCandleLabel,.miniIndicatorHead{font-size:8.5px}
+.securityResult small{font-size:9px}
+.slotRow,.staffActions .btn{font-size:10px}
+
+/* Improve secondary-text contrast without changing the established dark trading palette. */
+.panelHead p,#main .unifiedModuleHead p,.headMeta,.metricFoot,
+.shareTimeBlock span,.shareTimeBlock small,.shareMarketMeta span,
+.shareKpiRow label,.shareKpiRow small,.shareProfileGrid span:first-child,
+.shareServiceTimeline span,.shareFoot,.quoteCellTime,.allocationQuote>small,
+.countdownPanel>span,.timePair small,.countdownBox small,.indexTileHead small,
+.miniCandleLabel,.miniIndicatorHead{
+  color:#85808a;
+}
+
+/* Complete hover depth for nested dashboard modules, not only outer panels. */
+@media (hover:hover) and (pointer:fine){
+  #main .terminalTicker,
+  #main .tickerStat,
+  #main .terminalFieldRow,
+  #main .usageRow,
+  #main .level2SummaryList>div,
+  #main .countdownBox,
+  #main .allocationQuote,
+  #main .securityResult,
+  #main .slotRow{
+    transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease,background-color .15s ease;
+    transform:translateZ(0);
+  }
+  #main .terminalTicker:hover,
+  #main .tickerStat:hover,
+  #main .terminalFieldRow:hover,
+  #main .usageRow:hover,
+  #main .level2SummaryList>div:hover,
+  #main .countdownBox:hover,
+  #main .allocationQuote:hover,
+  #main .securityResult:hover,
+  #main .slotRow:hover{
+    transform:translateY(-2px);
+    border-color:rgba(20,231,109,.28)!important;
+    box-shadow:0 10px 24px rgba(0,0,0,.24),0 0 0 1px rgba(20,231,109,.04);
+  }
+  #main .terminalActionGrid button:hover,
+  #main .terminalTabs button:hover,
+  #main .terminalIntervals button:hover,
+  #main .railBtn:hover{
+    transform:translateY(-2px);
+  }
+}
+
+@media(max-width:1100px){
+  .nav button{font-size:10px}
+  .sysok,.romaniaClock,.chip,.iconBtn{font-size:9px}
+  .shareFoot{font-size:8.5px}
+}
