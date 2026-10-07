@@ -8,7 +8,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ROMANIA_TZ = "Europe/Bucharest";
 const MARKET_PRESETS = {
-  RO:{label:"罗马尼亚",symbols:["TLV.RO","SNP.RO","SNG.RO","SNN.RO","H2O.RO","BRD.RO","BVB.RO"]},
+  RO:{label:"罗马尼亚",symbols:["BRD.RO","TLV.RO","SNP.RO","SNG.RO","SNN.RO","H2O.RO","BVB.RO"]},
   US:{label:"美国",symbols:["AAPL","MSFT","NVDA","AMZN","TSLA"]},
   FR:{label:"法国",symbols:["MC.PA","OR.PA","AIR.PA","BNP.PA","TTE.PA"]},
   DE:{label:"德国",symbols:["SAP.DE","SIE.DE","ALV.DE","BMW.DE","DTE.DE"]},
@@ -1351,17 +1351,21 @@ async function renderPositions(){
   state.positionRefreshTimer=setInterval(()=>{if(state.activeView==="positions")refreshQuotesOnly().catch(()=>{})},60000);
 }
 
+let currentMarketQuote=null;
+let marketRange="1D";
 async function renderMarket(){
+  marketRange="1D";currentMarketQuote=null;
   const presetOptions=Object.entries(MARKET_PRESETS).map(([k,v])=>`<option value="${k}" ${k==="RO"?"selected":""}>${v.label}</option>`).join("");
   $("#main").innerHTML=`\n    <section class="grid2 marketUnifiedGrid">
       <article class="panel">
-        <div class="panelHead"><div><h2>多国家行情</h2><p>免费公开行情源 · 显示最新报价与罗马尼亚时间</p></div><div class="marketControls"><select id="marketCountry" class="select">${presetOptions}</select><input id="marketSymbols" class="input" value="${MARKET_PRESETS.RO.symbols.join(",")}"></div></div>
-        <div class="panelBody"><div class="quoteHeader"><div><span class="link" id="mSymbol">--</span><h3 id="mName">选择股票</h3><p class="muted" id="mExchange">--</p><p class="muted" id="mFresh">--</p></div><div><div id="mPrice" class="quotePrice">--</div><div id="mChange">--</div></div></div></div>
-        <div class="chartBox"><canvas id="marketChart"></canvas></div>
+        <div class="panelHead"><div><h2><img class="sectionIcon" src="/assets/globe2.svg" alt="">多国家行情</h2><p>免费公开行情源 · 显示最新报价与罗马尼亚时间</p></div><div class="marketControls"><select id="marketCountry" class="select">${presetOptions}</select><input id="marketSymbols" class="input" value="${MARKET_PRESETS.RO.symbols.join(",")}"></div></div>
+        <div class="panelBody"><div class="quoteHeader"><div><span class="link" id="mSymbol">--</span><span id="mExchangeBadge" class="exchangeBadge"></span><h3 id="mName">选择股票</h3><p class="muted" id="mExchange">--</p><p class="muted" id="mFresh">--</p></div><div><div class="quotePrice"><span id="mPrice">--</span><small id="mCurrency"></small></div><div id="mChange" class="quoteChange">--</div></div></div></div>
+        <div class="marketMetrics" id="marketMetrics"></div>
+        <div class="chartBox"><div class="marketRangeBar" role="group" aria-label="图表时间范围">${["1D","1W","1M","3M","6M","1Y","全部"].map((r,i)=>`<button type="button" data-range="${r}" class="${i===0?"active":""}" aria-pressed="${i===0}">${r}</button>`).join("")}<span class="marketRangeNote" id="marketRangeNote"></span></div><div class="marketCanvas"><canvas id="marketChart"></canvas></div></div>
       </article>
       <article class="panel">
-        <div class="panelHead"><div><h2>股票列表</h2><p>罗马尼亚、美国、法国、德国、英国、意大利、西班牙、荷兰、瑞士、波兰、日本</p></div></div>
-        <div class="panelBody marketList" id="marketRows"></div>
+        <div class="panelHead"><div><h2><img class="sectionIcon" src="/assets/bar-chart.svg" alt="">股票列表</h2><p>罗马尼亚、美国、法国、德国、英国、意大利、西班牙、荷兰、瑞士、波兰、日本</p></div></div>
+        <div class="marketListHead"><span>代码</span><span>公司名称</span><span>交易所</span><span>价格</span><span>涨跌幅</span><span>更新时间</span></div><div class="panelBody marketList" id="marketRows"></div>
       </article>
     </section>`;
   const load=async()=>{
@@ -1372,7 +1376,7 @@ async function renderMarket(){
     $("#marketRows").innerHTML=rows.map(x=>{
       const usable=!x.error&&Number.isFinite(Number(x.price));
       const stamp=usable&&x.lastTradeAt?dt(x.lastTradeAt):"--";
-      return `<div class="marketRow marketPick" data-symbol="${x.symbol}"><span class="link">${esc(x.symbol)}</span><span>${esc(x.name||x.symbol)}</span><span>${esc(x.country||"--")}</span><span>${esc(x.exchange||"--")}</span><span>${usable?money(x.price,x.currency||"USD"):"--"}</span><span class="${usable&&Number(x.changePct)>=0?"up":usable?"down":""}">${usable&&x.changePct!=null?((Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%"):"--"}</span><span class="quoteTimeBadge">${esc(stamp)}</span></div>`;
+      return `<button type="button" class="marketRow referenceMarketRow marketPick" data-symbol="${esc(x.symbol)}" aria-pressed="false"><span class="link">${esc(x.symbol)}</span><span class="marketCompany">${esc(x.name||x.symbol)}<small>${esc(x.country||"--")}</small></span><span class="marketExchange">${esc(x.exchange||"--")}</span><span>${usable?num(x.price):"--"}<small class="muted"> ${esc(x.currency||"")}</small></span><span class="${usable&&Number(x.changePct)>=0?"up":usable?"down":""}">${usable&&x.changePct!=null?((Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%"):"--"}</span><span class="quoteTimeBadge">${esc(stamp)}</span></button>`;
     }).join("")||'<div class="empty">暂无行情数据</div>';
     $$(".marketPick").forEach(r=>r.onclick=()=>drawMarket(q[r.dataset.symbol]));
     const first=rows.find(x=>x.symbol===selectedSymbol&&!x.error&&Number.isFinite(Number(x.price)))||rows.find(x=>!x.error&&Number.isFinite(Number(x.price)));
@@ -1384,9 +1388,15 @@ async function renderMarket(){
       $("#mFresh").textContent="--";
       $("#mPrice").textContent="--";
       $("#mChange").textContent="--";
+      currentMarketQuote=null;
+      $("#marketMetrics").innerHTML="";
+      $("#mCurrency").textContent="";
+      $("#mExchangeBadge").textContent="";
+      $("#marketRangeNote").textContent="";
       if(state.charts.market){state.charts.market.destroy();delete state.charts.market}
     }
   };
+  $$("[data-range]").forEach(b=>b.onclick=()=>{marketRange=b.dataset.range;$$("[data-range]").forEach(t=>{t.classList.toggle("active",t===b);t.setAttribute("aria-pressed",String(t===b))});if(currentMarketQuote)drawMarket(currentMarketQuote)});
   $("#marketCountry").onchange=e=>{$("#marketSymbols").value=MARKET_PRESETS[e.target.value].symbols.join(",");load()};
   $("#marketSymbols").onchange=load;
   await load();
@@ -1400,9 +1410,24 @@ function drawMarket(x){
   $("#mFresh").textContent=usable?tr("最新数据时间（罗马尼亚）",state.lang)+"："+dt(x.lastTradeAt||new Date()):"--";
   $("#mPrice").textContent=usable?num(x.price):"--";
   $("#mChange").textContent=usable&&x.changePct!=null?(Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%":"--";
-  $("#mChange").className=usable?(Number(x.changePct)>=0?"up":"down"):"";
+  $("#mChange").className="quoteChange "+(usable&&x.changePct!=null?(Number(x.changePct)>=0?"up":"down"):"");
+  currentMarketQuote=x;
+  $("#mCurrency").textContent=x?.currency||"";
+  $("#mExchangeBadge").textContent=x?.exchange||"—";
+  $$(".marketPick").forEach(r=>{const active=r.dataset.symbol===x?.symbol;r.classList.toggle("active",active);r.setAttribute("aria-pressed",String(active))});
+  const sourcePoints=(x?.points||[]).filter(p=>p.close!=null&&Number.isFinite(Number(p.close)));
+  const available=p=>p!=null&&Number.isFinite(Number(p));
+  const fmt=v=>available(v)?num(v):"—";
+  const today=sourcePoints.filter(p=>new Date(p.t).toLocaleDateString("en-CA",{timeZone:ROMANIA_TZ})===new Date(x?.lastTradeAt||sourcePoints.at(-1)?.t||Date.now()).toLocaleDateString("en-CA",{timeZone:ROMANIA_TZ}));
+  const highs=today.map(p=>p.high).filter(available).map(Number),lows=today.map(p=>p.low).filter(available).map(Number);
+  const volumes=today.map(p=>p.volume).filter(available).map(Number);
+  const metrics=[["今开",fmt(today[0]?.open)],["最高",fmt(highs.length?Math.max(...highs):null)],["最低",fmt(lows.length?Math.min(...lows):null)],["成交量",volumes.length?num(volumes.reduce((a,b)=>a+b,0),0):"—"],["成交额","—"],["昨收",fmt(x?.previousClose)]];
+  $("#marketMetrics").innerHTML=metrics.map(([label,value],i)=>`<div class="marketMetric"><img class="metricIcon metricIcon${i}" src="/assets/${["coin","arrow-up","arrow-down","bar-chart","database","clock"][i]}.svg" alt=""><div><label>${tr(label,state.lang)}</label><strong>${esc(value)}</strong></div></div>`).join("");
   if(!usable)return;
-  const pts=(x.points||[]).filter(p=>p.close!=null);
+  const days={"1D":1,"1W":7,"1M":30,"3M":90,"6M":180,"1Y":365}[marketRange];
+  const last=sourcePoints.at(-1)?.t||Date.now();
+  const pts=days?sourcePoints.filter(p=>p.t>=last-days*86400000):sourcePoints;
+  $("#marketRangeNote").textContent=tr("行情价",state.lang)+" · "+(sourcePoints.length?dt(sourcePoints[0].t)+" – "+dt(last):"—");
   const labels=pts.map(p=>new Date(p.t).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}));
   if(state.charts.market&&state.charts.market.$bvSymbol===x.symbol){
     state.charts.market.data.labels=labels;
@@ -1414,7 +1439,7 @@ function drawMarket(x){
   if(state.charts.market)state.charts.market.destroy();
   state.charts.market=new Chart($("#marketChart"),{
     type:"line",
-    data:{labels,datasets:[{label:x.symbol+" "+tr("行情价",state.lang),data:pts.map(p=>p.close),borderColor:"#d93447",backgroundColor:"rgba(217,52,71,.14)",fill:true,tension:.22,pointRadius:0,pointHoverRadius:4}]},
+    data:{labels,datasets:[{label:x.symbol+" "+tr("行情价",state.lang),data:pts.map(p=>p.close),borderColor:"#ef3456",backgroundColor:"rgba(239,52,86,.18)",fill:true,tension:.35,pointRadius:0,pointHoverRadius:4}]},
     options:chartOpts()
   });
   state.charts.market.$bvSymbol=x.symbol;
@@ -1490,3 +1515,4 @@ function closeModal(){
 
 supabase.auth.onAuthStateChange(async(event,session)=>{if(event==="SIGNED_OUT"){state.session=null;state.profile=null}});
 (async()=>{const {data:{session}}=await supabase.auth.getSession();if(session){state.session=session;await loadProfileAndStart()}else renderLogin(await checkBootstrap())})();
+

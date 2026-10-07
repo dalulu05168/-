@@ -22,6 +22,7 @@ const mime={
   ".css":"text/css; charset=utf-8",
   ".json":"application/json; charset=utf-8",
   ".png":"image/png",
+  ".webp":"image/webp",
   ".jpg":"image/jpeg",
   ".jpeg":"image/jpeg",
   ".svg":"image/svg+xml"
@@ -51,9 +52,9 @@ function makeApiResponse(res){
 
 async function serveStatic(req,res,url){
   const pathname=decodeURIComponent(url.pathname);
-  const allowed=new Set(["/","/index.html","/app.js","/ui-features.js","/styles.css"]);
+  const allowed=new Set(["/","/index.html","/app.js","/ui-features.js","/styles.css","/reference-theme.css"]);
   let target=pathname==="/"?"/index.html":pathname;
-  if(!allowed.has(target)){
+  if(!allowed.has(target)&&!/^\/assets\/[a-z0-9-]+\.(svg|png|webp)$/.test(target)){
     target="/index.html";
   }
   const filePath=path.join(__dirname,target.replace(/^\//,""));
@@ -93,3 +94,4 @@ const server=http.createServer(async(req,res)=>{
 server.listen(port,"0.0.0.0",()=>{
   console.log(`Brantone Veylor CRM listening on ${port}`);
 });
+
