@@ -1,3 +1,4 @@
+const RO_NAMES={TLV:"Banca Transilvania",SNP:"OMV Petrom",SNG:"Romgaz",SNN:"Nuclearelectrica",H2O:"Hidroelectrica",BRD:"BRD Groupe Société Générale",BVB:"Bursa de Valori București"};
 const MARKET_INFO=[
   [".RO",{country:"罗马尼亚",market:"Bucharest Stock Exchange",currency:"RON"}],
   [".PA",{country:"法国",market:"Euronext Paris",currency:"EUR"}],
@@ -40,8 +41,8 @@ export default async function handler(req,res){
     })).filter(x=>x.close!=null);
     const out={
       symbol,
-      companyName:meta.longName||meta.shortName||match.longname||match.shortname||symbol,
-      stockName:meta.shortName||match.shortname||match.longname||symbol,
+      companyName:meta.longName||meta.shortName||match.longname||match.shortname||(symbol.endsWith(".RO")?RO_NAMES[symbol.replace(/\.RO$/i,"")]:null)||symbol,
+      stockName:meta.shortName||match.shortname||match.longname||(symbol.endsWith(".RO")?RO_NAMES[symbol.replace(/\.RO$/i,"")]:null)||symbol,
       exchange:meta.fullExchangeName||meta.exchangeName||match.exchDisp||match.exchange||fallback.market,
       market:fallback.market,
       country:fallback.country,
