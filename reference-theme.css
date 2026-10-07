@@ -26,7 +26,7 @@ html,body{background:var(--bg)!important;color:var(--text)}
 /* Keep company names readable at the reference viewport. */
 .marketListHead,.marketRow.referenceMarketRow{grid-template-columns:52px minmax(0,1fr) 39px 48px 52px 70px!important;gap:6px!important}
 .marketRow.referenceMarketRow{min-height:69px!important;font-size:11px!important}.marketCompany{font-size:11px!important}.marketRow.referenceMarketRow>span:nth-child(4) small{display:none}.marketRow.referenceMarketRow .quoteTimeBadge{background:transparent!important;border:0!important;border-radius:0!important;padding:0!important;font-size:9px!important}
-#main[data-view="market"] .panel:last-child .panelHead p{font-size:10px!important;line-height:1.4;max-width:none!important}
+#main[data-view="market"] .panel:last-child .panelHead p{font-size:8px!important;line-height:1.4;max-width:none!important}
 @media(max-width:600px){.marketListHead,.marketRow.referenceMarketRow{min-width:400px!important}}
 .nav button:not(.active){background:transparent!important;border-color:transparent!important;box-shadow:none!important}
 @media(max-width:1100px){html,body,#root,.app{height:auto!important;min-height:100vh!important;max-height:none!important;overflow:visible!important}.shell{display:grid!important;overflow:visible!important;max-height:none!important}.topbar{overflow:visible!important}.navFrame{display:block!important;height:44px!important;grid-column:auto!important;grid-row:auto!important;overflow:hidden!important}.nav{height:36px!important;width:100%!important;grid-template-rows:none!important;grid-template-columns:none!important}.userArea{grid-column:auto!important;grid-row:auto!important}#main[data-view="market"] .marketUnifiedGrid{overflow:visible!important;max-height:none!important}}
