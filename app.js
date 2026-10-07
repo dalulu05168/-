@@ -70,7 +70,7 @@ function startRomaniaClock(){
   clearInterval(romaniaClockTimer);
   const tick=()=>{
     const value=romaniaClockText();
-    $(".romaniaClock,[data-romania-clock]").forEach(el=>el.textContent=value);
+    $$(".romaniaClock,[data-romania-clock]").forEach(el=>el.textContent=value);
   };
   tick();romaniaClockTimer=setInterval(tick,1000);
 }
