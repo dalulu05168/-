@@ -3942,3 +3942,140 @@ h1,h2,h3,
 .mark small,.shareBrandMark small,.recentMarket,.clientMetricStrip small{
   font-size:9px;
 }
+
+
+/* =========================================================
+   V5.3 Level 1 team workspace
+   ========================================================= */
+.level1Main{overflow:hidden}
+.level1Workspace{
+  width:100%;
+  height:100%;
+  min-height:0;
+  display:grid;
+  grid-template-rows:116px minmax(0,1fr);
+  gap:8px;
+}
+.level1MetricGrid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:8px;
+}
+.level1BodyGrid{
+  min-height:0;
+  display:grid;
+  grid-template-columns:minmax(0,1.65fr) minmax(300px,.62fr);
+  gap:8px;
+}
+.level1TeamPanel{
+  min-height:0;
+  display:grid;
+  grid-template-rows:56px minmax(0,1fr);
+}
+.level1TeamGrid{
+  min-height:0;
+  overflow:auto;
+  padding:9px;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-auto-rows:minmax(150px,1fr);
+  gap:8px;
+  align-content:start;
+}
+.level1StaffCard{
+  min-width:0;
+  padding:12px;
+  border:1px solid #2b2830;
+  border-radius:14px;
+  background:linear-gradient(180deg,#19161d,#121016);
+  box-shadow:0 8px 20px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.02);
+  cursor:pointer;
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
+}
+.level1StaffCard:hover{
+  transform:translateY(-4px);
+  border-color:rgba(20,231,109,.34);
+  box-shadow:0 16px 34px rgba(0,0,0,.32),0 0 0 1px rgba(20,231,109,.05);
+}
+.level1StaffHead{
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr) auto;
+  align-items:center;
+  gap:9px;
+}
+.staffAvatar{
+  width:42px;height:42px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid #3b3640;
+  background:linear-gradient(180deg,#211d25,#16131a);
+  color:#d9ad3d;font-size:17px;font-weight:400!important;
+}
+.level1StaffHead h3,.teamDetailIdentity h3{
+  margin:0;color:#e8ece8;font-size:14px;
+}
+.level1StaffHead p,.teamDetailIdentity p{
+  margin:4px 0 0;color:#817c86;font-size:9px;
+}
+.level1StaffMetrics{
+  margin-top:11px;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:6px;
+}
+.level1StaffMetrics>div{
+  padding:8px;
+  border:1px solid #292630;
+  border-radius:9px;
+  background:#151219;
+}
+.level1StaffMetrics small{display:block;color:#85808a;font-size:9px}
+.level1StaffMetrics span{display:block;margin-top:4px;color:#e0e5e1;font-size:14px;font-weight:400!important}
+.level1StaffFoot{
+  margin-top:10px;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:8px;
+  color:#8b8690;font-size:9px;
+}
+.level1StaffFoot b{justify-self:start;font-weight:400!important}
+.level1SideStack{
+  min-height:0;
+  display:grid;
+  grid-template-rows:minmax(260px,1.15fr) minmax(190px,.85fr);
+  gap:8px;
+}
+.level1SideStack>.panel{min-height:0}
+.level1Chart{height:calc(100% - 0px)!important}
+.level1SummaryPanel{display:grid;grid-template-rows:56px minmax(0,1fr)}
+.level1TeamDetail{
+  display:grid;
+  gap:10px;
+}
+.teamDetailIdentity{
+  display:flex;align-items:center;gap:10px;
+  padding:10px;
+  border:1px solid #2b2830;border-radius:12px;background:#151219;
+}
+.teamDetailKpis{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;
+}
+.teamDetailKpis>div{
+  padding:10px;border:1px solid #2a2730;border-radius:10px;background:#151219;
+}
+.teamDetailKpis small{display:block;color:#85808a;font-size:9px}
+.teamDetailKpis span{display:block;margin-top:5px;color:#e5e9e5;font-size:17px;font-weight:400!important}
+.teamDetailSection{
+  border:1px solid #2b2830;border-radius:12px;background:#141117;overflow:hidden;
+}
+.teamDetailSection>h3{
+  margin:0;padding:10px 12px;border-bottom:1px solid #2a2730;font-size:12px;
+}
+@media(max-width:1100px){
+  .level1Workspace{height:auto;overflow:auto;grid-template-rows:auto auto}
+  .level1MetricGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .level1BodyGrid{grid-template-columns:1fr}
+  .level1TeamGrid{grid-template-columns:1fr}
+  .level1SideStack{grid-template-rows:280px 220px}
+  .teamDetailKpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
