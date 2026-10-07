@@ -5095,3 +5095,480 @@ body:has(#main[data-view="shareboard"]) .sysok{
   #main[data-view="shareboard"] .allocationTrendPanel{min-height:280px}
   #main[data-view="shareboard"] .globalIndexWall{grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible}
 }
+
+
+/* =========================================================
+   Share Allocation V3 — compact exchange-board layout
+   Matches the standard Brantone Veylor system palette.
+   ========================================================= */
+#main[data-view="shareboard"]{
+  background:transparent!important;
+}
+#main[data-view="shareboard"] .allocationBoardV3{
+  width:100%;
+  height:100%;
+  min-height:0;
+  display:grid;
+  grid-template-rows:92px 82px minmax(250px,1fr) var(--slots-row,86px) 128px!important;
+  gap:9px!important;
+  overflow:hidden;
+}
+
+/* Remove the special blue/gold page skin so this view matches other modules. */
+body:has(#main[data-view="shareboard"]) .topbar{
+  background:linear-gradient(180deg,#1b181f,#121017)!important;
+  border-color:var(--tv-line)!important;
+}
+body:has(#main[data-view="shareboard"]) .navFrame{
+  background:#151219!important;
+  border-color:var(--tv-line)!important;
+}
+body:has(#main[data-view="shareboard"]) .nav button{
+  color:#88838d!important;
+}
+body:has(#main[data-view="shareboard"]) .nav button:hover{
+  color:#d9ddd9!important;
+  border-color:#39343e!important;
+  background:#201c23!important;
+}
+body:has(#main[data-view="shareboard"]) .nav button.active{
+  color:#071109!important;
+  background:var(--tv-green)!important;
+  border-color:var(--tv-green)!important;
+  box-shadow:0 0 18px rgba(20,231,109,.18)!important;
+}
+body:has(#main[data-view="shareboard"]) .mark{
+  color:var(--tv-green)!important;
+}
+body:has(#main[data-view="shareboard"]) .mark small{
+  color:var(--tv-gold)!important;
+}
+body:has(#main[data-view="shareboard"]) .sysok{
+  color:#30e88a!important;
+  border-color:#302b35!important;
+  background:#1b181f!important;
+}
+
+/* Unified surface material */
+#main[data-view="shareboard"] .allocationBoardV3>.panel,
+#main[data-view="shareboard"] .exchangeBoardMain .panel,
+#main[data-view="shareboard"] .exchangeSideStack .panel,
+#main[data-view="shareboard"] .exchangeTickerWall>.indexTile{
+  background:linear-gradient(180deg,var(--tv-surface-2),var(--tv-surface))!important;
+  border-color:var(--tv-line)!important;
+  border-radius:var(--tv-radius)!important;
+  box-shadow:var(--tv-shadow)!important;
+}
+@media (hover:hover) and (pointer:fine){
+  #main[data-view="shareboard"] .allocationBoardV3>.panel:hover,
+  #main[data-view="shareboard"] .exchangeBoardMain .panel:hover,
+  #main[data-view="shareboard"] .exchangeSideStack .panel:hover,
+  #main[data-view="shareboard"] .exchangeTickerWall>.indexTile:hover{
+    transform:translateY(-2px);
+    border-color:#3a4d40!important;
+    box-shadow:0 18px 42px rgba(0,0,0,.34),0 0 0 1px rgba(20,231,109,.05),inset 0 1px 0 rgba(255,255,255,.025)!important;
+  }
+}
+
+/* Single brand only: page header is stock information, never another BV logo. */
+#main[data-view="shareboard"] .exchangeQuoteHeader{
+  display:grid;
+  grid-template-columns:minmax(300px,1.28fr) 180px minmax(300px,.98fr) 190px;
+  align-items:stretch;
+  padding:0;
+  overflow:hidden;
+}
+#main[data-view="shareboard"] .exchangeSecurityIdentity{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 15px 12px 18px;
+  border-right:1px solid var(--tv-line);
+}
+#main[data-view="shareboard"] .exchangeSecurityIdentity>div{min-width:0}
+#main[data-view="shareboard"] .exchangeSecurityIdentity .eyebrow{
+  display:block;
+  color:var(--tv-text-3);
+  font-size:8px;
+  letter-spacing:1.35px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .exchangeSecurityIdentity h1{
+  margin:4px 0 0;
+  color:var(--tv-text);
+  font-size:20px;
+  line-height:1.05;
+  font-weight:700!important;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#main[data-view="shareboard"] .exchangeSecurityIdentity p{
+  margin:5px 0 0;
+  color:var(--tv-text-3);
+  font-size:9px;
+  font-weight:400!important;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#main[data-view="shareboard"] .allocationConfigCompact{
+  flex:0 0 auto;
+  min-width:54px;
+  min-height:32px;
+  padding:5px 9px;
+  color:var(--tv-gold);
+  border-color:#59491e;
+  background:#211b0d;
+  font-size:9px;
+  font-weight:400!important;
+}
+
+#main[data-view="shareboard"] .exchangeQuoteBlock{
+  display:grid;
+  grid-template-columns:1fr auto;
+  grid-template-rows:auto 1fr auto;
+  align-content:center;
+  gap:3px 8px;
+  padding:12px 14px;
+  border-right:1px solid var(--tv-line);
+}
+#main[data-view="shareboard"] .exchangeQuoteBlock>span{
+  grid-column:1/-1;
+  color:var(--tv-text-3);
+  font-size:8px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .exchangeQuoteBlock>strong{
+  align-self:end;
+  color:var(--tv-text);
+  font-size:25px;
+  line-height:1;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .exchangeQuoteBlock>b{
+  align-self:end;
+  justify-self:end;
+  font-size:10px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .exchangeQuoteBlock>small{
+  grid-column:1/-1;
+  color:#68646d;
+  font-size:8px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .exchangeQuoteMini{
+  min-width:0;
+  padding:8px 10px;
+  border-right:1px solid var(--tv-line);
+  background:#151219;
+}
+#main[data-view="shareboard"] .exchangeQuoteMini .miniCandleWrap{padding:3px 4px}
+#main[data-view="shareboard"] .exchangeQuoteMini .miniCandleLabel{color:#66616a}
+#main[data-view="shareboard"] .exchangeStatusRail{
+  min-width:0;
+  display:grid;
+  align-content:center;
+  gap:6px;
+  padding:11px 12px;
+}
+#main[data-view="shareboard"] .exchangeStatusRail span{
+  display:flex;
+  align-items:center;
+  min-height:20px;
+  padding:3px 8px;
+  border:1px solid #312d35;
+  border-radius:999px;
+  background:#17141b;
+  color:#817c85;
+  font-size:8px;
+  font-weight:400!important;
+  white-space:nowrap;
+}
+#main[data-view="shareboard"] .exchangeStatusRail span.live{
+  color:#2fe88a;
+  border-color:#245239;
+  background:#102219;
+}
+
+/* KPI tape */
+#main[data-view="shareboard"] .exchangeKpiStrip{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:9px;
+  min-height:0;
+}
+#main[data-view="shareboard"] .exchangeKpiStrip .allocationKpiCard{
+  min-height:0;
+  display:grid;
+  align-content:center;
+  gap:5px;
+  padding:10px 13px 9px 15px;
+  position:relative;
+  overflow:hidden;
+}
+#main[data-view="shareboard"] .exchangeKpiStrip .allocationKpiCard::before{
+  content:"";
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:2px;
+  background:#343039;
+}
+#main[data-view="shareboard"] .exchangeKpiStrip .gold::before,
+#main[data-view="shareboard"] .exchangeKpiStrip .countdown::before{
+  background:var(--tv-gold);
+}
+#main[data-view="shareboard"] .exchangeKpiStrip span{
+  color:var(--tv-text-3);
+  font-size:9px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .exchangeKpiStrip strong{
+  color:var(--tv-text);
+  font-size:20px;
+  line-height:1;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .exchangeKpiStrip .gold strong,
+#main[data-view="shareboard"] .exchangeKpiStrip .countdown strong{
+  color:var(--tv-gold);
+}
+#main[data-view="shareboard"] .exchangeKpiStrip small{
+  color:#625e67;
+  font-size:7px;
+  letter-spacing:.6px;
+  font-weight:400!important;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* Exchange workbench */
+#main[data-view="shareboard"] .exchangeBoardMain{
+  min-height:0;
+  display:grid;
+  grid-template-columns:minmax(0,1.68fr) minmax(330px,.72fr);
+  gap:9px;
+}
+#main[data-view="shareboard"] .exchangeChartPanel{
+  min-height:0;
+  display:grid;
+  grid-template-rows:48px minmax(0,1fr);
+  overflow:hidden;
+}
+#main[data-view="shareboard"] .exchangePrimaryChart{
+  min-height:0;
+  height:auto!important;
+  padding:10px 12px 12px;
+}
+#main[data-view="shareboard"] .exchangeSideStack{
+  min-height:0;
+  display:grid;
+  grid-template-rows:1.12fr .88fr;
+  gap:9px;
+}
+#main[data-view="shareboard"] .allocationDistributionPanel,
+#main[data-view="shareboard"] .exchangeSessionPanel{
+  min-height:0;
+  display:grid;
+  grid-template-rows:48px minmax(0,1fr);
+  overflow:hidden;
+}
+#main[data-view="shareboard"] .allocationDistributionBody{
+  min-height:0;
+  display:grid;
+  align-content:center;
+  gap:16px;
+  padding:13px 15px;
+}
+#main[data-view="shareboard"] .allocationDistRow{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:7px 10px;
+  align-items:center;
+}
+#main[data-view="shareboard"] .allocationDistRow>div:first-child{
+  grid-column:1/-1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+#main[data-view="shareboard"] .allocationDistRow span{
+  color:#8d8892;
+  font-size:9px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .allocationDistRow b{
+  color:#e4e8e4;
+  font-size:11px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .allocationDistRow small{
+  color:var(--tv-gold);
+  font-size:9px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .allocationBar{
+  height:16px;
+  overflow:hidden;
+  border:1px solid #38333d;
+  background:#111016;
+}
+#main[data-view="shareboard"] .allocationBar i{
+  display:block;
+  height:100%;
+  background:linear-gradient(90deg,#6e6a73,#9e99a3);
+}
+#main[data-view="shareboard"] .allocationDistRow.reserved .allocationBar i{
+  background:linear-gradient(90deg,#a47e19,var(--tv-gold));
+}
+#main[data-view="shareboard"] .exchangeSessionGrid{
+  min-height:0;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+  padding:10px 12px 12px;
+}
+#main[data-view="shareboard"] .exchangeSessionGrid>div{
+  min-width:0;
+  display:grid;
+  align-content:center;
+  gap:4px;
+  padding:8px 9px;
+  border:1px solid var(--tv-line-soft);
+  border-radius:10px;
+  background:#151219;
+}
+#main[data-view="shareboard"] .exchangeSessionGrid span{
+  color:#6e6972;
+  font-size:8px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .exchangeSessionGrid b{
+  color:#e1e5e1;
+  font-size:10px;
+  font-weight:400!important;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* Slot table collapses when there are no rows instead of leaving a large empty box. */
+#main[data-view="shareboard"] .allocationSlotsPanel{
+  min-height:0;
+  display:grid;
+  grid-template-rows:44px minmax(0,1fr);
+  overflow:hidden;
+}
+#main[data-view="shareboard"] .allocationSlotsPanel.is-empty{
+  grid-template-rows:44px 42px;
+}
+#main[data-view="shareboard"] .allocationSlotsTable{
+  min-height:0;
+  overflow:auto;
+}
+#main[data-view="shareboard"] .allocationSlotsTable .dataTable th{
+  height:30px;
+  padding:6px 10px;
+  background:#151219;
+  border-bottom-color:var(--tv-line-soft);
+  color:#77727d;
+  font-size:9px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .allocationSlotsTable .dataTable td{
+  height:32px;
+  padding:6px 10px;
+  border-bottom-color:#24202a;
+  color:#c4c8c4;
+  font-size:9px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .allocationCompactEmpty{
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#68646d;
+  font-size:9px;
+  font-weight:400!important;
+}
+
+/* Bottom exchange ticker wall */
+#main[data-view="shareboard"] .exchangeTickerWall{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:8px;
+  min-height:0;
+  overflow:hidden;
+}
+#main[data-view="shareboard"] .exchangeTickerWall .indexTile{
+  min-height:0;
+  background:linear-gradient(180deg,#1a171e,#131017)!important;
+  border-color:var(--tv-line)!important;
+}
+
+/* Screenshot mode: never expose internal administrator identity. */
+body.screenshotCaptureMode .topbar .chip{
+  display:none!important;
+}
+body.screenshotCaptureMode .topbar{
+  grid-template-columns:276px minmax(0,1fr) auto;
+}
+body.screenshotCaptureMode .userArea{
+  gap:6px;
+}
+
+/* Font discipline */
+#main[data-view="shareboard"] .exchangeQuoteBlock strong,
+#main[data-view="shareboard"] .exchangeQuoteBlock b,
+#main[data-view="shareboard"] .exchangeKpiStrip strong,
+#main[data-view="shareboard"] .allocationDistRow b,
+#main[data-view="shareboard"] .exchangeSessionGrid b{
+  font-weight:400!important;
+}
+
+@media(max-height:840px) and (min-width:1200px){
+  #main[data-view="shareboard"] .allocationBoardV3{
+    grid-template-rows:84px 74px minmax(220px,1fr) var(--slots-row,82px) 112px!important;
+    gap:7px!important;
+  }
+  #main[data-view="shareboard"] .exchangeSecurityIdentity h1{font-size:18px}
+  #main[data-view="shareboard"] .exchangeQuoteBlock>strong{font-size:22px}
+  #main[data-view="shareboard"] .exchangeKpiStrip strong{font-size:18px}
+}
+@media(max-width:1100px){
+  #main[data-view="shareboard"]{
+    overflow:auto!important;
+  }
+  #main[data-view="shareboard"] .allocationBoardV3{
+    height:auto!important;
+    overflow:visible!important;
+    grid-template-rows:auto!important;
+  }
+  #main[data-view="shareboard"] .exchangeQuoteHeader{
+    grid-template-columns:1fr 1fr;
+  }
+  #main[data-view="shareboard"] .exchangeSecurityIdentity,
+  #main[data-view="shareboard"] .exchangeQuoteBlock,
+  #main[data-view="shareboard"] .exchangeQuoteMini{
+    border-bottom:1px solid var(--tv-line);
+  }
+  #main[data-view="shareboard"] .exchangeKpiStrip{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  #main[data-view="shareboard"] .exchangeBoardMain{
+    grid-template-columns:1fr;
+  }
+  #main[data-view="shareboard"] .exchangeChartPanel{
+    min-height:280px;
+  }
+  #main[data-view="shareboard"] .exchangeTickerWall{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    overflow:visible;
+  }
+}
