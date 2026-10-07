@@ -178,8 +178,8 @@ export async function renderShareBoard(ctx){
           <div class="shareBrandMark">BV<small>1996</small></div>
           <div><span class="eyebrow">BRANTONE VEYLOR · SHARE ALLOCATION</span><h1>${esc(board.company_name||security?.companyName||board.stock_name||board.symbol)}</h1><p>${esc(board.symbol)} · ${esc(board.exchange||security?.exchange||"--")} · ${esc(board.currency||security?.currency||"--")} · ${esc(board.industry||security?.industry||"")}</p></div>
         </div>
-        <div class="allocationQuote"><span>${latest?fmtNumber(latest.price,2):"--"}</span><b class="${safePct(latest?.changePct)>=0?"up":"down"}">${latest&&latest.changePct!=null?(Number(latest.changePct)>=0?"+":"")+fmtNumber(latest.changePct,2)+"%":"--"}</b><small>${latest?.lastTradeAt?dt(latest.lastTradeAt):"--"}</small></div>
-        <div class="allocationMini">${miniCandlesHTML(latest?.points||[],board.symbol)}</div>
+        <div class="allocationQuote"><span id="allocationQuotePrice">${latest?fmtNumber(latest.price,2):"--"}</span><b id="allocationQuoteChange" class="${safePct(latest?.changePct)>=0?"up":"down"}">${latest&&latest.changePct!=null?(Number(latest.changePct)>=0?"+":"")+fmtNumber(latest.changePct,2)+"%":"--"}</b><small id="allocationQuoteTime">${latest?.lastTradeAt?dt(latest.lastTradeAt):"--"}</small></div>
+        <div class="allocationMini" id="allocationMini">${miniCandlesHTML(latest?.points||[],board.symbol)}</div>
       </div>
 
       <div class="allocationHero">
@@ -204,7 +204,7 @@ export async function renderShareBoard(ctx){
         <article class="panel allocationChartPanel"><div class="panelHead compact"><div><h2>时段参与人数</h2><p>有效罗马尼亚业务时段</p></div></div><div class="chartBox"><canvas id="participantSlotChart"></canvas></div></article>
       </div>
 
-      <div class="globalIndexWall">${marketWall(rows,ctx)}</div>
+      <div class="globalIndexWall" id="globalIndexWall">${marketWall(rows,ctx)}</div>
     </section>`;
 
   const labels=validSlots.map(s=>timeHHMM(s.slot_at));
@@ -221,6 +221,31 @@ export async function renderShareBoard(ctx){
     if(c)c.textContent=ctx.romaniaClockText();
     if(d)d.textContent=countdownText(ctx,settings.target_trade_time);
   },1000);
+
+  if(state.shareBoardRefreshTimer)clearInterval(state.shareBoardRefreshTimer);
+  const refreshMs=Math.max(10000,Number(settings.share_board_refresh_seconds||60)*1000);
+  state.shareBoardRefreshTimer=setInterval(async()=>{
+    if(state.activeView!=="shareboard"||!$("#globalIndexWall")){
+      clearInterval(state.shareBoardRefreshTimer);state.shareBoardRefreshTimer=null;return;
+    }
+    try{
+      const [freshSecurity,freshQuotes]=await Promise.all([
+        fetch("/api/security-info?symbol="+encodeURIComponent(board.symbol)).then(r=>r.ok?r.json():null).catch(()=>null),
+        fetchQuotes(symbols,{realtimeOnly:false})
+      ]);
+      const freshRows=symbols.map(s=>freshQuotes[s]||{symbol:s,error:true});
+      const wall=$("#globalIndexWall");if(wall)wall.innerHTML=marketWall(freshRows,ctx);
+      const priceEl=$("#allocationQuotePrice"),changeEl=$("#allocationQuoteChange"),timeEl=$("#allocationQuoteTime"),mini=$("#allocationMini");
+      if(priceEl)priceEl.textContent=freshSecurity&&Number.isFinite(Number(freshSecurity.price))?fmtNumber(freshSecurity.price,2):"--";
+      if(changeEl){
+        const pct=safePct(freshSecurity?.changePct);
+        changeEl.textContent=pct==null?"--":(pct>=0?"+":"")+fmtNumber(pct,2)+"%";
+        changeEl.className=pct==null?"":pct>=0?"up":"down";
+      }
+      if(timeEl)timeEl.textContent=freshSecurity?.lastTradeAt?dt(freshSecurity.lastTradeAt):"--";
+      if(mini)mini.innerHTML=miniCandlesHTML(freshSecurity?.points||[],board.symbol);
+    }catch{}
+  },refreshMs);
 }
 
 export function openTimeSettings(ctx){
