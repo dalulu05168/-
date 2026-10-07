@@ -1142,8 +1142,13 @@ async function renderPersonnel(){
         <div><h2>人员账户管理</h2><p>${state.profile.role==="admin"?"管理员拥有最高权限：一级人员直属管理员，二级人员直属一级人员；可修改、重置、禁用与删除人员账号":"查看本人及名下二级人员；权限由数据库 RLS 强制执行"}</p></div>
         <div class="toolbar unifiedActions">${createButton}</div>
       </div>
-      <div class="tableWrap moduleContent">
-        <table class="dataTable"><thead><tr><th>账号</th><th>姓名</th><th>角色</th><th>上级</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead><tbody>
+      <div class="tableWrap moduleContent personnelModuleContent">
+        <table class="dataTable personnelTable">
+          <colgroup>
+            <col style="width:12%"><col style="width:8%"><col style="width:10%"><col style="width:10%">
+            <col style="width:9%"><col style="width:17%"><col style="width:34%">
+          </colgroup>
+          <thead><tr><th>账号</th><th>姓名</th><th>角色</th><th>上级</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead><tbody>
         ${rows.map(s=>{
           const parent=state.staff.find(x=>x.id===s.parent_user_id);
           const parentName=s.role==="admin"?"最高管理员":parent?.display_name||"--";
