@@ -4120,3 +4120,9 @@ body h3{font-weight:400!important}
 .quoteHeader h3{
   font-weight:400!important;
 }
+
+
+.sysok.syserror{
+  color:#ff626e!important;
+  border-color:rgba(255,98,110,.35)!important;
+}
