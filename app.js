@@ -196,6 +196,7 @@ async function loadProfileAndStart(){
     await supabase.auth.signOut();toast("账户未启用或无系统权限",true);renderLogin(true);return;
   }
   state.profile=data;
+  if((state.activeView==="personnel"&&!canPersonnel())||(state.activeView==="shareboard"&&state.profile.role!=="admin"))state.activeView="dashboard";
   renderShell();
   await refreshAll();
 }
@@ -219,7 +220,7 @@ function renderShell(){
   `;
   $$(".nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
   $("#globalLang").onchange=async e=>{state.lang=setLang(e.target.value);renderShell();await renderView(0)};
-  $("#logoutBtn").onclick=async()=>{await supabase.auth.signOut();state.profile=null;state.session=null;renderLogin(true)};
+  $("#logoutBtn").onclick=async()=>{clearMarketRefreshTimers();await supabase.auth.signOut();state.profile=null;state.session=null;state.activeCustomer=null;state.activeView="dashboard";renderLogin(true)};
   translateUI($("#root"),state.lang);
   startRomaniaClock();
 }
@@ -252,7 +253,8 @@ async function refreshAll(){
     state.profile?.role==="admin"?supabase.from("share_boards").select("*").order("board_date",{ascending:false}).order("updated_at",{ascending:false}).limit(1).maybeSingle():Promise.resolve({data:null,error:null})
   ];
   const [c,t,p,f,s,settings,board]=await Promise.all(q);
-  if(c.error)toast(c.error.message,true);
+  const loadError=[c,t,p,f,s,settings,board].find(x=>x?.error)?.error;
+  if(loadError)toast("数据读取失败："+loadError.message,true);
   state.customers=c.data||[];
   state.trades=t.data||[];
   state.positions=p.data||[];
@@ -748,9 +750,9 @@ function marketStatusBadge(x){
   if(!x||x.error||!Number.isFinite(Number(x.price)))return '<span class="quoteTimeBadge">暂无数据</span>';
   const stamp=x.lastTradeAt?new Date(x.lastTradeAt):null;
   const time=stamp&&!Number.isNaN(stamp.getTime())
-    ? new Intl.DateTimeFormat("zh-CN",{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit",hour12:false}).format(stamp)
+    ? new Intl.DateTimeFormat(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit",hour12:false}).format(stamp)
     : "--:--";
-  return '<span class="quoteTimeBadge">更新 '+esc(time)+'</span>';
+  return '<span class="quoteTimeBadge">'+esc(tr("更新",state.lang))+' '+esc(time)+'</span>';
 }
 function marketIndexStrip(rows){
   const names={"^GSPC":"S&P 500","^DJI":"Dow Jones","^IXIC":"Nasdaq","^FCHI":"CAC 40","BET.RO":"BET"};
@@ -822,9 +824,8 @@ async function openCustomer(id){
         </div>
         <div class="shareInternalActions">
           <button class="btn" id="backCustomers">返回</button>
-          ${state.profile.role==="level2"?'<button class="btn" id="editNoteBtn">编辑客户备注</button>':""}
-          <button class="btn gold screenshotHide" id="addTradeBtn">新增交易</button>
-          <button class="btn screenshotHide" id="addFollowBtn">记录跟进</button>
+          ${["admin","level2"].includes(state.profile.role)?'<button class="btn" id="editNoteBtn">编辑客户备注</button>':""}
+          ${["admin","level2"].includes(state.profile.role)?'<button class="btn gold screenshotHide" id="addTradeBtn">新增交易</button><button class="btn screenshotHide" id="addFollowBtn">记录跟进</button>':""}
           <button class="btn primary" id="captureModeBtn">截图模式</button>
         </div>
       </div>
@@ -925,7 +926,7 @@ async function openCustomer(id){
       if(kpis[2]){kpis[2].textContent=priced.length?num(freshUnreal,2):"—";kpis[2].className=freshUnreal>=0?"up":"down";}
       if(kpis[4]){kpis[4].textContent=(freshReturn>=0?"+":"")+num(freshReturn,2)+"%";kpis[4].className=freshReturn>=0?"up":"down";}
       const timeSmall=page.querySelector(".shareTimeBlock small");
-      if(timeSmall)timeSmall.textContent="行情更新："+dt(new Date());
+      if(timeSmall)timeSmall.textContent=tr("行情更新",state.lang)+"："+dt(new Date());
       const primaryNow=openPos.find(p=>freshQ[p.symbol]?.points?.length)||primary;
       const tech=page.querySelector(".clientMiniTech");
       if(primaryNow&&tech){
@@ -1084,6 +1085,7 @@ function openFollowForm(c){
 }
 
 async function renderPersonnel(){
+  if(!canPersonnel()){state.activeView="dashboard";await renderDashboard();return}
   const rows=state.staff.filter(s=>s.status!=="deleted"&&(state.profile.role==="admin"||s.id===state.profile.id||s.parent_user_id===state.profile.id));
   const createButton=state.profile.role==="admin"?'<button class="btn primary" id="newStaff">新建人员账户</button>':"";
   $("#main").innerHTML=`
@@ -1314,7 +1316,7 @@ function drawMarket(x){
   $("#mSymbol").textContent=x?.symbol||"--";
   $("#mName").textContent=usable?(x.name||x.symbol):"暂无可用行情";
   $("#mExchange").textContent=[x?.country,x?.exchange,x?.currency,x?.source].filter(Boolean).join(" · ");
-  $("#mFresh").textContent=usable?"最新数据时间（罗马尼亚）："+dt(x.lastTradeAt||new Date()):"--";
+  $("#mFresh").textContent=usable?tr("最新数据时间（罗马尼亚）",state.lang)+"："+dt(x.lastTradeAt||new Date()):"--";
   $("#mPrice").textContent=usable?num(x.price):"--";
   $("#mChange").textContent=usable&&x.changePct!=null?(Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%":"--";
   $("#mChange").className=usable?(Number(x.changePct)>=0?"up":"down"):"";
