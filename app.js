@@ -94,6 +94,9 @@ if(window.Chart){
   Chart.defaults.font.weight="normal";
   Chart.defaults.devicePixelRatio=Math.min(Math.max(window.devicePixelRatio||1,1),2);
   Chart.defaults.animation.duration=180;
+  Chart.defaults.interaction.mode="nearest";
+  Chart.defaults.interaction.intersect=false;
+  Chart.defaults.plugins.tooltip.enabled=true;
 }
 
 function toast(msg,error=false){
@@ -969,23 +972,37 @@ function openFollowForm(c){
 }
 
 async function renderPersonnel(){
-  const rows=state.staff.filter(s=>state.profile.role==="admin"||s.id===state.profile.id||s.parent_user_id===state.profile.id);
+  const rows=state.staff.filter(s=>s.status!=="deleted"&&(state.profile.role==="admin"||s.id===state.profile.id||s.parent_user_id===state.profile.id));
   const createButton=state.profile.role==="admin"?'<button class="btn primary" id="newStaff">新建人员账户</button>':"";
   $("#main").innerHTML=`
     <article class="panel modulePanel">
       <div class="panelHead unifiedModuleHead">
-        <div><h2>人员账户管理</h2><p>${state.profile.role==="admin"?"管理员可创建一级 / 二级账户；权限由数据库 RLS 强制执行":"查看本人及名下二级人员；权限由数据库 RLS 强制执行"}</p></div>
+        <div><h2>人员账户管理</h2><p>${state.profile.role==="admin"?"管理员拥有最高权限：一级人员直属管理员，二级人员直属一级人员；可修改、重置、禁用与删除人员账号":"查看本人及名下二级人员；权限由数据库 RLS 强制执行"}</p></div>
         <div class="toolbar unifiedActions">${createButton}</div>
       </div>
       <div class="tableWrap moduleContent">
         <table class="dataTable"><thead><tr><th>账号</th><th>姓名</th><th>角色</th><th>上级</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead><tbody>
-        ${rows.map(s=>{const parent=state.staff.find(x=>x.id===s.parent_user_id);return`<tr><td class="link">${esc(s.username)}</td><td>${esc(s.display_name)}</td><td>${roleName(s.role)}</td><td>${esc(parent?.display_name||"--")}</td><td><span class="statusDot ${s.status}"></span>${s.status}</td><td>${dt(s.created_at)}</td><td>${state.profile.role==="admin"&&s.role!=="admin"?`<button class="btn resetPwd" data-id="${s.id}">重置密码</button> <button class="btn danger toggleStaff" data-id="${s.id}" data-status="${s.status==="active"?"disabled":"active"}">${s.status==="active"?"禁用":"启用"}</button>`:"--"}</td></tr>`}).join("")}
+        ${rows.map(s=>{
+          const parent=state.staff.find(x=>x.id===s.parent_user_id);
+          const parentName=s.role==="admin"?"最高管理员":parent?.display_name||"--";
+          let actions="--";
+          if(state.profile.role==="admin"){
+            if(s.role==="admin"){
+              actions=`<div class="staffActions"><button class="btn editStaff" data-id="${s.id}">编辑账号</button><button class="btn resetPwd" data-id="${s.id}">重置密码</button></div>`;
+            }else{
+              actions=`<div class="staffActions"><button class="btn editStaff" data-id="${s.id}">编辑账号</button><button class="btn resetPwd" data-id="${s.id}">重置密码</button><button class="btn danger toggleStaff" data-id="${s.id}" data-status="${s.status==="active"?"disabled":"active"}">${s.status==="active"?"禁用":"启用"}</button><button class="btn danger deleteStaff" data-id="${s.id}">删除账号</button></div>`;
+            }
+          }
+          return`<tr><td class="link">${esc(s.username)}</td><td>${esc(s.display_name)}</td><td>${roleName(s.role)}</td><td>${esc(parentName)}</td><td><span class="statusDot ${s.status}"></span>${s.status}</td><td>${dt(s.created_at)}</td><td>${actions}</td></tr>`;
+        }).join("")}
         </tbody></table>
       </div>
     </article>`;
   if($("#newStaff"))$("#newStaff").onclick=openStaffForm;
+  $$(".editStaff").forEach(b=>b.onclick=()=>openStaffEdit(b.dataset.id));
   $$(".resetPwd").forEach(b=>b.onclick=()=>resetStaffPassword(b.dataset.id));
   $$(".toggleStaff").forEach(b=>b.onclick=()=>setStaffStatus(b.dataset.id,b.dataset.status));
+  $$(".deleteStaff").forEach(b=>b.onclick=()=>deleteStaffAccount(b.dataset.id));
 }
 
 function openStaffForm(){
@@ -995,18 +1012,81 @@ function openStaffForm(){
     <div class="field"><label>账号</label><input class="input" name="username" required></div>
     <div class="field"><label>密码</label><input class="input" type="password" name="password" minlength="8" required></div>
     <div class="field"><label>角色</label><select class="select" name="role" id="staffRole"><option value="level1">一级人员</option><option value="level2">二级人员</option></select></div>
-    <div class="field" id="parentField" style="display:none"><label>所属一级人员</label><select class="select" name="parent_user_id"><option value="">请选择</option>${level1.map(x=>`<option value="${x.id}">${esc(x.display_name)}</option>`).join("")}</select></div>
+    <div class="field" id="adminParentField"><label>上级</label><div class="input staffReadonly">管理员 · ${esc(state.profile.display_name)}</div></div>
+    <div class="field" id="level1ParentField" style="display:none"><label>所属一级人员</label><select class="select" name="parent_user_id"><option value="">请选择</option>${level1.map(x=>`<option value="${x.id}">${esc(x.display_name)}</option>`).join("")}</select></div>
     <div class="field"><label>电话</label><input class="input" name="phone"></div>
     <div class="field full"><button class="btn primary" type="submit">创建账户</button></div>
   </form>`);
-  $("#staffRole").onchange=e=>$("#parentField").style.display=e.target.value==="level2"?"block":"none";
-  $("#staffForm").onsubmit=async e=>{e.preventDefault();const b=Object.fromEntries(new FormData(e.currentTarget).entries());b.action="create";if(b.role==="level1")b.parent_user_id=null;const j=await callStaffFn(b);if(j){closeModal();toast("人员账户已创建");await refreshAll();}};
+  $("#staffRole").onchange=e=>{
+    const isL2=e.target.value==="level2";
+    $("#adminParentField").style.display=isL2?"none":"block";
+    $("#level1ParentField").style.display=isL2?"block":"none";
+  };
+  $("#staffForm").onsubmit=async e=>{
+    e.preventDefault();
+    const b=Object.fromEntries(new FormData(e.currentTarget).entries());
+    b.action="create";
+    if(b.role==="level1")b.parent_user_id=state.profile.id;
+    const j=await callStaffFn(b);
+    if(j){closeModal();toast("人员账户已创建");await refreshAll();}
+  };
 }
+
+function openStaffEdit(id){
+  const s=state.staff.find(x=>x.id===id&&x.status!=="deleted");if(!s)return;
+  const level1=state.staff.filter(x=>x.role==="level1"&&x.status==="active"&&x.id!==s.id);
+  const parent=state.staff.find(x=>x.id===s.parent_user_id);
+  modal("编辑人员账号",`<form id="staffEditForm" class="formGrid">
+    <div class="field"><label>账号</label><input class="input" name="username" value="${esc(s.username)}" required></div>
+    <div class="field"><label>姓名</label><input class="input" name="display_name" value="${esc(s.display_name)}" required></div>
+    <div class="field"><label>角色</label><div class="input staffReadonly">${roleName(s.role)}</div></div>
+    ${s.role==="admin"
+      ? `<div class="field"><label>上级</label><div class="input staffReadonly">最高管理员</div></div>`
+      : s.role==="level1"
+        ? `<div class="field"><label>上级</label><div class="input staffReadonly">管理员 · ${esc(state.profile.display_name)}</div></div>`
+        : `<div class="field"><label>所属一级人员</label><select class="select" name="parent_user_id" required>${level1.map(x=>`<option value="${x.id}" ${x.id===s.parent_user_id?"selected":""}>${esc(x.display_name)}</option>`).join("")}</select></div>`}
+    <div class="field"><label>电话</label><input class="input" name="phone" value="${esc(s.phone||"")}"></div>
+    <div class="field"><label>当前状态</label><div class="input staffReadonly">${esc(s.status)}</div></div>
+    <div class="field full"><button class="btn primary" type="submit">保存账号修改</button></div>
+  </form>`);
+  $("#staffEditForm").onsubmit=async e=>{
+    e.preventDefault();
+    const b=Object.fromEntries(new FormData(e.currentTarget).entries());
+    b.action="update";b.user_id=s.id;
+    if(s.role==="level1")b.parent_user_id=state.profile.id;
+    if(s.role==="admin")delete b.parent_user_id;
+    const j=await callStaffFn(b);
+    if(j){closeModal();toast("账号资料已更新");await refreshAll();}
+  };
+}
+
 async function callStaffFn(body){
-  const {data:{session}}=await supabase.auth.getSession();const r=await fetch(SUPABASE_URL+"/functions/v1/staff-admin",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+session.access_token},body:JSON.stringify(body)});const j=await r.json();if(!r.ok){toast(j.error||"操作失败",true);return null}return j
+  const {data:{session}}=await supabase.auth.getSession();
+  const r=await fetch(SUPABASE_URL+"/functions/v1/staff-admin",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+session.access_token},
+    body:JSON.stringify(body)
+  });
+  const j=await r.json();
+  if(!r.ok){toast(j.error||"操作失败",true);return null}
+  return j;
 }
-async function resetStaffPassword(id){const p=prompt("请输入新密码（至少 8 位）");if(!p)return;const j=await callStaffFn({action:"reset_password",user_id:id,new_password:p});if(j)toast("密码已重置")}
-async function setStaffStatus(id,status){if(!confirm(status==="disabled"?"确认禁用该账户？":"确认启用该账户？"))return;const j=await callStaffFn({action:"set_status",user_id:id,status});if(j){toast("账户状态已更新");await refreshAll()}}
+async function resetStaffPassword(id){
+  const p=prompt("请输入新密码（至少 8 位）");if(!p)return;
+  const j=await callStaffFn({action:"reset_password",user_id:id,new_password:p});
+  if(j)toast("密码已重置");
+}
+async function setStaffStatus(id,status){
+  if(!confirm(status==="disabled"?"确认禁用该账户？":"确认启用该账户？"))return;
+  const j=await callStaffFn({action:"set_status",user_id:id,status});
+  if(j){toast("账户状态已更新");await refreshAll()}
+}
+async function deleteStaffAccount(id){
+  const s=state.staff.find(x=>x.id===id);if(!s)return;
+  if(!confirm(`确认删除账号 ${s.username}（${s.display_name}）？\n删除后该账号将无法登录，但历史业务记录会保留。`))return;
+  const j=await callStaffFn({action:"delete",user_id:id});
+  if(j){toast("账号已删除，历史业务记录已保留");await refreshAll()}
+}
 
 async function renderTrades(){
   $("#main").innerHTML=`
