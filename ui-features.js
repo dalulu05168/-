@@ -82,7 +82,7 @@ Object.assign(dictionaries.en,{
   "交易记录数量":"Trade count","人员客户统计":"Staff Client Statistics","按角色层级计算可见客户数量":"Visible client counts calculated by role hierarchy",
   "人员":"Staff","暂无人员数据":"No staff data","登录身份":"Signed-in Identity","行情数据":"Market Data","覆盖市场":"Covered Markets",
   "最新报价 + 罗马尼亚更新时间":"Latest quote + Romania update time","股票名称 / 代码自动搜索":"Automatic security name / symbol search",
-  "总":"D","客":"C","持":"P","交":"T","报":"R","设":"S"
+  "总":"D","客":"C","持":"P","交":"T","报":"R","设":"S","连接中":"Connecting","数据异常":"Data Error"
 });
 Object.assign(dictionaries.ro,{
   "客户股票跟踪管理系统":"Sistem de urmărire a acțiunilor clienților",
@@ -115,7 +115,7 @@ Object.assign(dictionaries.ro,{
   "交易记录数量":"Număr tranzacții","人员客户统计":"Statistici clienți/personal","按角色层级计算可见客户数量":"Numărul de clienți vizibili calculat după ierarhia rolurilor",
   "人员":"Personal","暂无人员数据":"Fără date personal","登录身份":"Identitate conectată","行情数据":"Date de piață","覆盖市场":"Piețe acoperite",
   "最新报价 + 罗马尼亚更新时间":"Ultima cotație + ora actualizării în România","股票名称 / 代码自动搜索":"Căutare automată după nume / simbol",
-  "总":"G","客":"C","持":"P","交":"T","报":"R","设":"S"
+  "总":"G","客":"C","持":"P","交":"T","报":"R","设":"S","连接中":"Conectare","数据异常":"Eroare date"
 });
 
 export function getLang(){return localStorage.getItem(LANG_KEY)||"zh"}
