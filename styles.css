@@ -4725,3 +4725,373 @@ body:has(#main[data-view="shareboard"]) .sysok{
     max-height:122px!important;
   }
 }
+
+
+/* =========================================================
+   Share Allocation V2 — redesigned layout inspired by institutional terminal reference
+   ========================================================= */
+#main[data-view="shareboard"] .allocationBoardV2{
+  grid-template-rows:44px 70px 86px minmax(250px,1fr) 176px 132px!important;
+  gap:9px!important;
+  overflow:hidden;
+}
+#main[data-view="shareboard"] .allocationStatusStrip{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  padding:0;
+  overflow:hidden;
+  border-color:#214351!important;
+  background:linear-gradient(180deg,#0a1e2b,#081822)!important;
+}
+#main[data-view="shareboard"] .allocationStatusStrip>div{
+  min-width:0;
+  display:grid;
+  align-content:center;
+  gap:2px;
+  padding:0 16px;
+  border-right:1px solid #1f3d4c;
+}
+#main[data-view="shareboard"] .allocationStatusStrip>div:last-child{border-right:0}
+#main[data-view="shareboard"] .allocationStatusStrip span{
+  color:#6f8794;
+  font-size:8px;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .allocationStatusStrip b{
+  color:#cbd8de;
+  font-size:11px;
+  font-weight:400!important;
+}
+
+#main[data-view="shareboard"] .allocationSecurityBar{
+  display:grid;
+  grid-template-columns:1.2fr 1.1fr .8fr .55fr 1fr .85fr;
+  align-items:stretch;
+  gap:0;
+  padding:0;
+  overflow:hidden;
+  border-color:#244755!important;
+  background:linear-gradient(180deg,#0b202c,#081924)!important;
+}
+#main[data-view="shareboard"] .allocationSecurityBar>div{
+  min-width:0;
+  display:grid;
+  align-content:center;
+  gap:4px;
+  padding:0 14px;
+  border-left:1px solid #1f3c4a;
+}
+#main[data-view="shareboard"] .allocationSecurityBar>div span,
+#main[data-view="shareboard"] .allocationSearchLike small{
+  color:#6e8692;
+  font-size:8px;
+  letter-spacing:.65px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .allocationSecurityBar>div b,
+#main[data-view="shareboard"] .allocationSearchLike b{
+  color:#d8e3e8;
+  font-size:11px;
+  font-weight:400!important;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+#main[data-view="shareboard"] .allocationSearchLike{
+  appearance:none;
+  border:0;
+  border-right:1px solid #1f3c4a;
+  background:#091c28;
+  color:#d7ad24;
+  display:grid;
+  grid-template-columns:28px 1fr;
+  grid-template-rows:1fr 1fr;
+  column-gap:8px;
+  align-items:center;
+  text-align:left;
+  padding:8px 14px;
+  cursor:pointer;
+}
+#main[data-view="shareboard"] .allocationSearchLike>span{
+  grid-row:1/3;
+  width:28px;height:28px;border-radius:9px;
+  border:1px solid rgba(215,173,36,.35);
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(215,173,36,.06);
+  font-size:16px;
+}
+#main[data-view="shareboard"] .allocationSearchLike:hover{
+  background:#0b2230;
+}
+#main[data-view="shareboard"] .allocationSecurityBar #allocationQuotePrice{
+  color:#eef4f6;
+  font-size:16px;
+}
+
+#main[data-view="shareboard"] .allocationKpiStrip{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:9px;
+  min-height:0;
+}
+#main[data-view="shareboard"] .allocationKpiCard{
+  position:relative;
+  overflow:hidden;
+  display:grid;
+  align-content:center;
+  gap:5px;
+  padding:10px 13px;
+  border-color:#214453!important;
+  background:linear-gradient(180deg,#0b202d,#081924)!important;
+}
+#main[data-view="shareboard"] .allocationKpiCard::before{
+  content:"";
+  position:absolute;
+  inset:0 auto 0 0;
+  width:2px;
+  background:#2a5263;
+}
+#main[data-view="shareboard"] .allocationKpiCard.gold::before,
+#main[data-view="shareboard"] .allocationKpiCard.countdown::before{
+  background:#d7ad24;
+}
+#main[data-view="shareboard"] .allocationKpiCard span{
+  color:#718996;
+  font-size:9px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .allocationKpiCard strong{
+  color:#e8eff2;
+  font-size:21px;
+  line-height:1;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .allocationKpiCard.gold strong,
+#main[data-view="shareboard"] .allocationKpiCard.countdown strong{
+  color:#d7ad24;
+}
+#main[data-view="shareboard"] .allocationKpiCard small{
+  color:#57717f;
+  font-size:7px;
+  letter-spacing:.7px;
+  font-weight:400!important;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+#main[data-view="shareboard"] .allocationWorkbench{
+  display:grid;
+  grid-template-columns:minmax(0,1.5fr) minmax(340px,.95fr);
+  gap:9px;
+  min-height:0;
+}
+#main[data-view="shareboard"] .allocationTrendPanel,
+#main[data-view="shareboard"] .allocationDistributionPanel,
+#main[data-view="shareboard"] .allocationSlotsPanel{
+  min-height:0;
+  overflow:hidden;
+  border-color:#234858!important;
+  background:linear-gradient(180deg,#0a202c,#071924)!important;
+}
+#main[data-view="shareboard"] .allocationTrendPanel{
+  display:grid;
+  grid-template-rows:48px minmax(0,1fr);
+}
+#main[data-view="shareboard"] .allocationPrimaryChart{
+  height:auto!important;
+  min-height:0;
+  padding:8px 12px 12px;
+}
+#main[data-view="shareboard"] .allocationQuoteMini{
+  display:flex;align-items:center;justify-content:flex-end;
+  min-width:74px;
+}
+#main[data-view="shareboard"] .allocationQuoteMini span{
+  font-size:11px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .allocationDistributionPanel{
+  display:grid;
+  grid-template-rows:48px minmax(0,1fr);
+}
+#main[data-view="shareboard"] .allocationDistributionBody{
+  min-height:0;
+  display:grid;
+  align-content:center;
+  gap:16px;
+  padding:14px 16px;
+}
+#main[data-view="shareboard"] .allocationDistRow{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px 12px;
+  align-items:center;
+}
+#main[data-view="shareboard"] .allocationDistRow>div:first-child{
+  grid-column:1/-1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+#main[data-view="shareboard"] .allocationDistRow span{
+  color:#8fa1aa;
+  font-size:9px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .allocationDistRow b{
+  color:#e1e9ed;
+  font-size:11px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .allocationDistRow small{
+  color:#d7ad24;
+  font-size:9px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .allocationBar{
+  height:18px;
+  border:1px solid #315367;
+  background:#0a1a24;
+  overflow:hidden;
+}
+#main[data-view="shareboard"] .allocationBar i{
+  display:block;
+  height:100%;
+  background:linear-gradient(90deg,#6f8794,#9db0ba);
+}
+#main[data-view="shareboard"] .allocationDistRow.reserved .allocationBar i{
+  background:linear-gradient(90deg,#b98b10,#e4b52b);
+}
+#main[data-view="shareboard"] .allocationTimingGrid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  padding-top:2px;
+}
+#main[data-view="shareboard"] .allocationTimingGrid>div{
+  min-width:0;
+  padding:9px 8px;
+  border:1px solid #203f4e;
+  background:#081a25;
+  border-radius:8px;
+}
+#main[data-view="shareboard"] .allocationTimingGrid span{
+  display:block;
+  color:#667f8c;
+  font-size:7px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .allocationTimingGrid b{
+  display:block;
+  margin-top:4px;
+  color:#d7e1e6;
+  font-size:11px;
+  font-weight:400!important;
+}
+
+#main[data-view="shareboard"] .allocationSlotsPanel{
+  display:grid;
+  grid-template-rows:46px minmax(0,1fr);
+}
+#main[data-view="shareboard"] .allocationSlotsTable{
+  min-height:0;
+  overflow:auto;
+}
+#main[data-view="shareboard"] .allocationSlotsTable .dataTable{
+  font-size:9px;
+}
+#main[data-view="shareboard"] .allocationSlotsTable .dataTable th{
+  height:32px;
+  padding:7px 12px;
+  background:#0a1d29;
+  border-bottom-color:#1e3a48;
+  color:#758d98;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .allocationSlotsTable .dataTable td{
+  height:34px;
+  padding:7px 12px;
+  border-bottom-color:#173443;
+  color:#c8d4da;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .allocationStateTag{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:42px;
+  height:22px;
+  padding:0 8px;
+  border:1px solid #315163;
+  border-radius:999px;
+  color:#8da3ae;
+  background:#0a1c28;
+  font-size:8px;
+  font-weight:400!important;
+}
+#main[data-view="shareboard"] .allocationStateTag.active{
+  border-color:rgba(215,173,36,.44);
+  color:#d7ad24;
+  background:rgba(215,173,36,.07);
+}
+#main[data-view="shareboard"] .allocationCompactEmpty{
+  min-height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#627b87;
+  font-size:10px;
+  font-weight:400!important;
+}
+
+#main[data-view="shareboard"] .globalIndexWall{
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:8px;
+  min-height:0;
+  overflow:hidden;
+}
+#main[data-view="shareboard"] .globalIndexWall .indexTile{
+  background:linear-gradient(180deg,#0a202c,#071824)!important;
+  border-color:#214554!important;
+}
+
+/* Hover depth, keeping business controls usable */
+@media (hover:hover) and (pointer:fine){
+  #main[data-view="shareboard"] .allocationKpiCard:hover,
+  #main[data-view="shareboard"] .allocationTrendPanel:hover,
+  #main[data-view="shareboard"] .allocationDistributionPanel:hover,
+  #main[data-view="shareboard"] .allocationSlotsPanel:hover{
+    transform:translateY(-2px);
+    border-color:rgba(215,173,36,.40)!important;
+  }
+}
+
+@media(max-height:840px) and (min-width:1200px){
+  #main[data-view="shareboard"] .allocationBoardV2{
+    grid-template-rows:40px 64px 78px minmax(220px,1fr) 156px 116px!important;
+    gap:7px!important;
+  }
+  #main[data-view="shareboard"] .allocationKpiCard strong{font-size:18px}
+  #main[data-view="shareboard"] .allocationDistributionBody{gap:11px;padding:10px 12px}
+  #main[data-view="shareboard"] .allocationTimingGrid>div{padding:7px 7px}
+}
+@media(max-width:1100px){
+  #main[data-view="shareboard"] .allocationBoardV2{
+    height:auto!important;
+    overflow:auto!important;
+    grid-template-rows:auto!important;
+  }
+  #main[data-view="shareboard"] .allocationStatusStrip{grid-template-columns:1fr}
+  #main[data-view="shareboard"] .allocationStatusStrip>div{min-height:44px;border-right:0;border-bottom:1px solid #1f3d4c}
+  #main[data-view="shareboard"] .allocationSecurityBar{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #main[data-view="shareboard"] .allocationSecurityBar>div{min-height:58px;border-bottom:1px solid #1f3c4a}
+  #main[data-view="shareboard"] .allocationSearchLike{min-height:58px}
+  #main[data-view="shareboard"] .allocationKpiStrip{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #main[data-view="shareboard"] .allocationWorkbench{grid-template-columns:1fr}
+  #main[data-view="shareboard"] .allocationTrendPanel{min-height:280px}
+  #main[data-view="shareboard"] .globalIndexWall{grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible}
+}
