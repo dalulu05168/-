@@ -44,7 +44,7 @@ function parseBvbTrades(xml) {
     const time = tag(b, "TradeTime");
     const price = numberTag(b, ["Price"]);
     const volume = numberTag(b, ["Volume"]);
-    return { t: time ? Date.parse(time) : null, close: price, volume };
+    return { t: time ? Date.parse(time) : null, open: price, high: price, low: price, close: price, volume };
   }).filter(p => Number.isFinite(p.t) && Number.isFinite(p.close)).sort((a,b)=>a.t-b.t);
 }
 
@@ -133,9 +133,19 @@ async function yahooQuote(symbol) {
   const meta = result.meta || {};
   const timestamps = result.timestamp || [];
   const quote = result.indicators?.quote?.[0] || {};
+  const opens = quote.open || [];
+  const highs = quote.high || [];
+  const lows = quote.low || [];
   const closes = quote.close || [];
   const volumes = quote.volume || [];
-  const points = timestamps.map((t,i) => ({ t: t*1000, close: closes[i] ?? null, volume: volumes[i] ?? null })).filter(p => p.close !== null);
+  const points = timestamps.map((t,i) => ({
+    t: t*1000,
+    open: opens[i] ?? closes[i] ?? null,
+    high: highs[i] ?? closes[i] ?? null,
+    low: lows[i] ?? closes[i] ?? null,
+    close: closes[i] ?? null,
+    volume: volumes[i] ?? null
+  })).filter(p => p.close !== null);
   const price = meta.regularMarketPrice ?? points.at(-1)?.close ?? null;
   const prev = meta.chartPreviousClose ?? meta.previousClose ?? null;
   const changePct = price != null && prev ? ((price-prev)/prev)*100 : null;
