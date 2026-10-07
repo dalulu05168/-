@@ -242,19 +242,33 @@ async function switchView(view){
   await renderView(token);
 }
 
+async function fetchPagedRows(makeQuery,{pageSize=1000,maxPages=25}={}){
+  const rows=[];
+  for(let page=0;page<maxPages;page++){
+    const from=page*pageSize,to=from+pageSize-1;
+    const res=await makeQuery(from,to);
+    if(res.error)return {data:rows,error:res.error};
+    const batch=res.data||[];
+    rows.push(...batch);
+    if(batch.length<pageSize)return {data:rows,error:null};
+  }
+  return {data:rows,error:null,truncated:true};
+}
+
 async function refreshAll(){
   const q=[
-    supabase.from("customers").select("*").order("created_at",{ascending:false}),
-    supabase.from("trades").select("*,customers(name,customer_code)").order("traded_at",{ascending:false}).limit(500),
-    supabase.from("positions").select("*,customers(name,customer_code,owner_user_id,level_one_user_id)").order("updated_at",{ascending:false}),
-    supabase.from("customer_followups").select("*,customers(name,customer_code)").order("created_at",{ascending:false}).limit(500),
-    supabase.from("profiles").select("*").order("created_at",{ascending:true}),
+    fetchPagedRows((from,to)=>supabase.from("customers").select("*").order("created_at",{ascending:false}).range(from,to)),
+    fetchPagedRows((from,to)=>supabase.from("trades").select("*,customers(name,customer_code)").order("traded_at",{ascending:false}).range(from,to)),
+    fetchPagedRows((from,to)=>supabase.from("positions").select("*,customers(name,customer_code,owner_user_id,level_one_user_id)").order("updated_at",{ascending:false}).range(from,to)),
+    fetchPagedRows((from,to)=>supabase.from("customer_followups").select("*,customers(name,customer_code)").order("created_at",{ascending:false}).range(from,to)),
+    fetchPagedRows((from,to)=>supabase.from("profiles").select("*").order("created_at",{ascending:true}).range(from,to)),
     supabase.from("app_settings").select("*").eq("id",1).maybeSingle(),
     state.profile?.role==="admin"?supabase.from("share_boards").select("*").order("board_date",{ascending:false}).order("updated_at",{ascending:false}).limit(1).maybeSingle():Promise.resolve({data:null,error:null})
   ];
   const [c,t,p,f,s,settings,board]=await Promise.all(q);
   const loadError=[c,t,p,f,s,settings,board].find(x=>x?.error)?.error;
   if(loadError)toast("数据读取失败："+loadError.message,true);
+  if([c,t,p,f,s].some(x=>x?.truncated))toast("数据量已超过当前单次加载上限，请使用筛选缩小范围。",true);
   state.customers=c.data||[];
   state.trades=t.data||[];
   state.positions=p.data||[];
@@ -263,7 +277,8 @@ async function refreshAll(){
   state.appSettings=settings.data||state.appSettings||null;
   state.shareBoard=board.data||null;
   if(state.shareBoard?.id){
-    const slots=await supabase.from("share_board_slots").select("*").eq("board_id",state.shareBoard.id).order("slot_at",{ascending:true});
+    const slots=await fetchPagedRows((from,to)=>supabase.from("share_board_slots").select("*").eq("board_id",state.shareBoard.id).order("slot_at",{ascending:true}).range(from,to));
+    if(slots.error)toast("数据读取失败："+slots.error.message,true);
     state.shareSlots=slots.data||[];
   }else state.shareSlots=[];
   await renderView(0);
