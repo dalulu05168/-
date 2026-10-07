@@ -609,7 +609,28 @@ async function renderDashboard(){
                     <div><small>成交价</small><span>${money(t.price,t.currency)}</span></div>
                     <div><small>成交金额</small><span>${money(Number(t.quantity)*Number(t.price),t.currency)}</span></div>
                   </div>
-                </article>`).join("")||'<div class="terminalEmpty">暂无近期交易</div>'}
+                </article>`).join("")}
+              ${recentTrades.length===0?`
+                <article class="terminalPositionCard terminalEmptyCard">
+                  <div class="positionTop">
+                    <div><span class="positionSymbol">近期交易</span><span class="positionBadge idle">暂无</span></div>
+                    <span class="positionState">NO ORDERS</span>
+                  </div>
+                  <div class="terminalCardMessage">当前没有可显示的近期交易记录。</div>
+                </article>`:""}
+              ${recentTrades.length<2?`
+                <article class="terminalPositionCard terminalSummaryCard">
+                  <div class="positionTop">
+                    <div><span class="positionSymbol">当前持仓摘要</span><span class="positionBadge summary">CRM</span></div>
+                    <span class="positionState">PORTFOLIO</span>
+                  </div>
+                  <div class="positionMetrics">
+                    <div><small>持仓标的</small><span>${openPositions.length}</span></div>
+                    <div><small>成本基准</small><span>${totalCost?num(totalCost,2):"—"}</span></div>
+                    <div><small>已实现盈亏</small><span class="${realized>=0?"terminalGreen":"terminalRed"}">${num(realized,2)}</span></div>
+                    <div><small>今日交易</small><span>${todayTrades}</span></div>
+                  </div>
+                </article>`:""}
             </div>
           </section>
 
