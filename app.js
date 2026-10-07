@@ -1213,20 +1213,50 @@ async function callStaffFn(body){
   return j;
 }
 async function resetStaffPassword(id){
-  const p=prompt("请输入新密码（至少 8 位）");if(!p)return;
-  const j=await callStaffFn({action:"reset_password",user_id:id,new_password:p});
-  if(j)toast("密码已重置");
+  const s=state.staff.find(x=>x.id===id);if(!s)return;
+  modal("重置密码",`<form id="resetStaffPasswordForm" class="formGrid">
+    <div class="field full"><label>人员账号</label><div class="input staffReadonly">${esc(s.username)} · ${esc(s.display_name)}</div></div>
+    <div class="field"><label>新密码</label><input class="input" type="password" name="password" minlength="8" required></div>
+    <div class="field"><label>确认新密码</label><input class="input" type="password" name="confirm_password" minlength="8" required></div>
+    <div class="field full modalActionRow"><button class="btn" type="button" id="cancelResetPwd">取消</button><button class="btn primary" type="submit">确认重置</button></div>
+  </form>`);
+  $("#cancelResetPwd").onclick=closeModal;
+  $("#resetStaffPasswordForm").onsubmit=async e=>{
+    e.preventDefault();const b=Object.fromEntries(new FormData(e.currentTarget).entries());
+    if(b.password!==b.confirm_password){toast("两次输入的密码不一致",true);return}
+    const j=await callStaffFn({action:"reset_password",user_id:id,new_password:b.password});
+    if(j){closeModal();toast("密码已重置")}
+  };
 }
 async function setStaffStatus(id,status){
-  if(!confirm(status==="disabled"?"确认禁用该账户？":"确认启用该账户？"))return;
-  const j=await callStaffFn({action:"set_status",user_id:id,status});
-  if(j){toast("账户状态已更新");await refreshAll()}
+  const s=state.staff.find(x=>x.id===id);if(!s)return;
+  const disabling=status==="disabled";
+  modal(disabling?"禁用账号":"启用账号",`<div class="confirmPanel">
+    <div class="confirmIcon ${disabling?"danger":""}">${disabling?"!":"✓"}</div>
+    <h3>${disabling?"确认禁用该账户？":"确认启用该账户？"}</h3>
+    <p>${esc(s.username)} · ${esc(s.display_name)}</p>
+    <div class="modalActionRow"><button class="btn" id="cancelStaffStatus">取消</button><button class="btn ${disabling?"danger":"primary"}" id="confirmStaffStatus">${disabling?"确认禁用":"确认启用"}</button></div>
+  </div>`);
+  $("#cancelStaffStatus").onclick=closeModal;
+  $("#confirmStaffStatus").onclick=async()=>{
+    const j=await callStaffFn({action:"set_status",user_id:id,status});
+    if(j){closeModal();toast("账户状态已更新");await refreshAll()}
+  };
 }
 async function deleteStaffAccount(id){
   const s=state.staff.find(x=>x.id===id);if(!s)return;
-  if(!confirm(`确认删除账号 ${s.username}（${s.display_name}）？\n删除后该账号将无法登录，但历史业务记录会保留。`))return;
-  const j=await callStaffFn({action:"delete",user_id:id});
-  if(j){toast("账号已删除，历史业务记录已保留");await refreshAll()}
+  modal("删除账号",`<div class="confirmPanel">
+    <div class="confirmIcon danger">!</div>
+    <h3>确认删除账号？</h3>
+    <p>${esc(s.username)} · ${esc(s.display_name)}</p>
+    <div class="confirmWarning">删除后该账号将无法登录，但历史业务记录会保留。存在客户或下级人员时系统会阻止删除。</div>
+    <div class="modalActionRow"><button class="btn" id="cancelDeleteStaff">取消</button><button class="btn danger" id="confirmDeleteStaff">确认删除</button></div>
+  </div>`);
+  $("#cancelDeleteStaff").onclick=closeModal;
+  $("#confirmDeleteStaff").onclick=async()=>{
+    const j=await callStaffFn({action:"delete",user_id:id});
+    if(j){closeModal();toast("账号已删除，历史业务记录已保留");await refreshAll()}
+  };
 }
 
 async function renderTrades(){
