@@ -3720,3 +3720,126 @@ strong,b{
   .securityResult{grid-template-columns:72px minmax(0,1fr)}
   .securityResult small{display:none}
 }
+
+
+/* =========================================================
+   V5.1 hierarchy controls + universal module hover depth
+   ========================================================= */
+.staffActions{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  flex-wrap:wrap;
+}
+.staffActions .btn{
+  min-height:30px;
+  padding:0 9px;
+  font-size:9px;
+  font-weight:400!important;
+}
+.staffReadonly{
+  display:flex;
+  align-items:center;
+  color:#8f8a94!important;
+  background:#131116!important;
+  cursor:default;
+  user-select:none;
+}
+
+/* Every boxed module receives the same premium lift response. */
+@media (hover:hover) and (pointer:fine){
+  #main .panel,
+  #main .level2Metric,
+  #main .terminalChartCard,
+  #main .terminalPositionCard,
+  #main .terminalOrderPanel,
+  #main .terminalFormCard,
+  #main .terminalUsage,
+  #main .indexTile,
+  #main .marketRow,
+  #main .listItem,
+  #main .shareTotals>div,
+  #main .timePair,
+  #modalRoot .shareMarketItem,
+  #modalRoot .shareKpiRow>article,
+  #modalRoot .shareProfileGrid>div,
+  #modalRoot .shareNote,
+  #modalRoot .shareServiceTimeline>div,
+  #modalRoot .clientMiniTech>*{
+    transition:
+      transform .16s cubic-bezier(.2,.72,.3,1),
+      border-color .16s ease,
+      box-shadow .16s ease,
+      background-color .16s ease;
+    transform:translateZ(0);
+    will-change:transform;
+  }
+
+  #main .panel:hover,
+  #main .level2Metric:hover,
+  #main .terminalChartCard:hover,
+  #main .terminalPositionCard:hover,
+  #main .terminalOrderPanel:hover,
+  #main .terminalFormCard:hover,
+  #main .terminalUsage:hover,
+  #main .indexTile:hover,
+  #main .marketRow:hover,
+  #main .listItem:hover,
+  #main .shareTotals>div:hover,
+  #main .timePair:hover,
+  #modalRoot .shareMarketItem:hover,
+  #modalRoot .shareKpiRow>article:hover,
+  #modalRoot .shareProfileGrid>div:hover,
+  #modalRoot .shareNote:hover,
+  #modalRoot .shareServiceTimeline>div:hover,
+  #modalRoot .clientMiniTech>*:hover{
+    transform:translateY(-4px) scale(1.004);
+    border-color:rgba(20,231,109,.34)!important;
+    box-shadow:
+      0 16px 34px rgba(0,0,0,.32),
+      0 0 0 1px rgba(20,231,109,.055),
+      inset 0 1px 0 rgba(255,255,255,.025);
+    z-index:3;
+  }
+
+  /* Tables are data modules: hover raises the active data row without shifting layout. */
+  .dataTable tbody tr{
+    transition:transform .13s ease,background-color .13s ease,box-shadow .13s ease;
+    transform-origin:center;
+  }
+  .dataTable tbody tr:hover{
+    transform:translateY(-1px);
+    background:rgba(20,231,109,.035);
+    box-shadow:inset 3px 0 0 rgba(20,231,109,.38);
+  }
+}
+
+/* All chart surfaces explicitly advertise hover inspection. */
+.chartBox,
+.terminalChartWrap,
+.sharePriceChart,
+.shareReturnChart,
+.level2Chart,
+.shareDonutGrid,
+.clientMiniTech,
+.miniCandles,
+.miniIndicator{
+  position:relative;
+}
+.chartBox canvas,
+.terminalChartWrap canvas,
+.sharePriceChart canvas,
+.shareReturnChart canvas,
+.level2Chart canvas,
+.shareDonutGrid canvas{
+  cursor:crosshair!important;
+}
+
+/* Keep hover movement inside fixed 16:9 surfaces. */
+.modulePanel,
+.terminalGrid,
+.level2Workspace,
+.allocationBoard,
+.customerDetail{
+  isolation:isolate;
+}
