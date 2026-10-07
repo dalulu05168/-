@@ -48,6 +48,40 @@ function parseBvbTrades(xml) {
   }).filter(p => Number.isFinite(p.t) && Number.isFinite(p.close)).sort((a,b)=>a.t-b.t);
 }
 
+function aggregateCandles(points,minutes=5){
+  const bucketMs=minutes*60*1000,map=new Map();
+  for(const p of points){
+    const key=Math.floor(Number(p.t)/bucketMs)*bucketMs;
+    const x=map.get(key);
+    if(!x)map.set(key,{t:key,open:Number(p.close),high:Number(p.close),low:Number(p.close),close:Number(p.close),volume:Number(p.volume||0)});
+    else{
+      x.high=Math.max(x.high,Number(p.close));x.low=Math.min(x.low,Number(p.close));x.close=Number(p.close);x.volume+=Number(p.volume||0);
+    }
+  }
+  return [...map.values()].sort((a,b)=>a.t-b.t);
+}
+async function bvbIndex(symbol){
+  const code=symbol.replace(/\.RO$/i,"");
+  const url=`https://ws.bvb.ro/BVBDelayedWS/Intraday.asmx/GetIndex?code=${encodeURIComponent(code)}`;
+  const r=await fetch(url,{headers:{"User-Agent":"Brantone-Veylor-CRM/1.0"},signal:AbortSignal.timeout(7000)});
+  if(!r.ok)throw new Error(`BVB index HTTP ${r.status}`);
+  const xml=await r.text();
+  const price=numberTag(xml,["CurrentValue"]);
+  const open=numberTag(xml,["OpenValue"]);
+  const low=numberTag(xml,["LowValue"]);
+  const high=numberTag(xml,["HighValue"]);
+  const changePct=numberTag(xml,["PrcChange"]);
+  const last=tag(xml,"LastUpdateTime");
+  if(!Number.isFinite(price))throw new Error("BVB index value unavailable");
+  const t=last?Date.parse(last):Date.now();
+  return {
+    symbol,name:code,exchange:"Bucharest Stock Exchange",country:"罗马尼亚",countryCode:"RO",currency:"RON",
+    price,previousClose:Number.isFinite(open)?open:null,changePct,marketState:"BVB INDEX",timezone:"Europe/Bucharest",
+    points:[{t:Number.isFinite(t)?t:Date.now(),open:Number.isFinite(open)?open:price,high:Number.isFinite(high)?high:price,low:Number.isFinite(low)?low:price,close:price,volume:null}],
+    source:"BVB Index",realtime:true,delaySeconds:0,lastTradeAt:last||new Date().toISOString()
+  };
+}
+
 async function bvbRealtime(symbol) {
   const code = symbol.replace(/\.RO$/i, "");
   const levelUrl = `https://ws.bvb.ro/BVBOnline/Intraday.asmx/Level1?symbol=${encodeURIComponent(code)}&market=`;
@@ -60,7 +94,7 @@ async function bvbRealtime(symbol) {
   if (!levelRes.ok) throw new Error(`BVB Level1 HTTP ${levelRes.status}`);
   const level = await levelRes.text();
   if (/error|unauthori|forbidden/i.test(level) || !/<[^>]+>/.test(level)) throw new Error("BVB 实时接口未返回有效数据");
-  const points = seriesRes.ok ? parseBvbTrades(await seriesRes.text()) : [];
+  const points = seriesRes.ok ? aggregateCandles(parseBvbTrades(await seriesRes.text()),5) : [];
   const price = numberTag(level, ["Lastprice","LastPrice","Closeprice","ClosePrice","ReferencePrice"]);
   const prev = numberTag(level, ["OfficialPrice","ReferencePrice","PreviousClose","PrevClose"]);
   const changePct = numberTag(level, ["PrcChgFromOfficialPrice","PrcChange","PercentChange"]);
@@ -97,7 +131,7 @@ async function bvbDelayed(symbol) {
   ]);
   if (!levelRes.ok) throw new Error(`BVB Delayed Level1 HTTP ${levelRes.status}`);
   const level = await levelRes.text();
-  const points = seriesRes.ok ? parseBvbTrades(await seriesRes.text()) : [];
+  const points = seriesRes.ok ? aggregateCandles(parseBvbTrades(await seriesRes.text()),5) : [];
   const price = numberTag(level, ["Closeprice","ClosePrice","Lastprice","LastPrice","ReferencePrice"]);
   const prev = numberTag(level, ["ReferencePrice","OfficialPrice","PreviousClose","PrevClose"]);
   const changePct = numberTag(level, ["PrcChgFromOfficialPrice","PrcChange","PercentChange"]);
@@ -173,6 +207,10 @@ async function yahooQuote(symbol) {
 }
 
 async function getQuote(symbol) {
+  if (symbol === "BET.RO") {
+    try { return await bvbIndex(symbol); }
+    catch (e) { return {symbol,name:"BET",exchange:"Bucharest Stock Exchange",country:"罗马尼亚",countryCode:"RO",currency:"RON",source:"BVB Index",error:e instanceof Error?e.message:"BET unavailable"}; }
+  }
   if (symbol.endsWith(".RO")) {
     try { return await bvbRealtime(symbol); }
     catch (realtimeError) {
