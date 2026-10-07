@@ -775,7 +775,7 @@ async function openCustomer(id){
       </div>
     </section>`;
 
-  const back=$("#backCustomers");if(back)back.onclick=()=>{$("#modalRoot").innerHTML="";state.activeCustomer=null};
+  const back=$("#backCustomers");if(back)back.onclick=()=>{if(state.customerMarketTimer){clearInterval(state.customerMarketTimer);state.customerMarketTimer=null}$("#modalRoot").innerHTML="";state.activeCustomer=null};
   const addTrade=$("#addTradeBtn");if(addTrade)addTrade.onclick=()=>openTradeForm(c);
   const addFollow=$("#addFollowBtn");if(addFollow)addFollow.onclick=()=>openFollowForm(c);
   const editNote=$("#editNoteBtn");if(editNote)editNote.onclick=()=>openCustomerNoteForm(c);
@@ -787,6 +787,38 @@ async function openCustomer(id){
     toast(on?"截图模式：仅隐藏内部归属、新增交易、记录跟进。":"已恢复内部操作按钮。");
   };
   drawCustomerShareCharts(pos,chartTrades,q,primary,realized,unreal);
+  if(state.customerMarketTimer)clearInterval(state.customerMarketTimer);
+  state.customerMarketTimer=setInterval(async()=>{
+    const page=$("#clientSharePage");
+    if(!page||state.activeCustomer?.id!==c.id){
+      clearInterval(state.customerMarketTimer);state.customerMarketTimer=null;return;
+    }
+    try{
+      const [freshQ,freshIndexQ]=await Promise.all([
+        fetchQuotes(symbols,{realtimeOnly:false}),
+        fetchQuotes(["^GSPC","^DJI","^IXIC","^FCHI","BET.RO"],{realtimeOnly:false})
+      ]);
+      const freshRows=["^GSPC","^DJI","^IXIC","^FCHI","BET.RO"].map(s=>freshIndexQ[s]||{symbol:s,error:true});
+      const strip=page.querySelector(".shareMarketStrip");
+      if(strip)strip.innerHTML=marketIndexStrip(freshRows);
+      const priced=openPos.filter(p=>!freshQ[p.symbol]?.error&&Number.isFinite(Number(freshQ[p.symbol]?.price)));
+      const freshValue=priced.reduce((a,p)=>a+Number(p.quantity)*Number(freshQ[p.symbol].price),0);
+      const freshUnreal=priced.reduce((a,p)=>a+Number(p.quantity)*(Number(freshQ[p.symbol].price)-Number(p.avg_cost)),0);
+      const freshReturn=costBasis?(realized+freshUnreal)/costBasis*100:0;
+      const kpis=page.querySelectorAll(".shareKpiRow article span");
+      if(kpis[1])kpis[1].textContent=priced.length?num(freshValue,2):"—";
+      if(kpis[2]){kpis[2].textContent=priced.length?num(freshUnreal,2):"—";kpis[2].className=freshUnreal>=0?"up":"down";}
+      if(kpis[4]){kpis[4].textContent=(freshReturn>=0?"+":"")+num(freshReturn,2)+"%";kpis[4].className=freshReturn>=0?"up":"down";}
+      const timeSmall=page.querySelector(".shareTimeBlock small");
+      if(timeSmall)timeSmall.textContent="行情更新："+dt(new Date());
+      const primaryNow=openPos.find(p=>freshQ[p.symbol]?.points?.length)||primary;
+      const tech=page.querySelector(".clientMiniTech");
+      if(primaryNow&&tech){
+        tech.innerHTML=miniCandlesHTML(freshQ[primaryNow.symbol]?.points||[],primaryNow.symbol)+miniRSIHTML(freshQ[primaryNow.symbol]?.points||[]);
+        updateCustomerShareMarketCharts(pos,chartTrades,freshQ,primaryNow,realized,freshUnreal);
+      }
+    }catch{}
+  },60000);
 }
 
 function positionTable(rows,q){
@@ -876,6 +908,37 @@ function drawCustomerShareCharts(pos,trades,q,primary,realized,unreal){
   }
 }
 
+
+
+function updateCustomerShareMarketCharts(pos,trades,q,primary,realized,unreal){
+  if(!primary||!q[primary.symbol]||q[primary.symbol].error)return;
+  const quote=q[primary.symbol];
+  const pts=(quote.points||[]).filter(p=>p.close!=null);
+  const labels=pts.map(p=>new Date(p.t).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}));
+  const buys=trades.filter(t=>t.symbol===primary.symbol&&t.side==="buy");
+  const sells=trades.filter(t=>t.symbol===primary.symbol&&t.side==="sell");
+  const priceChart=state.charts.customerPrice;
+  if(priceChart){
+    priceChart.data.labels=labels;
+    priceChart.data.datasets[0].data=pts.map(p=>p.close);
+    priceChart.data.datasets[1].data=buys.map(t=>({x:new Date(t.traded_at).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}),y:Number(t.price)}));
+    priceChart.data.datasets[2].data=sells.map(t=>({x:new Date(t.traded_at).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}),y:Number(t.price)}));
+    priceChart.update("none");
+  }
+  const returnChart=state.charts.customerReturn;
+  if(returnChart){
+    const qty=Number(primary.quantity),avg=Number(primary.avg_cost);
+    returnChart.data.labels=labels;
+    returnChart.data.datasets[0].data=pts.map(p=>(Number(p.close)-avg)*qty);
+    returnChart.update("none");
+  }
+  const profitChart=state.charts.profit;
+  if(profitChart){
+    const vals=[Math.abs(Number(realized)||0),Math.abs(Number(unreal)||0)];
+    profitChart.data.datasets[0].data=vals.some(v=>v>0)?vals:[1,0];
+    profitChart.update("none");
+  }
+}
 
 function openTradeForm(c){
   modal("新增交易 · "+c.name,`<form id="tradeForm" class="formGrid">
@@ -1091,7 +1154,7 @@ async function renderSettings(){
 }
 
 function modal(title,html){$("#modalRoot").innerHTML=`<div class="modal"><div class="modalCard"><div class="modalHead"><h2>${esc(tr(title,state.lang))}</h2><button class="close" id="closeModal">×</button></div><div class="modalBody">${html}</div></div></div>`;$("#closeModal").onclick=closeModal;translateUI($("#modalRoot"),state.lang)}
-function closeModal(){$("#modalRoot").innerHTML=""}
+function closeModal(){if(state.customerMarketTimer){clearInterval(state.customerMarketTimer);state.customerMarketTimer=null}$("#modalRoot").innerHTML=""}
 
 supabase.auth.onAuthStateChange(async(event,session)=>{if(event==="SIGNED_OUT"){state.session=null;state.profile=null}});
 (async()=>{const {data:{session}}=await supabase.auth.getSession();if(session){state.session=session;await loadProfileAndStart()}else renderLogin(await checkBootstrap())})();
