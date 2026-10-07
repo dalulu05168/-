@@ -78,7 +78,7 @@ async function bvbIndex(symbol){
     symbol,name:code,exchange:"Bucharest Stock Exchange",country:"罗马尼亚",countryCode:"RO",currency:"RON",
     price,previousClose:Number.isFinite(open)?open:null,changePct,marketState:"BVB INDEX",timezone:"Europe/Bucharest",
     points:[{t:Number.isFinite(t)?t:Date.now(),open:Number.isFinite(open)?open:price,high:Number.isFinite(high)?high:price,low:Number.isFinite(low)?low:price,close:price,volume:null}],
-    source:"BVB Index",realtime:true,delaySeconds:0,lastTradeAt:last||new Date().toISOString()
+    source:"BVB Index",realtime:false,delaySeconds:900,lastTradeAt:last||new Date().toISOString()
   };
 }
 
@@ -263,7 +263,7 @@ export default async function handler(req, res) {
 
     res.setHeader("Cache-Control","s-maxage=5, stale-while-revalidate=10");
     return res.status(200).json({
-      mode: "realtime-strict",
+      mode: realtimeOnly ? "realtime-strict" : "latest-available",
       realtimeOnly,
       timezone: "Europe/Bucharest",
       updatedAt: new Date().toISOString(),
