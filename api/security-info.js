@@ -46,7 +46,7 @@ export default async function handler(req,res){
       market:fallback.market,
       country:fallback.country,
       currency:meta.currency||match.currency||fallback.currency,
-      industry:null,
+      industry:match.industry||match.sector||null,
       price,
       previousClose:prev,
       changePct,
