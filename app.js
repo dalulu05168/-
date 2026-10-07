@@ -314,6 +314,104 @@ function pageHead(title,sub,actions=""){
 }
 
 
+function renderLevel1Dashboard(){
+  $("#main").classList.add("dashboardViewport","level1Main");
+  const team=state.staff.filter(s=>s.role==="level2"&&s.parent_user_id===state.profile.id&&s.status==="active");
+  const teamIds=new Set(team.map(s=>s.id));
+  const customers=state.customers.filter(c=>teamIds.has(c.owner_user_id));
+  const customerIds=new Set(customers.map(c=>c.id));
+  const positions=state.positions.filter(p=>customerIds.has(p.customer_id));
+  const openPositions=positions.filter(p=>Number(p.quantity)>0);
+  const holdingIds=new Set(openPositions.map(p=>p.customer_id));
+  const trades=state.trades.filter(t=>customerIds.has(t.customer_id));
+  const todayTrades=trades.filter(t=>isRomaniaToday(t.traded_at));
+  const due=state.followups.filter(x=>customerIds.has(x.customer_id)&&x.next_followup_at&&new Date(x.next_followup_at)<=new Date());
+  const realized=positions.reduce((sum,p)=>sum+Number(p.realized_pnl||0),0);
+
+  const teamCards=team.map(s=>{
+    const cs=customers.filter(c=>c.owner_user_id===s.id);
+    const ids=new Set(cs.map(c=>c.id));
+    const ps=positions.filter(p=>ids.has(p.customer_id));
+    const hold=new Set(ps.filter(p=>Number(p.quantity)>0).map(p=>p.customer_id)).size;
+    const day=trades.filter(t=>ids.has(t.customer_id)&&isRomaniaToday(t.traded_at)).length;
+    const follow=state.followups.filter(x=>ids.has(x.customer_id)&&x.next_followup_at&&new Date(x.next_followup_at)<=new Date()).length;
+    const pnl=ps.reduce((sum,p)=>sum+Number(p.realized_pnl||0),0);
+    return `<article class="level1StaffCard" data-staff-id="${s.id}">
+      <div class="level1StaffHead"><div class="staffAvatar">${esc((s.display_name||"L").slice(0,1))}</div><div><h3>${esc(s.display_name)}</h3><p>${esc(s.username)} · LEVEL 2</p></div><span class="statusDot active"></span></div>
+      <div class="level1StaffMetrics">
+        <div><small>客户</small><span>${cs.length}</span></div>
+        <div><small>持仓客户</small><span>${hold}</span></div>
+        <div><small>今日交易</small><span>${day}</span></div>
+        <div><small>待跟进</small><span class="${follow?"down":""}">${follow}</span></div>
+      </div>
+      <div class="level1StaffFoot"><span>已实现盈亏</span><b class="${pnl>=0?"up":"down"}">${num(pnl,2)}</b><button class="tableAction">查看详情 ↗</button></div>
+    </article>`;
+  }).join("");
+
+  $("#main").innerHTML=`
+    <section class="level1Workspace">
+      <div class="level1MetricGrid">
+        <article class="level2Metric accent"><div class="metricLabel">LEVEL 2 STAFF</div><div class="metricTitle">二级人员</div><div class="metricValue">${team.length}</div><div class="metricFoot">直属当前一级人员</div></article>
+        <article class="level2Metric"><div class="metricLabel">TEAM CLIENTS</div><div class="metricTitle">团队客户</div><div class="metricValue">${customers.length}</div><div class="metricFoot">全部二级人员客户</div></article>
+        <article class="level2Metric"><div class="metricLabel">HOLDING CLIENTS</div><div class="metricTitle">持仓客户</div><div class="metricValue">${holdingIds.size}</div><div class="metricFoot">持有至少一个标的</div></article>
+        <article class="level2Metric"><div class="metricLabel">TODAY ORDERS</div><div class="metricTitle">今日交易</div><div class="metricValue">${todayTrades.length}</div><div class="metricFoot">罗马尼亚交易日</div></article>
+        <article class="level2Metric"><div class="metricLabel">FOLLOW UPS</div><div class="metricTitle">待跟进</div><div class="metricValue">${due.length}</div><div class="metricFoot">到期服务任务</div></article>
+      </div>
+
+      <div class="level1BodyGrid">
+        <article class="panel level1TeamPanel">
+          <div class="panelHead compact"><div><h2>二级人员团队</h2><p>LEVEL 2 TEAM · 点击卡片查看客户和交易</p></div><span class="headMeta">${team.length} ACTIVE</span></div>
+          <div class="level1TeamGrid">${teamCards||'<div class="empty">暂无直属二级人员</div>'}</div>
+        </article>
+        <div class="level1SideStack">
+          <article class="panel">
+            <div class="panelHead compact"><div><h2>团队买卖结构</h2><p>TEAM ORDER MIX</p></div><span class="headMeta">${trades.length} ORDERS</span></div>
+            <div class="chartBox level1Chart"><canvas id="level1OrderChart"></canvas></div>
+          </article>
+          <article class="panel level1SummaryPanel">
+            <div class="panelHead compact"><div><h2>团队业务摘要</h2><p>TEAM PORTFOLIO</p></div></div>
+            <div class="level2SummaryList">
+              <div><span>当前持仓</span><span>${openPositions.length}</span></div>
+              <div><span>客户总数</span><span>${customers.length}</span></div>
+              <div><span>今日交易</span><span>${todayTrades.length}</span></div>
+              <div><span>已实现盈亏</span><span class="${realized>=0?"up":"down"}">${num(realized,2)}</span></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>`;
+
+  const orderEl=$("#level1OrderChart");
+  if(orderEl){
+    const buys=trades.filter(t=>t.side==="buy").length,sells=trades.filter(t=>t.side==="sell").length;
+    state.charts.level1Order=new Chart(orderEl,{type:"doughnut",data:{labels:["买进","卖出"],datasets:[{data:[buys,sells],backgroundColor:["#2ed3a0","#d93447"],borderWidth:0}]},options:{...chartOpts(),cutout:"68%"}});
+  }
+  $$(".level1StaffCard").forEach(card=>card.onclick=()=>openLevel2Overview(card.dataset.staffId));
+}
+
+function openLevel2Overview(id){
+  const s=state.staff.find(x=>x.id===id&&x.role==="level2");if(!s)return;
+  const customers=state.customers.filter(c=>c.owner_user_id===id);
+  const ids=new Set(customers.map(c=>c.id));
+  const positions=state.positions.filter(p=>ids.has(p.customer_id));
+  const trades=state.trades.filter(t=>ids.has(t.customer_id)).slice(0,10);
+  const holding=new Set(positions.filter(p=>Number(p.quantity)>0).map(p=>p.customer_id)).size;
+  const realized=positions.reduce((sum,p)=>sum+Number(p.realized_pnl||0),0);
+  modal("二级人员详情",`
+    <section class="level1TeamDetail">
+      <div class="teamDetailIdentity"><div class="staffAvatar">${esc((s.display_name||"L").slice(0,1))}</div><div><h3>${esc(s.display_name)}</h3><p>${esc(s.username)} · ${roleName(s.role)}</p></div></div>
+      <div class="teamDetailKpis">
+        <div><small>客户</small><span>${customers.length}</span></div>
+        <div><small>持仓客户</small><span>${holding}</span></div>
+        <div><small>交易记录</small><span>${state.trades.filter(t=>ids.has(t.customer_id)).length}</span></div>
+        <div><small>已实现盈亏</small><span class="${realized>=0?"up":"down"}">${num(realized,2)}</span></div>
+      </div>
+      <article class="teamDetailSection"><h3>客户明细</h3><div class="tableWrap">${customerTable(customers)}</div></article>
+      <article class="teamDetailSection"><h3>最近交易</h3><div class="tableWrap"><table class="dataTable"><thead><tr><th>时间</th><th>客户</th><th>股票</th><th>方向</th><th>数量</th><th>成交价</th></tr></thead><tbody>${trades.map(t=>`<tr><td>${dt(t.traded_at)}</td><td>${esc(t.customers?.name||"--")}</td><td class="symbolCell">${esc(t.symbol)}</td><td class="${t.side==="buy"?"up":"down"}">${t.side==="buy"?"买进":"卖出"}</td><td>${num(t.quantity,4)}</td><td>${money(t.price,t.currency)}</td></tr>`).join("")||'<tr><td colspan="6"><div class="empty">暂无交易记录</div></td></tr>'}</tbody></table></div></article>
+    </section>`);
+  bindCustomerLinks();
+}
+
 function renderLevel2Dashboard(){
   $("#main").classList.add("dashboardViewport");
   const customers=state.customers;
@@ -413,8 +511,10 @@ function drawLevel2Charts(buys,sells){
 }
 
 async function renderDashboard(){
-  $("#main").classList.add("dashboardViewport","terminalMain");
+  $("#main").classList.add("dashboardViewport");
   if(state.profile?.role==="level2"){renderLevel2Dashboard();return;}
+  if(state.profile?.role==="level1"){renderLevel1Dashboard();return;}
+  $("#main").classList.add("terminalMain");
 
   const openPositions=state.positions.filter(p=>Number(p.quantity)>0);
   const recentTrades=state.trades.slice(0,6);
