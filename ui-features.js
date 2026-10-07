@@ -267,38 +267,84 @@ export async function renderShareBoard(ctx){
   const latest=marketQuote&&!marketQuote.error&&Number.isFinite(Number(marketQuote.price))
     ? {...security,...marketQuote,companyName:security?.companyName||marketQuote.name}
     : security&&Number.isFinite(Number(security.price))?security:null;
+  const reservedPct=total?Math.max(0,Math.min(100,reserved/total*100)):0;
+  const quoteState=latest?(latest.realtime?"实时行情":latest.delaySeconds?"延迟行情":"可用行情"):"暂无行情";
+  const boardState=boardDate===todayKey?"今日看板":boardDate>todayKey?"待开始":"历史看板";
+  const slotRowsHTML=validSlots.map((s,i)=>`<tr>
+    <td>${timeHHMM(s.slot_at)}</td>
+    <td>${num(Number(s.reserved_shares||0),2)}</td>
+    <td>${num(Number(s.participant_count||0),0)}</td>
+    <td><span class="allocationStateTag ${i===validSlots.length-1?"active":""}">${i===validSlots.length-1?"最新":"有效"}</span></td>
+  </tr>`).join("")||'<tr><td colspan="4"><div class="allocationCompactEmpty">暂无有效时段记录</div></td></tr>';
   $("#main").innerHTML=`
-    <section class="allocationBoard" style="--energy-color:${color}">
-      <div class="allocationIdentity panel">
-        <div class="allocationCompany">
-          <div class="shareBrandMark">BV<small>1996</small></div>
-          <div><span class="eyebrow">BRANTONE VEYLOR · SHARE ALLOCATION</span><h1>${esc(board.company_name||security?.companyName||board.stock_name||board.symbol)}</h1><p>${esc(board.symbol)} · ${esc(board.exchange||security?.exchange||"--")} · ${esc(board.currency||security?.currency||"--")} · ${esc(board.industry||security?.industry||"")}</p></div>
+    <section class="allocationBoard allocationBoardV2" style="--energy-color:${color}">
+      <div class="allocationStatusStrip panel">
+        <div><span>行情状态</span><b>${quoteState}</b></div>
+        <div><span>时段数据</span><b>${validSlots.length} 条有效记录</b></div>
+        <div><span>看板状态</span><b>${boardState}</b></div>
+      </div>
+
+      <div class="allocationSecurityBar panel">
+        <button class="allocationSearchLike" type="button" id="allocationConfigBtn"><span>⌕</span><b>${esc(board.symbol)}</b><small>配置股票 / Ticker</small></button>
+        <div><span>公司</span><b>${esc(board.company_name||security?.companyName||board.stock_name||board.symbol)}</b></div>
+        <div><span>交易所</span><b>${esc(board.exchange||security?.exchange||"--")}</b></div>
+        <div><span>币种</span><b>${esc(board.currency||security?.currency||"--")}</b></div>
+        <div><span>行业</span><b>${esc(board.industry||security?.industry||"--")}</b></div>
+        <div><span>报价</span><b id="allocationQuotePrice">${latest?fmtNumber(latest.price,2):"--"}</b><small id="allocationQuoteTime">${latest?.lastTradeAt?dt(latest.lastTradeAt):"--"}</small></div>
+      </div>
+
+      <div class="allocationKpiStrip">
+        <article class="panel allocationKpiCard"><span>总份额</span><strong>${num(total,2)}</strong><small>TOTAL SHARES</small></article>
+        <article class="panel allocationKpiCard"><span>已预留份额</span><strong>${num(reserved,2)}</strong><small>RESERVED · ${fmtNumber(reservedPct,2)}%</small></article>
+        <article class="panel allocationKpiCard gold"><span>剩余份额</span><strong>${num(remaining,2)}</strong><small>AVAILABLE · ${fmtNumber(ratio,2)}%</small></article>
+        <article class="panel allocationKpiCard"><span>目标交易时间</span><strong>${String(settings.target_trade_time||"14:30").slice(0,5)}</strong><small>ROMANIA / BUCHAREST</small></article>
+        <article class="panel allocationKpiCard countdown"><span>距离交易剩余</span><strong id="allocationCountdown">${countdownText(ctx,settings.target_trade_time)}</strong><small id="allocationRomaniaClock">${ctx.romaniaClockText()}</small></article>
+      </div>
+
+      <div class="allocationWorkbench">
+        <article class="panel allocationTrendPanel">
+          <div class="panelHead compact">
+            <div><h2>时段预留趋势</h2><p>INSTITUTIONAL RESERVATION TREND</p></div>
+            <div class="allocationQuoteMini"><span class="${safePct(latest?.changePct)>=0?"up":"down"}" id="allocationQuoteChange">${latest&&latest.changePct!=null?(Number(latest.changePct)>=0?"+":"")+fmtNumber(latest.changePct,2)+"%":"--"}</span></div>
+          </div>
+          <div class="chartBox allocationPrimaryChart"><canvas id="reservedSlotChart"></canvas></div>
+        </article>
+
+        <article class="panel allocationDistributionPanel">
+          <div class="panelHead compact"><div><h2>份额分配</h2><p>ALLOCATION DISTRIBUTION</p></div><span class="headMeta">${esc(board.symbol)}</span></div>
+          <div class="allocationDistributionBody">
+            <div class="allocationDistRow">
+              <div><span>剩余份额</span><b>${num(remaining,2)}</b></div>
+              <div class="allocationBar"><i style="width:${ratio}%"></i></div>
+              <small>${fmtNumber(ratio,2)}%</small>
+            </div>
+            <div class="allocationDistRow reserved">
+              <div><span>已预留份额</span><b>${num(reserved,2)}</b></div>
+              <div class="allocationBar"><i style="width:${reservedPct}%"></i></div>
+              <small>${fmtNumber(reservedPct,2)}%</small>
+            </div>
+            <div class="allocationTimingGrid">
+              <div><span>开盘时间</span><b>${String(settings.market_open_time||"09:30").slice(0,5)}</b></div>
+              <div><span>目标交易</span><b>${String(settings.target_trade_time||"14:30").slice(0,5)}</b></div>
+              <div><span>有效时段</span><b>${validSlots.length}</b></div>
+              <div><span>剩余占比</span><b>${fmtNumber(ratio,2)}%</b></div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <article class="panel allocationSlotsPanel">
+        <div class="panelHead compact">
+          <div><h2>有效时段记录</h2><p>ROMANIA BUSINESS SLOTS</p></div>
+          <span class="headMeta">${validSlots.length} RECORDS</span>
         </div>
-        <div class="allocationQuote"><span id="allocationQuotePrice">${latest?fmtNumber(latest.price,2):"--"}</span><b id="allocationQuoteChange" class="${safePct(latest?.changePct)>=0?"up":"down"}">${latest&&latest.changePct!=null?(Number(latest.changePct)>=0?"+":"")+fmtNumber(latest.changePct,2)+"%":"--"}</b><small id="allocationQuoteTime">${latest?.lastTradeAt?dt(latest.lastTradeAt):"--"}</small></div>
-        <div class="allocationMini" id="allocationMini">${miniCandlesHTML(latest?.points||[],board.symbol)}</div>
-      </div>
-
-      <div class="allocationHero">
-        <article class="panel shareTotals">
-          <div><small>总份额</small><span>${num(total,2)}</span></div>
-          <div><small>已预留份额</small><span>${num(reserved,2)}</span></div>
-          <div><small>剩余份额</small><span class="energyText">${num(remaining,2)}</span></div>
-        </article>
-        <article class="panel energyPanel">
-          <div class="energyRing" style="--ratio:${ratio}"><div><small>剩余占比</small><strong>${fmtNumber(ratio,2)}%</strong><span>${num(remaining,2)}</span></div></div>
-        </article>
-        <article class="panel countdownPanel">
-          <span>ROMANIA / BUCHAREST</span><strong id="allocationRomaniaClock">${ctx.romaniaClockText()}</strong>
-          <div class="timePair"><small>开盘时间</small><b>${String(settings.market_open_time||"09:30").slice(0,5)}</b></div>
-          <div class="timePair"><small>目标交易时间</small><b>${String(settings.target_trade_time||"14:30").slice(0,5)}</b></div>
-          <div class="countdownBox"><small>距离交易剩余时间</small><strong id="allocationCountdown">${countdownText(ctx,settings.target_trade_time)}</strong></div>
-        </article>
-      </div>
-
-      <div class="allocationCharts">
-        <article class="panel allocationChartPanel"><div class="panelHead compact"><div><h2>时段预留份额</h2><p>有效罗马尼亚业务时段</p></div></div><div class="chartBox"><canvas id="reservedSlotChart"></canvas></div></article>
-        <article class="panel allocationChartPanel"><div class="panelHead compact"><div><h2>时段参与人数</h2><p>有效罗马尼亚业务时段</p></div></div><div class="chartBox"><canvas id="participantSlotChart"></canvas></div></article>
-      </div>
+        <div class="tableWrap allocationSlotsTable">
+          <table class="dataTable">
+            <thead><tr><th>时间</th><th>预留份额</th><th>参与人数</th><th>状态</th></tr></thead>
+            <tbody>${slotRowsHTML}</tbody>
+          </table>
+        </div>
+      </article>
 
       <div class="globalIndexWall" id="globalIndexWall">${marketWall(rows,ctx)}</div>
     </section>`;
@@ -306,11 +352,11 @@ export async function renderShareBoard(ctx){
   const labels=validSlots.map(s=>timeHHMM(s.slot_at));
   if(validSlots.length){
     state.charts.reservedSlots=new Chart($("#reservedSlotChart"),{type:"line",data:{labels,datasets:[{label:tr("预留份额"),data:validSlots.map(s=>Number(s.reserved_shares||0)),borderColor:chartColor,backgroundColor:chartColor+"20",fill:true,tension:.28,pointRadius:3,pointHoverRadius:5}]},options:chartOpts()});
-    state.charts.participantSlots=new Chart($("#participantSlotChart"),{type:"bar",data:{labels,datasets:[{label:tr("参与人数"),data:validSlots.map(s=>Number(s.participant_count||0)),backgroundColor:chartColor+"66",borderColor:chartColor,borderWidth:1,borderRadius:5}]},options:chartOpts()});
   }else{
-    $("#reservedSlotChart").parentElement.innerHTML='<div class="empty">暂无有效时段份额记录</div>';
-    $("#participantSlotChart").parentElement.innerHTML='<div class="empty">暂无有效时段参与记录</div>';
+    $("#reservedSlotChart").parentElement.innerHTML='<div class="allocationCompactEmpty">暂无有效时段份额记录</div>';
   }
+  const configBtn=$("#allocationConfigBtn");
+  if(configBtn)configBtn.onclick=()=>openShareBoardConfig(ctx);
   clearInterval(state.allocationClockTimer);
   state.allocationClockTimer=setInterval(()=>{
     const c=$("#allocationRomaniaClock"),d=$("#allocationCountdown");
