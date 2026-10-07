@@ -3936,3 +3936,9 @@ h1,h2,h3,
   .sysok,.romaniaClock,.chip,.iconBtn{font-size:9px}
   .shareFoot{font-size:8.5px}
 }
+
+
+/* Final legibility guard for tiny secondary labels. */
+.mark small,.shareBrandMark small,.recentMarket,.clientMetricStrip small{
+  font-size:9px;
+}
