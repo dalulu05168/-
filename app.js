@@ -1071,7 +1071,7 @@ function openTradeForm(c){
     <div class="field full"><button class="btn primary" type="submit">保存交易</button></div>
   </form>`);
   $("[name=traded_at]").value=romaniaInputNow();
-  $("#tradeForm").onsubmit=async e=>{e.preventDefault();const b=Object.fromEntries(new FormData(e.currentTarget).entries());b.customer_id=c.id;b.entered_by=state.profile.id;b.symbol=String(b.symbol).trim().toUpperCase();b.traded_at=romaniaLocalToISO(String(b.traded_at));const {error}=await supabase.from("trades").insert(b);if(error){toast(error.message,true);return}if(b.side==="buy"&&c.status!=="holding")await supabase.from("customers").update({status:"holding"}).eq("id",c.id);closeModal();toast("交易已保存，持仓已自动重算");await refreshAll();await openCustomer(c.id)};
+  $("#tradeForm").onsubmit=async e=>{e.preventDefault();const b=Object.fromEntries(new FormData(e.currentTarget).entries());b.customer_id=c.id;b.entered_by=state.profile.id;b.symbol=String(b.symbol).trim().toUpperCase();b.traded_at=romaniaLocalToISO(String(b.traded_at));const {error}=await supabase.from("trades").insert(b);if(error){toast(error.message,true);return}closeModal();toast("交易已保存，持仓已自动重算");await refreshAll();await openCustomer(c.id)};
 }
 
 function openFollowForm(c){
