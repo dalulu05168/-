@@ -25,7 +25,7 @@ const state = {
   session:null, profile:null, staff:[], customers:[], trades:[], positions:[], followups:[],
   charts:{}, activeView:"dashboard", activeCustomer:null, quotes:{},
   lang:getLang(), appSettings:null, shareBoard:null, shareSlots:[], allocationClockTimer:null,
-  marketRefreshTimer:null, customerMarketTimer:null, shareBoardRefreshTimer:null
+  marketRefreshTimer:null, positionRefreshTimer:null, customerMarketTimer:null, shareBoardRefreshTimer:null
 };
 
 let romaniaClockTimer=null;
@@ -256,7 +256,7 @@ function featureCtx(){
   return {state,supabase,$,$,esc,num,money,dt,romaniaClockText,romaniaDateKey,romaniaInputNow,romaniaLocalToISO,ROMANIA_TZ,fetchQuotes,chartOpts,toast,modal,closeModal,switchView,refreshAll};
 }
 function clearMarketRefreshTimers(){
-  for(const k of ["marketRefreshTimer","customerMarketTimer","shareBoardRefreshTimer"]){if(state[k]){clearInterval(state[k]);state[k]=null}}
+  for(const k of ["marketRefreshTimer","positionRefreshTimer","customerMarketTimer","shareBoardRefreshTimer"]){if(state[k]){clearInterval(state[k]);state[k]=null}}
   if(state.allocationClockTimer){clearInterval(state.allocationClockTimer);state.allocationClockTimer=null}
 }
 async function renderView(token=0){
@@ -1054,10 +1054,26 @@ async function renderPositions(){
         const x=q[p.symbol],usable=x&&!x.error&&Number.isFinite(Number(x.price));
         const px=usable?Number(x.price):null,mv=usable?Number(p.quantity)*px:null,u=usable?Number(p.quantity)*(px-Number(p.avg_cost)):null;
         const stamp=usable&&x.lastTradeAt?dt(x.lastTradeAt):"--";
-        return`<tr><td>${esc(p.customers?.name||"--")}</td><td class="link">${esc(p.symbol)}</td><td>${esc(p.market)}</td><td>${num(p.quantity,4)}</td><td>${money(p.avg_cost,p.currency)}</td><td>${px==null?"--":money(px,p.currency)}</td><td>${stamp}</td><td>${mv==null?"--":money(mv,p.currency)}</td><td class="${u==null?"":u>=0?"up":"down"}">${u==null?"--":money(u,p.currency)}</td><td class="${Number(p.realized_pnl)>=0?"up":"down"}">${money(p.realized_pnl,p.currency)}</td></tr>`
+        return`<tr class="positionQuoteRow" data-symbol="${esc(p.symbol)}" data-qty="${Number(p.quantity)}" data-cost="${Number(p.avg_cost)}" data-currency="${esc(p.currency||"USD")}"><td>${esc(p.customers?.name||"--")}</td><td class="link">${esc(p.symbol)}</td><td>${esc(p.market)}</td><td>${num(p.quantity,4)}</td><td>${money(p.avg_cost,p.currency)}</td><td class="positionLivePrice">${px==null?"--":money(px,p.currency)}</td><td class="positionLiveTime">${stamp}</td><td class="positionLiveValue">${mv==null?"--":money(mv,p.currency)}</td><td class="positionLivePnl ${u==null?"":u>=0?"up":"down"}">${u==null?"--":money(u,p.currency)}</td><td class="${Number(p.realized_pnl)>=0?"up":"down"}">${money(p.realized_pnl,p.currency)}</td></tr>`
       }).join("")}</tbody></table></div>
     </article>`;
-  $("#refreshPositions").onclick=refreshAll;
+  const refreshQuotesOnly=async()=>{
+    const liveRows=$(".positionQuoteRow");
+    const symbols=[...new Set(liveRows.map(r=>r.dataset.symbol).filter(Boolean))];
+    const fresh=await fetchQuotes(symbols,{realtimeOnly:false});
+    liveRows.forEach(r=>{
+      const x=fresh[r.dataset.symbol],usable=x&&!x.error&&Number.isFinite(Number(x.price));
+      const qty=Number(r.dataset.qty||0),cost=Number(r.dataset.cost||0),currency=r.dataset.currency||"USD";
+      const px=usable?Number(x.price):null,mv=px==null?null:qty*px,pnl=px==null?null:qty*(px-cost);
+      const priceEl=$(".positionLivePrice",r),timeEl=$(".positionLiveTime",r),valueEl=$(".positionLiveValue",r),pnlEl=$(".positionLivePnl",r);
+      if(priceEl)priceEl.textContent=px==null?"--":money(px,currency);
+      if(timeEl)timeEl.textContent=usable&&x.lastTradeAt?dt(x.lastTradeAt):"--";
+      if(valueEl)valueEl.textContent=mv==null?"--":money(mv,currency);
+      if(pnlEl){pnlEl.textContent=pnl==null?"--":money(pnl,currency);pnlEl.className="positionLivePnl "+(pnl==null?"":pnl>=0?"up":"down")}
+    });
+  };
+  $("#refreshPositions").onclick=()=>refreshQuotesOnly().catch(()=>{});
+  state.positionRefreshTimer=setInterval(()=>{if(state.activeView==="positions")refreshQuotesOnly().catch(()=>{})},60000);
 }
 
 async function renderMarket(){
