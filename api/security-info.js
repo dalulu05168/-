@@ -25,10 +25,11 @@ export default async function handler(req,res){
       fetch("https://query1.finance.yahoo.com/v1/finance/search?q="+encodeURIComponent(symbol)+"&quotesCount=8&newsCount=0",{headers:{"User-Agent":"Mozilla/5.0"},signal:AbortSignal.timeout(7000)})
     ]);
     const cj=chartRes.ok?await chartRes.json():null;
-    const result=cj?.chart?.result?.[0]||null;
+    const chartResult=cj?.chart?.result?.[0]||null;
+    const result=String(chartResult?.meta?.symbol||" ").toUpperCase()===symbol?chartResult:null;
     const meta=result?.meta||{};
     const sj=searchRes.ok?await searchRes.json():null;
-    const match=(sj?.quotes||[]).find(x=>String(x.symbol||"").toUpperCase()===symbol)||(sj?.quotes||[])[0]||{};
+    const match=(sj?.quotes||[]).find(x=>String(x.symbol||"").toUpperCase()===symbol)||{};
     const fallback=infoFor(symbol);
     const price=meta.regularMarketPrice??null;
     const prev=meta.chartPreviousClose??meta.previousClose??null;
@@ -62,3 +63,4 @@ export default async function handler(req,res){
     return res.status(500).json({error:e instanceof Error?e.message:"security info error"});
   }
 }
+

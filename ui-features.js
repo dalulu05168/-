@@ -223,7 +223,7 @@ function indexName(symbol){
 }
 function marketWall(rows,ctx){
   return rows.map(x=>{
-    const ok=x&&!x.error&&Number.isFinite(Number(x.price)),pct=ok&&x.changePct!=null?Number(x.changePct):null;
+    const ok=x&&!x.error&&validQuotePrice(x.price),pct=ok&&x.changePct!=null?Number(x.changePct):null;
     return `<article class="indexTile">
       <div class="indexTileHead"><span>${indexName(x?.symbol||"--")}</span><small>${x?.lastTradeAt?timeHHMM(x.lastTradeAt):"--:--"}</small></div>
       <div class="indexTilePrice">${ok?fmtNumber(x.price,2):"--"}</div>
@@ -231,6 +231,18 @@ function marketWall(rows,ctx){
       ${miniCandlesHTML(x?.points||[])}
     </article>`;
   }).join("");
+}
+
+function matchingSecurity(symbol,info){
+  return info&&!info.error&&String(info.symbol||"").toUpperCase()===String(symbol||"").toUpperCase()?info:null;
+}
+function validQuotePrice(value){return value!=null&&Number.isFinite(Number(value));}
+function boardQuote(symbol,security,quote){
+  const info=matchingSecurity(symbol,security),market=matchingSecurity(symbol,quote);
+  return market&&validQuotePrice(market.price)?{...info,...market}:info&&validQuotePrice(info.price)?info:null;
+}
+function allocationChartOptions(base){
+  return {...base,plugins:{...base.plugins,legend:{...base.plugins?.legend,display:false}},scales:{...base.scales,x:{...base.scales?.x,ticks:{...base.scales?.x?.ticks,autoSkip:true,maxTicksLimit:8,minRotation:0,maxRotation:0}}}};
 }
 
 export async function renderShareBoard(ctx){
@@ -242,11 +254,12 @@ export async function renderShareBoard(ctx){
     return;
   }
   const symbols=["^GSPC","^DJI","^IXIC","^FCHI","BET.RO","^GDAXI","^FTSE","FTSEMIB.MI","^IBEX","^AEX","^SSMI","WIG20.WA","^N225"];
-  const [security,quotes,boardQuotes]=await Promise.all([
+  const [rawSecurity,quotes,boardQuotes]=await Promise.all([
     fetch("/api/security-info?symbol="+encodeURIComponent(board.symbol)).then(r=>r.ok?r.json():null).catch(()=>null),
     fetchQuotes(symbols,{realtimeOnly:false}),
     fetchQuotes([board.symbol],{realtimeOnly:false})
   ]);
+  const security=matchingSecurity(board.symbol,rawSecurity);
   const rows=symbols.map(s=>quotes[s]||{symbol:s,error:true});
   const total=Number(board.total_shares||0),remaining=Number(board.remaining_shares||0),reserved=Math.max(0,total-remaining);
   const ratio=total?Math.max(0,Math.min(100,remaining/total*100)):0;
@@ -264,9 +277,11 @@ export async function renderShareBoard(ctx){
     return ctx.romaniaDateKey(s.slot_at)===boardDate && m>=360 && m<=effectiveCap;
   }).sort((a,b)=>new Date(a.slot_at)-new Date(b.slot_at));
   const marketQuote=boardQuotes[board.symbol];
-  const latest=marketQuote&&!marketQuote.error&&Number.isFinite(Number(marketQuote.price))
-    ? {...security,...marketQuote,companyName:security?.companyName||marketQuote.name}
-    : security&&Number.isFinite(Number(security.price))?security:null;
+  const latest=boardQuote(board.symbol,security,marketQuote);
+  const companyName=security?.companyName||matchingSecurity(board.symbol,marketQuote)?.name||"公司信息暂不可用";
+  const exchange=security?.exchange||latest?.exchange||"—";
+  const currency=latest?.currency||security?.currency||"—";
+  const industry=security?.industry||"";
   const reservedPct=total?Math.max(0,Math.min(100,reserved/total*100)):0;
   const quoteState=latest?(latest.realtime?"实时行情":latest.delaySeconds?"延迟行情":"可用行情"):"暂无行情";
   const boardState=boardDate===todayKey?"今日看板":boardDate>todayKey?"待开始":"历史看板";
@@ -284,8 +299,9 @@ export async function renderShareBoard(ctx){
         <div class="exchangeSecurityIdentity">
           <div>
             <span class="eyebrow">SHARE ALLOCATION · ${esc(board.symbol)}</span>
-            <h1>${esc(board.company_name||security?.companyName||board.stock_name||board.symbol)}</h1>
-            <p>${esc(board.exchange||security?.exchange||"--")} · ${esc(board.currency||security?.currency||"--")} · ${esc(board.industry||security?.industry||"--")}</p>
+            <h1>${esc(board.symbol)}</h1>
+            <p id="allocationCompanyName" class="allocationCompanyName">${esc(companyName)}</p>
+            <p id="allocationSecurityMeta">${esc([exchange,currency,industry].filter(Boolean).join(" · "))}</p>
           </div>
           <button class="btn allocationConfigCompact" id="allocationConfigBtn" type="button">配置</button>
         </div>
@@ -297,7 +313,7 @@ export async function renderShareBoard(ctx){
         </div>
         <div class="exchangeQuoteMini" id="allocationMini">${miniCandlesHTML(latest?.points||[],board.symbol)}</div>
         <div class="exchangeStatusRail">
-          <span class="${latest?"live":"muted"}">${quoteState}</span>
+          <span id="allocationQuoteState" class="${latest?"live":"muted"}">${quoteState}</span>
           <span>${boardState}</span>
           <span>时段 ${validSlots.length}</span>
         </div>
@@ -314,8 +330,8 @@ export async function renderShareBoard(ctx){
       <div class="exchangeBoardMain">
         <article class="panel exchangeChartPanel">
           <div class="panelHead compact">
-            <div><h2>${hasMarketSeries?"行情走势":"时段预留趋势"}</h2><p>${hasMarketSeries?"MARKET PRICE SERIES · ROMANIA TIME":"RESERVATION TREND · ROMANIA BUSINESS SLOTS"}</p></div>
-            <span class="headMeta">${esc(board.symbol)} · ${quoteState}</span>
+            <div><h2 id="allocationChartTitle">${hasMarketSeries?"行情走势":"时段预留趋势"}</h2><p id="allocationChartSubtitle">${hasMarketSeries?"MARKET PRICE SERIES · ROMANIA TIME":"RESERVATION TREND · ROMANIA BUSINESS SLOTS"}</p></div>
+            <span class="headMeta" id="allocationChartMeta">${esc(board.symbol)} · ${quoteState}</span>
           </div>
           <div class="chartBox exchangePrimaryChart"><canvas id="allocationMarketChart"></canvas></div>
         </article>
@@ -342,7 +358,7 @@ export async function renderShareBoard(ctx){
             <div class="exchangeSessionGrid">
               <div><span>开盘</span><b>${String(settings.market_open_time||"09:30").slice(0,5)}</b></div>
               <div><span>目标交易</span><b>${String(settings.target_trade_time||"14:30").slice(0,5)}</b></div>
-              <div><span>行情</span><b>${quoteState}</b></div>
+              <div><span>行情</span><b id="allocationSessionQuoteState">${quoteState}</b></div>
               <div><span>看板</span><b>${boardState}</b></div>
             </div>
           </article>
@@ -365,18 +381,23 @@ export async function renderShareBoard(ctx){
       <div class="globalIndexWall exchangeTickerWall" id="globalIndexWall">${marketWall(rows,ctx)}</div>
     </section>`;
 
-  const chartEl=$("#allocationMarketChart");
-  if(chartEl){
-    if(hasMarketSeries){
-      const labels=marketPoints.map(p=>timeHHMM(p.t));
-      state.charts.allocationMarket=new Chart(chartEl,{type:"line",data:{labels,datasets:[{label:esc(board.symbol),data:marketPoints.map(p=>Number(p.close)),borderColor:chartColor,backgroundColor:chartColor+"16",fill:true,tension:.22,pointRadius:0,pointHoverRadius:4}]},options:chartOpts()});
-    }else if(validSlots.length){
-      const labels=validSlots.map(s=>timeHHMM(s.slot_at));
-      state.charts.allocationMarket=new Chart(chartEl,{type:"line",data:{labels,datasets:[{label:tr("预留份额"),data:validSlots.map(s=>Number(s.reserved_shares||0)),borderColor:chartColor,backgroundColor:chartColor+"16",fill:true,tension:.28,pointRadius:2,pointHoverRadius:4}]},options:chartOpts()});
-    }else{
-      chartEl.parentElement.innerHTML='<div class="allocationCompactEmpty">暂无可用行情序列或有效时段记录</div>';
-    }
-  }
+  const drawAllocationChart=quote=>{
+    const points=(quote?.points||[]).filter(p=>p&&p.close!=null&&Number.isFinite(Number(p.close))).slice(-40);
+    const market=points.length>=2;
+    const series=market?points:validSlots;
+    const title=$("#allocationChartTitle"),subtitle=$("#allocationChartSubtitle");
+    if(title)title.textContent=market?"行情走势":"时段预留趋势";
+    if(subtitle)subtitle.textContent=market?"MARKET PRICE SERIES · ROMANIA TIME":"RESERVATION TREND · ROMANIA BUSINESS SLOTS";
+    const existing=state.charts.allocationMarket;
+    if(!series.length){if(existing)existing.destroy();delete state.charts.allocationMarket;$(".exchangePrimaryChart").innerHTML='<div class="allocationCompactEmpty">暂无可用行情序列或有效时段记录</div>';return}
+    const labels=series.map(p=>timeHHMM(market?p.t:p.slot_at));
+    const values=series.map(p=>Number(market?p.close:p.reserved_shares||0));
+    const label=market?board.symbol:tr("预留份额");
+    if(existing){existing.data.labels=labels;existing.data.datasets[0].label=label;existing.data.datasets[0].data=values;existing.update("none");return}
+    if(!$("#allocationMarketChart"))$(".exchangePrimaryChart").innerHTML='<canvas id="allocationMarketChart"></canvas>';
+    state.charts.allocationMarket=new Chart($("#allocationMarketChart"),{type:"line",data:{labels,datasets:[{label,data:values,borderColor:chartColor,backgroundColor:chartColor+"16",fill:true,tension:.22,pointRadius:0,pointHoverRadius:4}]},options:allocationChartOptions(chartOpts())});
+  };
+  drawAllocationChart(latest);
   const configBtn=$("#allocationConfigBtn");
   if(configBtn)configBtn.onclick=()=>openShareBoardConfig(ctx);
   clearInterval(state.allocationClockTimer);
@@ -398,14 +419,18 @@ export async function renderShareBoard(ctx){
         fetchQuotes(symbols,{realtimeOnly:false}),
         fetchQuotes([board.symbol],{realtimeOnly:false})
       ]);
+      if(state.activeView!=="shareboard"||!$("#globalIndexWall"))return;
       const freshRows=symbols.map(s=>freshQuotes[s]||{symbol:s,error:true});
       const marketFresh=freshBoardQuotes[board.symbol];
-      const freshLatest=marketFresh&&!marketFresh.error&&Number.isFinite(Number(marketFresh.price))
-        ? {...freshSecurity,...marketFresh}
-        : freshSecurity;
+      const freshLatest=boardQuote(board.symbol,freshSecurity,marketFresh);
+      const freshInfo=matchingSecurity(board.symbol,freshSecurity);
+      const companyEl=$("#allocationCompanyName"),metaEl=$("#allocationSecurityMeta"),statusEl=$("#allocationQuoteState");
+      if(companyEl)companyEl.textContent=freshInfo?.companyName||matchingSecurity(board.symbol,marketFresh)?.name||"公司信息暂不可用";
+      if(metaEl)metaEl.textContent=[freshInfo?.exchange||freshLatest?.exchange||"—",freshLatest?.currency||freshInfo?.currency||"—",freshInfo?.industry].filter(Boolean).join(" · ");
+      if(statusEl){statusEl.textContent=freshLatest?(freshLatest.realtime?"实时行情":freshLatest.delaySeconds?"延迟行情":"可用行情"):"暂无行情";statusEl.className=freshLatest?"live":"muted";}
       const wall=$("#globalIndexWall");if(wall)wall.innerHTML=marketWall(freshRows,ctx);
       const priceEl=$("#allocationQuotePrice"),changeEl=$("#allocationQuoteChange"),timeEl=$("#allocationQuoteTime"),mini=$("#allocationMini");
-      if(priceEl)priceEl.textContent=freshLatest&&Number.isFinite(Number(freshLatest.price))?fmtNumber(freshLatest.price,2):"--";
+      if(priceEl)priceEl.textContent=freshLatest&&validQuotePrice(freshLatest.price)?fmtNumber(freshLatest.price,2):"--";
       if(changeEl){
         const pct=safePct(freshLatest?.changePct);
         changeEl.textContent=pct==null?"--":(pct>=0?"+":"")+fmtNumber(pct,2)+"%";
@@ -413,14 +438,11 @@ export async function renderShareBoard(ctx){
       }
       if(timeEl)timeEl.textContent=freshLatest?.lastTradeAt?dt(freshLatest.lastTradeAt):"--";
       if(mini)mini.innerHTML=miniCandlesHTML(freshLatest?.points||[],board.symbol);
-      const liveChart=state.charts.allocationMarket;
-      const freshPoints=(freshLatest?.points||[]).filter(p=>p&&p.close!=null&&Number.isFinite(Number(p.close))).slice(-40);
-      if(liveChart&&freshPoints.length>=2){
-        liveChart.data.labels=freshPoints.map(p=>timeHHMM(p.t));
-        liveChart.data.datasets[0].label=board.symbol;
-        liveChart.data.datasets[0].data=freshPoints.map(p=>Number(p.close));
-        liveChart.update("none");
-      }
+      const freshState=freshLatest?(freshLatest.realtime?"实时行情":freshLatest.delaySeconds?"延迟行情":"可用行情"):"暂无行情";
+      const sessionStatus=$("#allocationSessionQuoteState"),chartMeta=$("#allocationChartMeta");
+      if(sessionStatus)sessionStatus.textContent=freshState;
+      if(chartMeta)chartMeta.textContent=board.symbol+" · "+freshState;
+      drawAllocationChart(freshLatest);
     }catch{}
   },refreshMs);
 }
@@ -494,7 +516,11 @@ export function openShareBoardConfig(ctx){
     e.preventDefault();const x=Object.fromEntries(new FormData(e.currentTarget).entries());
     const id=x.id||null;delete x.id;
     x.symbol=String(x.symbol||"").trim().toUpperCase();x.total_shares=Number(x.total_shares);x.remaining_shares=Number(x.remaining_shares);
-    x.stock_name=x.company_name;x.market=x.exchange;x.country=null;x.industry=null;x.created_by=ctx.state.profile.id;x.updated_at=new Date().toISOString();
+    if(!Number.isFinite(x.total_shares)||x.total_shares<=0||!Number.isFinite(x.remaining_shares)||x.remaining_shares<0){ctx.toast("请输入有效份额",true);return}
+    let info;
+    try{const response=await fetch("/api/security-info?symbol="+encodeURIComponent(x.symbol));if(response.ok)info=matchingSecurity(x.symbol,await response.json())}catch{}
+    if(!info||(info.companyName===x.symbol&&!validQuotePrice(info.price))){ctx.toast("无法验证股票信息，请查询有效股票后重试",true);return}
+    x.company_name=info.companyName||info.stockName||x.symbol;x.stock_name=x.company_name;x.exchange=info.exchange||"";x.market=x.exchange;x.currency=info.currency||"USD";x.country=info.country||null;x.industry=info.industry||null;x.created_by=ctx.state.profile.id;x.updated_at=new Date().toISOString();
     if(x.remaining_shares>x.total_shares){ctx.toast("剩余份额不能大于总份额",true);return}
     let error;
     if(id)({error}=await ctx.supabase.from("share_boards").update(x).eq("id",id));
@@ -542,3 +568,4 @@ function openSlotForm(ctx){
     ctx.closeModal();ctx.toast("时段记录已保存");await ctx.refreshAll();
   };
 }
+

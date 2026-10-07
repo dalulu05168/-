@@ -1,6 +1,6 @@
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261007-board2";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
@@ -36,7 +36,7 @@ const $$ = (s,root=document)=>[...root.querySelectorAll(s)];
 const esc = (v="") => String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 const money = (n,c="USD") => new Intl.NumberFormat(localeFor(state.lang),{style:"currency",currency:c||"USD",maximumFractionDigits:2}).format(Number(n||0));
 const num = (n,d=2)=>Number(n||0).toLocaleString(localeFor(state.lang),{maximumFractionDigits:d});
-const dt = (v)=>v?new Date(v).toLocaleString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour12:false}):"--";
+const dt = (v)=>v?new Date(v).toLocaleString(localeFor(state.lang),{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}):"--";
 const romaniaDateKey = (v=new Date()) => new Intl.DateTimeFormat("en-CA",{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(v));
 const isRomaniaToday = v => romaniaDateKey(v)===romaniaDateKey();
 const romaniaClockText = () => new Intl.DateTimeFormat(localeFor(state.lang),{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false,timeZoneName:"short"}).format(new Date());
