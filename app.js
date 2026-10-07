@@ -99,9 +99,21 @@ if(window.Chart){
   Chart.defaults.plugins.tooltip.enabled=true;
 }
 
+function localizeMessage(msg){
+  const raw=String(msg??"");
+  const exact=tr(raw,state.lang);
+  if(exact!==raw)return exact;
+  const colon=raw.indexOf("：");
+  if(colon>0){
+    const head=raw.slice(0,colon);
+    const translated=tr(head,state.lang);
+    if(translated!==head)return translated+":"+raw.slice(colon+1);
+  }
+  return raw;
+}
 function toast(msg,error=false){
   let t=$("#toast"); if(!t){t=document.createElement("div");t.id="toast";document.body.appendChild(t)}
-  t.className="toast"+(error?" error":""); t.textContent=msg; clearTimeout(t._x); t._x=setTimeout(()=>t.remove(),3200)
+  t.className="toast"+(error?" error":""); t.textContent=localizeMessage(msg); clearTimeout(t._x); t._x=setTimeout(()=>t.remove(),3200)
 }
 
 function roleName(r){return roleLabel(r,state.lang)}
