@@ -184,8 +184,13 @@ export async function renderShareBoard(ctx){
   const settings=state.appSettings||{market_open_time:"09:30",target_trade_time:"14:30",energy_high:60,energy_low:30};
   const openMin=hhmmToMinutes(settings.market_open_time),targetMin=hhmmToMinutes(settings.target_trade_time);
   const cap=Math.min(openMin,targetMin>0?targetMin:openMin);
+  const todayKey=ctx.romaniaDateKey();
+  const boardDate=String(board.board_date||todayKey);
+  const nowMin=minutesOfRomania(Date.now());
+  const effectiveCap=boardDate>todayKey?-1:boardDate===todayKey?Math.min(cap,nowMin):cap;
   const validSlots=(state.shareSlots||[]).filter(s=>{
-    const m=minutesOfRomania(s.slot_at);return m>=360&&m<=cap;
+    const m=minutesOfRomania(s.slot_at);
+    return ctx.romaniaDateKey(s.slot_at)===boardDate && m>=360 && m<=effectiveCap;
   }).sort((a,b)=>new Date(a.slot_at)-new Date(b.slot_at));
   const marketQuote=boardQuotes[board.symbol];
   const latest=marketQuote&&!marketQuote.error&&Number.isFinite(Number(marketQuote.price))
@@ -364,8 +369,27 @@ function openSlotForm(ctx){
     <div class="field full"><button class="btn primary" type="submit">保存时段记录</button></div>
   </form>`);
   ctx.$("#slotForm").onsubmit=async e=>{
-    e.preventDefault();const x=Object.fromEntries(new FormData(e.currentTarget).entries());
-    x.board_id=ctx.state.shareBoard.id;x.slot_at=ctx.romaniaLocalToISO(x.slot_at);x.reserved_shares=Number(x.reserved_shares);x.participant_count=Number(x.participant_count);
+    e.preventDefault();
+    const x=Object.fromEntries(new FormData(e.currentTarget).entries());
+    const localValue=String(x.slot_at||"");
+    const localDate=localValue.slice(0,10);
+    const localMin=hhmmToMinutes(localValue.slice(11,16));
+    const board=ctx.state.shareBoard;
+    const settings=ctx.state.appSettings||{market_open_time:"09:30",target_trade_time:"14:30"};
+    const openMin=hhmmToMinutes(settings.market_open_time),targetMin=hhmmToMinutes(settings.target_trade_time);
+    const cap=Math.min(openMin,targetMin>0?targetMin:openMin);
+    const today=ctx.romaniaDateKey(),nowMin=minutesOfRomania(Date.now());
+    if(localDate!==String(board.board_date)){ctx.toast("时段记录日期必须与看板日期一致",true);return}
+    if(localMin<360||localMin>cap){ctx.toast("时段记录必须位于有效业务时段内",true);return}
+    if(localDate>today||(localDate===today&&localMin>nowMin)){ctx.toast("不能录入未来时段数据",true);return}
+    x.board_id=board.id;
+    x.slot_at=ctx.romaniaLocalToISO(localValue);
+    x.reserved_shares=Number(x.reserved_shares);
+    x.participant_count=Number(x.participant_count);
+    const existing=(ctx.state.shareSlots||[]).filter(s=>s.board_id===board.id&&s.slot_at!==x.slot_at);
+    const slotTotal=existing.reduce((sum,s)=>sum+Number(s.reserved_shares||0),0)+x.reserved_shares;
+    const reservedTotal=Math.max(0,Number(board.total_shares||0)-Number(board.remaining_shares||0));
+    if(slotTotal>reservedTotal+0.000001){ctx.toast("时段预留份额合计不能超过已预留份额",true);return}
     const {error}=await ctx.supabase.from("share_board_slots").upsert(x,{onConflict:"board_id,slot_at"});
     if(error){ctx.toast(error.message,true);return}
     ctx.closeModal();ctx.toast("时段记录已保存");await ctx.refreshAll();
