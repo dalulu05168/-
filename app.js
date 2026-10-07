@@ -777,7 +777,7 @@ async function openCustomer(id){
   if(capture)capture.onclick=()=>{
     const page=$("#clientSharePage");
     const on=page.classList.toggle("screenshotMode");
-    capture.textContent=on?"恢复显示":"截图模式";
+    capture.textContent=on?tr("恢复显示",state.lang):tr("截图模式",state.lang);
     toast(on?"截图模式：仅隐藏内部归属、新增交易、记录跟进。":"已恢复内部操作按钮。");
   };
   drawCustomerShareCharts(pos,chartTrades,q,primary,realized,unreal);
@@ -1073,7 +1073,7 @@ async function renderSettings(){
   const b=$("#settingsTimeBtn");if(b)b.onclick=()=>openTimeSettings(featureCtx());
 }
 
-function modal(title,html){$("#modalRoot").innerHTML=`<div class="modal"><div class="modalCard"><div class="modalHead"><h2>${esc(title)}</h2><button class="close" id="closeModal">×</button></div><div class="modalBody">${html}</div></div></div>`;$("#closeModal").onclick=closeModal}
+function modal(title,html){$("#modalRoot").innerHTML=`<div class="modal"><div class="modalCard"><div class="modalHead"><h2>${esc(tr(title,state.lang))}</h2><button class="close" id="closeModal">×</button></div><div class="modalBody">${html}</div></div></div>`;$("#closeModal").onclick=closeModal;translateUI($("#modalRoot"),state.lang)}
 function closeModal(){$("#modalRoot").innerHTML=""}
 
 supabase.auth.onAuthStateChange(async(event,session)=>{if(event==="SIGNED_OUT"){state.session=null;state.profile=null}});
