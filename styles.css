@@ -4107,3 +4107,16 @@ h1,h2,h3,
   .shareKpiRow{grid-template-columns:repeat(2,minmax(0,1fr))}
   .shareClientIdentity,.shareTimeBlock{min-width:0}
 }
+
+
+/* Final typography discipline: card/data names are Regular; only real page/module headings are bold. */
+body h3{font-weight:400!important}
+.terminalUsage h3,
+.teamDetailSection>h3{
+  font-weight:700!important;
+}
+.level1StaffHead h3,
+.teamDetailIdentity h3,
+.quoteHeader h3{
+  font-weight:400!important;
+}
