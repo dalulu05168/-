@@ -12,7 +12,7 @@ export function installViewportLayout({getLanguage=()=> 'zh'}={}){
  }
  function paginateTables(){
   document.querySelectorAll('#main .dataTable,#clientSharePage .dataTable').forEach(table=>{
-   const wrapper=table.closest('.tableWrap');if(!wrapper||!table.tBodies.length)return;
+   const wrapper=table.closest('.tableWrap');if(table.dataset.managedPagination||!wrapper||!table.tBodies.length)return;
    const rows=[...table.tBodies].flatMap(body=>[...body.rows]);if(!rows.length)return;
    let state=tableStates.get(table);if(!state){state={page:0};tableStates.set(table,state)}
    const peers=[...wrapper.querySelectorAll('.dataTable')].filter(t=>t.closest('.tableWrap')===wrapper).length||1;
@@ -20,7 +20,7 @@ export function installViewportLayout({getLanguage=()=> 'zh'}={}){
    const size=Math.max(1,Math.floor((height/peers-head-30)/rowHeight));
    const apply=()=>{const b=pagerFor(table.parentElement,state,rows.length,size,apply);rows.forEach((row,i)=>{row.hidden=i<b.start||i>=b.end})};apply();
   });
-  const list=document.querySelector('#main .marketList');if(list){const rows=[...list.querySelectorAll('.marketRow')];if(rows.length){let state=listStates.get(list);if(!state){state={page:0};listStates.set(list,state)}const size=Math.max(1,Math.floor(((list.clientHeight||450)-30)/Math.max(55,rows[0].offsetHeight||65)));const apply=()=>{const b=pagerFor(list,state,rows.length,size,apply);rows.forEach((r,i)=>r.hidden=i<b.start||i>=b.end)};apply();}}
+  const list=document.querySelector('#main .marketList');if(list){const rows=[...list.querySelectorAll('.marketRow')];if(rows.length){let state=listStates.get(list);if(!state){state={page:0};listStates.set(list,state)}const gap=parseFloat(getComputedStyle(list).rowGap)||0;const rowHeight=Math.max(48,rows.find(r=>!r.hidden)?.offsetHeight||65);const size=Math.max(1,Math.floor(((list.clientHeight||450)-30+gap)/(rowHeight+gap)));const apply=()=>{const b=pagerFor(list,state,rows.length,size,apply);rows.forEach((r,i)=>r.hidden=i<b.start||i>=b.end)};apply();}}
  }
  function paginateCollections(){
   for(const [selector,itemSelector] of [['#clientSharePage .shareServiceTimeline',':scope > div'],['#main .level1TeamGrid',':scope > .level1StaffCard'],['#main .terminalPositionList',':scope > .terminalPositionCard']]){
@@ -44,7 +44,7 @@ export function installViewportLayout({getLanguage=()=> 'zh'}={}){
    const applyRows=()=>{const range=pagerFor(group,rowState,rows.length,size,applyRows);rows.forEach((row,i)=>row.hidden=i<range.start||i>=range.end)};applyRows();
   };apply();
  }
- function layout(){queued=false;const on=window.innerWidth>=900&&window.innerHeight>=500;document.body.classList.toggle('desktopFrame',on);if(!on){document.querySelectorAll('.viewportPager').forEach(p=>p.hidden=true);document.querySelectorAll('.dataTable tr[hidden],.marketRow[hidden],[data-viewport-row][hidden],.portfolioCurrencyGroup[hidden],.holdingBreakdownRow[hidden]').forEach(r=>r.hidden=false);return;}
+ function layout(){queued=false;const on=window.innerWidth>=900&&window.innerHeight>=500;document.body.classList.toggle('desktopFrame',on);if(!on){document.querySelectorAll('.viewportPager:not([data-managed-pagination])').forEach(p=>p.hidden=true);document.querySelectorAll('.dataTable:not([data-managed-pagination]) tr[hidden],.marketRow[hidden],[data-viewport-row][hidden],.portfolioCurrencyGroup[hidden],.holdingBreakdownRow[hidden]').forEach(r=>r.hidden=false);return;}
   const frame=desktopFrameMetrics(window.innerWidth,window.innerHeight);const root=document.documentElement;root.style.setProperty('--frame-scale',String(frame.scale));root.style.setProperty('--frame-left',frame.left+'px');root.style.setProperty('--frame-top',frame.top+'px');paginateTables();paginateCollections();paginatePortfolio();
  }
  function schedule(){if(!queued){queued=true;requestAnimationFrame(layout)}}

@@ -1,14 +1,28 @@
-import {installViewportLayout} from './viewport-layout.js?v=20261008-align13';
+import {installViewportLayout} from './viewport-layout.js?v=20261009-market-layout2';
 
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261008-align13";
-import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261008-align13";
+import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-balanced";
+import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261009-balanced";
+const demoMode=new URLSearchParams(location.search).get("demo")==="1";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-balanced";
+import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261009-balanced";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = demoMode ? await (await import("./demo-client.js?v=20261009-balanced")).createDemoClient() : (await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")).createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ROMANIA_TZ = "Europe/Bucharest";
+// Share one header legend placement across chart panels, outside the plot area.
+Chart.register({id:"sharedHeaderLegend",beforeInit(chart){
+ if(chart.options.plugins?.legend?.display===false)return;
+ const head=chart.canvas.closest('.panel,.projectPanel')?.querySelector('.panelHead,.projectPanelHeading');
+ if(!head)return;
+ chart.options.plugins.legend.display=false;
+ if(head.querySelector('.inlineLegend,.headerChartLegend,.projectTrendLegend'))return;
+ const legend=document.createElement('span');legend.className='headerChartLegend';head.append(legend);chart.headerLegendElement=legend;
+},afterUpdate(chart){
+ const legend=chart.headerLegendElement;if(!legend)return;legend.replaceChildren();
+ for(const dataset of chart.data.datasets){if(!dataset.label)continue;const item=document.createElement('span'),swatch=document.createElement('i');const color=dataset.borderColor||dataset.backgroundColor;swatch.style.background=typeof color==='string'?color:'#8eafd0';item.append(swatch,document.createTextNode(dataset.label));legend.append(item);}
+},afterDestroy(chart){chart.headerLegendElement?.remove();}});
 const MARKET_PRESETS = {
   RO:{label:"罗马尼亚",symbols:["BRD.RO","TLV.RO","SNP.RO","SNG.RO","SNN.RO","H2O.RO","BVB.RO"]},
   US:{label:"美国",symbols:["AAPL","MSFT","NVDA","AMZN","TSLA"]},
@@ -37,7 +51,7 @@ let romaniaClockTimer=null;
 const $ = (s,root=document)=>root.querySelector(s);
 const $$ = (s,root=document)=>[...root.querySelectorAll(s)];
 const esc = (v="") => String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-const money = (n,c="USD") => new Intl.NumberFormat(localeFor(state.lang),{style:"currency",currencyDisplay:"narrowSymbol",currency:c||"USD",maximumFractionDigits:2}).format(Number(n||0));
+const money = (n,c="USD") => new Intl.NumberFormat(localeFor(state.lang),{style:"currency",currencyDisplay:"code",currency:c||"USD",maximumFractionDigits:2}).format(Number(n||0));
 const num = (n,d=2)=>Number(n||0).toLocaleString(localeFor(state.lang),{maximumFractionDigits:d});
 const dt = (v)=>v?new Date(v).toLocaleString(localeFor(state.lang),{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}):"--";
 const romaniaDateKey = (v=new Date()) => new Intl.DateTimeFormat("en-CA",{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(v));
@@ -128,6 +142,7 @@ function customerStatus(s){return customerStatusLabel(s,state.lang)}
 function canPersonnel(){return state.profile?.role==="admin"||state.profile?.role==="level1"}
 
 async function checkBootstrap(){
+  if(demoMode)return true;
   try{
     const r=await fetch(SUPABASE_URL+"/functions/v1/bootstrap-status",{headers:{"apikey":SUPABASE_KEY}});
     const j=await r.json();
@@ -143,7 +158,7 @@ function renderLogin(initialized){
   $("#root").innerHTML=`
     <section class="loginPage">
       <div class="loginHero">
-        <div class="heroMark">BV</div>
+        <div class="heroMark"><img class="brandLogo" src="/assets/brand-logo-balanced.svg" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
         <div class="heroRule"></div>
         <h1>客户股票跟踪管理系统</h1>
         <p>Brantone Veylor Private Capital Advisory · 客户、人员、买卖记录、持仓与多市场行情统一管理。</p>
@@ -220,15 +235,16 @@ function renderShell(){
   $("#root").innerHTML=`
     <div class="app"><div class="shell">
       <header class="topbar">
-        <div class="brand"><div class="mark"><img class="brandMonogram" src="/assets/brand-mark.svg" alt="BV 1996"></div><div class="brandText"><b>BRANTONE VEYLOR</b><span>PRIVATE CAPITAL ADVISORY</span></div></div>
+        <div class="brand"><img class="brandLogo" src="/assets/brand-logo-balanced.svg" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
         <div class="navFrame"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}">${tr(label,state.lang)}</button>`).join("")}</nav></div>
-        <div class="userArea"><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><span class="chip">${roleName(state.profile.role)} · ${esc(state.profile.display_name)}</span><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
+        <div class="userArea"><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><button class="chip" id="editAccountName" title="修改账号名称">${roleName(state.profile.role)} · ${esc(state.profile.display_name)}</button><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
       </header>
       <main id="main" data-view="${state.activeView}"></main>
     </div></div>
     <div id="modalRoot"></div>
   `;
   $$(".nav button").forEach(b=>b.onclick=()=>{if(b.dataset.view==="shareboard"&&document.documentElement.requestFullscreen&&!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});switchView(b.dataset.view)});
+  $("#editAccountName").onclick=openAccountNameForm;
   $("#globalLang").onchange=async e=>{state.lang=setLang(e.target.value);renderShell();await switchView(state.activeView)};
   $("#logoutBtn").onclick=async()=>{exitProjectPresentation(featureCtx());clearMarketRefreshTimers();await supabase.auth.signOut();state.profile=null;state.session=null;state.allocationProjects=[];state.allocationRecords=[];state.allocationOwnerId=null;state.activeCustomer=null;state.activeView="dashboard";renderLogin(true)};
   translateUI($("#root"),state.lang);
@@ -307,6 +323,7 @@ async function refreshAll(){
     state.shareSlots=slots.data||[];
   }else state.shareSlots=[];
   await loadAllocationProjects(featureCtx());
+  await loadCustomerReservations(featureCtx());
   await renderView(0);
 }
 
@@ -363,6 +380,8 @@ function pageHead(title,sub,actions=""){
 }
 
 
+function formattedTotals(rows,value){return currencyTotals(rows,value).map(([c,n])=>money(n,c)).join(" / ")||"—";}
+
 function renderLevel1Dashboard(){
   $("#main").classList.add("dashboardViewport","level1Main");
   const team=state.staff.filter(s=>s.role==="level2"&&s.parent_user_id===state.profile.id&&s.status==="active");
@@ -393,7 +412,7 @@ function renderLevel1Dashboard(){
         <div><small>今日交易</small><span>${day}</span></div>
         <div><small>待跟进</small><span class="${follow?"down":""}">${follow}</span></div>
       </div>
-      <div class="level1StaffFoot"><span>已实现盈亏</span><b class="${pnl>=0?"up":"down"}">${num(pnl,2)}</b><button class="tableAction">查看详情 ↗</button></div>
+      <div class="level1StaffFoot"><span>已实现盈亏</span><b class="${pnl>=0?"up":"down"}">${formattedTotals(ps,p=>Number(p.realized_pnl||0))}</b><button class="tableAction">查看详情 ↗</button></div>
     </article>`;
   }).join("");
 
@@ -423,7 +442,7 @@ function renderLevel1Dashboard(){
               <div><span>当前持仓</span><span>${openPositions.length}</span></div>
               <div><span>客户总数</span><span>${customers.length}</span></div>
               <div><span>今日交易</span><span>${todayTrades.length}</span></div>
-              <div><span>已实现盈亏</span><span class="${realized>=0?"up":"down"}">${num(realized,2)}</span></div>
+              <div><span>已实现盈亏</span><span class="${realized>=0?"up":"down"}">${formattedTotals(state.positions,p=>Number(p.realized_pnl||0))}</span></div>
             </div>
           </article>
         </div>
@@ -453,7 +472,7 @@ function openLevel2Overview(id){
         <div><small>客户</small><span>${customers.length}</span></div>
         <div><small>持仓客户</small><span>${holding}</span></div>
         <div><small>交易记录</small><span>${state.trades.filter(t=>ids.has(t.customer_id)).length}</span></div>
-        <div><small>已实现盈亏</small><span class="${realized>=0?"up":"down"}">${num(realized,2)}</span></div>
+        <div><small>已实现盈亏</small><span class="${realized>=0?"up":"down"}">${formattedTotals(positions,p=>Number(p.realized_pnl||0))}</span></div>
       </div>
       <article class="teamDetailSection"><h3>客户明细</h3><div class="tableWrap">${customerTable(customers)}</div></article>
       <article class="teamDetailSection"><h3>最近交易</h3><div class="tableWrap"><table class="dataTable"><thead><tr><th>时间</th><th>客户</th><th>股票</th><th>方向</th><th>数量</th><th>成交价</th></tr></thead><tbody>${trades.map(t=>`<tr><td>${dt(t.traded_at)}</td><td>${esc(t.customers?.name||"--")}</td><td class="symbolCell">${esc(t.symbol)}</td><td class="${t.side==="buy"?"up":"down"}">${t.side==="buy"?"买进":"卖出"}</td><td>${num(t.quantity,4)}</td><td>${money(t.price,t.currency)}</td></tr>`).join("")||'<tr><td colspan="6"><div class="empty">暂无交易记录</div></td></tr>'}</tbody></table></div></article>
@@ -469,7 +488,8 @@ function renderLevel2Dashboard(){
   const sells=state.trades.filter(t=>t.side==="sell");
   const holdingCustomerIds=new Set(openPositions.map(p=>p.customer_id));
   const realized=state.positions.reduce((sum,p)=>sum+Number(p.realized_pnl||0),0);
-  const costBasis=openPositions.reduce((sum,p)=>sum+(Number(p.quantity)*Number(p.avg_cost)),0);
+  const costBasis=currencyTotals(openPositions,p=>Number(p.quantity)*Number(p.avg_cost)).map(([c,n])=>money(n,c)).join(" / ");
+  const realizedByCurrency=currencyTotals(state.positions,p=>Number(p.realized_pnl||0)).map(([c,n])=>money(n,c)).join(" / ");
   const recentTrades=state.trades.slice(0,8);
 
   $("#main").innerHTML=`
@@ -513,8 +533,8 @@ function renderLevel2Dashboard(){
           <article class="panel level2PnlPanel">
             <div class="panelHead compact"><div><h2>账户业务汇总</h2></div></div>
             <div class="level2SummaryList">
-              <div><span>持仓成本基准</span><span>${costBasis?num(costBasis,2):"—"}</span></div>
-              <div><span>已实现盈亏</span><span class="${realized>=0?"up":"down"}">${num(realized,2)}</span></div>
+              <div><span>持仓成本基准</span><span>${costBasis||"—"}</span></div>
+              <div><span>已实现盈亏</span><span class="${realized>=0?"up":"down"}">${formattedTotals(state.positions,p=>Number(p.realized_pnl||0))}</span></div>
               <div><span>客户总数</span><span>${customers.length}</span></div>
               <div><span>交易总数</span><span>${state.trades.length}</span></div>
             </div>
@@ -597,7 +617,7 @@ async function renderDashboard(){
           <div class="tickerStat"><small>当前持仓</small><span>${openPositions.length}</span></div>
           <div class="tickerStat"><small>今日交易</small><span>${todayTrades}</span></div>
           <div class="tickerStat"><small>待跟进</small><span class="${dueFollowups?"terminalRed":""}">${dueFollowups}</span></div>
-          <div class="tickerStat"><small>成本基准</small><span>${totalCost?num(totalCost,2):"—"}</span></div>
+          <div class="tickerStat"><small>成本基准</small><span>${formattedTotals(openPositions,p=>Number(p.quantity)*Number(p.avg_cost))}</span></div>
           <button class="tickerGear" id="terminalRefresh">刷新</button>
         </div>
 
@@ -648,8 +668,8 @@ async function renderDashboard(){
                   </div>
                   <div class="positionMetrics">
                     <div><small>持仓标的</small><span>${openPositions.length}</span></div>
-                    <div><small>成本基准</small><span>${totalCost?num(totalCost,2):"—"}</span></div>
-                    <div><small>已实现盈亏</small><span class="${realized>=0?"terminalGreen":"terminalRed"}">${num(realized,2)}</span></div>
+                    <div><small>成本基准</small><span>${formattedTotals(openPositions,p=>Number(p.quantity)*Number(p.avg_cost))}</span></div>
+                    <div><small>已实现盈亏</small><span class="${realized>=0?"terminalGreen":"terminalRed"}">${formattedTotals(state.positions,p=>Number(p.realized_pnl||0))}</span></div>
                     <div><small>今日交易</small><span>${todayTrades}</span></div>
                   </div>
                 </article>`:""}
@@ -664,7 +684,7 @@ async function renderDashboard(){
               <div class="terminalFieldRow"><label>当前账户</label><span>${esc(state.profile.display_name)}</span></div>
               <div class="terminalFieldRow"><label>角色</label><span>${roleName(state.profile.role)}</span></div>
               <div class="terminalFieldRow"><label>团队人员</label><span>${teamCount}</span></div>
-              <div class="terminalFieldRow"><label>已实现盈亏</label><span class="${realized>=0?"terminalGreen":"terminalRed"}">${num(realized,2)}</span></div>
+              <div class="terminalFieldRow"><label>已实现盈亏</label><span class="${realized>=0?"terminalGreen":"terminalRed"}">${formattedTotals(state.positions,p=>Number(p.realized_pnl||0))}</span></div>
               <div class="terminalFieldRow"><label>罗马尼亚时间</label><span>${romaniaClockText()}</span></div>
             </div>
 
@@ -727,7 +747,7 @@ function chartOpts(){return{
   interaction:{mode:"index",intersect:false},
   hover:{mode:"index",intersect:false},
   plugins:{
-    legend:{labels:{color:"#c0c7ce",font:{weight:"normal"}}},
+    legend:{position:"top",align:"end",labels:{color:"#dce3eb",font:{size:10,weight:"normal"},boxWidth:12,boxHeight:4,padding:8}},
     tooltip:{enabled:true,mode:"index",intersect:false,backgroundColor:"#252524",borderColor:"#53595f",borderWidth:1,titleFont:{weight:"normal"},bodyFont:{weight:"normal"}}
   },
   scales:{x:{ticks:{color:"#c1cbd2",font:{weight:"normal",size:10},maxTicksLimit:7,maxRotation:0,autoSkip:true},grid:{color:"#596269"}},y:{ticks:{color:"#c1cbd2",font:{weight:"normal"}},grid:{color:"#596269"}}}
@@ -739,7 +759,7 @@ function customerTable(rows,full=true){
     ${rows.length?"":'<tr><td colspan="7"><div class="empty">暂无客户数据</div></td></tr>'}
   </tbody></table>`
 }
-function bindCustomerLinks(){$$(".customerLink").forEach(x=>x.onclick=()=>openCustomer(Number(x.dataset.id)))}
+function bindCustomerLinks(){$$(".customerLink").forEach(x=>x.onclick=()=>openCustomer(x.dataset.id))}
 
 async function renderCustomers(){
   $("#main").innerHTML=`
@@ -814,13 +834,14 @@ function clientAvatar(c){
   const initial=esc((c.name||"客").trim().slice(0,1));
   return `<div class="clientAvatar ${cls}"><span>${initial}</span></div>`;
 }
+function headerLegendChartOpts(){const opts=chartOpts();return {...opts,plugins:{...opts.plugins,legend:{...opts.plugins.legend,display:false}}};}
 function marketStatusBadge(x){
   if(!x||x.error||!Number.isFinite(Number(x.price)))return '<span class="quoteTimeBadge">暂无数据</span>';
   const stamp=x.lastTradeAt?new Date(x.lastTradeAt):null;
   const time=stamp&&!Number.isNaN(stamp.getTime())
     ? new Intl.DateTimeFormat(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit",hour12:false}).format(stamp)
     : "--:--";
-  return '<span class="quoteTimeBadge">'+esc(tr("更新",state.lang))+' '+esc(time)+'</span>';
+  return '<span class="quoteTimeBadge">'+esc(time)+'</span>';
 }
 function marketIndexStrip(rows){
   const names={"^GSPC":"S&P 500","^DJI":"Dow Jones","^IXIC":"Nasdaq","^FCHI":"CAC 40","BET.RO":"BET"};
@@ -848,7 +869,7 @@ function openCustomerNoteForm(c){
 
 async function openCustomer(id){
   document.body.classList.remove("screenshotCaptureMode");
-  const c=state.customers.find(x=>x.id===id);if(!c)return;state.activeCustomer=c;
+  const c=state.customers.find(x=>String(x.id)===String(id));if(!c)return;id=c.id;state.activeCustomer=c;
   const pos=state.positions.filter(x=>x.customer_id===id);
   const trades=state.trades.filter(x=>x.customer_id===id).sort((a,b)=>new Date(b.traded_at)-new Date(a.traded_at));
   const chartTrades=[...trades].sort((a,b)=>new Date(a.traded_at)-new Date(b.traded_at));
@@ -881,21 +902,21 @@ async function openCustomer(id){
     <section class="customerDetail clientPortfolioDetail shareReady" id="clientSharePage">
       <div class="shareTopbar">
         <div class="shareBrand">
-          <div class="shareBrandMark"><img class="brandMonogram" src="/assets/brand-mark.svg" alt="BV 1996"></div>
-          <div><strong>BRANTONE VEYLOR</strong><span>PRIVATE CAPITAL ADVISORY</span></div>
+          <img class="brandLogo" src="/assets/brand-logo-balanced.svg" alt="Brantone Veylor · Private Capital Advisory · 1996">
         </div>
         <div class="shareClientIdentity">
           ${clientAvatar(c)}
           <div><h1>${esc(c.name)}</h1><p>${esc(c.customer_code)} · ${esc(c.region||"地区未填写")} · ${c.age?esc(c.age+"岁"):"年龄未填写"}</p></div>
         </div>
         <div class="shareTimeBlock">
-          <span>ROMANIA / BUCHAREST</span>
+
           <strong data-romania-clock>${romaniaClockText()}</strong>
           <small id="customerDataUpdated">页面生成：${dt(new Date())}</small>
         </div>
         <div class="shareInternalActions">
           <button class="btn" id="backCustomers">返回</button>
           ${["admin","level2"].includes(state.profile.role)?'<button class="btn screenshotHide" id="editNoteBtn">编辑客户备注</button>':""}
+          ${c.owner_user_id===state.profile.id?'<button class="btn screenshotHide" id="addCustomerProjectBtn">填写参与项目</button>':""}
           ${["admin","level2"].includes(state.profile.role)?'<button class="btn gold screenshotHide" id="addTradeBtn">新增交易</button><button class="btn screenshotHide" id="addFollowBtn">记录跟进</button>':""}
           <button class="btn primary" id="captureModeBtn">截图模式</button>
         </div>
@@ -914,11 +935,11 @@ async function openCustomer(id){
 
       <div class="shareMainGrid">
         <article class="panel sharePricePanel">
-          <div class="panelHead compact"><div><h2>${primary?esc(primary.symbol)+" "+tr("价格走势",state.lang):"价格走势"}</h2><p>PRICE MOVEMENT · 买入 / 卖出节点 · 罗马尼亚时间</p></div><span class="headMeta">${primary?marketStatusBadge(q[primary.symbol]):""}</span></div>
+          <div class="panelHead compact"><div><h2>${primary?esc(primary.symbol)+" "+tr("价格走势",state.lang):"价格走势"}</h2><p>PRICE MOVEMENT · 买入 / 卖出节点 · 罗马尼亚时间</p></div><span class="headerChartLegend"><span><i style="background:#00d59b"></i>${primary?esc(primary.symbol):"—"}</span><span><i style="background:#8eafd0"></i>${tr("买进",state.lang)}</span><span><i style="background:#ef3456"></i>${tr("卖出",state.lang)}</span></span></div>
           <div class="chartBox sharePriceChart"><canvas id="customerPriceChart"></canvas></div>
         </article>
         <article class="panel shareReturnPanel">
-          <div class="panelHead compact"><div><h2>持仓收益走势</h2><p>POSITION P/L · 基于当前行情序列</p></div></div>
+          <div class="panelHead compact"><div><h2>持仓收益走势</h2><p>POSITION P/L · 基于当前行情序列</p></div><span class="headerChartLegend"><span><i style="background:#8eafd0"></i>${tr("持仓浮动盈亏",state.lang)}</span></span></div>
           <div class="chartBox shareReturnChart"><canvas id="customerReturnChart"></canvas></div>
         </article>
         <article class="panel shareAllocationPanel">
@@ -933,7 +954,7 @@ async function openCustomer(id){
           <div class="tableWrap shareLedgerTable"><div id="customerPositionLive">${positionTable(pos,q)}</div>${tradeTable(trades)}</div>
         </article>
         <article class="panel shareServicePanel">
-          <div class="panelHead compact"><div><h2>客户资料与服务纪要</h2><p>CLIENT PROFILE · SERVICE NOTES</p></div></div>
+          <div class="panelHead compact"><div><h2>客户资料与服务纪要</h2><p>CLIENT PROFILE · SERVICE NOTES</p></div>${["admin","level2"].includes(state.profile.role)?'<button class="btn screenshotHide" id="editServiceNotesBtn">编辑服务纪要</button>':""}</div>
           <div class="shareProfileGrid">
             <div><span>性别</span><span>${c.gender==="male"?"男性":c.gender==="female"?"女性":"未填写"}</span></div>
             <div><span>风险级别</span><span>${esc(c.risk_level||"--")}</span></div>
@@ -958,6 +979,8 @@ async function openCustomer(id){
   translateUI($("#clientSharePage"),state.lang);
   const back=$("#backCustomers");if(back)back.onclick=async()=>{const page=$("#clientSharePage");document.body.classList.remove("screenshotCaptureMode");if(state.customerMarketTimer){clearInterval(state.customerMarketTimer);state.customerMarketTimer=null}page?.classList.add("viewLeaving");if(!matchMedia("(prefers-reduced-motion: reduce)").matches)await new Promise(resolve=>setTimeout(resolve,180));if(page===$("#clientSharePage")){$("#modalRoot").innerHTML="";state.activeCustomer=null}};
   const addTrade=$("#addTradeBtn");if(addTrade)addTrade.onclick=()=>openTradeForm(c);
+  const addProject=$("#addCustomerProjectBtn");if(addProject)addProject.onclick=()=>{const projects=state.allocationProjects.filter(p=>p.owner_user_id===c.owner_user_id&&p.customer_ledger_enabled);if(!projects.length||state.customerReservationError){toast("请先配置并启用该账号的项目客户明细",true);return;}editCustomerReservation(featureCtx(),projects[0],{customer:c,projects,onSaved:()=>openCustomer(c.id)});};
+  const serviceEditor=$("#editServiceNotesBtn");if(serviceEditor)serviceEditor.onclick=()=>openFollowForm(c);
   const addFollow=$("#addFollowBtn");if(addFollow)addFollow.onclick=()=>openFollowForm(c);
   const editNote=$("#editNoteBtn");if(editNote)editNote.onclick=()=>openCustomerNoteForm(c);
   const capture=$("#captureModeBtn");
@@ -1001,7 +1024,7 @@ async function openCustomer(id){
       if(kpis[2]){kpis[2].textContent=priced.length?portfolioAmount(priced,p=>Number(p.quantity)*(Number(freshQ[p.symbol].price)-Number(p.avg_cost))):"—";kpis[2].className=freshUnreal>=0?"up":"down";}
       if(kpis[4]){kpis[4].textContent=mixedCurrency?"按币种分列":(freshReturn>=0?"+":"")+num(freshReturn,2)+"%";kpis[4].className=freshReturn>=0?"up":"down";}
       const timeSmall=$("#customerDataUpdated");
-      if(timeSmall)timeSmall.textContent=tr("行情更新",state.lang)+"："+dt(new Date());
+      if(timeSmall)timeSmall.textContent=dt(new Date());
       const liveTable=$("#customerPositionLive");
       if(liveTable)liveTable.innerHTML=positionTable(pos,freshQ);
       const primaryNow=openPos.find(p=>freshQ[p.symbol]?.points?.length)||primary;
@@ -1097,11 +1120,11 @@ function drawCustomerShareCharts(pos,trades,q,primary,realized,unreal){
       {label:primary.symbol,data:pts.map(p=>p.close),borderColor:"#00d59b",backgroundColor:"rgba(20,231,109,.08)",fill:true,tension:.18,pointRadius:0,pointHoverRadius:4},
       {type:"scatter",label:tr("买入",state.lang),data:buys.map(t=>({x:new Date(t.traded_at).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}),y:Number(t.price)})),pointRadius:5,pointHoverRadius:7,backgroundColor:"#8eafd0"},
       {type:"scatter",label:tr("卖出",state.lang),data:sells.map(t=>({x:new Date(t.traded_at).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}),y:Number(t.price)})),pointRadius:5,pointHoverRadius:7,backgroundColor:"#ef3456"}
-    ]},options:chartOpts()});
+    ]},options:headerLegendChartOpts()});
   }
   if(rEl){
     const qty=Number(primary.quantity),avg=Number(primary.avg_cost);
-    state.charts.customerReturn=new Chart(rEl,{type:"line",data:{labels,datasets:[{label:tr("持仓浮动盈亏",state.lang),data:pts.map(p=>(Number(p.close)-avg)*qty),borderColor:"#8eafd0",backgroundColor:"rgba(142,175,208,.10)",fill:true,tension:.18,pointRadius:0,pointHoverRadius:4}]},options:chartOpts()});
+    state.charts.customerReturn=new Chart(rEl,{type:"line",data:{labels,datasets:[{label:tr("持仓浮动盈亏",state.lang),data:pts.map(p=>(Number(p.close)-avg)*qty),borderColor:"#8eafd0",backgroundColor:"rgba(142,175,208,.10)",fill:true,tension:.18,pointRadius:0,pointHoverRadius:4}]},options:headerLegendChartOpts()});
   }
 }
 
@@ -1151,10 +1174,10 @@ function openTradeForm(c){
 }
 
 function openFollowForm(c){
-  modal("记录跟进 · "+c.name,`<form id="followForm" class="formGrid">
+  modal("编辑服务纪要 · "+c.name,`<form id="followForm" class="formGrid">
     <div class="field"><label>沟通渠道</label><select class="select" name="channel"><option value="whatsapp">WhatsApp</option><option value="phone">电话</option><option value="email">邮件</option><option value="meeting">会议</option><option value="other">其他</option></select></div>
     <div class="field"><label>下次跟进</label><input class="input" type="datetime-local" name="next_followup_at"></div>
-    <div class="field full"><label>跟进内容</label><textarea class="textarea" name="content" required></textarea></div>
+    <div class="field full"><label>服务纪要（追加记录，保留历史）</label><textarea class="textarea" name="content" maxlength="4000" required></textarea></div>
     <div class="field full"><button class="btn primary" type="submit">保存跟进记录</button></div>
   </form>`);
   $("#followForm").onsubmit=async e=>{e.preventDefault();const b=Object.fromEntries(new FormData(e.currentTarget).entries());b.customer_id=c.id;b.user_id=state.profile.id;if(!b.next_followup_at)b.next_followup_at=null;else b.next_followup_at=romaniaLocalToISO(String(b.next_followup_at));const {error}=await supabase.from("customer_followups").insert(b);if(error){toast(error.message,true);return}closeModal();toast("跟进记录已保存");await refreshAll();await openCustomer(c.id)};
@@ -1332,6 +1355,7 @@ async function renderTrades(){
 }
 
 async function fetchQuotes(symbols,{realtimeOnly=false}={}){
+  if(demoMode){const rows=(await import("./demo-client.js?v=20261009-balanced")).demoQuotes(symbols);Object.assign(state.quotes,rows);return rows;}
   const out={};
   for(let i=0;i<symbols.length;i+=20){
     const batch=symbols.slice(i,i+20);if(!batch.length)continue;
@@ -1387,15 +1411,18 @@ async function renderMarket(){
   marketRange="1D";currentMarketQuote=null;
   const presetOptions=Object.entries(MARKET_PRESETS).map(([k,v])=>`<option value="${k}" ${k==="RO"?"selected":""}>${v.label}</option>`).join("");
   $("#main").innerHTML=`\n    <section class="grid2 marketUnifiedGrid">
-      <article class="panel">
+      <article class="panel marketOverviewPanel">
         <div class="panelHead"><div><h2><img class="sectionIcon" src="/assets/globe2.svg" alt="">多国家行情</h2></div><div class="marketControls"><select id="marketCountry" class="select">${presetOptions}</select><input id="marketSymbols" class="input" value="${MARKET_PRESETS.RO.symbols.join(",")}"></div></div>
         <div class="panelBody"><div class="quoteHeader"><div><span class="link" id="mSymbol">--</span><span id="mExchangeBadge" class="exchangeBadge"></span><h3 id="mName">选择股票</h3><p class="muted" id="mExchange">--</p></div><div><div class="quotePrice"><span id="mPrice">--</span><small id="mCurrency"></small></div><div id="mChange" class="quoteChange">--</div></div></div></div>
         <div class="marketMetrics" id="marketMetrics"></div>
-        <div class="chartBox"><div class="marketRangeBar" role="group" aria-label="图表时间范围">${["1D","1W","1M","3M","6M","1Y","全部"].map((r,i)=>`<button type="button" data-range="${r}" class="${i===0?"active":""}" aria-pressed="${i===0}">${r}</button>`).join("")}<span class="marketRangeNote" id="marketRangeNote"></span></div><div class="marketCanvas"><canvas id="marketChart"></canvas></div></div>
+
       </article>
-      <article class="panel">
+      <article class="panel marketListPanel">
         <div class="panelHead"><div><h2><img class="sectionIcon" src="/assets/bar-chart.svg" alt="">股票列表</h2><p>罗马尼亚、美国、法国、德国、英国、意大利、西班牙、荷兰、瑞士、波兰、日本</p></div></div>
         <div class="marketListHead"><span>代码</span><span>公司名称</span><span>交易所</span><span>价格</span><span>涨跌幅</span><span>更新时间</span></div><div class="panelBody marketList" id="marketRows"></div>
+      </article>
+      <article class="panel marketChartPanel">
+        <div class="panelHead marketChartHeader"><div class="marketRangeBar" role="group" aria-label="图表时间范围">${["1D","1W","1M","3M","6M","1Y","全部"].map((r,i)=>`<button type="button" data-range="${r}" class="${i===0?"active":""}" aria-pressed="${i===0}">${r}</button>`).join("")}<span class="marketRangeNote" id="marketRangeNote"></span></div></div><div class="chartBox"><div class="marketCanvas"><canvas id="marketChart"></canvas></div></div>
       </article>
     </section>`;
   const load=async()=>{
@@ -1500,7 +1527,9 @@ async function renderReports(){
       <article class="panel"><div class="panelHead"><div><h2>客户归属分布</h2><div class="panelSubtitleRow"><p>按二级负责人统计</p><span class="inlineLegend goldLegend">客户数量 · ${state.customers.length}</span></div></div></div><div class="chartBox"><canvas id="ownerChart"></canvas></div></article>
       <article class="panel"><div class="panelHead"><div><h2>买卖结构</h2><div class="panelSubtitleRow"><p>交易记录数量</p><span class="inlineLegend up">买入 · ${state.trades.filter(t=>t.side==="buy").length}</span><span class="inlineLegend down">卖出 · ${state.trades.filter(t=>t.side==="sell").length}</span></div></div></div><div class="chartBox"><canvas id="sideChart"></canvas></div></article>
     </section>
-    <article class="panel" style="margin-top:13px"><div class="panelHead"><div><h2>人员客户统计</h2><p>按角色层级计算可见客户数量</p></div></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>人员</th><th>角色</th><th>客户数量</th><th>持仓客户</th></tr></thead><tbody>${staffRows||'<tr><td colspan="4"><div class="empty">暂无人员数据</div></td></tr>'}</tbody></table></div></article>`;
+    <section class="reportsLower"><article class="panel"><div class="panelHead"><div><h2>人员客户统计</h2><p>按角色层级计算可见客户数量</p></div></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>人员</th><th>角色</th><th>客户数量</th><th>持仓客户</th></tr></thead><tbody>${staffRows||'<tr><td colspan="4"><div class="empty">暂无人员数据</div></td></tr>'}</tbody></table></div></article><article class="panel monthlyReport"><div class="panelHead"><h2>月度成交额 / 笔数</h2><input id="reportMonth" class="input" type="month" value="${romaniaDateKey().slice(0,7)}"><select id="reportCurrency" class="select"><option>USD</option><option>RON</option></select></div><div class="chartBox" style="height:140px;min-height:100px"><canvas id="monthlyTradeChart"></canvas></div><div class="tableWrap" id="monthlyTradeRows"></div></article></section>`;
+  const renderMonthly=()=>{const monthly=monthlyTradeTotals(state.trades,state.customers),currency=$("#reportCurrency").value,selected=$("#reportMonth").value;const rows=monthly.filter(r=>r.month===selected&&r.currency===currency);$("#monthlyTradeRows").innerHTML=`<table class="dataTable"><thead><tr><th>月份</th><th>买入成交额</th><th>卖出成交额</th><th>笔数</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.month)}</td><td>${money(r.buy,r.currency)}</td><td>${money(r.sell,r.currency)}</td><td>${r.count}</td></tr>`).join("")||'<tr><td colspan="4">该月该币种暂无交易</td></tr>'}</tbody></table>`;const series=monthly.filter(r=>r.currency===currency);state.charts.monthly?.destroy();state.charts.monthly=new Chart($("#monthlyTradeChart"),{type:"bar",data:{labels:series.map(r=>r.month),datasets:[{label:tr("买入",state.lang)+" · "+currency,data:series.map(r=>r.buy),backgroundColor:"#8eafd0"},{label:tr("卖出",state.lang)+" · "+currency,data:series.map(r=>r.sell),backgroundColor:"#ef3456"}]},options:chartOpts()});window.dispatchEvent(new Event("crm-layout"));};
+  $("#reportMonth").onchange=renderMonthly;$("#reportCurrency").onchange=renderMonthly;renderMonthly();
   state.charts.owner=new Chart($("#ownerChart"),{type:"bar",data:{labels:Object.keys(byOwner),datasets:[{label:tr("客户数量",state.lang),data:Object.values(byOwner),backgroundColor:"#8eafd0",maxBarThickness:36}]},options:{...chartOpts(),plugins:{...chartOpts().plugins,legend:{display:false}},scales:{...chartOpts().scales,y:{...chartOpts().scales.y,beginAtZero:true,max:Math.max(10,Math.ceil(Math.max(0,...Object.values(byOwner))/10)*10),ticks:{...chartOpts().scales.y.ticks,precision:0,stepSize:10}}}}});
   state.charts.side=new Chart($("#sideChart"),{type:"doughnut",data:{labels:[tr("买入",state.lang),tr("卖出",state.lang)],datasets:[{data:[state.trades.filter(t=>t.side==="buy").length,state.trades.filter(t=>t.side==="sell").length],backgroundColor:["#00d59b","#ef3456"],borderColor:"#061722",borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:"72%",plugins:{...chartOpts().plugins,legend:{display:false}}}});
 }
@@ -1510,11 +1539,19 @@ async function renderSettings(){
   const s=state.appSettings||{};
   $("#main").innerHTML=`
     <section class="grid3 settingsGrid">
-      <article class="panel settingsCard"><div class="panelHead"><div><h2>当前账户</h2><p>登录身份</p></div></div><div class="panelBody list settingsList"><div class="listItem"><div class="top"><span>账号</span><span>${esc(state.profile.username)}</span></div></div><div class="listItem"><div class="top"><span>姓名</span><span>${esc(state.profile.display_name)}</span></div></div><div class="listItem"><div class="top"><span>角色</span><span>${roleName(state.profile.role)}</span></div></div><div class="listItem"><div class="top"><span>语言</span><span>${state.lang==="zh"?"中文":state.lang==="en"?"English":"Română"}</span></div></div></div></article>
+      <article class="panel settingsCard"><div class="panelHead"><div><h2>当前账户</h2><p>登录身份</p></div><button class="btn" id="settingsNameBtn">修改账号名称</button></div><div class="panelBody list settingsList"><div class="listItem"><div class="top"><span>账号</span><span>${esc(state.profile.username)}</span></div></div><div class="listItem"><div class="top"><span>姓名</span><span>${esc(state.profile.display_name)}</span></div></div><div class="listItem"><div class="top"><span>角色</span><span>${roleName(state.profile.role)}</span></div></div><div class="listItem"><div class="top"><span>语言</span><span>${state.lang==="zh"?"中文":state.lang==="en"?"English":"Română"}</span></div></div></div></article>
       <article class="panel settingsCard"><div class="panelHead"><div><h2>交易时段</h2><p>Europe/Bucharest</p></div></div><div class="panelBody list settingsList"><div class="listItem"><div class="top"><span>开盘时间</span><span>${String(s.market_open_time||"09:30").slice(0,5)}</span></div></div><div class="listItem"><div class="top"><span>目标交易时间</span><span>${String(s.target_trade_time||"14:30").slice(0,5)}</span></div></div>${state.profile.role==="admin"?'<button class="btn primary" id="settingsTimeBtn">修改交易时段</button>':""}</div></article>
       <article class="panel settingsCard"><div class="panelHead"><div><h2>行情数据</h2><p>FREE MARKET DATA</p></div></div><div class="panelBody list settingsList"><div class="listItem"><div class="top"><span>覆盖市场</span><span>RO / US / FR / DE / GB / IT / ES / NL / CH / PL / JP</span></div></div><div class="listItem"><div class="top"><span>显示规则</span><span>最新报价 + 罗马尼亚更新时间</span></div></div><div class="listItem"><div class="top"><span>公司信息</span><span>股票名称 / 代码自动搜索</span></div></div></div></article>
     </section>`;
+  $("#settingsNameBtn").onclick=openAccountNameForm;
   const b=$("#settingsTimeBtn");if(b)b.onclick=()=>openTimeSettings(featureCtx());
+}
+
+function openAccountNameForm(){
+  modal("修改账号名称",`<form id="accountNameForm" class="formGrid"><div class="field full"><label>显示名称</label><input class="input" name="display_name" maxlength="80" value="${esc(state.profile.display_name)}" required></div><div class="field full"><button class="btn primary">保存</button></div></form>`);
+  $("#accountNameForm").onsubmit=async event=>{event.preventDefault();const form=event.currentTarget,name=String(new FormData(form).get("display_name")||"").trim();if(!name||name.length>80){toast("名称须为1至80个字符",true);return}form.querySelector("button").disabled=true;
+    try{const result=await supabase.from("profiles").update({display_name:name}).eq("id",state.profile.id).select("id,display_name").single();if(result.error||!result.data)throw result.error||new Error("未保存，请核查数据库权限");state.profile.display_name=result.data.display_name;closeModal();renderShell();await refreshAll();toast("账号名称已更新");}catch(error){toast(error.message||"未能保存",true);form.querySelector("button").disabled=false;}
+  };
 }
 
 function translatedModalTitle(title){
@@ -1545,4 +1582,3 @@ window.addEventListener("popstate",()=>{if(!state.profile)return;const route=loc
 supabase.auth.onAuthStateChange(async(event,session)=>{if(event==="SIGNED_OUT"){exitProjectPresentation(featureCtx());clearMarketRefreshTimers();state.allocationProjects=[];state.allocationRecords=[];state.allocationOwnerId=null;state.session=null;state.profile=null;state.activeView="dashboard";renderLogin(true)}});
 installViewportLayout({getLanguage:()=>state.lang});
 (async()=>{const {data:{session}}=await supabase.auth.getSession();if(session){state.session=session;await loadProfileAndStart()}else renderLogin(await checkBootstrap())})();
-
