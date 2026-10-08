@@ -1,7 +1,7 @@
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261008-nav5";
-import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261008-nav5";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261008-refine6";
+import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261008-refine6";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
@@ -219,9 +219,9 @@ function renderShell(){
   $("#root").innerHTML=`
     <div class="app"><div class="shell">
       <header class="topbar">
-        <div class="brand"><div class="mark">BV<small>1996</small></div><div class="brandText"><b>BRANTONE VEYLOR</b><span>PRIVATE CAPITAL ADVISORY</span></div></div>
+        <div class="brand"><div class="mark"><img class="brandMonogram" src="/assets/brand-mark.svg" alt="BV 1996"></div><div class="brandText"><b>BRANTONE VEYLOR</b><span>PRIVATE CAPITAL ADVISORY</span></div></div>
         <div class="navFrame"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}">${tr(label,state.lang)}</button>`).join("")}</nav></div>
-        <div class="userArea"><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${tr(state.systemHealth==="ok"?"系统正常":state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><span class="chip">${roleName(state.profile.role)} · ${esc(state.profile.display_name)}</span><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
+        <div class="userArea"><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><span class="chip">${roleName(state.profile.role)} · ${esc(state.profile.display_name)}</span><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
       </header>
       <main id="main" data-view="${state.activeView}"></main>
     </div></div>
@@ -245,7 +245,7 @@ async function switchView(view){
     main.classList.remove("viewReveal");
     void main.offsetWidth;
     main.classList.add("viewLeaving");
-    if(!matchMedia("(prefers-reduced-motion: reduce)").matches)await new Promise(r=>setTimeout(r,180));
+    if(!matchMedia("(prefers-reduced-motion: reduce)").matches)await new Promise(r=>setTimeout(r,200));
   }
   // Serialize asynchronous renderers so an older response cannot replace the latest page.
   const task=async()=>{
@@ -288,7 +288,7 @@ async function refreshAll(){
   state.systemHealth=loadError?"error":"ok";
   const health=$("#systemHealth");
   if(health){
-    health.textContent=tr(loadError?"数据异常":"系统正常",state.lang);
+    health.textContent=loadError?tr("数据异常",state.lang):"";health.setAttribute("aria-label",tr(loadError?"数据异常":"系统正常",state.lang));
     health.classList.toggle("syserror",!!loadError);
   }
   if(loadError)toast("数据读取失败："+loadError.message,true);
@@ -879,7 +879,7 @@ async function openCustomer(id){
     <section class="customerDetail clientPortfolioDetail shareReady" id="clientSharePage">
       <div class="shareTopbar">
         <div class="shareBrand">
-          <div class="shareBrandMark">BV<small>1996</small></div>
+          <div class="shareBrandMark"><img class="brandMonogram" src="/assets/brand-mark.svg" alt="BV 1996"></div>
           <div><strong>BRANTONE VEYLOR</strong><span>PRIVATE CAPITAL ADVISORY</span></div>
         </div>
         <div class="shareClientIdentity">
@@ -954,7 +954,7 @@ async function openCustomer(id){
     </section>`;
 
   translateUI($("#clientSharePage"),state.lang);
-  const back=$("#backCustomers");if(back)back.onclick=()=>{document.body.classList.remove("screenshotCaptureMode");if(state.customerMarketTimer){clearInterval(state.customerMarketTimer);state.customerMarketTimer=null}$("#modalRoot").innerHTML="";state.activeCustomer=null};
+  const back=$("#backCustomers");if(back)back.onclick=async()=>{const page=$("#clientSharePage");document.body.classList.remove("screenshotCaptureMode");if(state.customerMarketTimer){clearInterval(state.customerMarketTimer);state.customerMarketTimer=null}page?.classList.add("viewLeaving");if(!matchMedia("(prefers-reduced-motion: reduce)").matches)await new Promise(resolve=>setTimeout(resolve,180));if(page===$("#clientSharePage")){$("#modalRoot").innerHTML="";state.activeCustomer=null}};
   const addTrade=$("#addTradeBtn");if(addTrade)addTrade.onclick=()=>openTradeForm(c);
   const addFollow=$("#addFollowBtn");if(addFollow)addFollow.onclick=()=>openFollowForm(c);
   const editNote=$("#editNoteBtn");if(editNote)editNote.onclick=()=>openCustomerNoteForm(c);

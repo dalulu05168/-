@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 90" role="img" aria-labelledby="title">
+<title id="title">BV 1996</title>
+<defs><linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f6d78e"/><stop offset=".55" stop-color="#e3b85c"/><stop offset="1" stop-color="#bb863a"/></linearGradient></defs>
+<text x="49" y="61" text-anchor="middle" fill="url(#gold)" font-family="Georgia,Times New Roman,serif" font-size="68" letter-spacing="-6">BV</text>
+<path d="M15 72h18m34 0h18" stroke="#c99b49" stroke-width=".7"/>
+<text x="50" y="83" text-anchor="middle" fill="#e3b85c" font-family="Georgia,Times New Roman,serif" font-size="10" letter-spacing="4">1996</text>
+</svg>
