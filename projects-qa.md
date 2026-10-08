@@ -25,3 +25,13 @@ A shared 1600×900 frame now scales within desktop viewports (minimum 900×500).
 All panels use brighter charcoal surfaces, legible muted text, twelve-pixel gaps and a white gradient one-pixel hover outline. Rendering remains data-driven; customer order history no longer truncates to ten rows.
 
 Validation passed: existing npm tests, three-language project DOM checks, five viewport fit calculations, navigation through every one of 113 fixture table rows, preserved action handlers, all 21 fixture holdings across three currencies, screenshot name visibility, mobile row restoration, and HTTP serving of the new viewport module. These are DOM and server checks, not a logged-in production browser visual audit.
+
+## Panoramic project energy rings — 2026-10-08
+
+The three true remaining-progress rings use stable project colours: yellow #ffe43b, vivid blue #3984ff and ice blue #83edff. Canvas strokes and percentages have soft glow; CSS smoke halos rotate gently and strengthen below 20%. Reduced-motion preferences stop animation and screenshot mode pauses it. No percentages or records are fabricated.
+
+The rings are native keyboard-accessible selection buttons; the repeated project detail/edit actions and two Romanian-time subtitles are removed. Quantity configuration stays on the dashboard. Owners can rename only the selected project through the details panel; the update includes both project ID and authenticated owner ID filters. Supervisors remain read-only under the existing database RLS. Matching-colour project names appear in the upper-left of the detail panel.
+
+All roles use the same panoramic logo/header layout. The screenshot control moves into this header and is restored to the normal toolbar on exit. Existing native full-screen support remains gesture-based.
+
+Validation: existing npm tests, three-language isolated DOM tests (three ring colours, ring selection, selected ledger, name-only save and owner filter, screenshot restore, blank slots and supervisor read-only), and desktop-frame/pagination checks passed. No logged-in production browser visual audit was available. Canva create-design returned Unknown tool.
