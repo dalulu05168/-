@@ -1,7 +1,7 @@
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261008-projects1";
-import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261008-projects1";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261008-capture1";
+import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261008-capture1";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
