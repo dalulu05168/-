@@ -1,4 +1,4 @@
-import {localeFor} from './ui-features.js?v=20261008-focus9';
+import {localeFor} from './ui-features.js?v=20261008-midnight10';
 
 const copy={
  zh:{capture:'截图模式',projects:'项目预留份额',project:'项目',edit:'编辑项目',open:'全屏查看',back:'返回主页面',mine:'我的项目',account:'查看账号',readonly:'上级只读查看',configure:'请先填写项目名称和份额数量',setup:'数据库权限尚未配置',setupHelp:'请先执行项目权限迁移脚本，再刷新页面。',error:'项目数据加载失败',total:'总份额',remaining:'剩余份额',reserved:'已预留份额',ratio:'剩余份额占比',low:'剩余份额低于 20%',normal:'可预留份额',date:'项目日期',currency:'币种',name:'项目名称',symbol:'股票代码（可选）',details:'项目明细',intro:'项目介绍',scarce:'仅剩',save:'保存项目',saved:'项目已保存',invalid:'请输入有效项目名称与份额数量',timeline:'预留份额走势',subtitle:'累计预留快照 · 罗马尼亚时间',empty:'暂无预留记录',add:'填写预留记录',editRecord:'修改记录',records:'预留明细记录',time:'记录时间',participants:'参与人数',notes:'备注',cumulative:'累计已预留份额',saveRecord:'保存记录',recordSaved:'记录已保存',invalidRecord:'请输入有效记录，累计预留不能超过总份额',sameDate:'记录日期必须与项目日期一致',scale:'低余量刻度展开 · 0–20%',notConfigured:'尚未配置',escape:'按 Esc 返回主页面',updated:'最后更新',own:'各账号独立填写',units:'份额',unitHelp:'按份额数量记录，不代表货币金额',failed:'保存失败，请重试'},
@@ -58,8 +58,8 @@ function drawProjectRing(canvas,percent,color){
  canvas.width=w*dpr;canvas.height=h*dpr;const c=canvas.getContext('2d');c.scale(dpr,dpr);
  const x=w/2,y=h/2,r=Math.min(w,h)*.39,start=-Math.PI/2,f=Math.max(0,Math.min(100,percent))/100;
  c.lineWidth=Math.max(10,r*.16);c.strokeStyle='#40505b';c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.stroke();
- if(f>0){c.strokeStyle=color;c.shadowColor=color;c.shadowBlur=8;c.beginPath();c.arc(x,y,r,start,start+Math.PI*2*f);c.stroke();}c.shadowBlur=0;
- c.textAlign='center';c.textBaseline='middle';c.fillStyle=color;c.shadowColor=color;c.shadowBlur=5;c.font=`500 ${Math.max(20,r*.43)}px Arial`;c.fillText(percent.toFixed(2)+'%',x,y);
+ if(f>0){c.strokeStyle=color;c.shadowColor=color;c.shadowBlur=percent<20?8:3;c.beginPath();c.arc(x,y,r,start,start+Math.PI*2*f);c.stroke();}c.shadowBlur=0;
+ c.textAlign='center';c.textBaseline='middle';c.fillStyle=color;c.shadowColor=color;c.shadowBlur=percent<20?5:2;c.font=`500 ${Math.max(20,r*.43)}px Arial`;c.fillText(percent.toFixed(2)+'%',x,y);
 }
 function companyHeader(el,p){
  const name=String(p.name||'').trim().toUpperCase(),symbol=/^[A-Z]{1,6}(?:\.[A-Z]{1,3})?$/.test(name)?name:String(p.symbol||'').trim().toUpperCase();
