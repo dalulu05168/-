@@ -1,8 +1,8 @@
-import {installViewportLayout} from './viewport-layout.js?v=20261008-team11';
+import {installViewportLayout} from './viewport-layout.js?v=20261008-nav12';
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261008-team11";
-import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261008-team11";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261008-nav12";
+import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261008-nav12";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
@@ -414,7 +414,7 @@ function renderLevel1Dashboard(){
         </article>
         <div class="level1SideStack">
           <article class="panel">
-            <div class="panelHead compact"><div><h2>团队买卖结构</h2><div class="panelSubtitleRow"><p>TEAM ORDER MIX</p><span class="inlineLegend up">买进 · ${trades.filter(t=>t.side==="buy").length}</span><span class="inlineLegend down">卖出 · ${trades.filter(t=>t.side==="sell").length}</span></div></div><span class="headMeta">${trades.length} ORDERS</span></div>
+            <div class="panelHead compact"><div><h2>团队买卖结构</h2><div class="panelSubtitleRow"><p>TEAM ORDER MIX</p><span class="inlineLegend up">买进 · ${trades.filter(t=>t.side==="buy").length}</span><span class="inlineLegend down">卖出 · ${trades.filter(t=>t.side==="sell").length}</span></div></div></div>
             <div class="chartBox level1Chart"><canvas id="level1OrderChart"></canvas></div>
           </article>
           <article class="panel level1SummaryPanel">
@@ -484,7 +484,7 @@ function renderLevel2Dashboard(){
 
       <div class="level2MainGrid">
         <article class="panel level2PositionsPanel">
-          <div class="panelHead compact"><div><h2>客户持仓总览</h2><p>CLIENT HOLDINGS · 自动来自买卖流水</p></div><span class="headMeta">${openPositions.length} POSITIONS</span></div>
+          <div class="panelHead compact"><div><h2>客户持仓总览</h2></div><span class="headMeta">${openPositions.length} POSITIONS</span></div>
           <div class="tableWrap">
             <table class="dataTable level2HoldingsTable">
               <thead><tr><th>客户</th><th>股票</th><th>市场</th><th>数量</th><th>平均成本</th><th>成本基准</th><th>已实现盈亏</th><th>操作</th></tr></thead>
@@ -507,11 +507,11 @@ function renderLevel2Dashboard(){
 
         <div class="level2SideStack">
           <article class="panel">
-            <div class="panelHead compact"><div><h2>买卖结构</h2><div class="panelSubtitleRow"><p>ORDER MIX</p><span class="inlineLegend up">买进 · ${buys.length}</span><span class="inlineLegend down">卖出 · ${sells.length}</span></div></div><span class="headMeta">${state.trades.length} ORDERS</span></div>
+            <div class="panelHead compact"><div><h2>买卖结构</h2><div class="panelSubtitleRow"><span class="inlineLegend up">买进 · ${buys.length}</span><span class="inlineLegend down">卖出 · ${sells.length}</span></div></div></div>
             <div class="chartBox level2Chart"><canvas id="level2SideChart"></canvas></div>
           </article>
           <article class="panel level2PnlPanel">
-            <div class="panelHead compact"><div><h2>账户业务汇总</h2><p>PORTFOLIO BASIS</p></div></div>
+            <div class="panelHead compact"><div><h2>账户业务汇总</h2></div></div>
             <div class="level2SummaryList">
               <div><span>持仓成本基准</span><span>${costBasis?num(costBasis,2):"—"}</span></div>
               <div><span>已实现盈亏</span><span class="${realized>=0?"up":"down"}">${num(realized,2)}</span></div>
@@ -523,7 +523,7 @@ function renderLevel2Dashboard(){
       </div>
 
       <article class="panel level2OrdersPanel">
-        <div class="panelHead compact"><div><h2>最近买进 / 卖出明细</h2><p>RECENT CLIENT ORDERS · 罗马尼亚时间</p></div><span class="headMeta">${recentTrades.length} RECENT</span></div>
+        <div class="panelHead compact"><div><h2>最近买进 / 卖出明细</h2></div><span class="headMeta">${recentTrades.length} RECENT</span></div>
         <div class="tableWrap">
           <table class="dataTable level2OrdersTable">
             <thead><tr><th>时间</th><th>客户</th><th>股票</th><th>方向</th><th>数量</th><th>成交价</th><th>成交金额</th><th>手续费</th><th>备注</th></tr></thead>
