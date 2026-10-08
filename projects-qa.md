@@ -1,0 +1,11 @@
+Three private allocation projects — 2026-10-08
+
+Implemented three editable project slots per account. The dashboard configuration controls remain next to the existing main-page actions for administrators; staff dashboards have the same three-project entry strip. Each project opens a separate full-screen presentation surface with BV branding, project information and a return control, with the CRM navigation hidden. Browser full-screen is requested from the user's open action and CSS full-screen remains available if that API is denied.
+
+The reference is the user-supplied 1200 × 800 dark instrument dashboard. The layout adapts its gauge, adjacent chart and bottom metrics to reservation information, retaining the supplied BV identity and removing the reference's navigation and unrelated AI metrics. Modules use near-black navy with blue borders; remaining values below 20% use amber. The explicitly labelled 0–20% interval occupies 60% of the dial so low balances are readable; numbers remain real percentages. Drawn charts use real project snapshots, with an honest empty state if there are none.
+
+Browser validation used local isolated records and blocked all production Supabase traffic. Passed: admin/Level 1/Level 2 entries, nine language/project combinations, 1920×1080, 1280×720 and 390×844 widths, full-screen gauge rendering, 8px subtitles, left-aligned titles, full desktop record-panel visibility, name/quantity editing, reservation snapshot create/update, supervisor read-only controls, exit restoration and closed behavior when the database schema is missing. No JavaScript errors.
+
+PostgreSQL tests run the migration twice and exercise authenticated identities with actual RLS: owner writes, recursive ancestor reads, peer denial, unrelated administrator denial, disabled-account denial, forged-owner rejection, RPC capacity/date validation, direct reservation write rejection and atomic remaining-balance updates. Chart scale and project validation tests also pass. Existing security-info tests pass.
+
+Production schema application is a separate required step: the user is executing migrations/20261008_allocation_projects.sql in Supabase SQL Editor. The frontend is not considered live-complete until the migration and deployment are confirmed.

@@ -1,6 +1,7 @@
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261007-i18n1";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261008-projects1";
+import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261008-projects1";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
@@ -25,6 +26,7 @@ const state = {
   session:null, profile:null, staff:[], customers:[], trades:[], positions:[], followups:[],
   charts:{}, activeView:"dashboard", activeCustomer:null, quotes:{},
   lang:getLang(), appSettings:null, shareBoard:null, shareSlots:[], allocationClockTimer:null,
+  allocationProjects:[],allocationRecords:[],allocationOwnerId:null,activeProjectNumber:1,projectLoadError:null,
   marketRefreshTimer:null, positionRefreshTimer:null, customerMarketTimer:null, shareBoardRefreshTimer:null,
   systemHealth:"loading"
 };
@@ -48,8 +50,8 @@ function romaniaDayKeys(count){
     return x.toISOString().slice(0,10);
   });
 }
-function romaniaInputNow(){
-  const p=new Intl.DateTimeFormat("en-CA",{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date());
+function romaniaInputNow(timestamp=Date.now()){
+  const p=new Intl.DateTimeFormat("en-CA",{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date(timestamp));
   const o=Object.fromEntries(p.map(x=>[x.type,x.value]));
   return `${o.year}-${o.month}-${o.day}T${o.hour}:${o.minute}`;
 }
@@ -199,8 +201,11 @@ async function loadProfileAndStart(){
   if(error||!data||data.status!=="active"){
     await supabase.auth.signOut();toast("账户未启用或无系统权限",true);renderLogin(true);return;
   }
+  if(state.profile?.id!==data.id){state.allocationOwnerId=data.id;state.allocationProjects=[];state.allocationRecords=[];}
   state.profile=data;
-  if((state.activeView==="personnel"&&!canPersonnel())||(state.activeView==="shareboard"&&state.profile.role!=="admin"))state.activeView="dashboard";
+  if((state.activeView==="personnel"&&!canPersonnel()))state.activeView="dashboard";
+  const projectRoute=location.hash.match(/^#allocation\/([123])$/);
+  if(projectRoute){state.activeProjectNumber=Number(projectRoute[1]);state.activeView="shareboard";}
   renderShell();
   await refreshAll();
 }
@@ -209,8 +214,8 @@ function renderShell(){
   const items=[
     ["dashboard","总览大盘"],["customers","客户中心"],["personnel","人员中心"],["trades","交易记录"],
     ["positions","持仓中心"],["market","行情中心"],["reports","统计报表"],
-    ["shareboard","股票份额看板"],["settings","系统设置"]
-  ].filter(x=>(x[0]!=="personnel"||canPersonnel())&&(x[0]!=="shareboard"||state.profile?.role==="admin"));
+    ["shareboard","项目预留份额"],["settings","系统设置"]
+  ].filter(x=>x[0]!=="personnel"||canPersonnel());
   $("#root").innerHTML=`
     <div class="app"><div class="shell">
       <header class="topbar">
@@ -224,7 +229,7 @@ function renderShell(){
   `;
   $$(".nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
   $("#globalLang").onchange=async e=>{state.lang=setLang(e.target.value);renderShell();await switchView(state.activeView)};
-  $("#logoutBtn").onclick=async()=>{clearMarketRefreshTimers();await supabase.auth.signOut();state.profile=null;state.session=null;state.activeCustomer=null;state.activeView="dashboard";renderLogin(true)};
+  $("#logoutBtn").onclick=async()=>{exitProjectPresentation(featureCtx());clearMarketRefreshTimers();await supabase.auth.signOut();state.profile=null;state.session=null;state.allocationProjects=[];state.allocationRecords=[];state.allocationOwnerId=null;state.activeCustomer=null;state.activeView="dashboard";renderLogin(true)};
   translateUI($("#root"),state.lang);
   startRomaniaClock();
 }
@@ -246,6 +251,8 @@ async function switchView(view){
   const task=async()=>{
     if(token!==viewSwitchToken)return;
     state.activeView=view;
+    const projectHash=view==="shareboard"?"#allocation/"+(state.activeProjectNumber||1):"";
+    if((view==="shareboard"||location.hash.startsWith("#allocation/"))&&location.hash!==projectHash)history.pushState(null,"",location.pathname+location.search+projectHash);
     $$(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
     await renderView(token);
   };
@@ -298,11 +305,12 @@ async function refreshAll(){
     if(slots.error)toast("数据读取失败："+slots.error.message,true);
     state.shareSlots=slots.data||[];
   }else state.shareSlots=[];
+  await loadAllocationProjects(featureCtx());
   await renderView(0);
 }
 
 function featureCtx(){
-  return {state,supabase,$,$$,esc,num,money,dt,romaniaClockText,romaniaDateKey,romaniaInputNow,romaniaLocalToISO,ROMANIA_TZ,fetchQuotes,chartOpts,toast,modal,closeModal,switchView,refreshAll};
+  return {state,supabase,$,$$,esc,num,money,dt,romaniaClockText,romaniaDateKey,romaniaInputNow,romaniaLocalToISO,ROMANIA_TZ,fetchQuotes,chartOpts,toast,modal,closeModal,switchView,refreshAll,fetchPagedRows};
 }
 function clearMarketRefreshTimers(){
   for(const k of ["marketRefreshTimer","positionRefreshTimer","customerMarketTimer","shareBoardRefreshTimer"]){if(state[k]){clearInterval(state[k]);state[k]=null}}
@@ -310,6 +318,8 @@ function clearMarketRefreshTimers(){
 }
 async function renderView(token=0){
   clearMarketRefreshTimers();
+  if(state.projectResizeObserver){state.projectResizeObserver.disconnect();state.projectResizeObserver=null;}
+  if(state.activeView!=="shareboard")exitProjectPresentation(featureCtx());
   Object.values(state.charts).forEach(x=>{try{x.destroy()}catch{}});
   state.charts={};
   const main=$("#main");
@@ -324,12 +334,13 @@ async function renderView(token=0){
     positions:renderPositions,
     market:renderMarket,
     reports:renderReports,
-    shareboard:()=>renderShareBoardFeature(featureCtx()),
+    shareboard:()=>renderProjectPresentation(featureCtx()),
     settings:renderSettings
   }[state.activeView]||renderDashboard;
 
   try{
     await renderer();
+    if(state.activeView==="dashboard")attachProjectLauncher(featureCtx());
     translateUI(main,state.lang);
   }catch(err){
     console.error("renderView failed",state.activeView,err);
@@ -660,7 +671,7 @@ async function renderDashboard(){
               <button class="terminalSecondary" data-view="customers">客户中心</button>
               <button class="terminalSecondary" data-view="positions">持仓中心</button>
               <button class="terminalSecondary" data-view="trades">交易记录</button>
-              ${state.profile.role==="admin"?'<button class="terminalSecondary" id="openShareBoardConfig">份额配置</button><button class="terminalSecondary" id="openTimeSettings">交易时段</button><button class="terminalSecondary" data-view="shareboard">份额看板</button>':""}
+              ${state.profile.role==="admin"?'<button class="terminalSecondary" id="openTimeSettings">交易时段</button>':""}
             </div>
 
             <div class="terminalUsage">
@@ -1520,6 +1531,7 @@ function closeModal(){
   root.innerHTML="";
 }
 
-supabase.auth.onAuthStateChange(async(event,session)=>{if(event==="SIGNED_OUT"){state.session=null;state.profile=null}});
+window.addEventListener("popstate",()=>{if(!state.profile)return;const route=location.hash.match(/^#allocation\/([123])$/);if(route){state.activeProjectNumber=Number(route[1]);switchView("shareboard")}else if(state.activeView==="shareboard")switchView("dashboard")});
+supabase.auth.onAuthStateChange(async(event,session)=>{if(event==="SIGNED_OUT"){exitProjectPresentation(featureCtx());clearMarketRefreshTimers();state.allocationProjects=[];state.allocationRecords=[];state.allocationOwnerId=null;state.session=null;state.profile=null;state.activeView="dashboard";renderLogin(true)}});
 (async()=>{const {data:{session}}=await supabase.auth.getSession();if(session){state.session=session;await loadProfileAndStart()}else renderLogin(await checkBootstrap())})();
 

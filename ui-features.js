@@ -1,7 +1,7 @@
 const LANG_KEY="bv_language";
 const dictionaries={
   en:{
-    "总览大盘":"Dashboard","客户中心":"Customers","人员中心":"Staff","交易记录":"Trades","持仓中心":"Positions","行情中心":"Markets","统计报表":"Reports","系统设置":"Settings","股票份额看板":"Share Allocation",
+    "总览大盘":"Dashboard","客户中心":"Customers","人员中心":"Staff","交易记录":"Trades","持仓中心":"Positions","行情中心":"Markets","统计报表":"Reports","系统设置":"Settings","股票份额看板":"Share Allocation","项目预留份额":"Project Allocations",
     "系统正常":"System Online","退出":"Sign out","登录系统":"Sign in","账号":"Account","密码":"Password","安全登录":"Secure login","数据库权限隔离":"Database access isolation","操作记录审计":"Audit trail",
     "客户列表":"Customer List","新增客户":"Add Client","全部状态":"All Statuses","潜在客户":"Prospect","服务中":"Active Service","持仓中":"With Holdings","已结束":"Closed","已归档":"Archived",
     "人员账户管理":"Staff Accounts","新建人员账户":"Create Staff Account","重置密码":"Reset Password","禁用":"Disable","启用":"Enable",
@@ -25,7 +25,7 @@ const dictionaries={
     "读取失败":"Read failed","正在初始化…":"Initializing…","初始化失败":"Initialization failed","管理员创建成功，请登录":"Administrator created. Please sign in.","正在登录…":"Signing in…","账户未启用或无系统权限":"Account disabled or unauthorized","未知错误":"Unknown error","已切换业务趋势":"Business trend selected","正在刷新数据":"Refreshing data","编辑人员账号":"Edit Staff Account","操作失败":"Operation failed","请输入新密码（至少 8 位）":"Enter a new password (minimum 8 characters)","确认禁用该账户？":"Disable this account?","确认启用该账户？":"Enable this account?","时段记录日期必须与看板日期一致":"Slot date must match board date","时段记录必须位于有效业务时段内":"Slot must be within the valid business window","不能录入未来时段数据":"Future slot data cannot be entered","时段预留份额合计不能超过已预留份额":"Interval reserved shares cannot exceed total reserved shares","新增客户":"Add Client","成本结构":"Cost Structure","累计净投入":"Net Invested","已实现":"Realized","未实现":"Unrealized","持仓浮动盈亏":"Unrealized Position P/L","预留份额":"Reserved Shares","参与人数":"Participants"
   },
   ro:{
-    "总览大盘":"Panou general","客户中心":"Clienți","人员中心":"Personal","交易记录":"Tranzacții","持仓中心":"Poziții","行情中心":"Piețe","统计报表":"Rapoarte","系统设置":"Setări","股票份额看板":"Panou de alocare a acțiunilor",
+    "总览大盘":"Panou general","客户中心":"Clienți","人员中心":"Personal","交易记录":"Tranzacții","持仓中心":"Poziții","行情中心":"Piețe","统计报表":"Rapoarte","系统设置":"Setări","股票份额看板":"Panou de alocare a acțiunilor","项目预留份额":"Alocările proiectelor",
     "系统正常":"Sistem activ","退出":"Ieșire","登录系统":"Autentificare","账号":"Cont","密码":"Parolă","安全登录":"Autentificare securizată","数据库权限隔离":"Izolare acces bază de date","操作记录审计":"Jurnal de audit",
     "客户列表":"Lista clienților","新增客户":"Adaugă client","全部状态":"Toate stările","潜在客户":"Prospect","服务中":"Servicii active","持仓中":"Cu dețineri","已结束":"Închis","已归档":"Arhivat",
     "人员账户管理":"Conturile personalului","新建人员账户":"Creează cont de personal","重置密码":"Resetare parolă","禁用":"Dezactivare","启用":"Activare",
