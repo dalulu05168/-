@@ -9,6 +9,11 @@ test('customer reservation SQL enforces customer ownership, capacity, parent rea
  const insert=(n,c,qty,status='confirmed',time="'2026-10-07T12:00:00Z'")=>as(n,`insert into allocation_customer_reservations(project_id,owner_user_id,customer_id,reserved_shares,status,confirmed_at) values('${p}','${id(2)}',${c},${qty},'${status}',${time}) returning id`);
  await insert(2,10,60);await assert.rejects(()=>as(2,`update allocation_projects set total_shares=50,remaining_shares=50 where id='${p}'`));await assert.rejects(()=>as(2,`update allocation_projects set customer_ledger_enabled=false where id='${p}'`));await assert.rejects(()=>insert(2,10,41));await assert.rejects(()=>insert(2,11,1));await assert.rejects(()=>insert(3,10,1));await assert.rejects(()=>insert(1,10,1));await assert.rejects(()=>insert(2,10,1,'confirmed','null'));await insert(2,10,90,'pending','null');
  assert.equal((await as(1,'select * from allocation_customer_reservations')).rows.length,2);assert.equal((await as(3,'select * from allocation_customer_reservations')).rows.length,0);assert.equal((await as(1,"update allocation_customer_reservations set reserved_shares=1 returning id")).rows.length,0);
- await assert.rejects(()=>as(2,`update allocation_customer_reservations set customer_id=11`));await db.exec('reset role;set role anon');await assert.rejects(()=>db.query('select * from allocation_customer_reservations'));
+ await assert.rejects(()=>as(2,`update allocation_customer_reservations set customer_id=11`));const historical=(await as(2,`insert into allocation_projects(owner_user_id,project_number,name,total_shares,remaining_shares,customer_ledger_enabled) values('${id(2)}',2,'History',100,40,false) returning id`)).rows[0].id;
+ await assert.rejects(()=>as(2,`update allocation_projects set customer_ledger_enabled=true where id='${historical}'`));
+ await as(2,`insert into allocation_customer_reservations(project_id,owner_user_id,customer_id,reserved_shares,status,confirmed_at) values('${historical}','${id(2)}',10,60,'confirmed','2026-10-07T12:00:00Z')`);
+ await assert.rejects(()=>as(2,`insert into allocation_customer_reservations(project_id,owner_user_id,customer_id,reserved_shares,status,confirmed_at) values('${historical}','${id(2)}',10,1,'confirmed','2026-10-07T12:00:00Z')`));
+ await as(2,`update allocation_projects set customer_ledger_enabled=true where id='${historical}'`);
+ await db.exec('reset role;set role anon');await assert.rejects(()=>db.query('select * from allocation_customer_reservations'));
  }finally{await db.close();}
 });

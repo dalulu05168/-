@@ -27,18 +27,19 @@ create policy customer_reservations_update on public.allocation_customer_reserva
 drop policy if exists customer_reservations_delete on public.allocation_customer_reservations;
 create policy customer_reservations_delete on public.allocation_customer_reservations for delete to authenticated using(owner_user_id=(select auth.uid()));
 create or replace function public.validate_customer_reservation() returns trigger language plpgsql security invoker set search_path=public,pg_temp as $$
-declare target uuid;capacity numeric;total numeric;owner uuid;
+declare target uuid;capacity numeric;total numeric;owner uuid;enabled boolean;snapshot numeric;
 begin
  target:=case when TG_OP='DELETE' then old.project_id else new.project_id end;
  owner:=case when TG_OP='DELETE' then old.owner_user_id else new.owner_user_id end;
  if owner is distinct from auth.uid() or not exists(select 1 from public.profiles where id=auth.uid() and status='active') then raise exception 'Unauthorized';end if;
  if TG_OP='UPDATE' and (new.owner_user_id<>old.owner_user_id or new.project_id<>old.project_id or new.customer_id<>old.customer_id) then raise exception 'Reservation identity is immutable';end if;
- select total_shares into capacity from public.allocation_projects where id=target and owner_user_id=auth.uid() and customer_ledger_enabled for update;
+ select total_shares,customer_ledger_enabled,total_shares-remaining_shares into capacity,enabled,snapshot from public.allocation_projects where id=target and owner_user_id=auth.uid() for update;
  if capacity is null then raise exception 'Project unavailable';end if;
  if TG_OP<>'DELETE' and not exists(select 1 from public.customers where id=new.customer_id and owner_user_id=new.owner_user_id) then raise exception 'Customer does not belong to project owner';end if;
  select coalesce(sum(reserved_shares),0) into total from public.allocation_customer_reservations where project_id=target and status='confirmed' and (TG_OP='INSERT' or id<>old.id);
  if TG_OP<>'DELETE' and new.status='confirmed' then total:=total+new.reserved_shares;end if;
  if total>capacity then raise exception 'Project capacity exceeded';end if;
+ if not enabled and total>snapshot then raise exception 'Historical customer details exceed reserved snapshot';end if;
  if TG_OP='DELETE' then return old;else return new;end if;
 end $$;
 revoke all on function public.validate_customer_reservation() from public,anon,authenticated;
@@ -48,6 +49,7 @@ create trigger validate_customer_reservation before insert or update or delete o
 create or replace function public.validate_customer_ledger_capacity() returns trigger language plpgsql security invoker set search_path=public,pg_temp as $$
 begin
  if old.customer_ledger_enabled and not new.customer_ledger_enabled then raise exception 'Customer ledger cannot be disabled after activation';end if;
+ if not old.customer_ledger_enabled and new.customer_ledger_enabled and (new.total_shares<>old.total_shares or new.remaining_shares<>old.remaining_shares or old.total_shares-old.remaining_shares<>(select coalesce(sum(reserved_shares),0) from public.allocation_customer_reservations where project_id=new.id and status='confirmed')) then raise exception 'Customer details must match historical reserved snapshot before activation';end if;
  if new.customer_ledger_enabled and new.total_shares<(select coalesce(sum(reserved_shares),0) from public.allocation_customer_reservations where project_id=new.id and status='confirmed') then raise exception 'Project capacity below confirmed customer reservations';end if;
  return new;
 end $$;
