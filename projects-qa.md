@@ -17,3 +17,11 @@ The three owner-scoped projects now remain visible together. Project selection c
 The reference theme uses charcoal surfaces and pale blue controls throughout the main CRM, customer detail, login, modal and full-screen project views. Low remaining allocation keeps an orange warning; financial gains/losses retain semantic colours. Screenshot mode hides identity, internal project labels and all edit/navigation controls; Esc restores controls.
 
 Validation: syntax checks and existing npm tests passed. Isolated jsdom DOM checks passed for Chinese, English and Romanian: three visible projects, selected chart/ledger data isolation, company title symbol validation, screenshot restore, independent project editing, supervisor read-only, blank slots and schema failure. These checks do not replace a production browser visual inspection. Canva API returned Unknown tool; no Canva design was created. Deployment pending.
+
+## Brighter 16:9 desktop layout — 2026-10-08
+
+A shared 1600×900 frame now scales within desktop viewports (minimum 900×500). The outer page does not scroll. Tables, market listings, team cards, service history and holdings breakdown use pagination; small screens retain the responsive layout. Customer screenshot mode preserves client identity while hiding action controls and internal ownership.
+
+All panels use brighter charcoal surfaces, legible muted text, twelve-pixel gaps and a white gradient one-pixel hover outline. Rendering remains data-driven; customer order history no longer truncates to ten rows.
+
+Validation passed: existing npm tests, three-language project DOM checks, five viewport fit calculations, navigation through every one of 113 fixture table rows, preserved action handlers, all 21 fixture holdings across three currencies, screenshot name visibility, mobile row restoration, and HTTP serving of the new viewport module. These are DOM and server checks, not a logged-in production browser visual audit.

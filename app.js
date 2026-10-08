@@ -1,7 +1,8 @@
+import {installViewportLayout} from './viewport-layout.js?v=20261008-frame7';
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261008-refine6";
-import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261008-refine6";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261008-frame7";
+import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261008-frame7";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
@@ -352,6 +353,7 @@ async function renderView(token=0){
     main.classList.add("viewReveal");
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       for(const chart of Object.values(state.charts)){if(chart.canvas?.isConnected){chart.resize();chart.update("none")}}
+      window.dispatchEvent(new Event("crm-layout"));
     }));
   }
 }
@@ -728,7 +730,7 @@ function chartOpts(){return{
     legend:{labels:{color:"#c0c7ce",font:{weight:"normal"}}},
     tooltip:{enabled:true,mode:"index",intersect:false,backgroundColor:"#252524",borderColor:"#53595f",borderWidth:1,titleFont:{weight:"normal"},bodyFont:{weight:"normal"}}
   },
-  scales:{x:{ticks:{color:"#a5aeb5",font:{weight:"normal",size:10},maxTicksLimit:7,maxRotation:0,autoSkip:true},grid:{color:"#3a3d40"}},y:{ticks:{color:"#a5aeb5",font:{weight:"normal"}},grid:{color:"#3a3d40"}}}
+  scales:{x:{ticks:{color:"#c1cbd2",font:{weight:"normal",size:10},maxTicksLimit:7,maxRotation:0,autoSkip:true},grid:{color:"#596269"}},y:{ticks:{color:"#c1cbd2",font:{weight:"normal"}},grid:{color:"#596269"}}}
 }}
 
 function customerTable(rows,full=true){
@@ -873,7 +875,7 @@ async function openCustomer(id){
   const latestTrade=trades[0];
   const primary=openPos.find(p=>q[p.symbol]?.points?.length)||openPos[0]||null;
   const owner=state.staff.find(s=>s.id===c.owner_user_id);
-  const serviceRows=follows.slice(0,4);
+  const serviceRows=follows;
 
   $("#modalRoot").innerHTML=`
     <section class="customerDetail clientPortfolioDetail shareReady" id="clientSharePage">
@@ -928,7 +930,7 @@ async function openCustomer(id){
       <div class="shareLowerGrid">
         <article class="panel sharePositions">
           <div class="panelHead compact"><div><h2>客户持仓与买卖记录</h2><p>HOLDINGS & ORDER LEDGER</p></div><span class="headMeta">${openPos.length} POSITIONS · ${trades.length} ORDERS</span></div>
-          <div class="tableWrap shareLedgerTable"><div id="customerPositionLive">${positionTable(pos,q)}</div>${tradeTable(trades.slice(0,10))}</div>
+          <div class="tableWrap shareLedgerTable"><div id="customerPositionLive">${positionTable(pos,q)}</div>${tradeTable(trades)}</div>
         </article>
         <article class="panel shareServicePanel">
           <div class="panelHead compact"><div><h2>客户资料与服务纪要</h2><p>CLIENT PROFILE · SERVICE NOTES</p></div></div>
@@ -973,6 +975,7 @@ async function openCustomer(id){
     $('#clientSharePage').classList.add('clientCaptureMode');
     document.body.classList.add('screenshotCaptureMode');
   };
+  const note=$("#clientSharePage .shareNote");if(note&&c.notes){note.dataset.hasNotes="true";note.onclick=()=>modal("客户备注",`<p data-no-i18n style="white-space:pre-wrap;line-height:1.6">${esc(c.notes)}</p>`);}
   drawCustomerShareCharts(pos,chartTrades,q,primary,realized,unreal);
   if(state.customerMarketTimer)clearInterval(state.customerMarketTimer);
   state.customerMarketTimer=setInterval(async()=>{
@@ -1540,5 +1543,6 @@ function closeModal(){
 
 window.addEventListener("popstate",()=>{if(!state.profile)return;const route=location.hash.match(/^#allocation\/([123])$/);if(route){state.activeProjectNumber=Number(route[1]);switchView("shareboard")}else if(state.activeView==="shareboard")switchView("dashboard")});
 supabase.auth.onAuthStateChange(async(event,session)=>{if(event==="SIGNED_OUT"){exitProjectPresentation(featureCtx());clearMarketRefreshTimers();state.allocationProjects=[];state.allocationRecords=[];state.allocationOwnerId=null;state.session=null;state.profile=null;state.activeView="dashboard";renderLogin(true)}});
+installViewportLayout({getLanguage:()=>state.lang});
 (async()=>{const {data:{session}}=await supabase.auth.getSession();if(session){state.session=session;await loadProfileAndStart()}else renderLogin(await checkBootstrap())})();
 
