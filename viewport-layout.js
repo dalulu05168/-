@@ -44,7 +44,7 @@ export function installViewportLayout({getLanguage=()=> 'zh'}={}){
    const applyRows=()=>{const range=pagerFor(group,rowState,rows.length,size,applyRows);rows.forEach((row,i)=>row.hidden=i<range.start||i>=range.end)};applyRows();
   };apply();
  }
- function layout(){queued=false;const on=window.innerWidth>=900&&window.innerHeight>=500;document.body.classList.toggle('desktopFrame',on);if(!on){document.querySelectorAll('.viewportPager').forEach(p=>p.hidden=true);document.querySelectorAll('.dataTable tr[hidden],.marketRow[hidden],[data-viewport-row][hidden],.portfolioCurrencyGroup[hidden],.holdingBreakdownRow[hidden]').forEach(r=>r.hidden=false);return;}
+ function layout(){queued=false;const on=window.innerWidth>=900&&window.innerHeight>=500;document.body.classList.toggle('desktopFrame',on);if(!on){document.querySelectorAll('.viewportPager:not([data-managed-pagination])').forEach(p=>p.hidden=true);document.querySelectorAll('.dataTable:not([data-managed-pagination]) tr[hidden],.marketRow[hidden],[data-viewport-row][hidden],.portfolioCurrencyGroup[hidden],.holdingBreakdownRow[hidden]').forEach(r=>r.hidden=false);return;}
   const frame=desktopFrameMetrics(window.innerWidth,window.innerHeight);const root=document.documentElement;root.style.setProperty('--frame-scale',String(frame.scale));root.style.setProperty('--frame-left',frame.left+'px');root.style.setProperty('--frame-top',frame.top+'px');paginateTables();paginateCollections();paginatePortfolio();
  }
  function schedule(){if(!queued){queued=true;requestAnimationFrame(layout)}}

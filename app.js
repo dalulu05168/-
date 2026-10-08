@@ -1,14 +1,14 @@
-import {installViewportLayout} from './viewport-layout.js?v=20261008-unified4';
+import {installViewportLayout} from './viewport-layout.js?v=20261009-participation3';
 
-import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261008-unified4";
-import {loadCustomerReservations} from "./customer-reservations.js?v=20261008-unified4";
+import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-participation3";
+import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261009-participation3";
 const demoMode=new URLSearchParams(location.search).get("demo")==="1";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261008-unified4";
-import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261008-unified4";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-participation3";
+import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261009-participation3";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
-const supabase = demoMode ? await (await import("./demo-client.js?v=20261008-unified4")).createDemoClient() : (await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")).createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = demoMode ? await (await import("./demo-client.js?v=20261009-participation3")).createDemoClient() : (await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")).createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ROMANIA_TZ = "Europe/Bucharest";
 const MARKET_PRESETS = {
@@ -904,6 +904,7 @@ async function openCustomer(id){
         <div class="shareInternalActions">
           <button class="btn" id="backCustomers">返回</button>
           ${["admin","level2"].includes(state.profile.role)?'<button class="btn screenshotHide" id="editNoteBtn">编辑客户备注</button>':""}
+          ${c.owner_user_id===state.profile.id?'<button class="btn screenshotHide" id="addCustomerProjectBtn">填写参与项目</button>':""}
           ${["admin","level2"].includes(state.profile.role)?'<button class="btn gold screenshotHide" id="addTradeBtn">新增交易</button><button class="btn screenshotHide" id="addFollowBtn">记录跟进</button>':""}
           <button class="btn primary" id="captureModeBtn">截图模式</button>
         </div>
@@ -966,6 +967,7 @@ async function openCustomer(id){
   translateUI($("#clientSharePage"),state.lang);
   const back=$("#backCustomers");if(back)back.onclick=async()=>{const page=$("#clientSharePage");document.body.classList.remove("screenshotCaptureMode");if(state.customerMarketTimer){clearInterval(state.customerMarketTimer);state.customerMarketTimer=null}page?.classList.add("viewLeaving");if(!matchMedia("(prefers-reduced-motion: reduce)").matches)await new Promise(resolve=>setTimeout(resolve,180));if(page===$("#clientSharePage")){$("#modalRoot").innerHTML="";state.activeCustomer=null}};
   const addTrade=$("#addTradeBtn");if(addTrade)addTrade.onclick=()=>openTradeForm(c);
+  const addProject=$("#addCustomerProjectBtn");if(addProject)addProject.onclick=()=>{const projects=state.allocationProjects.filter(p=>p.owner_user_id===c.owner_user_id&&p.customer_ledger_enabled);if(!projects.length||state.customerReservationError){toast("请先配置并启用该账号的项目客户明细",true);return;}editCustomerReservation(featureCtx(),projects[0],{customer:c,projects,onSaved:()=>openCustomer(c.id)});};
   const serviceEditor=$("#editServiceNotesBtn");if(serviceEditor)serviceEditor.onclick=()=>openFollowForm(c);
   const addFollow=$("#addFollowBtn");if(addFollow)addFollow.onclick=()=>openFollowForm(c);
   const editNote=$("#editNoteBtn");if(editNote)editNote.onclick=()=>openCustomerNoteForm(c);
@@ -1341,7 +1343,7 @@ async function renderTrades(){
 }
 
 async function fetchQuotes(symbols,{realtimeOnly=false}={}){
-  if(demoMode){const rows=(await import("./demo-client.js?v=20261008-unified4")).demoQuotes(symbols);Object.assign(state.quotes,rows);return rows;}
+  if(demoMode){const rows=(await import("./demo-client.js?v=20261009-participation3")).demoQuotes(symbols);Object.assign(state.quotes,rows);return rows;}
   const out={};
   for(let i=0;i<symbols.length;i+=20){
     const batch=symbols.slice(i,i+20);if(!batch.length)continue;
