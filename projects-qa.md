@@ -9,3 +9,11 @@ Browser validation used local isolated records and blocked all production Supaba
 PostgreSQL tests run the migration twice and exercise authenticated identities with actual RLS: owner writes, recursive ancestor reads, peer denial, unrelated administrator denial, disabled-account denial, forged-owner rejection, RPC capacity/date validation, direct reservation write rejection and atomic remaining-balance updates. Chart scale and project validation tests also pass. Existing security-info tests pass.
 
 Production schema application is a separate required step: the user is executing migrations/20261008_allocation_projects.sql in Supabase SQL Editor. The frontend is not considered live-complete until the migration and deployment are confirmed.
+
+## Three-project portfolio window — 2026-10-08
+
+The three owner-scoped projects now remain visible together. Project selection changes only the lower reservation trend, details, and ledger. Existing project editing and reservation RPCs are retained. No totals are combined across currencies. Empty project slots remain editable, with no generated data.
+
+The reference theme uses charcoal surfaces and pale blue controls throughout the main CRM, customer detail, login, modal and full-screen project views. Low remaining allocation keeps an orange warning; financial gains/losses retain semantic colours. Screenshot mode hides identity, internal project labels and all edit/navigation controls; Esc restores controls.
+
+Validation: syntax checks and existing npm tests passed. Isolated jsdom DOM checks passed for Chinese, English and Romanian: three visible projects, selected chart/ledger data isolation, company title symbol validation, screenshot restore, independent project editing, supervisor read-only, blank slots and schema failure. These checks do not replace a production browser visual inspection. Canva API returned Unknown tool; no Canva design was created. Deployment pending.
