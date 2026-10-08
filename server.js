@@ -52,7 +52,7 @@ function makeApiResponse(res){
 
 async function serveStatic(req,res,url){
   const pathname=decodeURIComponent(url.pathname);
-  const allowed=new Set(["/","/index.html","/app.js","/ui-features.js","/allocation-projects.js","/viewport-layout.js","/styles.css","/reference-theme.css"]);
+  const allowed=new Set(["/","/index.html","/app.js","/ui-features.js","/allocation-projects.js","/viewport-layout.js","/styles.css","/reference-theme.css","/unified-ui.css","/dashboard-data.js","/customer-reservations.js","/demo-client.js","/demo-data.json"]);
   let target=pathname==="/"?"/index.html":pathname;
   if(!allowed.has(target)&&!/^\/assets\/[a-z0-9-]+\.(svg|png|webp)$/.test(target)){
     target="/index.html";

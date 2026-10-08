@@ -12,7 +12,7 @@ export function installViewportLayout({getLanguage=()=> 'zh'}={}){
  }
  function paginateTables(){
   document.querySelectorAll('#main .dataTable,#clientSharePage .dataTable').forEach(table=>{
-   const wrapper=table.closest('.tableWrap');if(!wrapper||!table.tBodies.length)return;
+   const wrapper=table.closest('.tableWrap');if(table.dataset.managedPagination||!wrapper||!table.tBodies.length)return;
    const rows=[...table.tBodies].flatMap(body=>[...body.rows]);if(!rows.length)return;
    let state=tableStates.get(table);if(!state){state={page:0};tableStates.set(table,state)}
    const peers=[...wrapper.querySelectorAll('.dataTable')].filter(t=>t.closest('.tableWrap')===wrapper).length||1;
