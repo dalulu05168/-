@@ -1,14 +1,14 @@
-import {installViewportLayout} from './viewport-layout.js?v=20261009-white-logo';
+import {installViewportLayout} from './viewport-layout.js?v=20261009-clean-logo';
 
-import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-white-logo";
-import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261009-white-logo";
+import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-clean-logo";
+import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261009-clean-logo";
 const demoMode=new URLSearchParams(location.search).get("demo")==="1";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-white-logo";
-import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261009-white-logo";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-clean-logo";
+import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261009-clean-logo";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
-const supabase = demoMode ? await (await import("./demo-client.js?v=20261009-white-logo")).createDemoClient() : (await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")).createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = demoMode ? await (await import("./demo-client.js?v=20261009-clean-logo")).createDemoClient() : (await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")).createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ROMANIA_TZ = "Europe/Bucharest";
 // Share one header legend placement across chart panels, outside the plot area.
@@ -158,7 +158,7 @@ function renderLogin(initialized){
   $("#root").innerHTML=`
     <section class="loginPage">
       <div class="loginHero">
-        <div class="heroMark"><img class="brandLogo" src="/assets/brand-logo-white.png" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
+        <div class="heroMark"><img class="brandLogo" src="/assets/brand-logo-clean.svg" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
         <div class="heroRule"></div>
         <h1>客户股票跟踪管理系统</h1>
         <p>Brantone Veylor Private Capital Advisory · 客户、人员、买卖记录、持仓与多市场行情统一管理。</p>
@@ -235,7 +235,7 @@ function renderShell(){
   $("#root").innerHTML=`
     <div class="app"><div class="shell">
       <header class="topbar">
-        <div class="brand"><img class="brandLogo" src="/assets/brand-logo-white.png" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
+        <div class="brand"><img class="brandLogo" src="/assets/brand-logo-clean.svg" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
         <div class="navFrame"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}">${tr(label,state.lang)}</button>`).join("")}</nav></div>
         <div class="userArea"><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><button class="chip" id="editAccountName" title="修改账号名称">${roleName(state.profile.role)} · ${esc(state.profile.display_name)}</button><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
       </header>
@@ -902,7 +902,7 @@ async function openCustomer(id){
     <section class="customerDetail clientPortfolioDetail shareReady" id="clientSharePage">
       <div class="shareTopbar">
         <div class="shareBrand">
-          <img class="brandLogo" src="/assets/brand-logo-white.png" alt="Brantone Veylor · Private Capital Advisory · 1996">
+          <img class="brandLogo" src="/assets/brand-logo-clean.svg" alt="Brantone Veylor · Private Capital Advisory · 1996">
         </div>
         <div class="shareClientIdentity">
           ${clientAvatar(c)}
@@ -1355,7 +1355,7 @@ async function renderTrades(){
 }
 
 async function fetchQuotes(symbols,{realtimeOnly=false}={}){
-  if(demoMode){const rows=(await import("./demo-client.js?v=20261009-white-logo")).demoQuotes(symbols);Object.assign(state.quotes,rows);return rows;}
+  if(demoMode){const rows=(await import("./demo-client.js?v=20261009-clean-logo")).demoQuotes(symbols);Object.assign(state.quotes,rows);return rows;}
   const out={};
   for(let i=0;i<symbols.length;i+=20){
     const batch=symbols.slice(i,i+20);if(!batch.length)continue;
