@@ -1,4 +1,4 @@
-import {customerReservations} from './dashboard-data.js?v=20261009-project-colors';
+import {customerReservations} from './dashboard-data.js?v=20261009-customer-detail';
 const copy={zh:{add:'填写参与项目',customer:'客户',shares:'预定份额',time:'成功预定时间',save:'保存预定',empty:'暂无成功预定',missing:'客户预定数据尚未配置，请执行客户预定设置脚本。',failed:'未能保存，请核查权限与容量',units:'份额'},en:{add:'Add Customer Reservation',customer:'Customer',shares:'Reserved Shares',time:'Confirmed At',save:'Save Reservation',empty:'No Confirmed Reservations',missing:'Customer reservations are not configured. Run the setup SQL.',failed:'Save failed; check permissions and capacity',units:'shares'},ro:{add:'Adaugă rezervare',customer:'Client',shares:'Acțiuni rezervate',time:'Ora confirmării',save:'Salvează rezervarea',empty:'Nu există rezervări confirmate',missing:'Rezervările clienților nu sunt configurate. Execută scriptul SQL.',failed:'Salvarea a eșuat; verifică permisiunile și capacitatea',units:'acțiuni'}};
 const t=(ctx,k)=>copy[ctx.state.lang]?.[k]||copy.zh[k];
 export async function loadCustomerReservations(ctx){
@@ -6,7 +6,7 @@ export async function loadCustomerReservations(ctx){
  ctx.state.customerReservations=result.data||[];ctx.state.customerReservationError=result.error||null;
 }
 export function customerProject(ctx,p){
- if(!p||ctx.state.customerReservationError||!p.customer_ledger_enabled)return p;
+ if(!p||ctx.state.customerReservationError)return p;
  const summary=customerReservations(p,ctx.state.customers,ctx.state.customerReservations||[]);
  return {...p,remaining_shares:summary.remaining,customerSummary:summary};
 }
@@ -14,10 +14,9 @@ export function attachCustomerRanking(ctx,p){
  const panel=ctx.$('.projectOverviewSummary');if(!panel||!p)return;
  const summary=customerReservations(p,ctx.state.customers,ctx.state.customerReservations||[]);
  panel.querySelector('.projectDetailSummary')?.remove();panel.querySelector('.projectNameEditor')?.remove();
- if(p.customer_ledger_enabled)panel.querySelector('.projectSummaryMetrics strong')?.replaceChildren(document.createTextNode(ctx.num(summary.participants,0)));
+ panel.querySelector('.projectSummaryMetrics strong')?.replaceChildren(document.createTextNode(ctx.num(summary.participants,0)));
  const section=document.createElement('section');section.className='customerRanking';
- section.innerHTML=ctx.state.customerReservationError?`<p role="alert">${t(ctx,'missing')}</p>`:`<div class="tableWrap"><table class="dataTable" data-managed-pagination="true"><thead><tr><th>Top</th><th>${t(ctx,'customer')}</th><th>${t(ctx,'shares')}</th><th>${t(ctx,'time')}</th></tr></thead><tbody>${summary.ranking.map(r=>`<tr><td>${r.rank}</td><td data-no-i18n>${ctx.esc(r.name)}</td><td>${ctx.num(r.reserved_shares,4)} ${t(ctx,'units')}</td><td>${ctx.dt(r.confirmed_at)}</td></tr>`).join('')||`<tr><td colspan="4">${t(ctx,'empty')}</td></tr>`}</tbody></table></div>`;
- if(!ctx.state.customerReservationError&&!p.customer_ledger_enabled)section.insertAdjacentHTML('afterbegin','<p role="status">旧累计快照尚未与客户明细核对，仍保留原剩余量。</p>');
+ section.innerHTML=ctx.state.customerReservationError?`<p role="alert">${t(ctx,'missing')}</p>`:`<div class="tableWrap"><table class="dataTable" data-managed-pagination="true"><thead><tr><th>${t(ctx,'customer')}</th><th>${t(ctx,'shares')}</th><th>${t(ctx,'time')}</th></tr></thead><tbody>${summary.ranking.map(r=>`<tr><td data-no-i18n>${ctx.esc(r.name)}</td><td>${ctx.num(r.reserved_shares,4)} ${t(ctx,'units')}</td><td>${ctx.dt(r.confirmed_at)}</td></tr>`).join('')||`<tr><td colspan="3">${t(ctx,'empty')}</td></tr>`}</tbody></table></div>`;
  panel.append(section);
  if(!ctx.state.customerReservationError&&summary.ranking.length){
   const rows=[...section.querySelectorAll('tbody tr')],size=2;let page=0;

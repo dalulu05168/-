@@ -8,3 +8,10 @@ test('customer reservations rank only confirmed customers belonging to project o
  const s=customerReservations(p,customers,records);assert.equal(s.reserved,210);assert.equal(s.remaining,790);assert.equal(s.participants,2);assert.equal(s.ranking[0].name,'Ana');assert.equal(s.ranking[0].confirmed_at,'2026-10-02T10:00:00Z');
 });
 test('monthly totals respect Romanian timezone, customer scope and currency',()=>{const rows=monthlyTradeTotals([{customer_id:'c',side:'buy',quantity:2,price:10,currency:'USD',traded_at:'2026-01-31T23:30:00Z'},{customer_id:'c',side:'sell',quantity:2,price:30,currency:'RON',traded_at:'2026-02-01T10:00:00Z'},{customer_id:'other',side:'buy',quantity:999,price:999,traded_at:'2026-02-01T00:00:00Z'}],[{id:'c'}]);assert.deepEqual(rows,[{month:'2026-02',currency:'RON',buy:0,sell:60,count:1},{month:'2026-02',currency:'USD',buy:20,sell:0,count:1}]);});
+
+import {customerProject} from '../customer-reservations.js';
+test('project display uses matching entered customer details instead of a historical snapshot',()=>{
+ const p={id:'p',owner_user_id:'u',total_shares:100,remaining_shares:2,customer_ledger_enabled:false};
+ const ctx={state:{customerReservationError:null,customers:[{id:1,owner_user_id:'u',name:'Client'}],customerReservations:[{project_id:'p',owner_user_id:'u',customer_id:1,reserved_shares:20,status:'confirmed',confirmed_at:'2026-10-08T10:00:00Z'},{project_id:'other',owner_user_id:'u',customer_id:1,reserved_shares:90,status:'confirmed',confirmed_at:'2026-10-08T10:00:00Z'}]}};
+ const result=customerProject(ctx,p);assert.equal(result.remaining_shares,80);assert.equal(result.customerSummary.reserved,20);assert.equal(result.customerSummary.participants,1);assert.equal(p.remaining_shares,2);
+});
