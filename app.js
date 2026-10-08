@@ -1,14 +1,14 @@
-import {installViewportLayout} from './viewport-layout.js?v=20261009-customer-detail';
+import {installViewportLayout} from './viewport-layout.js?v=20261009-no-footer';
 
-import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-customer-detail";
-import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261009-customer-detail";
+import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-no-footer";
+import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261009-no-footer";
 const demoMode=new URLSearchParams(location.search).get("demo")==="1";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-customer-detail";
-import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261009-customer-detail";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-no-footer";
+import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261009-no-footer";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
-const supabase = demoMode ? await (await import("./demo-client.js?v=20261009-customer-detail")).createDemoClient() : (await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")).createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = demoMode ? await (await import("./demo-client.js?v=20261009-no-footer")).createDemoClient() : (await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")).createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ROMANIA_TZ = "Europe/Bucharest";
 // Share one header legend placement across chart panels, outside the plot area.
@@ -1355,7 +1355,7 @@ async function renderTrades(){
 }
 
 async function fetchQuotes(symbols,{realtimeOnly=false}={}){
-  if(demoMode){const rows=(await import("./demo-client.js?v=20261009-customer-detail")).demoQuotes(symbols);Object.assign(state.quotes,rows);return rows;}
+  if(demoMode){const rows=(await import("./demo-client.js?v=20261009-no-footer")).demoQuotes(symbols);Object.assign(state.quotes,rows);return rows;}
   const out={};
   for(let i=0;i<symbols.length;i+=20){
     const batch=symbols.slice(i,i+20);if(!batch.length)continue;
@@ -1543,6 +1543,14 @@ async function renderSettings(){
       <article class="panel settingsCard"><div class="panelHead"><div><h2>交易时段</h2><p>Europe/Bucharest</p></div></div><div class="panelBody list settingsList"><div class="listItem"><div class="top"><span>开盘时间</span><span>${String(s.market_open_time||"09:30").slice(0,5)}</span></div></div><div class="listItem"><div class="top"><span>目标交易时间</span><span>${String(s.target_trade_time||"14:30").slice(0,5)}</span></div></div>${state.profile.role==="admin"?'<button class="btn primary" id="settingsTimeBtn">修改交易时段</button>':""}</div></article>
       <article class="panel settingsCard"><div class="panelHead"><div><h2>行情数据</h2><p>FREE MARKET DATA</p></div></div><div class="panelBody list settingsList"><div class="listItem"><div class="top"><span>覆盖市场</span><span>RO / US / FR / DE / GB / IT / ES / NL / CH / PL / JP</span></div></div><div class="listItem"><div class="top"><span>显示规则</span><span>最新报价 + 罗马尼亚更新时间</span></div></div><div class="listItem"><div class="top"><span>公司信息</span><span>股票名称 / 代码自动搜索</span></div></div></div></article>
     </section>`;
+  if(demoMode){
+    const card=document.createElement('article');card.className='panel settingsCard';
+    card.innerHTML=`<div class="panelHead"><h2>查看账号</h2></div><div class="panelBody"><p class="muted">虚构数据 · 非真实交易 · 编辑仅保存在本机</p><select class="input" aria-label="查看账号"></select></div>`;
+    const select=card.querySelector('select');
+    for(const account of supabase.previewAccounts()){const option=document.createElement('option');option.value=account.id;option.textContent=account.name;select.append(option);}
+    select.value=state.profile.id;select.onchange=()=>supabase.selectPreviewAccount(select.value);
+    $("#main .settingsGrid").append(card);
+  }
   $("#settingsNameBtn").onclick=openAccountNameForm;
   const b=$("#settingsTimeBtn");if(b)b.onclick=()=>openTimeSettings(featureCtx());
 }

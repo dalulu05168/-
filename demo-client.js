@@ -1,7 +1,7 @@
 // Browser-only test adapter. It has no production credentials or remote writes.
 const STORE='bv-explicit-demo-v2';let tables;
 export async function createDemoClient(){
- const seed=await (await fetch('/demo-data.json?v=20261009-customer-detail')).json();if(seed.environment!=='test'||seed.is_simulated!==true)throw new Error('Invalid test fixture');
+ const seed=await (await fetch('/demo-data.json?v=20261009-no-footer')).json();if(seed.environment!=='test'||seed.is_simulated!==true)throw new Error('Invalid test fixture');
  try{tables=JSON.parse(localStorage.getItem(STORE))||seed;}catch{tables=seed;}
  for(const [key,rows] of Object.entries(seed)){if(!Array.isArray(rows))continue;const existing=tables[key]||[];const ids=new Set(existing.map(row=>row.id));tables[key]=[...existing,...rows.filter(row=>!ids.has(row.id))];}
  let userId=new URLSearchParams(location.search).get('account')||tables.profiles.find(p=>p.role==='level2').id;
@@ -35,9 +35,7 @@ export async function createDemoClient(){
   rows=rows.map(r=>({...r,...(r.customer_id?{customers:tables.customers.find(c=>c.id===r.customer_id)}:{})}));
   return {data:one?(rows[0]||null):rows,error:one&&!rows.length?{message:'No matching row'}:null};
  }).catch(error=>({data:null,error:{message:error.message}})).then(resolve,reject)}};return query;}
- const banner=document.createElement('div');banner.className='demoBanner';banner.innerHTML='<strong>虚构数据 · 非真实交易</strong><span>编辑仅保存在本机</span><select aria-label="查看账号">'+tables.profiles.map(p=>`<option value="${p.id}"></option>`).join('')+'</select><button type="button">重置本机数据</button>';
- [...banner.querySelectorAll('option')].forEach((o,i)=>{o.textContent=tables.profiles[i].role+' · '+tables.profiles[i].display_name;});banner.querySelector('select').value=userId;banner.querySelector('select').onchange=e=>{location.href='/?demo=1&account='+encodeURIComponent(e.target.value);};banner.querySelector('button').onclick=()=>{localStorage.removeItem(STORE);location.reload();};document.body.append(banner);
  const session=()=>({user:{id:userId}});
- return {from,auth:{getSession:async()=>({data:{session:session()}}),onAuthStateChange(){},signOut:async()=>{location.href='/?demo=1';}}};
+ return {from,previewAccounts:()=>tables.profiles.map(p=>({id:p.id,name:p.display_name})),selectPreviewAccount:id=>{if(tables.profiles.some(p=>p.id===id))location.href='/?demo=1&account='+encodeURIComponent(id);},auth:{getSession:async()=>({data:{session:session()}}),onAuthStateChange(){},signOut:async()=>{location.href='/?demo=1';}}};
 }
 export function demoQuotes(symbols){return Object.fromEntries(symbols.map((symbol,i)=>{const price=symbol.includes('RON')?45:120;return [symbol,{symbol,name:symbol,companyName:symbol,currency:symbol.includes('RON')?'RON':'USD',exchange:'',country:'RO',source:'',price,changePct:0.5,realtime:false,timestamp:new Date().toISOString(),points:Array.from({length:30},(_,j)=>({t:Date.now()-(29-j)*60000,close:price+Math.sin(j/4)*2})),open:price,high:price+2,low:price-2,previousClose:price-1,volume:5000}] }));}

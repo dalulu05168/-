@@ -1,4 +1,4 @@
-import {customerReservations} from './dashboard-data.js?v=20261009-customer-detail';
+import {customerReservations} from './dashboard-data.js?v=20261009-no-footer';
 const copy={zh:{add:'填写参与项目',customer:'客户',shares:'预定份额',time:'成功预定时间',save:'保存预定',empty:'暂无成功预定',missing:'客户预定数据尚未配置，请执行客户预定设置脚本。',failed:'未能保存，请核查权限与容量',units:'份额'},en:{add:'Add Customer Reservation',customer:'Customer',shares:'Reserved Shares',time:'Confirmed At',save:'Save Reservation',empty:'No Confirmed Reservations',missing:'Customer reservations are not configured. Run the setup SQL.',failed:'Save failed; check permissions and capacity',units:'shares'},ro:{add:'Adaugă rezervare',customer:'Client',shares:'Acțiuni rezervate',time:'Ora confirmării',save:'Salvează rezervarea',empty:'Nu există rezervări confirmate',missing:'Rezervările clienților nu sunt configurate. Execută scriptul SQL.',failed:'Salvarea a eșuat; verifică permisiunile și capacitatea',units:'acțiuni'}};
 const t=(ctx,k)=>copy[ctx.state.lang]?.[k]||copy.zh[k];
 export async function loadCustomerReservations(ctx){
