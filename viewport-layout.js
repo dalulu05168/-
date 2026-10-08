@@ -20,7 +20,7 @@ export function installViewportLayout({getLanguage=()=> 'zh'}={}){
    const size=Math.max(1,Math.floor((height/peers-head-30)/rowHeight));
    const apply=()=>{const b=pagerFor(table.parentElement,state,rows.length,size,apply);rows.forEach((row,i)=>{row.hidden=i<b.start||i>=b.end})};apply();
   });
-  const list=document.querySelector('#main .marketList');if(list){const rows=[...list.querySelectorAll('.marketRow')];if(rows.length){let state=listStates.get(list);if(!state){state={page:0};listStates.set(list,state)}const size=Math.max(1,Math.floor(((list.clientHeight||450)-30)/Math.max(55,rows[0].offsetHeight||65)));const apply=()=>{const b=pagerFor(list,state,rows.length,size,apply);rows.forEach((r,i)=>r.hidden=i<b.start||i>=b.end)};apply();}}
+  const list=document.querySelector('#main .marketList');if(list){const rows=[...list.querySelectorAll('.marketRow')];if(rows.length){let state=listStates.get(list);if(!state){state={page:0};listStates.set(list,state)}const gap=parseFloat(getComputedStyle(list).rowGap)||0;const rowHeight=Math.max(48,rows.find(r=>!r.hidden)?.offsetHeight||65);const size=Math.max(1,Math.floor(((list.clientHeight||450)-30+gap)/(rowHeight+gap)));const apply=()=>{const b=pagerFor(list,state,rows.length,size,apply);rows.forEach((r,i)=>r.hidden=i<b.start||i>=b.end)};apply();}}
  }
  function paginateCollections(){
   for(const [selector,itemSelector] of [['#clientSharePage .shareServiceTimeline',':scope > div'],['#main .level1TeamGrid',':scope > .level1StaffCard'],['#main .terminalPositionList',':scope > .terminalPositionCard']]){

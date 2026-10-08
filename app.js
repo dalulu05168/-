@@ -1,4 +1,4 @@
-import {installViewportLayout} from './viewport-layout.js?v=20261009-balanced';
+import {installViewportLayout} from './viewport-layout.js?v=20261009-market-layout2';
 
 import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-balanced";
 import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261009-balanced";
@@ -1411,15 +1411,18 @@ async function renderMarket(){
   marketRange="1D";currentMarketQuote=null;
   const presetOptions=Object.entries(MARKET_PRESETS).map(([k,v])=>`<option value="${k}" ${k==="RO"?"selected":""}>${v.label}</option>`).join("");
   $("#main").innerHTML=`\n    <section class="grid2 marketUnifiedGrid">
-      <article class="panel">
+      <article class="panel marketOverviewPanel">
         <div class="panelHead"><div><h2><img class="sectionIcon" src="/assets/globe2.svg" alt="">多国家行情</h2></div><div class="marketControls"><select id="marketCountry" class="select">${presetOptions}</select><input id="marketSymbols" class="input" value="${MARKET_PRESETS.RO.symbols.join(",")}"></div></div>
         <div class="panelBody"><div class="quoteHeader"><div><span class="link" id="mSymbol">--</span><span id="mExchangeBadge" class="exchangeBadge"></span><h3 id="mName">选择股票</h3><p class="muted" id="mExchange">--</p></div><div><div class="quotePrice"><span id="mPrice">--</span><small id="mCurrency"></small></div><div id="mChange" class="quoteChange">--</div></div></div></div>
         <div class="marketMetrics" id="marketMetrics"></div>
-        <div class="chartBox"><div class="marketRangeBar" role="group" aria-label="图表时间范围">${["1D","1W","1M","3M","6M","1Y","全部"].map((r,i)=>`<button type="button" data-range="${r}" class="${i===0?"active":""}" aria-pressed="${i===0}">${r}</button>`).join("")}<span class="marketRangeNote" id="marketRangeNote"></span></div><div class="marketCanvas"><canvas id="marketChart"></canvas></div></div>
+
       </article>
-      <article class="panel">
+      <article class="panel marketListPanel">
         <div class="panelHead"><div><h2><img class="sectionIcon" src="/assets/bar-chart.svg" alt="">股票列表</h2><p>罗马尼亚、美国、法国、德国、英国、意大利、西班牙、荷兰、瑞士、波兰、日本</p></div></div>
         <div class="marketListHead"><span>代码</span><span>公司名称</span><span>交易所</span><span>价格</span><span>涨跌幅</span><span>更新时间</span></div><div class="panelBody marketList" id="marketRows"></div>
+      </article>
+      <article class="panel marketChartPanel">
+        <div class="panelHead marketChartHeader"><div class="marketRangeBar" role="group" aria-label="图表时间范围">${["1D","1W","1M","3M","6M","1Y","全部"].map((r,i)=>`<button type="button" data-range="${r}" class="${i===0?"active":""}" aria-pressed="${i===0}">${r}</button>`).join("")}<span class="marketRangeNote" id="marketRangeNote"></span></div></div><div class="chartBox"><div class="marketCanvas"><canvas id="marketChart"></canvas></div></div>
       </article>
     </section>`;
   const load=async()=>{
