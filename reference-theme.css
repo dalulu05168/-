@@ -187,3 +187,10 @@ body.projectCaptureMode #toast{display:none!important}
 #clientSharePage.clientCaptureMode .shareTopbar{grid-template-columns:minmax(0,1fr) auto!important}
 body.screenshotCaptureMode #toast{display:none!important}
 @media(max-width:700px){#clientSharePage.clientCaptureMode .shareTopbar{grid-template-columns:1fr!important}}
+
+/* Allocation presentation: deep navy gradient and clean screenshot title. */
+body.projectPresentationMode,body.projectPresentationMode .app,body.projectPresentationMode .shell,body.projectPresentationMode #main{background-image:linear-gradient(135deg,#03101f 0%,#09243c 48%,#040b19 100%)!important}
+body.projectPresentationMode .projectPanel{background:linear-gradient(145deg,#0b2238,#071221 70%,#050e1a)!important;border-color:#28425d!important}
+.projectPresentationTitle #projectCompanyInfo{font-size:10px;line-height:1.5;color:#9fb6cd;margin:5px 0 0;overflow-wrap:anywhere}
+.projectPresentationTitle #projectCompanyInfo:empty{display:none}
+body.projectCaptureMode .projectInternalLabel{display:none!important}
