@@ -1,7 +1,7 @@
 // Browser-only test adapter. It has no production credentials or remote writes.
 const STORE='bv-explicit-demo-v2';let tables;
 export async function createDemoClient(){
- const seed=await (await fetch('/demo-data.json?v=20261008-unified4')).json();if(seed.environment!=='test'||seed.is_simulated!==true)throw new Error('Invalid test fixture');
+ const seed=await (await fetch('/demo-data.json?v=20261009-visual1')).json();if(seed.environment!=='test'||seed.is_simulated!==true)throw new Error('Invalid test fixture');
  try{tables=JSON.parse(localStorage.getItem(STORE))||seed;}catch{tables=seed;}
  let userId=new URLSearchParams(location.search).get('account')||tables.profiles.find(p=>p.role==='level2').id;
  if(!tables.profiles.some(p=>p.id===userId))userId=tables.profiles.find(p=>p.role==='level2').id;

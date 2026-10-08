@@ -1,16 +1,28 @@
-import {installViewportLayout} from './viewport-layout.js?v=20261009-participation3';
+import {installViewportLayout} from './viewport-layout.js?v=20261009-visual1';
 
-import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-participation3";
-import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261009-participation3";
+import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-visual1";
+import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261009-visual1";
 const demoMode=new URLSearchParams(location.search).get("demo")==="1";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-participation3";
-import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261009-participation3";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-visual1";
+import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261009-visual1";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
-const supabase = demoMode ? await (await import("./demo-client.js?v=20261009-participation3")).createDemoClient() : (await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")).createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = demoMode ? await (await import("./demo-client.js?v=20261009-visual1")).createDemoClient() : (await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")).createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ROMANIA_TZ = "Europe/Bucharest";
+// Share one header legend placement across chart panels, outside the plot area.
+Chart.register({id:"sharedHeaderLegend",beforeInit(chart){
+ if(chart.options.plugins?.legend?.display===false)return;
+ const head=chart.canvas.closest('.panel,.projectPanel')?.querySelector('.panelHead,.projectPanelHeading');
+ if(!head)return;
+ chart.options.plugins.legend.display=false;
+ if(head.querySelector('.inlineLegend,.headerChartLegend,.projectTrendLegend'))return;
+ const legend=document.createElement('span');legend.className='headerChartLegend';head.append(legend);chart.headerLegendElement=legend;
+},afterUpdate(chart){
+ const legend=chart.headerLegendElement;if(!legend)return;legend.replaceChildren();
+ for(const dataset of chart.data.datasets){if(!dataset.label)continue;const item=document.createElement('span'),swatch=document.createElement('i');const color=dataset.borderColor||dataset.backgroundColor;swatch.style.background=typeof color==='string'?color:'#8eafd0';item.append(swatch,document.createTextNode(dataset.label));legend.append(item);}
+},afterDestroy(chart){chart.headerLegendElement?.remove();}});
 const MARKET_PRESETS = {
   RO:{label:"罗马尼亚",symbols:["BRD.RO","TLV.RO","SNP.RO","SNG.RO","SNN.RO","H2O.RO","BVB.RO"]},
   US:{label:"美国",symbols:["AAPL","MSFT","NVDA","AMZN","TSLA"]},
@@ -146,7 +158,7 @@ function renderLogin(initialized){
   $("#root").innerHTML=`
     <section class="loginPage">
       <div class="loginHero">
-        <div class="heroMark">BV</div>
+        <div class="heroMark"><img class="brandLogo" src="/assets/brand-logo-original.png" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
         <div class="heroRule"></div>
         <h1>客户股票跟踪管理系统</h1>
         <p>Brantone Veylor Private Capital Advisory · 客户、人员、买卖记录、持仓与多市场行情统一管理。</p>
@@ -223,7 +235,7 @@ function renderShell(){
   $("#root").innerHTML=`
     <div class="app"><div class="shell">
       <header class="topbar">
-        <div class="brand"><div class="mark"><img class="brandMonogram" src="/assets/brand-mark.svg" alt="BV 1996"></div><div class="brandText"><b>BRANTONE VEYLOR</b><span>PRIVATE CAPITAL ADVISORY</span></div></div>
+        <div class="brand"><img class="brandLogo" src="/assets/brand-logo-original.png" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
         <div class="navFrame"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}">${tr(label,state.lang)}</button>`).join("")}</nav></div>
         <div class="userArea"><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><button class="chip" id="editAccountName" title="修改账号名称">${roleName(state.profile.role)} · ${esc(state.profile.display_name)}</button><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
       </header>
@@ -822,13 +834,14 @@ function clientAvatar(c){
   const initial=esc((c.name||"客").trim().slice(0,1));
   return `<div class="clientAvatar ${cls}"><span>${initial}</span></div>`;
 }
+function headerLegendChartOpts(){const opts=chartOpts();return {...opts,plugins:{...opts.plugins,legend:{...opts.plugins.legend,display:false}}};}
 function marketStatusBadge(x){
   if(!x||x.error||!Number.isFinite(Number(x.price)))return '<span class="quoteTimeBadge">暂无数据</span>';
   const stamp=x.lastTradeAt?new Date(x.lastTradeAt):null;
   const time=stamp&&!Number.isNaN(stamp.getTime())
     ? new Intl.DateTimeFormat(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit",hour12:false}).format(stamp)
     : "--:--";
-  return '<span class="quoteTimeBadge">'+esc(tr("更新",state.lang))+' '+esc(time)+'</span>';
+  return '<span class="quoteTimeBadge">'+esc(time)+'</span>';
 }
 function marketIndexStrip(rows){
   const names={"^GSPC":"S&P 500","^DJI":"Dow Jones","^IXIC":"Nasdaq","^FCHI":"CAC 40","BET.RO":"BET"};
@@ -889,8 +902,7 @@ async function openCustomer(id){
     <section class="customerDetail clientPortfolioDetail shareReady" id="clientSharePage">
       <div class="shareTopbar">
         <div class="shareBrand">
-          <div class="shareBrandMark"><img class="brandMonogram" src="/assets/brand-mark.svg" alt="BV 1996"></div>
-          <div><strong>BRANTONE VEYLOR</strong><span>PRIVATE CAPITAL ADVISORY</span></div>
+          <img class="brandLogo" src="/assets/brand-logo-original.png" alt="Brantone Veylor · Private Capital Advisory · 1996">
         </div>
         <div class="shareClientIdentity">
           ${clientAvatar(c)}
@@ -923,11 +935,11 @@ async function openCustomer(id){
 
       <div class="shareMainGrid">
         <article class="panel sharePricePanel">
-          <div class="panelHead compact"><div><h2>${primary?esc(primary.symbol)+" "+tr("价格走势",state.lang):"价格走势"}</h2><p>PRICE MOVEMENT · 买入 / 卖出节点 · 罗马尼亚时间</p></div><span class="headMeta">${primary?marketStatusBadge(q[primary.symbol]):""}</span></div>
+          <div class="panelHead compact"><div><h2>${primary?esc(primary.symbol)+" "+tr("价格走势",state.lang):"价格走势"}</h2><p>PRICE MOVEMENT · 买入 / 卖出节点 · 罗马尼亚时间</p></div><span class="headerChartLegend"><span><i style="background:#00d59b"></i>${primary?esc(primary.symbol):"—"}</span><span><i style="background:#8eafd0"></i>${tr("买进",state.lang)}</span><span><i style="background:#ef3456"></i>${tr("卖出",state.lang)}</span></span></div>
           <div class="chartBox sharePriceChart"><canvas id="customerPriceChart"></canvas></div>
         </article>
         <article class="panel shareReturnPanel">
-          <div class="panelHead compact"><div><h2>持仓收益走势</h2><p>POSITION P/L · 基于当前行情序列</p></div></div>
+          <div class="panelHead compact"><div><h2>持仓收益走势</h2><p>POSITION P/L · 基于当前行情序列</p></div><span class="headerChartLegend"><span><i style="background:#8eafd0"></i>${tr("持仓浮动盈亏",state.lang)}</span></span></div>
           <div class="chartBox shareReturnChart"><canvas id="customerReturnChart"></canvas></div>
         </article>
         <article class="panel shareAllocationPanel">
@@ -1012,7 +1024,7 @@ async function openCustomer(id){
       if(kpis[2]){kpis[2].textContent=priced.length?portfolioAmount(priced,p=>Number(p.quantity)*(Number(freshQ[p.symbol].price)-Number(p.avg_cost))):"—";kpis[2].className=freshUnreal>=0?"up":"down";}
       if(kpis[4]){kpis[4].textContent=mixedCurrency?"按币种分列":(freshReturn>=0?"+":"")+num(freshReturn,2)+"%";kpis[4].className=freshReturn>=0?"up":"down";}
       const timeSmall=$("#customerDataUpdated");
-      if(timeSmall)timeSmall.textContent=tr("行情更新",state.lang)+"："+dt(new Date());
+      if(timeSmall)timeSmall.textContent=dt(new Date());
       const liveTable=$("#customerPositionLive");
       if(liveTable)liveTable.innerHTML=positionTable(pos,freshQ);
       const primaryNow=openPos.find(p=>freshQ[p.symbol]?.points?.length)||primary;
@@ -1108,11 +1120,11 @@ function drawCustomerShareCharts(pos,trades,q,primary,realized,unreal){
       {label:primary.symbol,data:pts.map(p=>p.close),borderColor:"#00d59b",backgroundColor:"rgba(20,231,109,.08)",fill:true,tension:.18,pointRadius:0,pointHoverRadius:4},
       {type:"scatter",label:tr("买入",state.lang),data:buys.map(t=>({x:new Date(t.traded_at).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}),y:Number(t.price)})),pointRadius:5,pointHoverRadius:7,backgroundColor:"#8eafd0"},
       {type:"scatter",label:tr("卖出",state.lang),data:sells.map(t=>({x:new Date(t.traded_at).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}),y:Number(t.price)})),pointRadius:5,pointHoverRadius:7,backgroundColor:"#ef3456"}
-    ]},options:chartOpts()});
+    ]},options:headerLegendChartOpts()});
   }
   if(rEl){
     const qty=Number(primary.quantity),avg=Number(primary.avg_cost);
-    state.charts.customerReturn=new Chart(rEl,{type:"line",data:{labels,datasets:[{label:tr("持仓浮动盈亏",state.lang),data:pts.map(p=>(Number(p.close)-avg)*qty),borderColor:"#8eafd0",backgroundColor:"rgba(142,175,208,.10)",fill:true,tension:.18,pointRadius:0,pointHoverRadius:4}]},options:chartOpts()});
+    state.charts.customerReturn=new Chart(rEl,{type:"line",data:{labels,datasets:[{label:tr("持仓浮动盈亏",state.lang),data:pts.map(p=>(Number(p.close)-avg)*qty),borderColor:"#8eafd0",backgroundColor:"rgba(142,175,208,.10)",fill:true,tension:.18,pointRadius:0,pointHoverRadius:4}]},options:headerLegendChartOpts()});
   }
 }
 
@@ -1343,7 +1355,7 @@ async function renderTrades(){
 }
 
 async function fetchQuotes(symbols,{realtimeOnly=false}={}){
-  if(demoMode){const rows=(await import("./demo-client.js?v=20261009-participation3")).demoQuotes(symbols);Object.assign(state.quotes,rows);return rows;}
+  if(demoMode){const rows=(await import("./demo-client.js?v=20261009-visual1")).demoQuotes(symbols);Object.assign(state.quotes,rows);return rows;}
   const out={};
   for(let i=0;i<symbols.length;i+=20){
     const batch=symbols.slice(i,i+20);if(!batch.length)continue;
