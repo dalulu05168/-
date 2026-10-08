@@ -181,3 +181,9 @@ body.projectCaptureMode .projectPresentationHeader{grid-template-columns:auto mi
 @media(max-width:700px){.projectPresentationHeader{grid-template-columns:1fr auto}.projectCaptureControl{grid-column:2}.projectPresentationMeta{grid-column:1}.projectExit{grid-column:2}}
 body.projectCaptureMode #toast{display:none!important}
 @media(min-width:701px) and (max-width:1100px){.projectPresentationHeader{grid-template-columns:auto minmax(0,1fr) auto 40px}}
+
+/* Preserve the fixed customer detail overlay while hiding screenshot controls. */
+#clientSharePage.clientCaptureMode :is(.shareClientIdentity,.shareInternalActions,.screenshotHide,.clientOwnerInternal){display:none!important}
+#clientSharePage.clientCaptureMode .shareTopbar{grid-template-columns:minmax(0,1fr) auto!important}
+body.screenshotCaptureMode #toast{display:none!important}
+@media(max-width:700px){#clientSharePage.clientCaptureMode .shareTopbar{grid-template-columns:1fr!important}}

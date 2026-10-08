@@ -1,7 +1,7 @@
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261008-capture1";
-import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261008-capture1";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261008-clientcapture2";
+import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261008-clientcapture2";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
@@ -959,12 +959,19 @@ async function openCustomer(id){
   const addFollow=$("#addFollowBtn");if(addFollow)addFollow.onclick=()=>openFollowForm(c);
   const editNote=$("#editNoteBtn");if(editNote)editNote.onclick=()=>openCustomerNoteForm(c);
   const capture=$("#captureModeBtn");
-  if(capture)capture.onclick=()=>{
-    const page=$("#clientSharePage");
-    const on=page.classList.toggle("screenshotMode");
-    document.body.classList.toggle("screenshotCaptureMode",on);
-    capture.textContent=on?tr("恢复显示",state.lang):tr("截图模式",state.lang);
-    toast(on?"截图模式：已隐藏内部操作和管理员身份。":"已恢复内部操作按钮。");
+  if(state.customerCaptureEscapeHandler)document.removeEventListener('keydown',state.customerCaptureEscapeHandler);
+  state.customerCaptureEscapeHandler=e=>{
+    if(e.key==='Escape'&&document.body.classList.contains('screenshotCaptureMode')){
+      e.preventDefault();e.stopImmediatePropagation();
+      $('#clientSharePage')?.classList.remove('clientCaptureMode');
+      document.body.classList.remove('screenshotCaptureMode');
+    }
+  };
+  document.addEventListener('keydown',state.customerCaptureEscapeHandler);
+  if(capture)capture.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    $('#clientSharePage').classList.add('clientCaptureMode');
+    document.body.classList.add('screenshotCaptureMode');
   };
   drawCustomerShareCharts(pos,chartTrades,q,primary,realized,unreal);
   if(state.customerMarketTimer)clearInterval(state.customerMarketTimer);
