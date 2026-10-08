@@ -72,3 +72,9 @@ html body #main[data-view="market"][data-view][data-view][data-view] .marketChar
 html body:has(.demoBanner).desktopFrame #main[data-view="market"][data-view][data-view][data-view]>.marketUnifiedGrid{height:calc(100% - 32px)!important}
 
 @media(max-width:899px){html body #main[data-view="market"][data-view][data-view][data-view] .marketList{overflow:auto!important}html body #main[data-view="market"][data-view][data-view][data-view] .marketOverviewPanel>.panelHead{min-height:88px!important;height:88px!important;flex-shrink:0!important}html body #main[data-view="market"][data-view][data-view][data-view] .marketList .viewportPager{position:sticky!important;bottom:0!important;background:#111e29!important}}
+
+/* Project subtitles follow their remaining-share colour, including the Top table. */
+html body #main[data-view][data-view][data-view][data-view] .projectOverview :is(.projectPanelHeading h2,.projectPanelHeading>span,.projectOverviewNumbers>span,.projectOverviewNumbers>small,.projectOverviewTotals span,.customerRanking th,.projectSummaryMetrics span){color:var(--project-accent)!important}
+html body #main[data-view][data-view][data-view][data-view] .projectOverview .projectPresentationHeader .brand{width:300px!important;min-width:300px!important;flex-basis:300px!important;height:72px!important}
+html body #main[data-view][data-view][data-view][data-view] .projectOverview .projectPresentationHeader .brandLogo{width:300px!important;height:72px!important;object-fit:contain!important;object-position:left center!important}
+@media(max-width:600px){html body #main[data-view][data-view][data-view][data-view] .projectOverview .projectPresentationHeader .brand{width:240px!important;min-width:240px!important;flex-basis:240px!important}html body #main[data-view][data-view][data-view][data-view] .projectOverview .projectPresentationHeader .brandLogo{width:240px!important;height:56px!important}}
