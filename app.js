@@ -1,14 +1,14 @@
-import {installViewportLayout} from './viewport-layout.js?v=20261009-no-footer';
+import {installViewportLayout} from './viewport-layout.js?v=20261009-capacity-layout';
 
-import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-no-footer";
-import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261009-no-footer";
+import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-capacity-layout";
+import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261009-capacity-layout";
 const demoMode=new URLSearchParams(location.search).get("demo")==="1";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-no-footer";
-import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261009-no-footer";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-capacity-layout";
+import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261009-capacity-layout";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
-const supabase = demoMode ? await (await import("./demo-client.js?v=20261009-no-footer")).createDemoClient() : (await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")).createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = demoMode ? await (await import("./demo-client.js?v=20261009-capacity-layout")).createDemoClient() : (await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")).createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ROMANIA_TZ = "Europe/Bucharest";
 // Share one header legend placement across chart panels, outside the plot area.
@@ -922,7 +922,7 @@ async function openCustomer(id){
         </div>
       </div>
 
-      <div class="shareMarketStrip">${marketIndexStrip(indexRows)}</div>
+
 
       <div class="shareKpiRow">
         <article><label>持仓成本</label><span>${openPos.length?portfolioAmount(openPos,p=>Number(p.quantity)*Number(p.avg_cost)):"—"}</span><small>COST BASIS</small></article>
@@ -1355,7 +1355,7 @@ async function renderTrades(){
 }
 
 async function fetchQuotes(symbols,{realtimeOnly=false}={}){
-  if(demoMode){const rows=(await import("./demo-client.js?v=20261009-no-footer")).demoQuotes(symbols);Object.assign(state.quotes,rows);return rows;}
+  if(demoMode){const rows=(await import("./demo-client.js?v=20261009-capacity-layout")).demoQuotes(symbols);Object.assign(state.quotes,rows);return rows;}
   const out={};
   for(let i=0;i<symbols.length;i+=20){
     const batch=symbols.slice(i,i+20);if(!batch.length)continue;
