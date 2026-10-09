@@ -1,0 +1,33 @@
+name: Canva light UI acceptance checks
+
+on:
+  push:
+    branches:
+      - ui/canva-light-reference-20261010
+  pull_request:
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install test dependencies
+        run: npm install --no-audit --no-fund
+      - name: Check application JavaScript syntax
+        run: |
+          node --check app.js
+          node --check allocation-projects.js
+          node --check customer-reservations.js
+          node --check ui-features.js
+      - name: Verify final Canva stylesheet, original logo and no obsolete dark theme
+        run: |
+          test -f canva-market-light.css
+          test -f assets/brand-logo-vector.svg
+          grep -q 'canva-market-light.css' index.html
+          ! grep -q 'terminal-black-topnav.css' index.html
+          ! grep -q 'investment-terminal.css' index.html
+      - name: Business regression tests
+        run: npm test

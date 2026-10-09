@@ -10,7 +10,7 @@ const text=(ctx,key)=>copy[ctx.state.lang]?.[key]||copy.zh[key];
 const number=(ctx,n,d=2)=>Number(n).toLocaleString(localeFor(ctx.state.lang),{maximumFractionDigits:d});
 const currencyMark=currency=>new Intl.NumberFormat('en-GB',{style:'currency',currency,currencyDisplay:'narrowSymbol'}).formatToParts(0).find(p=>p.type==='currency')?.value||currency;
 const amount=(ctx,p,value)=>number(ctx,value)+' '+text(ctx,'units');
-export const projectEnergyColors=['#ffe43b','#3984ff','#83edff'];
+export const projectEnergyColors=['#129b79','#3e8db8','#61aab0'];
 export function compactChartAmount(value){return new Intl.NumberFormat('en-US',{notation:'compact',maximumFractionDigits:1}).format(Number(value));}
 export function gaugeFraction(percent){const p=Math.max(0,Math.min(100,Number(percent)||0));return p<=20?p/20*.6:.6+(p-20)/80*.4;}
 export function validProject(project){return String(project.name||'').trim().length>0&&String(project.name).trim().length<=120&&Number.isFinite(Number(project.total_shares))&&Number(project.total_shares)>0&&Number.isFinite(Number(project.remaining_shares))&&Number(project.remaining_shares)>=0&&Number(project.remaining_shares)<=Number(project.total_shares)&&/^[A-Z]{3}$/.test(project.currency||'')&&/^\d{4}-\d{2}-\d{2}$/.test(project.board_date||'');}
@@ -61,7 +61,7 @@ function drawProjectRing(canvas,percent,color){
  const dpr=Math.min(devicePixelRatio||1,3),w=Math.max(120,canvas.clientWidth),h=Math.max(120,canvas.clientHeight);
  canvas.width=w*dpr;canvas.height=h*dpr;const c=canvas.getContext('2d');c.scale(dpr,dpr);
  const x=w/2,y=h/2,r=Math.min(w,h)*.39,start=-Math.PI/2,f=Math.max(0,Math.min(100,percent))/100;
- c.lineWidth=Math.max(10,r*.16);c.strokeStyle='#40505b';c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.stroke();
+ c.lineWidth=Math.max(10,r*.16);c.strokeStyle='#e5efeb';c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.stroke();
  if(f>0){c.strokeStyle=color;c.shadowColor=color;c.shadowBlur=percent<20?8:3;c.beginPath();c.arc(x,y,r,start,start+Math.PI*2*f);c.stroke();}c.shadowBlur=0;
  c.textAlign='center';c.textBaseline='middle';c.fillStyle=color;c.shadowColor=color;c.shadowBlur=percent<20?5:2;c.font=`500 ${Math.max(20,r*.43)}px Arial`;c.fillText(percent.toFixed(2)+'%',x,y);
 }
