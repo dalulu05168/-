@@ -1,0 +1,276 @@
+/*
+ * Brantone Veylor CRM — 奶白色最终统一主题
+ * 2026-10-10; user-approved milky-white finish on the existing Canva-like layout.
+ * Visual CSS only. No JS, APIs, brand SVG, authorization or data changed.
+ * This MUST be the last stylesheet in index.html.
+ */
+:root{
+  color-scheme:light;
+  --cream-base:#fbfaf6;
+  --cream-surface:#fffefa;
+  --cream-muted:#f7f6f1;
+  --cream-edge:#e8e9e3;
+  --cream-text:#28312f;
+  --cream-secondary:#778580;
+  --cream-outer:#e5f0ed;
+  --cream-accent:#138b7e;
+  --bg:#e5f0ed;--bg2:#fbfaf6;
+  --panel:#fffefa;--panel2:#fbfaf6;
+  --text:#28312f;--muted:#778580;--line:#e8e9e3;
+  --ui-border:#e8e9e3;--ui-title:#28312f;
+  --tv-bg:#fbfaf6;--tv-bg-2:#f7f6f1;--tv-surface:#fffefa;
+  --tv-surface-2:#fbfaf6;--tv-surface-3:#f7f6f1;
+  --tv-line:#e8e9e3;--tv-line-soft:#eeeee9;
+  --tv-text:#28312f;--tv-text-2:#4f5d57;--tv-text-3:#778580;
+  --terminal-surface:#fffefa;--terminal-subtle:#f7f6f1;
+  --terminal-stroke:#e8e9e3;--terminal-edge:#e4e5df;
+}
+/* Page has a delicate mint outer surround, like the user's reference screenshot.
+   The dashboard itself is milk-white, never stark #fff. */
+html, html body, html body #root, html body .app{
+  color:#28312f!important;
+  background:#e5f0ed!important;
+  background-image:
+    radial-gradient(ellipse at 9% 9%,#d5e8e4,transparent 40%),
+    radial-gradient(ellipse at 91% 95%,#dcecef,transparent 42%),
+    linear-gradient(120deg,#eaf2ed,#e3eff0)!important;
+}
+html body .shell{
+  background:#fbfaf6!important;
+  background-image:none!important;
+  border-color:#e2e8e2!important;
+  box-shadow:0 18px 48px rgba(33,64,60,.10)!important;
+  color:#28312f!important;
+}
+/* Main content is creamy white on every CRM module. */
+html body #main#main#main#main#main,
+html body.desktopFrame:not(.projectCaptureMode) #main#main#main,
+html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) #main#main#main,
+html body #clientSharePage#clientSharePage#clientSharePage,
+html body .customerDetail,html body .detailBody,
+html body .loginPage{
+  background:#fbfaf6!important;background-image:none!important;
+  color:#28312f!important;
+}
+html body .topbar, html body .shareTopbar,
+html body.desktopFrame:not(.projectCaptureMode) .topbar>.userArea,
+html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .topbar>.userArea{
+  background:#fffefa!important;background-image:none!important;
+  color:#28312f!important;
+  border-color:#e8e9e3!important;box-shadow:none!important;
+}
+html body .navFrame,html body .topbar .navFrame,
+html body.desktopFrame:not(.projectCaptureMode) .topbar>.navFrame{
+  background:#f7f6f1!important;background-image:none!important;
+  border-color:#e8e9e3!important;
+}
+html body .topbar .nav button,
+html body .nav button{color:#667570!important}
+html body .topbar .nav button:hover,
+html body .nav button:hover{
+  background:#edf5f0!important;color:#117e73!important;
+}
+html body .topbar .nav button.active,
+html body .nav button.active{
+  background:#e9f5ef!important;color:#128b7d!important;
+  border-left-color:#159e8a!important;
+}
+/* Original Brantone Veylor asset and its dark plaque remain unchanged. */
+html body .topbar>.brand .brandLogo{
+  filter:none!important;object-fit:contain!important;
+}
+html body :is(.globalSearch,.userArea .chip,.userArea .iconBtn,
+  .userArea .langSwitch,.userArea .btn,.userArea .romaniaClock){
+  background:#fffefa!important;background-image:none!important;
+  border-color:#e8e9e3!important;color:#52625d!important;
+}
+html body .globalSearch input{
+  background:transparent!important;color:#34413d!important;
+}
+html body #main#main#main#main#main :is(
+  .panel,.kpi,.execStat,.metric,.metricCard,.level1Metric,.level2Metric,
+  .projectPanel,.projectOverviewCard,.projectTrendPanel,.projectOverviewSummary,
+  .projectLauncher,.projectLauncherRow,.marketRow,.marketMetric,.marketOverviewPanel,
+  .marketListPanel,.marketChartPanel,.marketCanvas,.indexTile,
+  .terminalChartCard,.terminalPositionCard,.terminalFormCard,
+  .terminalOrderPanel,.terminalSummaryCard,.terminalEmptyCard,.terminalTicker,
+  .exchangeQuoteHeader,.exchangeQuoteMini,.exchangeQuoteBlock,.exchangeChartPanel,
+  .exchangeSessionPanel,.exchangeKpiStrip,.allocationDistPanel,.allocationSlotsPanel,
+  .allocationChartPanel,.allocationKpiCard,.allocationTrendPanel,.allocationIdentity,
+  .allocationMini,.allocationDistributionPanel,.allocationSlotsTable,
+  .countdownPanel,.countdownBox,.timePair,.level1StaffCard,.level1StaffMetrics>div,
+  .teamDetailKpis>div,.teamDetailSection,.teamDetailIdentity,
+  .level1SummaryList>div,.level2SummaryList>div,.settingsCard,.settingsList>div,
+  .terminalFieldRow,.securityResult,.customerInfoGrid>div,.holdingsGrid>div,
+  .referenceFeatureCard
+),
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage :is(
+  .panel,.shareKpiRow article,.shareTimeBlock,.shareMarketItem,
+  .shareProfileGrid>div,.shareNote,.shareServiceTimeline>div,.portfolioCurrencyGroup
+){
+  background:#fffefa!important;background-image:none!important;
+  border:1px solid #e8e9e3!important;
+  box-shadow:none!important;color:#28312f!important;
+}
+html body #main#main#main#main#main :is(
+  .panelHead,.projectPanelHeading,.projectLauncherHead,.unifiedModuleHead,
+  .marketListHead,.marketChartHeader,.terminalChartSubtitleRow,
+  .terminalChartToolbar,.terminalSegment,.allocationStatusStrip,.allocationSecurityBar
+),
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage .panelHead{
+  background:#fffefa!important;background-image:none!important;
+  border-color:#e8e9e3!important;color:#28312f!important;
+  box-shadow:none!important;
+}
+/* Hairline separators, generous rhythm, legible type and restrained teal accents. */
+html body #main#main#main#main#main :is(
+  h1,h2,h3,h4,.metricTitle,.metricValue,.panelHead h2,
+  .projectPanelHeading h2,.unifiedModuleHead h2
+){color:#28312f!important;text-shadow:none!important}
+html body #main#main#main#main#main :is(
+  .muted,.metricLabel,.metricFoot,.panelHead p,.pageHead p,
+  .panelSubtitleRow p,.chartSubtitle,.quoteTimeBadge,
+  .projectPanelHeading p,.projectSummaryMetrics span
+){color:#778580!important}
+html body #main#main#main#main#main :is(
+  .referenceFeatureTop strong,.referenceFeatureValue,
+  .terminalTicker .tickerStat>span,.referenceMarketHero h1
+){color:#28312f!important}
+html body #main#main#main#main#main :is(
+  .referenceFeatureTop small,.referenceFeatureChange,.referenceMarketHero p
+){color:#778580!important}
+html body #main#main#main#main#main :is(
+  .referenceFeatureChange.up,.marketRow .up,.positive,.up
+){color:#118c68!important}
+html body #main#main#main#main#main :is(
+  .referenceFeatureChange.down,.marketRow .down,.negative,.down
+){color:#cf5962!important}
+html body #main#main#main#main#main :is(
+  .terminalTicker,.tradeflareCanvas,.tradeflareShell,.terminalChartWrap,
+  .chartBox,.marketCanvas,.projectTrendChart,.projectOverview,
+  .canvaReferenceMarket,.referenceMarketTabs,.referenceMarketFilters,
+  .marketList,.marketMetrics
+){
+  background:#fbfaf6!important;background-image:none!important;
+}
+html body #main#main#main#main#main .terminalTicker{
+  background:transparent!important;
+}
+html body #main#main#main#main#main .terminalTicker :is(.tickerIdentity,.tickerStat){
+  background:#fffefa!important;border-color:#e8e9e3!important;
+}
+html body #main#main#main#main#main .referenceFeatureCard{
+  background:#fffefa!important;border-color:#e5e8e2!important;
+}
+html body #main#main#main#main#main .referenceFeatureIcon{
+  background:#eaf4ee!important;color:#138b7e!important;
+}
+html body #main#main#main#main#main .referenceMarketTabs{
+  background:#fbfaf6!important;border-bottom:1px solid #e8e9e3!important;
+}
+html body #main#main#main#main#main .referenceMarketTabs button{
+  background:transparent!important;color:#778580!important;
+}
+html body #main#main#main#main#main .referenceMarketTabs button.active{
+  color:#118c7f!important;border-bottom-color:#159783!important;
+}
+html body #main#main#main#main#main .referenceMarketFilters button{
+  background:#fffefa!important;border-color:#e8e9e3!important;
+}
+html body #main#main#main#main#main .referenceMarketFilters button.active{
+  background:#eaf5ef!important;border-color:#7ab9a9!important;
+  color:#0d8274!important;
+}
+html body #main#main#main#main#main .canvaReferenceMarket .marketListHead{
+  background:#f7f6f1!important;color:#73807c!important;
+  border-color:#e8e9e3!important;
+}
+html body #main#main#main#main#main .canvaReferenceMarket .marketList{
+  background:#fffefa!important;
+}
+html body #main#main#main#main#main .canvaReferenceMarket .marketRow{
+  background:#fffefa!important;border-color:#f0eee8!important;
+  color:#35433e!important;
+}
+html body #main#main#main#main#main .canvaReferenceMarket .marketRow:hover{
+  background:#f1f6ef!important;
+}
+html body #main#main#main#main#main :is(.dataTable,.tableWrap){
+  background:#fffefa!important;
+}
+html body #main#main#main#main#main .dataTable th,
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage .dataTable th{
+  background:#f7f6f1!important;border-color:#e8e9e3!important;
+  color:#73807c!important;
+}
+html body #main#main#main#main#main .dataTable td,
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage .dataTable td{
+  background:#fffefa!important;border-color:#eeeee9!important;
+  color:#35433e!important;
+}
+html body #main#main#main#main#main .dataTable tbody tr:hover td{
+  background:#f1f6ef!important;
+}
+html body :is(.input,.select,.textarea,.btn,.tabs button,
+  .marketRangeBar button,.langSwitch,.iconBtn,.chip),
+html body :is(input,select,textarea){
+  background:#fffefa!important;background-image:none!important;
+  color:#35433e!important;border-color:#e6e8e2!important;box-shadow:none!important;
+}
+html body :is(.input,.select,.textarea,input,select,textarea):focus-visible{
+  border-color:#319986!important;
+  box-shadow:0 0 0 2px rgba(32,151,128,.14)!important;
+}
+html body :is(.btn.primary,.tabs button.active,.marketRangeBar button.active){
+  background:#138b7e!important;border-color:#138b7e!important;color:#fff!important;
+}
+/* Dropdown option list must be legible on light backgrounds. */
+html body option{background:#fffefa!important;color:#28312f!important}
+html body :is(.modalCard,.loginCard,.detailPanel,.shareReady){
+  background:#fffefa!important;background-image:none!important;
+  color:#28312f!important;border-color:#e8e9e3!important;
+}
+html body :is(.modalHead,.detailTop,.loginFoot,.loginSide){
+  background:#fbfaf6!important;background-image:none!important;
+  color:#28312f!important;border-color:#e8e9e3!important;
+}
+html body .loginHero{
+  background:linear-gradient(125deg,#fbfaf6,#e9f2e9)!important;color:#283a35!important;
+}
+html body .loginHero h1,html body .loginCard h2{
+  color:#28312f!important;
+}
+html body .loginHero p,html body .loginCard>p{color:#788781!important}
+/* Project 16:9 full-screen allocation: same milky-white surface language. */
+html body.projectPresentationMode.projectPanoramaMode,
+html body.projectPresentationMode.projectPanoramaMode .app,
+html body.projectPresentationMode.projectPanoramaMode .shell,
+html body.projectPresentationMode.projectPanoramaMode #main,
+html body.projectPanoramaMode #main#main#main#main#main .projectOverview{
+  background:#fbfaf6!important;background-image:none!important;
+}
+html body.projectPanoramaMode #main#main#main#main#main :is(
+  .projectOverviewCard,.projectTrendPanel,.projectOverviewSummary,
+  .projectOverview .projectPanelHeading,.projectOverviewTotals,.projectDetailSummary,
+  .projectNameEditor,.projectSummaryMetrics
+){
+  background:#fffefa!important;background-image:none!important;
+  border-color:#e8e9e3!important;box-shadow:none!important;
+}
+html body.projectPanoramaMode #main#main#main#main#main .projectOverview .projectOverviewCard.selected{
+  border-color:#add9c9!important;box-shadow:inset 0 3px 0 #138b7e!important;
+}
+html body.projectPanoramaMode #main#main#main#main#main .projectRecordPanel{
+  display:none!important;
+}
+/* Screenshots keep their existing controls and logo; only color changes. */
+html body.projectCaptureMode #main,
+html body.projectCaptureMode .projectOverview{
+  background:#fbfaf6!important;
+}
+@media(max-width:899px){
+  html body .shell{background:#fbfaf6!important}
+  html body #main{background:#fbfaf6!important}
+  html body .topbar,html body .userArea{background:#fffefa!important}
+  html body .navFrame{background:#f7f6f1!important}
+}
