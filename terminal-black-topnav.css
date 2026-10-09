@@ -1,0 +1,367 @@
+/*
+ * Brantone Veylor — Owner-approved BLACK + TOP NAV revision (2026-10-09)
+ * Presentation overrides only. Original brand-logo-vector.svg, scripts,
+ * data sources, role restrictions and all existing navigation handlers remain.
+ * Load AFTER investment-terminal.css.
+ */
+:root{
+ color-scheme:dark;
+ --bg:#050506;--bg2:#080809;--panel:#111113;--panel2:#19191c;
+ --line:#292b30;--text:#f0f0f2;--muted:#a5a6aa;
+ --ui-border:#292b30;--ui-title:#f0f0f2;
+ --tv-bg:#050506;--tv-bg-2:#09090b;
+ --tv-surface:#111113;--tv-surface-2:#18181b;--tv-surface-3:#202024;
+ --tv-line:#2c2e33;--tv-line-soft:#26272c;
+ --tv-text:#f0f0f2;--tv-text-2:#cacbd0;--tv-text-3:#a5a6aa;
+ --terminal-surface:#111113;--terminal-subtle:#1a1a1d;
+ --terminal-stroke:#2a2c32;--terminal-edge:#383a41;
+}
+/* Pure black workspace, differentiated black card layers for readability. */
+html,html body,html body #root,html body .app,html body .shell,
+html body.projectPresentationMode.projectPanoramaMode,
+html body.projectPresentationMode.projectPanoramaMode #main,
+html body.projectPresentationMode.projectPanoramaMode .projectOverview,
+html body #clientSharePage#clientSharePage,
+html body .customerDetail,html body .loginPage {
+  background:#050506!important;background-image:none!important;color:#f0f0f2!important;
+}
+html body .topbar,
+html body .shareTopbar{
+  background:#080809!important;background-image:none!important;
+  color:#f0f0f2!important;
+  border:1px solid #282a2e!important;border-radius:8px!important;
+  box-shadow:none!important;
+}
+html body .brand{
+  background:transparent!important;background-image:none!important;
+  border:0!important;box-shadow:none!important;padding:0 8px!important;
+}
+/* Never replace, edit, recolor, crop or filter the ORIGINAL SVG brand logo. */
+html body .brand .brandLogo{
+  filter:none!important;object-fit:contain!important;
+  object-position:left center!important;
+}
+html body .navFrame,
+html body:has(#main[data-view="shareboard"]) .navFrame,
+html body .topbar .navFrame{
+  background:#0b0b0d!important;background-image:none!important;
+  border:1px solid #25262b!important;border-radius:7px!important;
+  box-shadow:none!important;
+}
+html body .nav button,
+html body .topbar .nav button,
+html body:has(#main[data-view="shareboard"]) .topbar .nav button{
+  background:transparent!important;background-image:none!important;
+  border:1px solid transparent!important;border-radius:5px!important;
+  color:#b5b6bc!important;box-shadow:none!important;
+  transform:none!important;font-weight:500!important;
+  text-align:center!important;
+}
+html body .nav button:hover,
+html body .topbar .nav button:hover,
+html body:has(#main[data-view="shareboard"]) .topbar .nav button:hover {
+  background:#1a1a1d!important;border-color:#35363c!important;
+  color:#f5f5f6!important;
+}
+html body .nav button.active,
+html body .topbar .nav button.active,
+html body:has(#main[data-view="shareboard"]) .topbar .nav button.active{
+  background:#261116!important;
+  border:1px solid #85323f!important;
+  border-bottom:2px solid #dd4356!important;
+  box-shadow:none!important;color:#ff7783!important;
+}
+html body .nav button::before,
+html body .topbar .nav button::before,
+html body .nav button::after,
+html body .topbar .nav button::after{
+  display:none!important;content:none!important;
+}
+html body :is(.sysok,.romaniaClock,.chip,.iconBtn,.langSwitch){
+  background:#161619!important;background-image:none!important;
+  border:1px solid #2e3036!important;color:#e1e2e6!important;
+  box-shadow:none!important;border-radius:5px!important;
+}
+html body .userArea{
+  background:#080809!important;background-image:none!important;
+  border:0!important;box-shadow:none!important;
+}
+
+/* The fixed 1600×900 system uses ONE genuine HORIZONTAL navigation bar.
+   Existing button nodes + handlers are unchanged. No fake buttons/tickers. */
+@media (min-width:900px){
+  html body.desktopFrame:not(.projectCaptureMode) .shell,
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .shell{
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:74px minmax(0,1fr)!important;
+    display:grid!important;gap:10px!important;padding:12px!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) .topbar,
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .topbar{
+    display:grid!important;
+    grid-column:1!important;grid-row:1!important;
+    grid-template-columns:245px minmax(0,1fr) minmax(365px,auto)!important;
+    grid-template-rows:minmax(0,1fr)!important;
+    position:relative!important;top:auto!important;
+    height:74px!important;min-height:74px!important;
+    width:100%!important;min-width:0!important;
+    padding:7px 10px!important;margin:0!important;gap:10px!important;
+    overflow:hidden!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) .topbar>.brand,
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .topbar>.brand{
+    grid-column:1!important;grid-row:1!important;
+    display:flex!important;position:relative!important;z-index:auto!important;
+    width:100%!important;min-width:0!important;height:100%!important;
+    max-height:none!important;padding:2px 4px!important;
+    align-items:center!important;overflow:hidden!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) .topbar .brandLogo{
+    width:100%!important;height:100%!important;max-height:60px!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) .topbar>.navFrame,
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .topbar>.navFrame{
+    grid-column:2!important;grid-row:1!important;
+    align-self:center!important;
+    display:block!important;
+    width:100%!important;min-width:0!important;
+    height:54px!important;min-height:54px!important;
+    padding:5px!important;margin:0!important;overflow:hidden!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) .topbar .nav {
+    display:flex!important;flex-direction:row!important;
+    justify-content:stretch!important;align-items:stretch!important;
+    flex-wrap:nowrap!important;
+    grid-auto-flow:column!important;grid-template-columns:none!important;
+    grid-template-rows:none!important;
+    height:100%!important;width:100%!important;
+    gap:3px!important;overflow:visible!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) .topbar .nav button{
+    flex:1 1 0!important;
+    min-width:0!important;width:0!important;
+    height:100%!important;min-height:0!important;
+    font-size:11px!important;line-height:1.2!important;
+    padding:0 3px!important;
+    white-space:nowrap!important;text-overflow:ellipsis!important;
+    display:flex!important;align-items:center!important;
+    justify-content:center!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) .topbar>.userArea,
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .topbar>.userArea{
+    grid-column:3!important;grid-row:1!important;
+    min-width:0!important;width:100%!important;
+    height:100%!important;min-height:0!important;
+    align-items:center!important;justify-content:flex-end!important;
+    gap:5px!important;padding:0!important;margin:0!important;
+    overflow:hidden!important;display:flex!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) .topbar .userArea :is(.btn,.chip,.iconBtn,.langSwitch,.romaniaClock){
+    min-width:0!important;padding-left:6px!important;padding-right:6px!important;
+    font-size:10px!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) .topbar .userArea .romaniaClock{
+    max-width:155px!important;white-space:nowrap!important;
+    overflow:hidden!important;text-overflow:ellipsis!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) .topbar .userArea .chip{
+    max-width:110px!important;white-space:nowrap!important;
+    overflow:hidden!important;text-overflow:ellipsis!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) #main,
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) #main{
+    grid-column:1!important;grid-row:2!important;
+    width:100%!important;height:100%!important;
+    min-width:0!important;min-height:0!important;
+    overflow:hidden!important;
+  }
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .projectOverview{
+    height:100%!important;min-height:0!important;
+    display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:40px minmax(220px,.81fr) minmax(270px,1.32fr)!important;
+    gap:10px!important;padding:0!important;overflow:hidden!important;
+  }
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .projectOverview>.projectPresentationHeader{
+    min-height:40px!important;height:40px!important;
+    display:flex!important;justify-content:flex-end!important;
+    padding:1px 3px 4px!important;overflow:hidden!important;
+  }
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .projectOverview>.projectPresentationHeader>.brand{
+    display:none!important; /* avoid a duplicate; ORIGINAL logo stays in top bar */
+  }
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .projectOverviewLower{
+    height:100%!important;min-height:0!important;
+  }
+}
+
+/* BLACK surfaces on every business view, including nested cards.
+   High selector specificity wins over old hard-coded navy backgrounds. */
+html body #main#main#main#main#main :is(
+ .panel,.kpi,.execStat,.metric,.metricCard,.level1Metric,.level2Metric,
+ .projectPanel,.projectLauncher,.projectLauncherRow,.level1StaffCard,
+ .terminalSummaryCard,.terminalEmptyCard,.terminalOrderPanel,.terminalChartCard,
+ .terminalPositionCard,.terminalFormCard,.terminalTicker,.indexTile,
+ .marketRow,.marketMetric,.exchangeQuoteBlock,.exchangeQuoteMini,
+ .exchangeStatusRail,.exchangeQuoteHeader,.exchangeKpiStrip,
+ .exchangeChartPanel,.exchangeSessionPanel,.allocationDistributionPanel,
+ .allocationDistPanel,.allocationSlotsPanel,.allocationChartPanel,
+ .allocationKpiCard,.allocationTrendPanel,.allocationIdentity,
+ .allocationMini,.shareTotals>div,.countdownPanel,.timePair,.countdownBox,
+ .teamDetailSection,.teamDetailIdentity,.teamDetailKpis>div,.level1StaffMetrics>div,
+ .level1SummaryList>div,.level2SummaryList>div,.settingsCard,.settingsList>div,
+ .terminalFieldRow,.securityResult
+),
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage :is(
+ .panel,.shareKpiRow article,.shareTimeBlock,.shareMarketItem,
+ .shareProfileGrid>div,.shareNote,.shareServiceTimeline>div,.portfolioCurrencyGroup
+) {
+  background:#111113!important;background-image:none!important;
+  border:1px solid #2b2d33!important;border-radius:7px!important;
+  box-shadow:0 3px 12px rgba(0,0,0,.18)!important;
+}
+html body #main#main#main#main#main :is(
+ .panelHead,.projectPanelHeading,.projectLauncherHead,.unifiedModuleHead,
+ .marketListHead,.marketChartHeader,.terminalChartSubtitleRow,
+ .projectPresentationHeader,.allocationStatusStrip,.allocationSecurityBar
+),
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage .panelHead,
+html body .modalHead {
+  background:#161619!important;background-image:none!important;
+  border-color:#2d2e34!important;color:#edeef0!important;
+  box-shadow:none!important;
+}
+html body #main#main#main#main#main :is(
+ .projectOverviewBalance,.projectOverviewTotals,.projectSummaryMetrics,
+ .projectTrendChart,.projectDetailSummary,.marketList,
+ .chartBox,.terminalChartWrap,.marketCanvas
+) {background-color:transparent!important;background-image:none!important}
+html body #main#main#main#main#main :is(
+ h1,h2,h3,p,td,span,strong,small,label,button,.metricTitle,.metricValue
+){text-shadow:none!important}
+html body #main#main#main#main#main .dataTable th,
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage .dataTable th{
+  background:#1b1c20!important;color:#b8bdc6!important;
+  border-color:#303239!important;
+}
+html body #main#main#main#main#main .dataTable td,
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage .dataTable td {
+  background:#111113!important;color:#e3e4e8!important;
+  border-color:#292b30!important;
+}
+html body #main#main#main#main#main .dataTable tbody tr:hover td{
+  background:#202126!important;
+}
+html body :is(.input,.select,.textarea,.btn,.langSwitch,.viewportPager button,.tabs button),
+html body :is(input,select,textarea) {
+  background:#1b1b1f!important;background-image:none!important;
+  color:#e6e7ea!important;border-color:#33363e!important;
+  box-shadow:none!important;border-radius:5px!important;
+}
+html body :is(.modalCard,.loginCard,.shareReady) {
+  background:#111113!important;background-image:none!important;
+  color:#ededf0!important;border-color:#303238!important;
+}
+html body .loginHero,html body .loginSide{
+  background:#080809!important;background-image:none!important;
+}
+html body .loginHero h1{color:#f5f5f6!important}
+html body .loginHero p{color:#bfc0c7!important}
+html body.projectPanoramaMode #main#main#main#main#main .projectOverview{
+  background:#050506!important;background-image:none!important;
+}
+html body.projectPanoramaMode #main#main#main#main#main :is(
+ .projectOverviewCard,.projectTrendPanel,.projectOverviewSummary
+){
+  background:#111113!important;background-image:none!important;
+  border-color:#303138!important;box-shadow:none!important;
+}
+html body.projectPanoramaMode #main#main#main#main#main .projectOverview .projectPanelHeading{
+  background:#17171a!important;border-color:#303137!important;
+}
+html body.projectPanoramaMode #main#main#main#main#main .projectOverview .projectOverviewTotals{
+  background:#151518!important;
+  border-color:#303138!important;
+}
+html body.projectPanoramaMode #main#main#main#main#main .projectOverview .projectNameEditor{
+  background:#17171a!important;border-color:#303138!important;
+}
+html body.projectPanoramaMode #main#main#main#main#main .projectOverview :is(.projectTrendChart,.projectDetailSummary){
+  background:transparent!important;
+}
+html body.projectPanoramaMode #main#main#main#main#main .projectRecordPanel{
+  display:none!important; /* only hide the display; underlying record data untouched */
+}
+
+/* Screenshots intentionally show their own original logo, not the top nav. */
+html body.projectCaptureMode .topbar{display:none!important}
+
+/* Phones: genuine top navigation remains above the content, horizontally scrollable. */
+@media(max-width:899px){
+  html body .shell,
+  html body.projectPresentationMode.projectPanoramaMode .shell{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:auto minmax(0,1fr)!important;
+    height:auto!important;min-height:100dvh!important;overflow:visible!important;
+    padding:8px!important;gap:8px!important;
+  }
+  html body:not(.projectCaptureMode) .topbar,
+  html body.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .topbar{
+    display:grid!important;grid-column:1!important;grid-row:1!important;
+    grid-template-columns:minmax(130px,1fr) minmax(0,1fr)!important;
+    grid-template-rows:50px 46px!important;
+    height:108px!important;min-height:108px!important;
+    width:100%!important;min-width:0!important;
+    padding:5px!important;gap:4px!important;overflow:hidden!important;
+  }
+  html body:not(.projectCaptureMode) .topbar>.brand{
+    grid-column:1!important;grid-row:1!important;
+    width:100%!important;min-width:0!important;height:50px!important;
+    display:flex!important;padding:2px 5px!important;
+  }
+  html body:not(.projectCaptureMode) .topbar .brandLogo{
+    height:100%!important;width:100%!important;
+  }
+  html body:not(.projectCaptureMode) .topbar>.userArea{
+    grid-column:2!important;grid-row:1!important;
+    width:100%!important;min-width:0!important;height:50px!important;
+    overflow-x:auto!important;overflow-y:hidden!important;
+    justify-content:flex-start!important;
+    white-space:nowrap!important;gap:4px!important;padding:0!important;
+  }
+  html body:not(.projectCaptureMode) .topbar>.navFrame{
+    grid-column:1 / -1!important;grid-row:2!important;
+    width:100%!important;min-width:0!important;
+    height:45px!important;min-height:45px!important;
+    display:block!important;padding:3px!important;
+    overflow-x:auto!important;overflow-y:hidden!important;
+  }
+  html body:not(.projectCaptureMode) .topbar .nav{
+    display:flex!important;flex-direction:row!important;
+    grid-template-columns:none!important;grid-template-rows:none!important;
+    flex-wrap:nowrap!important;align-items:stretch!important;
+    justify-content:flex-start!important;
+    width:max-content!important;min-width:100%!important;
+    height:100%!important;overflow:visible!important;gap:4px!important;
+  }
+  html body:not(.projectCaptureMode) .topbar .nav button{
+    display:flex!important;flex:0 0 auto!important;
+    width:auto!important;min-width:73px!important;height:100%!important;
+    padding:0 8px!important;font-size:11px!important;
+    white-space:nowrap!important;justify-content:center!important;
+  }
+  html body:not(.projectCaptureMode) #main{
+    grid-column:1!important;grid-row:2!important;
+    height:auto!important;min-height:0!important;overflow:visible!important;
+  }
+  html body.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .projectOverview>.projectPresentationHeader>.brand{
+    display:none!important;
+  }
+  html body.projectPanoramaMode .projectOverview{
+    display:flex!important;flex-direction:column!important;
+    min-height:0!important;height:auto!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  html body .nav button{transition:none!important}
+}
