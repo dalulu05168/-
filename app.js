@@ -237,13 +237,32 @@ function renderShell(){
       <header class="topbar">
         <div class="brand"><img class="brandLogo" src="/assets/brand-logo-vector.svg" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
         <div class="navFrame"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}">${tr(label,state.lang)}</button>`).join("")}</nav></div>
-        <div class="userArea"><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><button class="chip" id="editAccountName" title="修改账号名称">${esc(state.profile.display_name)}</button><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
+        <form id="globalSearchForm" class="globalSearch" role="search"><span aria-hidden="true">⌕</span><input id="globalSearchInput" type="search" autocomplete="off" placeholder="搜索客户、项目或股票…" aria-label="搜索客户、项目或股票"><button type="submit" aria-label="搜索">↵</button></form><div class="userArea"><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><button class="chip" id="editAccountName" title="修改账号名称">${esc(state.profile.display_name)}</button><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
       </header>
       <main id="main" data-view="${state.activeView}"></main>
     </div></div>
     <div id="modalRoot"></div>
   `;
   $$(".nav button").forEach(b=>b.onclick=()=>{if(b.dataset.view==="shareboard"&&document.documentElement.requestFullscreen&&!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});switchView(b.dataset.view)});
+  $("#globalSearchForm").onsubmit=async event=>{
+    event.preventDefault();
+    const query=$("#globalSearchInput").value.trim();
+    if(!query)return;
+    const lower=query.toLowerCase();
+    const customer=state.customers.find(row=>[row.name,row.customer_code,row.phone].some(x=>String(x||"").toLowerCase().includes(lower)));
+    if(customer||/[\u4e00-\u9fff\s]/.test(query)){
+      await switchView("customers");
+      const field=$("#customerSearch");
+      if(field){field.value=query;field.dispatchEvent(new Event("input",{bubbles:true}));}
+      return;
+    }
+    const ownerId=state.allocationOwnerId||state.profile.id;
+    const project=state.allocationProjects.find(row=>row.owner_user_id===ownerId&&[row.name,row.symbol].some(x=>String(x||"").toLowerCase().includes(lower)));
+    if(project){state.activeProjectNumber=project.project_number;await switchView("shareboard");return;}
+    await switchView("market");
+    const field=$("#marketSymbols");
+    if(field){field.value=query.toUpperCase();field.dispatchEvent(new Event("change",{bubbles:true}));}
+  };
   $("#editAccountName").onclick=openAccountNameForm;
   $("#globalLang").onchange=async e=>{state.lang=setLang(e.target.value);renderShell();await switchView(state.activeView)};
   $("#logoutBtn").onclick=async()=>{exitProjectPresentation(featureCtx());clearMarketRefreshTimers();await supabase.auth.signOut();state.profile=null;state.session=null;state.allocationProjects=[];state.allocationRecords=[];state.allocationOwnerId=null;state.activeCustomer=null;state.activeView="dashboard";renderLogin(true)};
@@ -1406,7 +1425,7 @@ let marketRange="1D";
 async function renderMarket(){
   marketRange="1D";currentMarketQuote=null;
   const presetOptions=Object.entries(MARKET_PRESETS).map(([k,v])=>`<option value="${k}" ${k==="RO"?"selected":""}>${v.label}</option>`).join("");
-  $("#main").innerHTML=`\n    <section class="grid2 marketUnifiedGrid">
+  $("#main").innerHTML=`\n    <section class="grid2 marketUnifiedGrid canvaReferenceMarket"><header class="referenceMarketHero"><div><h1>股票市场</h1><p>查看多国家股票真实行情、涨跌及趋势</p></div><span class="referenceLiveFlag">行情以数据源返回结果为准</span></header><div class="referenceFeatureCards" id="referenceFeatureCards"><div class="referenceFeatureLoading">正在读取股票行情…</div></div>
       <article class="panel marketOverviewPanel">
         <div class="panelHead"><div><h2><img class="sectionIcon" src="/assets/globe2.svg" alt="">多国家行情</h2></div><div class="marketControls"><select id="marketCountry" class="select">${presetOptions}</select><input id="marketSymbols" class="input" value="${MARKET_PRESETS.RO.symbols.join(",")}"></div></div>
         <div class="panelBody"><div class="quoteHeader"><div><span class="link" id="mSymbol">--</span><span id="mExchangeBadge" class="exchangeBadge"></span><h3 id="mName">选择股票</h3><p class="muted" id="mExchange">--</p></div><div><div class="quotePrice"><span id="mPrice">--</span><small id="mCurrency"></small></div><div id="mChange" class="quoteChange">--</div></div></div></div>
@@ -1415,7 +1434,7 @@ async function renderMarket(){
       </article>
       <article class="panel marketListPanel">
         <div class="panelHead"><div><h2><img class="sectionIcon" src="/assets/bar-chart.svg" alt="">股票列表</h2><p>罗马尼亚、美国、法国、德国、英国、意大利、西班牙、荷兰、瑞士、波兰、日本</p></div></div>
-        <div class="marketListHead"><span>代码</span><span>公司名称</span><span>交易所</span><span>价格</span><span>涨跌幅</span><span>更新时间</span></div><div class="panelBody marketList" id="marketRows"></div>
+        <div class="referenceMarketTabs" id="referenceMarketTabs"><button data-market-preset="RO" class="active" type="button">罗马尼亚</button><button data-market-preset="US" type="button">美国</button><button data-market-preset="FR" type="button">法国</button><button data-market-preset="DE" type="button">德国</button><button data-market-preset="GB" type="button">英国</button><button data-market-preset="IT" type="button">意大利</button><button data-market-preset="ES" type="button">西班牙</button><button data-market-preset="NL" type="button">荷兰</button><button data-market-preset="CH" type="button">瑞士</button><button data-market-preset="PL" type="button">波兰</button><button data-market-preset="JP" type="button">日本</button></div><div class="referenceMarketFilters"><button class="active" type="button" data-market-sort="original">默认顺序</button><button type="button" data-market-sort="gain">涨幅最高</button><button type="button" data-market-sort="loss">跌幅最高</button><input id="marketListFilter" class="input" type="search" placeholder="搜索当前列表…" aria-label="筛选股票列表"></div><div class="marketListHead"><span>代码</span><span>公司名称</span><span>交易所</span><span>价格</span><span>涨跌幅</span><span>更新时间</span></div><div class="panelBody marketList" id="marketRows"></div>
       </article>
       <article class="panel marketChartPanel">
         <div class="panelHead marketChartHeader"><div class="marketRangeBar" role="group" aria-label="图表时间范围">${["1D","1W","1M","3M","6M","1Y","全部"].map((r,i)=>`<button type="button" data-range="${r}" class="${i===0?"active":""}" aria-pressed="${i===0}">${r}</button>`).join("")}<span class="marketRangeNote" id="marketRangeNote"></span></div></div><div class="chartBox"><div class="marketCanvas"><canvas id="marketChart"></canvas></div></div>
@@ -1426,12 +1445,29 @@ async function renderMarket(){
     const syms=$("#marketSymbols").value.split(",").map(x=>x.trim().toUpperCase()).filter(Boolean);
     const q=await fetchQuotes(syms,{realtimeOnly:false});
     const rows=syms.map(s=>q[s]).filter(Boolean);
+
+    const featureCards=$("#referenceFeatureCards");
+    if(featureCards){
+      featureCards.innerHTML=syms.slice(0,4).map(symbol=>{
+        const item=q[symbol];
+        const valid=item&&!item.error&&Number.isFinite(Number(item.price));
+        const change=valid&&item.changePct!=null?Number(item.changePct):null;
+        return '<button type="button" class="referenceFeatureCard" data-feature-symbol="'+esc(symbol)+'">'+
+          '<span class="referenceFeatureTop"><span class="referenceFeatureIcon" aria-hidden="true">'+esc(symbol.slice(0,1))+'</span><span><strong>'+esc(symbol)+'</strong><small>'+esc(item?.name||"尚未获得公司信息")+'</small></span></span>'+
+          '<span class="referenceFeatureValue">'+(valid?num(item.price):"--")+'</span>'+
+          '<span class="referenceFeatureChange '+(change===null?"":change>=0?"up":"down")+'">'+(change===null?"暂无有效涨跌幅":((change>=0?"+":"")+num(change)+"%"))+
+          '</span></button>';
+      }).join("")||'<span class="empty">当前市场无股票代码</span>';
+      $("#referenceFeatureCards [data-feature-symbol]").forEach(b=>b.onclick=()=>{const quote=q[b.dataset.featureSymbol];if(quote&&!quote.error)drawMarket(quote);});
+    }
     $("#marketRows").innerHTML=rows.map(x=>{
       const usable=!x.error&&Number.isFinite(Number(x.price));
       const stamp=usable&&x.lastTradeAt?dt(x.lastTradeAt):"--";
-      return `<button type="button" class="marketRow referenceMarketRow marketPick" data-symbol="${esc(x.symbol)}" aria-pressed="false"><span class="link">${esc(x.symbol)}</span><span class="marketCompany">${esc(x.name||x.symbol)}<small>${esc(x.country||"--")}</small></span><span class="marketExchange">${esc(x.exchange||"--")}</span><span>${usable?num(x.price):"--"}<small class="muted"> ${esc(x.currency||"")}</small></span><span class="${usable&&Number(x.changePct)>=0?"up":usable?"down":""}">${usable&&x.changePct!=null?((Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%"):"--"}</span><span class="quoteTimeBadge">${esc(stamp)}</span></button>`;
+      return `<button type="button" class="marketRow referenceMarketRow marketPick" data-symbol="${esc(x.symbol)}" data-initial-index="${syms.indexOf(x.symbol)}" data-change-pct="${usable&&x.changePct!=null?Number(x.changePct):0}" aria-pressed="false"><span class="link">${esc(x.symbol)}</span><span class="marketCompany">${esc(x.name||x.symbol)}<small>${esc(x.country||"--")}</small></span><span class="marketExchange">${esc(x.exchange||"--")}</span><span>${usable?num(x.price):"--"}<small class="muted"> ${esc(x.currency||"")}</small></span><span class="${usable&&Number(x.changePct)>=0?"up":usable?"down":""}">${usable&&x.changePct!=null?((Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%"):"--"}</span><span class="quoteTimeBadge">${esc(stamp)}</span></button>`;
     }).join("")||'<div class="empty">暂无行情数据</div>';
-    $$(".marketPick").forEach(r=>r.onclick=()=>drawMarket(q[r.dataset.symbol]));
+    $(".marketPick").forEach(r=>r.onclick=()=>drawMarket(q[r.dataset.symbol]));
+    const marketText=$("#marketListFilter")?.value.trim().toLowerCase()||"";
+    if(marketText)$("#marketRows .marketRow").forEach(row=>row.hidden=!row.textContent.toLowerCase().includes(marketText));
     const first=rows.find(x=>x.symbol===selectedSymbol&&!x.error&&Number.isFinite(Number(x.price)))||rows.find(x=>!x.error&&Number.isFinite(Number(x.price)));
     if(first) drawMarket(first);
     else {
@@ -1449,7 +1485,30 @@ async function renderMarket(){
     }
   };
   $$("[data-range]").forEach(b=>b.onclick=()=>{marketRange=b.dataset.range;$$("[data-range]").forEach(t=>{t.classList.toggle("active",t===b);t.setAttribute("aria-pressed",String(t===b))});if(currentMarketQuote)drawMarket(currentMarketQuote)});
-  $("#marketCountry").onchange=e=>{$("#marketSymbols").value=MARKET_PRESETS[e.target.value].symbols.join(",");load()};
+  $("#referenceMarketTabs [data-market-preset]").forEach(button=>button.onclick=()=>{
+    const key=button.dataset.marketPreset;
+    $("#marketCountry").value=key;
+    $("#marketCountry").dispatchEvent(new Event("change",{bubbles:true}));
+  });
+  $("#referenceMarketTabs [data-market-preset]").forEach(button=>button.classList.toggle("active",button.dataset.marketPreset==="RO"));
+  $("#referenceMarketFilters [data-market-sort]").forEach(button=>button.onclick=()=>{
+    $("#referenceMarketFilters [data-market-sort]").forEach(item=>item.classList.toggle("active",item===button));
+    const rows=$("#marketRows .marketRow");
+    const mode=button.dataset.marketSort;
+    const pct=node=>Number(node.dataset.changePct);
+    const sorted=mode==="original"?rows.sort((a,b)=>Number(a.dataset.initialIndex)-Number(b.dataset.initialIndex)):
+      rows.sort((a,b)=>mode==="gain"?pct(b)-pct(a):pct(a)-pct(b));
+    sorted.forEach(row=>$("#marketRows").append(row));
+  });
+  $("#marketListFilter").oninput=e=>{
+    const q=e.target.value.trim().toLowerCase();
+    $("#marketRows .marketRow").forEach(row=>row.hidden=!!q&&!row.textContent.toLowerCase().includes(q));
+  };
+  $("#marketCountry").onchange=e=>{
+    $("#marketSymbols").value=MARKET_PRESETS[e.target.value].symbols.join(",");
+    $("#referenceMarketTabs [data-market-preset]").forEach(item=>item.classList.toggle("active",item.dataset.marketPreset===e.target.value));
+    load().catch(()=>{});
+  };
   $("#marketSymbols").onchange=load;
   await load();
   state.marketRefreshTimer=setInterval(()=>{if(state.activeView==="market")load().catch(()=>{})},60000);
