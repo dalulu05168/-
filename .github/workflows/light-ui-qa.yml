@@ -1,0 +1,26 @@
+name: Light UI regression checks
+
+on:
+  push:
+    branches:
+      - ui/light-investment-dashboard-20261009
+  pull_request:
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install test dependencies
+        run: npm install --no-audit --no-fund
+      - name: Check unchanged application JavaScript syntax
+        run: |
+          node --check app.js
+          node --check ui-features.js
+          node --check allocation-projects.js
+          node --check customer-reservations.js
+      - name: Business regression tests
+        run: npm test
