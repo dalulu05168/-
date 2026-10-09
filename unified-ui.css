@@ -87,3 +87,7 @@ html body #clientSharePage#clientSharePage #customerPortfolioBreakdown>.viewport
 html body #main .customerRanking .tableWrap{display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important}
 html body #main .customerRanking .tableWrap>.viewportPager{margin-top:auto!important;flex-shrink:0!important;align-self:flex-end!important}
 html body .viewportPager[hidden]{display:none!important}
+
+html body #clientSharePage#clientSharePage .shareTopbar{grid-template-columns:minmax(240px,1fr) 230px auto!important}
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage .customerNameHighlight{color:#ffe13b!important;font-weight:700!important}
+@media(max-width:899px){html body #clientSharePage#clientSharePage .shareTopbar{grid-template-columns:1fr 1fr!important}.shareTopbar .shareInternalActions{grid-column:1/-1}}
