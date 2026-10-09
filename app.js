@@ -1464,16 +1464,16 @@ async function renderMarket(){
           '<span class="referenceFeatureChange '+(change===null?"":change>=0?"up":"down")+'">'+(change===null?"暂无有效涨跌幅":((change>=0?"+":"")+num(change)+"%"))+
           '</span></button>';
       }).join("")||'<span class="empty">当前市场无股票代码</span>';
-      $("#referenceFeatureCards [data-feature-symbol]").forEach(b=>b.onclick=()=>{const quote=q[b.dataset.featureSymbol];if(quote&&!quote.error)drawMarket(quote);});
+      $$("#referenceFeatureCards [data-feature-symbol]").forEach(b=>b.onclick=()=>{const quote=q[b.dataset.featureSymbol];if(quote&&!quote.error)drawMarket(quote);});
     }
     $("#marketRows").innerHTML=rows.map(x=>{
       const usable=!x.error&&Number.isFinite(Number(x.price));
       const stamp=usable&&x.lastTradeAt?dt(x.lastTradeAt):"--";
       return `<button type="button" class="marketRow referenceMarketRow marketPick" data-symbol="${esc(x.symbol)}" data-initial-index="${syms.indexOf(x.symbol)}" data-change-pct="${usable&&x.changePct!=null?Number(x.changePct):0}" aria-pressed="false"><span class="link">${esc(x.symbol)}</span><span class="marketCompany">${esc(x.name||x.symbol)}<small>${esc(x.country||"--")}</small></span><span class="marketExchange">${esc(x.exchange||"--")}</span><span>${usable?num(x.price):"--"}<small class="muted"> ${esc(x.currency||"")}</small></span><span class="${usable&&Number(x.changePct)>=0?"up":usable?"down":""}">${usable&&x.changePct!=null?((Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%"):"--"}</span><span class="quoteTimeBadge">${esc(stamp)}</span></button>`;
     }).join("")||'<div class="empty">暂无行情数据</div>';
-    $(".marketPick").forEach(r=>r.onclick=()=>drawMarket(q[r.dataset.symbol]));
+    $$(".marketPick").forEach(r=>r.onclick=()=>drawMarket(q[r.dataset.symbol]));
     const marketText=$("#marketListFilter")?.value.trim().toLowerCase()||"";
-    if(marketText)$("#marketRows .marketRow").forEach(row=>row.hidden=!row.textContent.toLowerCase().includes(marketText));
+    if(marketText)$$("#marketRows .marketRow").forEach(row=>row.hidden=!row.textContent.toLowerCase().includes(marketText));
     const first=rows.find(x=>x.symbol===selectedSymbol&&!x.error&&Number.isFinite(Number(x.price)))||rows.find(x=>!x.error&&Number.isFinite(Number(x.price)));
     if(first) drawMarket(first);
     else {
@@ -1491,15 +1491,15 @@ async function renderMarket(){
     }
   };
   $$("[data-range]").forEach(b=>b.onclick=()=>{marketRange=b.dataset.range;$$("[data-range]").forEach(t=>{t.classList.toggle("active",t===b);t.setAttribute("aria-pressed",String(t===b))});if(currentMarketQuote)drawMarket(currentMarketQuote)});
-  $("#referenceMarketTabs [data-market-preset]").forEach(button=>button.onclick=()=>{
+  $$("#referenceMarketTabs [data-market-preset]").forEach(button=>button.onclick=()=>{
     const key=button.dataset.marketPreset;
     $("#marketCountry").value=key;
     $("#marketCountry").dispatchEvent(new Event("change",{bubbles:true}));
   });
-  $("#referenceMarketTabs [data-market-preset]").forEach(button=>button.classList.toggle("active",button.dataset.marketPreset==="RO"));
-  $(".referenceMarketFilters [data-market-sort]").forEach(button=>button.onclick=()=>{
-    $(".referenceMarketFilters [data-market-sort]").forEach(item=>item.classList.toggle("active",item===button));
-    const rows=$("#marketRows .marketRow");
+  $$("#referenceMarketTabs [data-market-preset]").forEach(button=>button.classList.toggle("active",button.dataset.marketPreset==="RO"));
+  $$(".referenceMarketFilters [data-market-sort]").forEach(button=>button.onclick=()=>{
+    $$(".referenceMarketFilters [data-market-sort]").forEach(item=>item.classList.toggle("active",item===button));
+    const rows=$$("#marketRows .marketRow");
     const mode=button.dataset.marketSort;
     const pct=node=>Number(node.dataset.changePct);
     const sorted=mode==="original"?rows.sort((a,b)=>Number(a.dataset.initialIndex)-Number(b.dataset.initialIndex)):
@@ -1508,11 +1508,11 @@ async function renderMarket(){
   });
   $("#marketListFilter").oninput=e=>{
     const q=e.target.value.trim().toLowerCase();
-    $("#marketRows .marketRow").forEach(row=>row.hidden=!!q&&!row.textContent.toLowerCase().includes(q));
+    $$("#marketRows .marketRow").forEach(row=>row.hidden=!!q&&!row.textContent.toLowerCase().includes(q));
   };
   $("#marketCountry").onchange=e=>{
     $("#marketSymbols").value=MARKET_PRESETS[e.target.value].symbols.join(",");
-    $("#referenceMarketTabs [data-market-preset]").forEach(item=>item.classList.toggle("active",item.dataset.marketPreset===e.target.value));
+    $$("#referenceMarketTabs [data-market-preset]").forEach(item=>item.classList.toggle("active",item.dataset.marketPreset===e.target.value));
     load().catch(()=>{});
   };
   $("#marketSymbols").onchange=load;
