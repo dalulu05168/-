@@ -1,14 +1,14 @@
-import {installViewportLayout} from './viewport-layout.js?v=20261009-customer-name';
+import {installViewportLayout} from './viewport-layout.js?v=20261009-brighter';
 
-import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-customer-name";
-import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261009-customer-name";
+import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-brighter";
+import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261009-brighter";
 const demoMode=new URLSearchParams(location.search).get("demo")==="1";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-customer-name";
-import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261009-customer-name";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-brighter";
+import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261009-brighter";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
-const supabase = demoMode ? await (await import("./demo-client.js?v=20261009-customer-name")).createDemoClient() : (await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")).createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = demoMode ? await (await import("./demo-client.js?v=20261009-brighter")).createDemoClient() : (await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")).createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ROMANIA_TZ = "Europe/Bucharest";
 // Share one header legend placement across chart panels, outside the plot area.
@@ -750,7 +750,7 @@ function chartOpts(){return{
     legend:{position:"top",align:"end",labels:{color:"#dce3eb",font:{size:10,weight:"normal"},boxWidth:12,boxHeight:4,padding:8}},
     tooltip:{enabled:true,mode:"index",intersect:false,backgroundColor:"#252524",borderColor:"#53595f",borderWidth:1,titleFont:{weight:"normal"},bodyFont:{weight:"normal"}}
   },
-  scales:{x:{ticks:{color:"#c1cbd2",font:{weight:"normal",size:10},maxTicksLimit:7,maxRotation:0,autoSkip:true},grid:{color:"#596269"}},y:{ticks:{color:"#c1cbd2",font:{weight:"normal"}},grid:{color:"#596269"}}}
+  scales:{x:{ticks:{color:"#e1eaf2",font:{weight:"normal",size:10},maxTicksLimit:7,maxRotation:0,autoSkip:true},grid:{color:"#6c8193"}},y:{ticks:{color:"#e1eaf2",font:{weight:"normal"}},grid:{color:"#6c8193"}}}
 }}
 
 function customerTable(rows,full=true){
@@ -1351,7 +1351,7 @@ async function renderTrades(){
 }
 
 async function fetchQuotes(symbols,{realtimeOnly=false}={}){
-  if(demoMode){const rows=(await import("./demo-client.js?v=20261009-customer-name")).demoQuotes(symbols);Object.assign(state.quotes,rows);return rows;}
+  if(demoMode){const rows=(await import("./demo-client.js?v=20261009-brighter")).demoQuotes(symbols);Object.assign(state.quotes,rows);return rows;}
   const out={};
   for(let i=0;i<symbols.length;i+=20){
     const batch=symbols.slice(i,i+20);if(!batch.length)continue;
