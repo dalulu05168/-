@@ -624,3 +624,25 @@ html body.desktopFrame.projectCaptureMode .projectOverview .projectPresentationH
 @media(prefers-reduced-motion:reduce){
   html body :is(.nav button,.panel,.projectPanel,.btn){transition:none!important;animation:none!important}
 }
+
+
+/* Preserve the brand mark while matching the approved green/blue/cyan allocation gauges.
+   This changes rendering colors only; project calculations and chart datasets are untouched. */
+html body.projectPanoramaMode #main#main#main#main .projectOverviewCard:nth-child(1),
+html body.projectPanoramaMode #main#main#main#main .projectTrendPanel,
+html body.projectPanoramaMode #main#main#main#main .projectOverviewSummary {
+  --project-accent:#83d66e!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverviewCard:nth-child(1) .projectRingDock canvas {
+  filter:hue-rotate(57deg) saturate(.7)!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverviewCard:nth-child(2){
+  --project-accent:#569df0!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverviewCard:nth-child(3){
+  --project-accent:#7bcdd8!important;
+}
+/* Chart accent stays visual only and labels retain the real source data. */
+html body.projectPanoramaMode #main#main#main#main .projectOverviewCard:nth-child(1) .projectEnergySmoke {
+  background:conic-gradient(from 20deg,transparent,#83d66e,transparent 140deg,#83d66e,transparent)!important;
+}
