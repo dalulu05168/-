@@ -91,3 +91,18 @@ html body .viewportPager[hidden]{display:none!important}
 html body #clientSharePage#clientSharePage .shareTopbar{grid-template-columns:minmax(240px,1fr) 230px auto!important}
 html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage .customerNameHighlight{color:#ffe13b!important;font-weight:700!important}
 @media(max-width:899px){html body #clientSharePage#clientSharePage .shareTopbar{grid-template-columns:1fr 1fr!important}.shareTopbar .shareInternalActions{grid-column:1/-1}}
+
+/* Brighter navy surfaces retain the existing project and chart accent colors. */
+:root{--bg:#152331;--panel:#213446;--muted:#d1dce6;--ui-border:#536e85;--ui-title:#f0f4f8}
+html,html body{background:#152331!important;color:#f0f4f8!important}
+html body :is(.shell,.app,#root,#clientSharePage#clientSharePage){background:#152331!important;background-image:none!important}
+html body :is(.topbar,.shareTopbar,.loginCard,.modalCard){background:#24384b!important;background-image:none!important;border-color:#536e85!important}
+html body #main#main#main :is(.panel,.projectPanel,.projectLauncher,.level2Metric,.marketRow,.marketMetric),html body #clientSharePage#clientSharePage#clientSharePage :is(.panel,.shareKpiRow article,.shareTimeBlock,.shareProfileGrid>div,.shareNote,.shareServiceTimeline>div){background:linear-gradient(135deg,#293e52,#203345)!important;background-image:linear-gradient(135deg,#293e52,#203345)!important;border-color:#536e85!important}
+html body #main#main#main :is(.panelHead,.projectPanelHeading),html body #clientSharePage#clientSharePage#clientSharePage .panelHead{background:#24394c!important;border-color:#536e85!important}
+html body :is(#main#main#main,#clientSharePage#clientSharePage#clientSharePage) .dataTable th{background:#30485e!important;color:#f0f4f8!important;border-color:#536e85!important}
+html body :is(#main#main#main,#clientSharePage#clientSharePage#clientSharePage) .dataTable td{border-color:#425b71!important}
+html body :is(#main#main#main,#clientSharePage#clientSharePage#clientSharePage) .dataTable tbody tr:nth-child(even){background:#2b4053!important}
+html body :is(.btn,.input,select,.viewportPager button){background-color:#30485e!important;border-color:#63829b!important}
+html body :is(#main#main#main,#clientSharePage#clientSharePage#clientSharePage) .viewportPager{background:#24394c!important}
+
+html body #clientSharePage#clientSharePage#clientSharePage :is(.shareTopbar,.chartBox,.portfolioBreakdown,.portfolioBreakdown>div),html body #main#main#main :is(.chartBox,.projectOverviewBody,.projectOverviewTotals,.projectSummaryMetrics){background-color:#24394c!important;background-image:none!important}
