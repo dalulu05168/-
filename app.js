@@ -1,14 +1,14 @@
-import {installViewportLayout} from './viewport-layout.js?v=20261009-capacity-layout';
+import {installViewportLayout} from './viewport-layout.js?v=20261009-customer-name';
 
-import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-capacity-layout";
-import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261009-capacity-layout";
+import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-customer-name";
+import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261009-customer-name";
 const demoMode=new URLSearchParams(location.search).get("demo")==="1";
-import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-capacity-layout";
-import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261009-capacity-layout";
+import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-customer-name";
+import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261009-customer-name";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
-const supabase = demoMode ? await (await import("./demo-client.js?v=20261009-capacity-layout")).createDemoClient() : (await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")).createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = demoMode ? await (await import("./demo-client.js?v=20261009-customer-name")).createDemoClient() : (await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")).createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ROMANIA_TZ = "Europe/Bucharest";
 // Share one header legend placement across chart panels, outside the plot area.
@@ -904,10 +904,6 @@ async function openCustomer(id){
         <div class="shareBrand">
           <img class="brandLogo" src="/assets/brand-logo-vector.svg" alt="Brantone Veylor · Private Capital Advisory · 1996">
         </div>
-        <div class="shareClientIdentity">
-          ${clientAvatar(c)}
-          <div><h1>${esc(c.name)}</h1><p>${esc(c.customer_code)} · ${esc(c.region||"地区未填写")} · ${c.age?esc(c.age+"岁"):"年龄未填写"}</p></div>
-        </div>
         <div class="shareTimeBlock">
 
           <strong data-romania-clock>${romaniaClockText()}</strong>
@@ -950,7 +946,7 @@ async function openCustomer(id){
 
       <div class="shareLowerGrid">
         <article class="panel sharePositions">
-          <div class="panelHead compact"><div><h2>客户持仓与买卖记录</h2><p>HOLDINGS & ORDER LEDGER</p></div><span class="headMeta">${openPos.length} POSITIONS · ${trades.length} ORDERS</span></div>
+          <div class="panelHead compact"><div><h2><span class="customerNameHighlight" data-no-i18n>${esc(c.name)}</span> · 客户持仓与买卖记录</h2><p>HOLDINGS & ORDER LEDGER</p></div><span class="headMeta">${openPos.length} POSITIONS · ${trades.length} ORDERS</span></div>
           <div class="tableWrap shareLedgerTable"><div id="customerPositionLive">${positionTable(pos,q)}</div>${tradeTable(trades)}</div>
         </article>
         <article class="panel shareServicePanel">
@@ -1355,7 +1351,7 @@ async function renderTrades(){
 }
 
 async function fetchQuotes(symbols,{realtimeOnly=false}={}){
-  if(demoMode){const rows=(await import("./demo-client.js?v=20261009-capacity-layout")).demoQuotes(symbols);Object.assign(state.quotes,rows);return rows;}
+  if(demoMode){const rows=(await import("./demo-client.js?v=20261009-customer-name")).demoQuotes(symbols);Object.assign(state.quotes,rows);return rows;}
   const out={};
   for(let i=0;i<symbols.length;i+=20){
     const batch=symbols.slice(i,i+20);if(!batch.length)continue;
