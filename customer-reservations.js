@@ -1,4 +1,4 @@
-import {customerReservations} from './dashboard-data.js?v=20261009-no-footer';
+import {customerReservations} from './dashboard-data.js?v=20261009-capacity-layout';
 const copy={zh:{add:'填写参与项目',customer:'客户',shares:'预定份额',time:'成功预定时间',save:'保存预定',empty:'暂无成功预定',missing:'客户预定数据尚未配置，请执行客户预定设置脚本。',failed:'未能保存，请核查权限与容量',units:'份额'},en:{add:'Add Customer Reservation',customer:'Customer',shares:'Reserved Shares',time:'Confirmed At',save:'Save Reservation',empty:'No Confirmed Reservations',missing:'Customer reservations are not configured. Run the setup SQL.',failed:'Save failed; check permissions and capacity',units:'shares'},ro:{add:'Adaugă rezervare',customer:'Client',shares:'Acțiuni rezervate',time:'Ora confirmării',save:'Salvează rezervarea',empty:'Nu există rezervări confirmate',missing:'Rezervările clienților nu sunt configurate. Execută scriptul SQL.',failed:'Salvarea a eșuat; verifică permisiunile și capacitatea',units:'acțiuni'}};
 const t=(ctx,k)=>copy[ctx.state.lang]?.[k]||copy.zh[k];
 export async function loadCustomerReservations(ctx){
@@ -16,17 +16,9 @@ export function attachCustomerRanking(ctx,p){
  panel.querySelector('.projectDetailSummary')?.remove();panel.querySelector('.projectNameEditor')?.remove();
  panel.querySelector('.projectSummaryMetrics strong')?.replaceChildren(document.createTextNode(ctx.num(summary.participants,0)));
  const section=document.createElement('section');section.className='customerRanking';
- section.innerHTML=ctx.state.customerReservationError?`<p role="alert">${t(ctx,'missing')}</p>`:`<div class="tableWrap"><table class="dataTable" data-managed-pagination="true"><thead><tr><th>${t(ctx,'customer')}</th><th>${t(ctx,'shares')}</th><th>${t(ctx,'time')}</th></tr></thead><tbody>${summary.ranking.map(r=>`<tr><td data-no-i18n>${ctx.esc(r.name)}</td><td>${ctx.num(r.reserved_shares,4)} ${t(ctx,'units')}</td><td>${ctx.dt(r.confirmed_at)}</td></tr>`).join('')||`<tr><td colspan="3">${t(ctx,'empty')}</td></tr>`}</tbody></table></div>`;
+ section.innerHTML=ctx.state.customerReservationError?`<p role="alert">${t(ctx,'missing')}</p>`:`<div class="tableWrap"><table class="dataTable"><thead><tr><th>${t(ctx,'customer')}</th><th>${t(ctx,'shares')}</th><th>${t(ctx,'time')}</th></tr></thead><tbody>${summary.ranking.map(r=>`<tr><td data-no-i18n>${ctx.esc(r.name)}</td><td>${ctx.num(r.reserved_shares,4)} ${t(ctx,'units')}</td><td>${ctx.dt(r.confirmed_at)}</td></tr>`).join('')||`<tr><td colspan="3">${t(ctx,'empty')}</td></tr>`}</tbody></table></div>`;
  panel.append(section);
- if(!ctx.state.customerReservationError&&summary.ranking.length){
-  const rows=[...section.querySelectorAll('tbody tr')],size=2;let page=0;
-  const nav=document.createElement('nav');nav.className='viewportPager';nav.dataset.managedPagination='true';nav.setAttribute('aria-label','Customer ranking pagination');
-  const labels={zh:['上一页','下一页','页'],en:['Previous','Next','Page'],ro:['Înapoi','Înainte','Pagina']}[ctx.state.lang]||['Previous','Next','Page'];
-  nav.innerHTML='<button class="btn" type="button"></button><span aria-live="polite"></span><button class="btn" type="button"></button>';section.append(nav);
-  const buttons=nav.querySelectorAll('button');buttons[0].textContent=labels[0];buttons[1].textContent=labels[1];
-  const draw=()=>{rows.forEach((row,i)=>row.hidden=i<page*size||i>=(page+1)*size);buttons[0].disabled=page===0;buttons[1].disabled=(page+1)*size>=rows.length;nav.querySelector('span').textContent=labels[2]+' '+(page+1)+' / '+Math.ceil(rows.length/size);};
-  buttons[0].onclick=()=>{page--;draw()};buttons[1].onclick=()=>{page++;draw()};draw();
- }
+ requestAnimationFrame(()=>window.dispatchEvent(new Event('crm-layout')));
 }
 export function editCustomerReservation(ctx,p,options={}){
  const projects=(options.projects||[p]).filter(x=>x&&x.owner_user_id===ctx.state.profile.id);
