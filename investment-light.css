@@ -383,3 +383,58 @@ html body.projectPresentationMode :is(.projectPanel,.panel,.allocationTrendPanel
 @media (prefers-reduced-motion: reduce) {
   html body :is(.nav button,.panel,.btn){transition:none!important;animation:none!important}
 }
+
+
+/* Final contrast pass for nested service, account and allocation modules. */
+html body #main#main#main#main :is(
+  .allocationIdentity,.allocationMini,.shareTotals>div,.countdownPanel,.timePair,
+  .countdownBox,.allocationChartPanel,.allocationConfigCompact,.exchangeQuoteMini,
+  .exchangeStatusRail span,.exchangeSessionGrid>div,.allocationTimingGrid>div,
+  .allocationStatusStrip,.allocationSecurityBar,.allocationSearchLike,
+  .allocationDistributionPanel,.allocationSlotsTable,
+  .teamDetailKpis>div,.teamDetailSection,.teamDetailIdentity,.staffAvatar,
+  .level1StaffMetrics>div,.terminalSummaryCard,.terminalEmptyCard,.terminalFieldRow,
+  .level1SummaryList>div,.level2SummaryList>div,.settingsList>div,
+  .projectLauncherRow,.shareMarketItem,.portfolioCurrencyGroup,.securityResult,
+  .clientMiniTech>.miniCandleWrap,.clientMiniTech>.miniIndicator
+),
+html body #clientSharePage#clientSharePage#clientSharePage :is(
+  .shareMarketItem,.portfolioCurrencyGroup,.shareReady
+) {
+  background: #f9fafb !important;
+  background-image: none !important;
+  border-color: #e6e9ec !important;
+  box-shadow: none !important;
+}
+html body #main#main#main#main :is(
+  .allocationStatusStrip,.allocationSecurityBar,.allocationSlotsTable .dataTable th,
+  .exchangeStatusRail span,.marketListHead
+) {
+  background: #f7f8f9 !important;
+  border-color: #e5e8eb !important;
+}
+html body #main#main#main#main :is(
+  .panelHead h2,.projectPanelHeading h2,.marketChartHeader h2,.unifiedModuleHead h2
+) {
+  color: #24282e !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+}
+html body #main#main#main#main :is(
+  .panelHead p,.panelSubtitleRow p,.panelSubtitleRow .inlineLegend,.chartSubtitle
+) {
+  font-size: 10px !important;
+  line-height: 1.4 !important;
+}
+html body #main#main#main#main .projectOverview :is(
+  .projectOverviewNumbers>span,.projectOverviewNumbers>small,.projectOverviewTotals span,
+  .projectSummaryMetrics span,.projectScarce,.allocationStateTag
+) {
+  color: var(--project-accent,#987536) !important;
+}
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage .customerNameHighlight {
+  color:#a27939 !important;
+  font-weight:600 !important;
+}
+/* Chart grid lines/series remain driven by the existing Chart.js configuration. */
