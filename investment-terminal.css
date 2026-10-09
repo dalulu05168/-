@@ -1,0 +1,626 @@
+/*
+ Brantone Veylor | graphite trading-terminal design
+ Visual refresh approved 2026-10-09.
+ Keep assets/brand-logo-vector.svg EXACTLY unchanged.
+ No fabricated stock quotes, users, orders, project numbers or financial data.
+ Loaded last after existing application styles.
+*/
+:root {
+  color-scheme: dark;
+  --bg:#0b0d10; --bg2:#101217; --panel:#1a1c21; --panel2:#20232a;
+  --line:#32363e; --text:#eef0f3; --muted:#9da3ad;
+  --red:#f24a56; --gold:#c9a968; --green:#63c985; --blue:#559cf6;
+  --ui-border:#32363e; --ui-title:#eef0f3;
+  --tv-bg:#0b0d10; --tv-bg-2:#101217;
+  --tv-surface:#1a1c21; --tv-surface-2:#20232a; --tv-surface-3:#252932;
+  --tv-line:#343944; --tv-line-soft:#292e36;
+  --tv-text:#eef0f3; --tv-text-2:#c3c8d1; --tv-text-3:#9da3ad;
+  --tv-green:#62c983; --tv-red:#f24a56; --tv-gold:#c9a968;
+  --terminal-surface:#191b20; --terminal-subtle:#22252c;
+  --terminal-stroke:#343840; --terminal-edge:#40454e;
+}
+html, html body, html body #root, html body .app,html body .shell {
+  background:#0b0d10!important;
+  background-image:none!important;
+  color:#e8eaee!important;
+  font-family:Inter,"Segoe UI","Microsoft YaHei",Arial,sans-serif!important;
+}
+html body .topbar,html body .shareTopbar {
+  background:#111317!important;
+  background-image:none!important;
+  border:1px solid #30343b!important;
+  border-radius:10px!important;
+  box-shadow:none!important;
+  color:#e8eaee!important;
+}
+html body .brand {
+  background:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  padding:0 8px!important;
+  min-width:0!important;
+  overflow:visible!important;
+}
+html body .brand .brandLogo {
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:left center!important;
+  filter:none!important;
+}
+html body .navFrame,html body:has(#main[data-view="shareboard"]) .navFrame {
+  background:#111317!important;
+  background-image:none!important;
+  border:1px solid #282d33!important;
+  border-radius:10px!important;
+  box-shadow:none!important;
+  overflow-x:hidden!important;
+}
+html body .nav,html body .nav button {min-width:0!important}
+html body .nav button,
+html body:has(#main[data-view="shareboard"]) .nav button,
+html body .topbar .nav button {
+  background:transparent!important;
+  background-image:none!important;
+  border:1px solid transparent!important;
+  color:#b8bec8!important;
+  border-radius:7px!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  transform:none!important;
+  transition:background .17s ease,color .17s ease,border-color .17s ease!important;
+  font-weight:500!important;
+}
+html body .nav button:hover,
+html body:has(#main[data-view="shareboard"]) .nav button:hover,
+html body .topbar .nav button:hover {
+  color:#f7f8fa!important;
+  border-color:#393f49!important;
+  background:#22252b!important;
+  transform:none!important;
+}
+html body .nav button.active,
+html body:has(#main[data-view="shareboard"]) .nav button.active,
+html body .topbar .nav button.active {
+  color:#ff6971!important;
+  background:linear-gradient(90deg,rgba(187,38,54,.19),rgba(80,22,30,.06))!important;
+  border-color:rgba(198,57,71,.42)!important;
+  box-shadow:inset 3px 0 0 #df3c4d!important;
+}
+html body .topbar .nav button::after{display:none!important}
+
+/* Desktop 16:9 frame keeps real navigation click targets; left navigation and header.
+   The brand image remains unedited and intact, only its container position changes. */
+@media (min-width:1101px) {
+  html body.desktopFrame:not(.projectCaptureMode) .shell,
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .shell {
+    display:grid!important;
+    grid-template-columns:174px minmax(0,1fr)!important;
+    grid-template-rows:66px minmax(0,1fr)!important;
+    gap:10px!important;
+    padding:13px!important;
+    background:#0b0d10!important;
+    overflow:hidden!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) .topbar,
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .topbar {
+    display:contents!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) .topbar>.brand,
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .topbar>.brand {
+    grid-column:1!important;
+    grid-row:1!important;
+    height:66px!important;
+    width:290px!important;
+    position:relative!important;
+    z-index:4!important;
+    padding:6px 8px!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) .topbar .brandLogo {
+    width:274px!important;
+    height:54px!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) .topbar>.navFrame,
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .topbar>.navFrame {
+    grid-column:1!important;
+    grid-row:2!important;
+    align-self:stretch!important;
+    width:100%!important;
+    height:100%!important;
+    margin:0!important;
+    padding:13px 8px!important;
+    overflow-y:auto!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) .topbar .nav {
+    display:flex!important;
+    flex-direction:column!important;
+    height:auto!important;
+    width:100%!important;
+    gap:6px!important;
+    overflow:visible!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) .topbar .nav button {
+    display:flex!important;
+    align-items:center!important;
+    flex:none!important;
+    width:100%!important;
+    height:48px!important;
+    min-height:48px!important;
+    padding:0 9px!important;
+    text-align:left!important;
+    font-size:12px!important;
+    line-height:1.3!important;
+    white-space:nowrap!important;
+    text-overflow:ellipsis!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) .topbar .nav button::before {
+    content:"◈";
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:24px;
+    height:24px;
+    flex:0 0 24px;
+    font-size:16px;
+    margin-right:7px;
+    color:currentColor;
+    opacity:.85;
+  }
+  html body.desktopFrame .nav button[data-view="dashboard"]::before{content:"▦"!important}
+  html body.desktopFrame .nav button[data-view="customers"]::before{content:"♙"!important}
+  html body.desktopFrame .nav button[data-view="personnel"]::before{content:"♧"!important}
+  html body.desktopFrame .nav button[data-view="trades"]::before{content:"⇄"!important}
+  html body.desktopFrame .nav button[data-view="positions"]::before{content:"▥"!important}
+  html body.desktopFrame .nav button[data-view="market"]::before{content:"⌁"!important}
+  html body.desktopFrame .nav button[data-view="reports"]::before{content:"▤"!important}
+  html body.desktopFrame .nav button[data-view="shareboard"]::before{content:"◈"!important}
+  html body.desktopFrame .nav button[data-view="settings"]::before{content:"⚙"!important}
+  html body.desktopFrame:not(.projectCaptureMode) .topbar>.userArea,
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .topbar>.userArea {
+    grid-column:2!important;
+    grid-row:1!important;
+    display:flex!important;
+    width:100%!important;
+    height:66px!important;
+    min-height:66px!important;
+    min-width:0!important;
+    margin:0!important;
+    padding:0 12px 0 120px!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:9px!important;
+    border:1px solid #2d3138!important;
+    border-radius:8px!important;
+    background:#14161a!important;
+    overflow:hidden!important;
+  }
+  html body.desktopFrame:not(.projectCaptureMode) #main,
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) #main {
+    grid-column:2!important;
+    grid-row:2!important;
+    height:100%!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+  }
+}
+html body :is(.sysok,.romaniaClock,.chip,.iconBtn,.langSwitch) {
+  background:#202329!important;
+  border:1px solid #333940!important;
+  border-radius:6px!important;
+  box-shadow:none!important;
+  color:#d2d7df!important;
+}
+html body .sysok:not(.syserror) {color:#6bce8a!important}
+html body .syserror{color:#f17980!important}
+
+/* Single consistent app-wide graphite skin. Text is never colored dark on a dark panel. */
+html body #main#main#main :is(
+  .panel,.kpi,.execStat,.level1Metric,.level2Metric,.listItem,.indexTile,
+  .metric,.metricCard,.projectLauncher,.projectPanel,.projectRecordPanel,
+  .terminalPositionCard,.terminalFormCard,.terminalOrderPanel,.terminalChartCard,
+  .terminalTicker,.terminalSummaryCard,.terminalEmptyCard,.marketMetric,.marketRow,
+  .exchangeQuoteHeader,.exchangeKpiStrip,.exchangeChartPanel,.exchangeSessionPanel,
+  .allocationDistPanel,.allocationSlotsPanel,.allocationKpiCard,.allocationTrendPanel,
+  .level1StaffCard,.level2SideStack>.panel,.settingsCard,.marketChartPanel
+),
+html body #clientSharePage#clientSharePage#clientSharePage :is(
+  .panel,.shareKpiRow article,.shareTimeBlock,.shareMarketItem,
+  .shareProfileGrid>div,.shareNote,.shareServiceTimeline>div,.portfolioCurrencyGroup
+) {
+  background:linear-gradient(155deg,#1d1f24,#181a1f)!important;
+  background-image:linear-gradient(155deg,#1d1f24,#181a1f)!important;
+  border:1px solid #353a42!important;
+  border-radius:9px!important;
+  box-shadow:0 5px 16px rgba(0,0,0,.12)!important;
+  text-shadow:none!important;
+}
+html body #main#main#main :is(
+  .panelHead,.projectPanelHeading,.projectLauncherHead,.unifiedModuleHead,
+  .marketListHead,.marketChartHeader,.terminalChartSubtitleRow,.projectPresentationHeader
+),
+html body #clientSharePage#clientSharePage#clientSharePage :is(.panelHead,.shareTopbar) {
+  background:#1b1d22!important;
+  background-image:none!important;
+  color:#eceff3!important;
+  border-color:#353a42!important;
+  box-shadow:none!important;
+}
+html body #main#main#main :is(
+  .chartBox,.level2Chart,.level1Chart,.terminalChartWrap,.marketCanvas,
+  .exchangeBoardMain,.allocationBoardV2,.allocationBoardV3,
+  .projectOverviewSummary,.projectSummaryMetrics,.projectTrendChart
+) {background-image:none!important}
+html body #main#main#main#main :is(
+  h1,h2,h3,h4,p,label,span,strong,b,small,td,button,a,
+  .metricTitle,.metricValue,.headMeta,.panelSubtitleRow,.inlineLegend
+),
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage :is(
+  h1,h2,h3,p,label,span,strong,b,small,td,button,a
+) {
+  color:#e9ebee!important;
+  text-shadow:none!important;
+}
+html body #main#main#main#main :is(
+  .muted,.metricLabel,.metricFoot,.chartSubtitle,.panelHead p,
+  .pageHead p,.panelSubtitleRow p,.quoteTimeBadge,.headMeta,
+  .projectSummaryMetrics span,.dataTable th,.projectPanelHeading p
+),
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage :is(
+  .muted,.panelHead p,.shareKpiRow small,.dataTable th
+) {color:#a5abb5!important}
+html body #main#main#main#main .up,
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage .up {color:#74d58e!important}
+html body #main#main#main#main .down,
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage .down {color:#f17c82!important}
+html body #main#main#main#main :is(.panelHead h2,.projectPanelHeading h2,.unifiedModuleHead h2) {
+  color:#f0f2f5!important;
+  font-size:14px!important;
+  line-height:1.4!important;
+  font-weight:600!important;
+  letter-spacing:0!important;
+}
+html body :is(#main#main#main,#clientSharePage#clientSharePage#clientSharePage) .dataTable {
+  background:#1c1f24!important;
+  border-collapse:collapse!important;
+}
+html body :is(#main#main#main,#clientSharePage#clientSharePage#clientSharePage) .dataTable th {
+  background:#272b33!important;
+  color:#aeb6bf!important;
+  border-bottom:1px solid #383e47!important;
+  font-size:10px!important;
+  font-weight:500!important;
+}
+html body :is(#main#main#main,#clientSharePage#clientSharePage#clientSharePage) .dataTable td {
+  background:transparent!important;
+  color:#dfe3e9!important;
+  border-color:#343a44!important;
+  font-size:11px!important;
+}
+html body :is(#main#main#main,#clientSharePage#clientSharePage#clientSharePage) .dataTable tbody tr:hover td {
+  background:#292d35!important;
+}
+html body :is(#main#main#main,#clientSharePage#clientSharePage#clientSharePage) .dataTable tbody tr:nth-child(even) {
+  background:#1c1f24!important;
+}
+html body :is(.btn,.input,.select,.textarea,.langSwitch,.tabs button,.viewportPager button,
+  .loginLangRow,.marketRangeBar button,.terminalSegment button,
+  .projectNameEditor input) {
+  background:#25282e!important;
+  background-image:none!important;
+  border:1px solid #3e434d!important;
+  border-radius:6px!important;
+  color:#e9ebef!important;
+  box-shadow:none!important;
+}
+html body :is(.input,.select,.textarea):focus{
+  border-color:#75808f!important;
+  box-shadow:0 0 0 2px rgba(144,153,170,.17)!important;
+}
+html body :is(.btn,.tabs button,.viewportPager button):hover {
+  background:#30343c!important;
+  border-color:#59616c!important;
+}
+html body :is(.btn.primary,.tabs button.active,.marketRangeBar button.active) {
+  color:#fff!important;
+  background:#be3443!important;
+  border-color:#d14b59!important;
+  box-shadow:none!important;
+}
+html body .btn.danger{color:#ff9198!important;border-color:#88434d!important}
+html body .modal{background:rgba(0,0,0,.65)!important}
+html body :is(.modalCard,.loginCard) {
+  background:#1c1e23!important;
+  background-image:none!important;
+  border:1px solid #3b404a!important;
+  border-radius:12px!important;
+  color:#edf0f4!important;
+  box-shadow:0 22px 60px rgba(0,0,0,.35)!important;
+}
+html body :is(.modalHead,.detailTop,.loginFoot) {
+  background:#21242a!important;
+  border-color:#3a4049!important;
+  color:#d6dce5!important;
+}
+html body :is(.customerDetail,.detailBody,#clientSharePage,.shareReady,.loginPage) {
+  background:#0c0e12!important;
+  background-image:none!important;
+  color:#e9ebef!important;
+}
+html body .loginHero{
+  background:linear-gradient(137deg,#15181f,#0e1015 74%,#24222a)!important;
+  color:#e9ebef!important;
+}
+html body .loginHero h1,html body .loginCard h2{color:#f3f4f6!important}
+html body .loginHero p,html body .loginCard>p{color:#b4bdc8!important}
+html body .heroMark{background:none!important;border:0!important;max-width:440px!important}
+html body .heroMark .brandLogo{width:100%!important;height:auto!important;object-fit:contain!important}
+html body .heroRule{background:linear-gradient(90deg,#b63142,#67434c)!important}
+html body .loginSide{background:#101217!important;background-image:none!important}
+html body #main .link{color:#e5af7a!important}
+html body .toast{color:#fff!important;background:#24272f!important}
+
+/* Nested cards keep sufficient legibility instead of reverting to old midnight-blue rules. */
+html body #main#main#main#main :is(
+  .allocationIdentity,.allocationMini,.shareTotals>div,.countdownPanel,.timePair,
+  .countdownBox,.allocationChartPanel,.allocationConfigCompact,.exchangeQuoteMini,
+  .exchangeStatusRail span,.exchangeSessionGrid>div,.allocationTimingGrid>div,
+  .allocationStatusStrip,.allocationSecurityBar,.allocationSearchLike,
+  .allocationDistributionPanel,.allocationSlotsTable,
+  .teamDetailKpis>div,.teamDetailSection,.teamDetailIdentity,.staffAvatar,
+  .level1StaffMetrics>div,.terminalFieldRow,.level1SummaryList>div,
+  .level2SummaryList>div,.settingsList>div,.projectLauncherRow,
+  .shareMarketItem,.portfolioCurrencyGroup,.securityResult
+) {
+  background:#22252b!important;
+  background-image:none!important;
+  border-color:#3a4048!important;
+  box-shadow:none!important;
+}
+html body #main#main#main#main :is(
+  .allocationStatusStrip,.allocationSecurityBar,.allocationSlotsTable .dataTable th
+) {background:#282c32!important}
+
+/* NVDA, GOOGL and MSFT share-allocation panorama:
+   preserve the existing data values and selectable ring controls.
+   Hide only the bottom history *presentation* (its data and backend stay intact).
+   Expand trend+details to fill the vacated row in desktop 16:9. */
+html body.projectPresentationMode.projectPanoramaMode,
+html body.projectPresentationMode.projectPanoramaMode .app,
+html body.projectPresentationMode.projectPanoramaMode .shell,
+html body.projectPresentationMode.projectPanoramaMode #main {
+  background:#0b0d10!important;
+  background-image:none!important;
+}
+html body.projectPresentationMode.projectPanoramaMode #main#main#main#main .projectOverview {
+  background:#0b0d10!important;
+  background-image:none!important;
+  color:#e9edf2!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverviewCard,
+html body.projectPanoramaMode #main#main#main#main .projectTrendPanel,
+html body.projectPanoramaMode #main#main#main#main .projectOverviewSummary {
+  background:linear-gradient(155deg,#1c1e23,#17191e)!important;
+  background-image:linear-gradient(155deg,#1c1e23,#17191e)!important;
+  border:1px solid #363c45!important;
+  border-radius:9px!important;
+  box-shadow:none!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverviewCard.selected{
+  border-color:#536071!important;
+  box-shadow:inset 0 2px 0 var(--project-accent),0 7px 21px #0002!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverview .projectPanelHeading {
+  background:#1d1f24!important;
+  border-bottom:1px solid #363b43!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverview .projectOverviewTotals {
+  background:#22252b!important;
+  border-top:1px solid #373d45!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverviewNumbers>span,
+html body.projectPanoramaMode #main#main#main#main .projectOverviewTotals span,
+html body.projectPanoramaMode #main#main#main#main .projectSummaryMetrics span{
+  color:#b4bac4!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverview .projectBalanceRatio,
+html body.projectPanoramaMode #main#main#main#main .projectOverview .projectOverviewNumbers strong,
+html body.projectPanoramaMode #main#main#main#main .projectOverview .projectDetailName {
+  color:var(--project-accent)!important;
+  text-shadow:none!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverview .projectDetailSummary p{
+  color:#c4c9d1!important;
+  line-height:1.6!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverview .projectEnergySmoke {
+  opacity:.09!important;
+  filter:blur(3px)!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectTrendChart{
+  background:transparent!important;
+  min-height:0!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectChartEmpty{
+  background:transparent!important;
+  color:#a6adb8!important;
+  border:1px dashed #333943!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectNameEditor{
+  background:#22252b!important;
+  border-color:#363b43!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectDetailSummary{
+  background:transparent!important;
+  border-color:#353b44!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectDetailSummary h3{color:#e6e9ee!important}
+html body.projectPanoramaMode #main#main#main#main .projectPresentationHeader {
+  background:transparent!important;
+  border-color:#3b424b!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectPresentationHeader>.brand{
+  background:transparent!important;
+  padding:0!important;
+  height:100%!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectExit,
+html body.projectPanoramaMode #main#main#main#main .projectCaptureControl{
+  background:#24272d!important;
+  border:1px solid #424751!important;
+  color:#e7ebf0!important;
+  border-radius:5px!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectRecordPanel {
+  display:none!important; /* This visual table is removed; records stay in state and DB. */
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverviewLower {
+  display:grid!important;
+  grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)!important;
+  min-height:0!important;
+  gap:12px!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverviewLower>.projectPanel{
+  min-width:0!important;
+  min-height:0!important;
+  height:100%!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverviewCards{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  min-height:0!important;
+  gap:12px!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverviewBalance{
+  grid-template-columns:40% minmax(0,1fr)!important;
+  align-items:center!important;
+  min-height:0!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverviewCard .projectPanelHeading h2{
+  font-size:15px!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverviewNumbers strong{
+  font-size:22px!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverviewTotals b{font-size:12px!important;color:#e5e9ee!important}
+html body.projectPanoramaMode #main#main#main#main .projectTrendChart{
+  flex:1!important;
+  min-height:0!important;
+  height:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectTrendChart canvas{
+  flex:1!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverviewSummary{
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverviewSummary .projectDetailSummary{
+  flex:1!important;
+  min-height:0!important;
+  overflow:auto!important;
+}
+html body.projectPanoramaMode #main#main#main#main .projectOverviewSummary .projectSummaryMetrics{
+  flex:none!important;
+  margin-top:auto!important;
+  padding:15px!important;
+  border-top:1px solid #373b45!important;
+}
+@media(min-width:1101px){
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .projectOverview{
+    height:100%!important;
+    width:100%!important;
+    padding:0!important;
+    display:grid!important;
+    grid-template-rows:46px minmax(245px,.82fr) minmax(300px,1.35fr)!important;
+    gap:10px!important;
+    overflow:hidden!important;
+  }
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .projectOverview>.projectPresentationHeader {
+    min-height:46px!important;
+    height:46px!important;
+    padding:0 2px 5px!important;
+    display:flex!important;
+    justify-content:flex-end!important;
+    align-items:center!important;
+  }
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .projectOverview .projectPresentationHeader>.brand{
+    display:none!important; /* Original logo remains visible in the global header. */
+  }
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .projectOverviewCard{
+    display:grid!important;
+    grid-template-rows:50px minmax(0,1fr) 65px!important;
+  }
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) .projectOverviewLower{
+    height:100%!important;
+  }
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) #main{
+    height:100%!important;
+  }
+}
+
+/* Preserve original capture-mode presentation without duplicated header/nav. */
+html body.projectCaptureMode .topbar{display:none!important}
+html body.desktopFrame.projectCaptureMode .shell{
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:minmax(0,1fr)!important;
+}
+html body.desktopFrame.projectCaptureMode #main{grid-column:1!important;grid-row:1!important;height:100%!important}
+html body.desktopFrame.projectCaptureMode .projectOverview{
+  display:grid!important;
+  grid-template-rows:55px minmax(245px,.85fr) minmax(300px,1.3fr)!important;
+  gap:10px!important;height:100%!important;padding:0!important;
+}
+html body.desktopFrame.projectCaptureMode .projectOverview .projectPresentationHeader>.brand{
+  display:flex!important;
+}
+
+/* Responsive: never force the scaled 16:9 desktop grid onto smaller devices. */
+@media(max-width:1100px){
+  html body .shell{background:#0b0d10!important}
+  html body .topbar{background:#15171c!important}
+  html body .navFrame{background:#191b20!important}
+  html body .topbar .nav{overflow-x:auto!important}
+  html body .topbar .nav button{font-size:10px!important}
+  html body #main{background:#0b0d10!important}
+  html body.projectPanoramaMode .projectOverview{
+    height:auto!important;min-height:100dvh!important;
+    display:flex!important;flex-direction:column!important;
+    padding:12px!important;
+  }
+  html body.projectPanoramaMode .projectOverviewCards{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+  html body.projectPanoramaMode .projectOverviewCard{min-height:245px!important}
+  html body.projectPanoramaMode .projectOverviewLower{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    min-height:310px!important;
+  }
+}
+@media(max-width:700px){
+  html body.projectPanoramaMode .projectOverviewCards,
+  html body.projectPanoramaMode .projectOverviewLower{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  html body.projectPanoramaMode .projectOverviewLower>.projectPanel{
+    min-height:280px!important;
+  }
+  html body .loginHero{padding:25px!important}
+  html body .loginSide{padding:18px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  html body :is(.nav button,.panel,.projectPanel,.btn){transition:none!important;animation:none!important}
+}
