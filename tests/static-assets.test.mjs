@@ -42,7 +42,10 @@ test("new Canva/milk-white CSS files are actually served as CSS, never HTML", {t
     "/unified-ui.css?v=20261009-brighter",
     "/canva-market-light.css?v=20261010-canva-final-v1",
     "/canva-reference-layout.css?v=20261010-reference-v2",
-    "/milk-white-theme.css?v=20261010-cream-v1"
+    "/milk-white-theme.css?v=20261010-cream-v1",
+    "/cream-shell-correction.css?v=20261010-cream-shell-v1",
+    "/brand-logo-light-fix.css?v=20261010-brand-colors-v1",
+    "/canva-unified-ui-audit.css?v=20261010-canva-audit-1"
   ];
   for(const asset of themes){
     const response=await fetch(origin+asset);
