@@ -14,8 +14,8 @@ test("Canva visual contract: final stylesheet, readable cream tokens and origina
  assert.match(cssLinks.at(-5),/^\/canva-mobile-qa-fix\.css\?v=/,"Mobile QA stylesheet must load before final contrast");
  assert.match(cssLinks.at(-4),/^\/contrast-guard\.css\?v=/,"Contrast guard loads before targeted review");
  assert.match(cssLinks.at(-3),/^\/canva-fullsite-qa\.css\?v=/,"Fullsite Canva QA before mobile layout");
- assert.match(cssLinks.at(-2),/^\/responsive-mobile-system\.css\?v=/,"Mobile-specific responsive system precedes login styles");
- assert.match(cssLinks.at(-1),/^\/login-redesign\.css\?v=/,"Login design is a scoped last override");
+ assert.match(cssLinks.at(-2),/^\/responsive-mobile-system\.css\?v=/,"Mobile-specific responsive system is last");
+ assert.match(cssLinks.at(-1),/^\/login-redesign\.css\?v=/,"Login theme is last");
  for(const token of ["--bv-page:#FAF9F5","--bv-paper:#FFFEFA","--bv-line:#E6EAE5",
                      "--bv-ink:#24312E","--bv-teal:#128D7F","--bv-font:Inter"]){
    assert.ok(css.includes(token),"Missing standard design token "+token);
