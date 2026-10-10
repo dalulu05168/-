@@ -878,3 +878,58 @@
   html body #root#root #main#main#main#main#main .referenceFeatureValue{font-size:17px!important}
   html body #root#root #main#main#main#main#main .dataTable :is(td,th){font-size:12px!important}
 }
+
+
+/* P005: Keep allocation details visible for supervisor accounts and on phones.
+   The previous panorama rules hid the reservation-record panel on mobile. */
+html body.projectPanoramaMode #root#root #main#main#main#main#main .projectPresentationHeader .projectDetailOwner {
+ display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;
+ gap:9px!important;min-width:0!important;max-width:300px!important;
+ margin-left:auto!important;padding:4px 8px!important;
+ color:#263B55!important;font-size:12px!important;font-weight:650!important;
+ background:#F6F8FB!important;border:1px solid #DEE5EF!important;border-radius:8px!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main#main#main .projectDetailOwner select {
+ min-width:0!important;max-width:205px!important;height:32px!important;
+ border:1px solid #D4DEEA!important;border-radius:6px!important;
+ background:#FFFFFF!important;color:#182D4A!important;
+ padding:5px 9px!important;font-size:13px!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main#main#main .projectEmptyDetail {
+ margin:12px 0!important;padding:24px!important;background:#FFFFFF!important;
+ border:1px solid #DCE4ED!important;border-radius:12px!important;
+ color:#4B5970!important;font-size:14px!important;line-height:1.7!important;
+}
+html body.projectCaptureMode #root#root #main#main#main#main#main .projectDetailOwner {display:none!important;}
+@media (max-width:899px) {
+ html body.projectPanoramaMode #root#root #main#main#main#main#main .projectRecordPanel {
+  display:block!important;width:100%!important;min-height:180px!important;
+  height:auto!important;max-height:none!important;overflow:visible!important;
+ }
+ html body.projectPanoramaMode #root#root #main#main#main#main#main .projectRecordPanel .tableWrap {
+  display:block!important;overflow-x:auto!important;max-width:100%!important;
+  -webkit-overflow-scrolling:touch!important;
+ }
+ html body.projectPanoramaMode #root#root #main#main#main#main#main .projectOverview>.projectPresentationHeader {
+  display:flex!important;flex-wrap:wrap!important;gap:8px!important;
+  height:auto!important;min-height:56px!important;align-items:center!important;
+  padding:8px 0 12px!important;
+ }
+ html body.projectPanoramaMode #root#root #main#main#main#main#main .projectPresentationHeader .projectDetailOwner {
+  order:3!important;flex:1 1 100%!important;width:100%!important;
+  max-width:100%!important;margin-left:0!important;justify-content:space-between!important;
+ }
+ html body.projectPanoramaMode #root#root #main#main#main#main#main .projectPresentationHeader .projectDetailOwner select {
+  width:min(220px,70%)!important;max-width:70%!important;
+ }
+ html body.projectPanoramaMode #root#root #main#main#main#main#main .projectPresentationHeader>.brand {
+  width:min(190px,57vw)!important;min-width:0!important;flex:0 1 190px!important;
+  height:54px!important;
+ }
+ html body.projectPanoramaMode #root#root #main#main#main#main#main .projectPresentationHeader>.brand .brandLogo {
+  width:100%!important;height:54px!important;max-height:54px!important;
+ }
+ html body.projectPanoramaMode #root#root #main#main#main#main#main .projectPresentationHeader>.projectExit {
+  margin-left:auto!important;flex:0 0 36px!important;
+ }
+}
