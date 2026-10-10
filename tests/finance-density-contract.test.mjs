@@ -15,9 +15,10 @@ test("All Chart.js axes use black normal-weight numeric labels",async()=>{
 });
 
 test("Stock market layout grows naturally and keeps quote details and bottom chart",async()=>{
- const [html,css]=await Promise.all([read("index.html"),read("ui-finance-density-20261011.css")]);
- assert.match(html,/ui-finance-density-20261011\.css\?v=20261011-market-complete-v1/);
- assert.ok(html.lastIndexOf("ui-finance-density-20261011.css")>html.lastIndexOf("responsive-mobile-system.css"));
+ const [html,fullCss]=await Promise.all([read("index.html"),read("responsive-mobile-system.css")]);
+ const css=fullCss.slice(fullCss.lastIndexOf("/* P005 UI review: balanced dashboard density"));
+ assert.match(html,/responsive-mobile-system\.css\?v=20261011-project-details-v3/);
+ assert.ok(fullCss.lastIndexOf("/* P005 UI review: balanced dashboard density")>fullCss.lastIndexOf("/* P005: Keep allocation details visible"));
  assert.match(css,/data-view="market"\] \{\s*overflow-y:auto!important/);
  assert.match(css,/grid-template-rows:minmax\(52px,auto\) minmax\(139px,auto\) minmax\(330px,auto\) minmax\(330px,auto\)/);
  assert.match(css,/\.marketOverviewPanel[\s\S]*min-height:330px!important/);
