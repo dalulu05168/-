@@ -104,6 +104,12 @@ try{
        htmlOverflow:Math.max(0,document.documentElement.scrollWidth-innerWidth),
        viewportHeight:innerHeight,
        mainTop:Math.round(rect?.top||0),
+       mainClass:main?.className,
+       mainComputed:main?{opacity:getComputedStyle(main).opacity,visibility:getComputedStyle(main).visibility,display:getComputedStyle(main).display,contentVisibility:getComputedStyle(main).contentVisibility}:null,
+       dashboardVisualTargets:main?.dataset.view==="dashboard"?[...main.querySelectorAll(".projectLauncherHead,.projectLauncherRow,.level1Metric,.level2Metric,.terminalTicker,.tickerStat,.terminalChartCard")].slice(0,8).map(el=>{
+         const st=getComputedStyle(el),rr=el.getBoundingClientRect();
+         return {className:String(el.className).slice(0,55),top:Math.round(rr.top),height:Math.round(rr.height),opacity:st.opacity,display:st.display,visibility:st.visibility,color:st.color,background:st.backgroundColor,childText:el.innerText.slice(0,80)}
+       }):undefined,
        firstChild:(()=>{
         const el=main?.firstElementChild;if(!el)return null;
         const r=el.getBoundingClientRect(),cs=getComputedStyle(el);
