@@ -1,4 +1,5 @@
 import http from "node:http";
+import { timingSafeEqual } from "node:crypto";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -9,6 +10,29 @@ import securitySearchHandler from "./api/security-search.js";
 const __filename=fileURLToPath(import.meta.url);
 const __dirname=path.dirname(__filename);
 const port=Number(process.env.PORT||3000);
+// This dedicated staging branch must never expose the production CRM publicly.
+// Local test servers (without STAGING_PREVIEW) retain the original contract.
+const isRender=process.env.RENDER==="true"||!!process.env.RENDER_SERVICE_ID;
+const isPrivateStaging=process.env.STAGING_PREVIEW==="1";
+const previewUser=process.env.STAGING_PREVIEW_USERNAME||"";
+const previewPass=process.env.STAGING_PREVIEW_PASSWORD||"";
+if(isRender&&!isPrivateStaging)throw new Error("P005 staging is locked: STAGING_PREVIEW must be 1");
+if(isPrivateStaging&&(!previewUser||previewPass.length<24))
+  throw new Error("P005 staging is locked: private access credentials are missing or too short");
+function sameSecret(actual,expected){
+  const a=Buffer.from(actual),b=Buffer.from(expected);
+  return a.length===b.length&&timingSafeEqual(a,b);
+}
+function canViewStaging(req){
+  const auth=String(req.headers.authorization||"");
+  if(!auth.startsWith("Basic "))return false;
+  try{
+    const raw=Buffer.from(auth.slice(6),"base64").toString("utf8");
+    const colon=raw.indexOf(":");
+    if(colon<1)return false;
+    return sameSecret(raw.slice(0,colon),previewUser)&&sameSecret(raw.slice(colon+1),previewPass);
+  }catch{return false}
+}
 
 const apiRoutes=new Map([
   ["/api/market",marketHandler],
@@ -89,6 +113,27 @@ async function serveStatic(req,res,url){
 
 const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url||"/",`http://${req.headers.host||"localhost"}`);
+  if(isPrivateStaging){
+    res.setHeader("X-Content-Type-Options","nosniff");
+    res.setHeader("X-Frame-Options","DENY");
+    res.setHeader("Referrer-Policy","no-referrer");
+    res.setHeader("X-Robots-Tag","noindex, nofollow, noarchive");
+    res.setHeader("Vary","Authorization");
+    res.setHeader("Cache-Control","no-store");
+    if(url.pathname==="/healthz"){
+      res.statusCode=200;res.setHeader("Content-Type","text/plain; charset=utf-8");res.end("OK");return;
+    }
+    if(!canViewStaging(req)){
+      res.statusCode=401;
+      res.setHeader("WWW-Authenticate",'Basic realm="P005 private staging", charset="UTF-8"');
+      res.setHeader("Content-Type","text/plain; charset=utf-8");
+      res.end("Private staging: authentication required");return;
+    }
+    if(url.pathname==="/"&&!url.search){
+      res.statusCode=302;res.setHeader("Location","/?demo=1&loginPreview=1");
+      res.end();return;
+    }
+  }
   const handler=apiRoutes.get(url.pathname);
   if(handler){
     try{
