@@ -15,7 +15,19 @@ test("P005 private staging cannot initialize the live Supabase client",async()=>
   assert.match(app,/const SUPABASE_URL = "https:\/\/preview-data\.invalid";/);
   assert.match(app,/const SUPABASE_KEY = "disabled-in-private-staging";/);
   assert.doesNotMatch(app,/igcmvzoxminzvcgwimwi|sb_publishable_/);
-  assert.match(app,/brand-logo-transparent-color\.svg/);
+  assert.match(app,/brand-logo-transparent-color\\.svg/);
+  const start=app.indexOf("function renderLogin(initialized)");
+  const end=app.indexOf("async function bootstrap",start);
+  const loginUi=app.slice(start,end);
+  assert.match(loginUi,/if\(demoMode\)\{/);
+  assert.match(loginUi,/const accounts=supabase\.previewAccounts\(\)/);
+  assert.match(loginUi,/id="stagingDemoRole"/);
+  assert.match(loginUi,/无需输入真实用户名或密码/);
+  assert.match(loginUi,/supabase\.selectPreviewAccount\(selected\)/);
+  assert.match(loginUi,/else\{[\s\S]*form\.addEventListener\("submit",initialized\?login:bootstrap\)/);
+  assert.ok(loginUi.indexOf("supabase.selectPreviewAccount(selected)") <
+            loginUi.indexOf('form.addEventListener("submit",initialized?login:bootstrap)'),
+            "Demo branch must precede actual authentication path");
 });
 
 async function port(){
