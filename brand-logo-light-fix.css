@@ -1,0 +1,85 @@
+/*
+ * Unified BV / Brantone Veylor brand presentation, 2026-10-10.
+ * Source: user's transparent PNG original (dark navy wording, red mark).
+ * The SVG asset itself retains the original BV iconography and path geometry.
+ * It uses navy #001242 + red #900006 to match the reference transparent logo.
+ * The logo MUST NOT be displayed with the former navy plaque/white text.
+ */
+:root {
+  --bv-ink: #001242;
+  --bv-red: #900006;
+}
+html body #root#root .topbar>.brand,
+html body.desktopFrame #root#root .topbar>.brand,
+html body.desktopFrame.projectPresentationMode.projectPanoramaMode #root#root .topbar>.brand,
+html body.projectPanoramaMode #root#root .topbar>.brand,
+html body .loginHero .heroMark,
+html body .loginHero .brand,
+html body #clientSharePage .shareBrand,
+html body .projectPresentationHeader>.brand,
+html body.projectCaptureMode .projectPresentationHeader>.brand {
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  box-shadow:none!important;
+  filter:none!important;
+}
+html body #root#root .brandLogo,
+html body #root#root .topbar .brandLogo,
+html body #root#root .loginHero .brandLogo,
+html body #clientSharePage .brandLogo,
+html body .projectPresentationHeader .brandLogo {
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  filter:none!important;
+  mix-blend-mode:normal!important;
+  object-fit:contain!important;
+  object-position:left center!important;
+  background:transparent!important;
+  background-image:none!important;
+  border:none!important;
+  box-shadow:none!important;
+}
+html body .loginHero .heroMark {
+  max-width:min(500px,100%)!important;
+  margin:0 0 18px!important;
+  padding:0!important;
+}
+html body .loginHero .heroMark .brandLogo {
+  width:min(450px,100%)!important;
+  height:auto!important;
+  max-height:145px!important;
+}
+html body.desktopFrame #root#root .topbar>.brand {
+  display:flex!important;
+  justify-content:flex-start!important;
+  align-items:center!important;
+  min-width:0!important;
+  padding:3px 7px!important;
+  overflow:hidden!important;
+}
+html body.desktopFrame #root#root .topbar>.brand .brandLogo {
+  max-height:50px!important;
+  height:100%!important;
+  width:100%!important;
+}
+html body #clientSharePage .shareBrand .brandLogo,
+html body.projectCaptureMode .projectPresentationHeader .brandLogo {
+  width:100%!important;
+  height:100%!important;
+  max-height:100%!important;
+}
+@media(max-width:899px){
+  html body #root#root .topbar>.brand{
+    background:transparent!important;
+    border:0!important;
+    padding:3px!important;
+  }
+  html body #root#root .topbar>.brand .brandLogo{
+    height:100%!important;
+    width:100%!important;
+    object-fit:contain!important;
+  }
+}
