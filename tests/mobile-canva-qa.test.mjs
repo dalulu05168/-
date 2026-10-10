@@ -9,8 +9,9 @@ test("iPhone Canva acceptance: one visible logo, stacked cards, readable typogra
   read("index.html"),read("canva-mobile-qa-fix.css"),read("allocation-projects.js")
  ]);
  const links=[...html.matchAll(/href="(\/[^"]+\.css[^"]*)"/g)].map(m=>m[1]);
- assert.match(links.at(-2),/^\/canva-mobile-qa-fix\.css\?v=/,"Mobile fixes must load before contrast guard");
- assert.match(links.at(-1),/^\/contrast-guard\.css\?v=/,"All page text must pass contrast guard");
+ assert.match(links.at(-3),/^\/canva-mobile-qa-fix\.css\?v=/,"Mobile fixes must load before contrast guard");
+ assert.match(links.at(-2),/^\/contrast-guard\.css\?v=/,"All page text must pass contrast guard");
+ assert.match(links.at(-1),/^\/canva-fullsite-qa\.css\?v=/,"Targeted Canva corrections must remain final");
  assert.match(css,/body:not\(\.projectCaptureMode\)[\s\S]*?\.projectPresentationHeader>.\brand|body:not\(\.projectCaptureMode\)[\s\S]*?\.projectOverview>\.projectPresentationHeader>\.brand/,"Presentation duplicate logo must be hidden while global header exists");
  assert.match(css,/\.projectOverviewCards\s*\{\s*display:grid!important;\s*width:100%/,"Cards must be stacked on phone");
  assert.match(css,/grid-template-columns:minmax\(0,1fr\)!important;/,"Single full-width mobile card column");
