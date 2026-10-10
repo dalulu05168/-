@@ -110,7 +110,7 @@ try{
       const count=await cards.count();
       if(count){
        const boxes=await cards.evaluateAll(els=>els.map(x=>{const r=x.getBoundingClientRect();return{x:r.x,w:r.width,y:r.y}}));
-       if(boxes.some(x=>x.w>innerWidth-10))failures.push("project card width exceeds phone");
+       if(boxes.some(x=>x.w>viewport.width-10))failures.push("project card width exceeds phone");
        if(boxes.length>1&&boxes[1].y<=boxes[0].y)failures.push("project cards not vertically stacked");
       }
      }
