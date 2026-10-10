@@ -11,7 +11,7 @@ test("Project allocation overview includes detail panels and supervisor owner ch
   assert.match(js,/id="projectDetailOwnerSelect"/);
   assert.match(js,/ownerSelect\.onchange=\(\)=>/);
   assert.match(js,/class="projectOverviewLower"/);
-  assert.match(js,/class="projectTrendPanel"/);
+  assert.match(js,/class="projectPanel projectTrendPanel"/);
   assert.match(js,/class="projectPanel projectRecordPanel"/);
   assert.match(js,/class="projectEmptyDetail"/);
   assert.match(js,/id="projectAddRecord"/);
