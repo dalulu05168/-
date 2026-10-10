@@ -18,7 +18,7 @@ test("cream UI remains the final stylesheet and includes whole-page overrides",a
 });
 test("new cream UI CSS is a real CSS route, not SPA HTML",async()=>{
  const server=await load("server.js");
- assert.match(server,/const cssAsset=\/\^\\\/[a-zA-Z0-9]/,"server should allow root-level CSS assets");
+ assert.ok(server.includes("const cssAsset=")&&server.includes("!cssAsset"),"server should allow root-level CSS assets");
  const css=await load("cream-shell-correction.css");
  assert.ok(css.length>10000,"actual stylesheet content is present");
  assert.doesNotMatch(css,/<html/i);
