@@ -12,7 +12,7 @@ function contrast(a,b){const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.
 test("Login design is separate from shared CRM and honors Canva cream contrast",async()=>{
  const [css,html,app]=await Promise.all(["login-redesign.css","index.html","app.js"].map(read));
  const links=[...html.matchAll(/href="(\/[^"]+\.css[^"]*)"/g)].map(m=>m[1]);
- assert.equal(links.at(-1),"/login-redesign.css?v=20261010-login-rebuild-v1");
+ assert.equal(links.at(-1),"/login-redesign.css?v=20261010-form-first-v2");
  for(const token of ["--login-cream:#FAF9F5","--login-paper:#FFFEFA","--login-ink:#25352F","--login-accent:#12887A"]){
   assert.ok(css.includes(token),"Missing color "+token);
  }
