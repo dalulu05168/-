@@ -6,6 +6,8 @@ on:
       - deploy/render-p005-private-staging-20261011
     paths:
       - "app.js"
+      - "allocation-projects.js"
+      - "tests/reservation-no-fullscreen.test.mjs"
       - "demo-client.js"
       - "server.js"
       - "tests/private-staging.test.mjs"
@@ -27,7 +29,7 @@ jobs:
           node --check app.js
           node --check server.js
           node --check scripts/staging-login-browser-qa.mjs
-          node --test tests/private-staging.test.mjs
+          node --test tests/private-staging.test.mjs tests/reservation-no-fullscreen.test.mjs
       - name: Install Playwright
         run: |
           npm install --no-audit --no-fund
