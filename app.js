@@ -172,10 +172,10 @@ function renderLogin(initialized){
           <p class="loginCardDescription">${initialized?"请使用已获授权的 CRM 账号登录":"首次启用时，请创建系统管理员账号。"}</p>
           <form class="loginFields" id="${initialized?"loginForm":"bootstrapForm"}">
             ${initialized?"":`<div class="field loginField"><label for="loginDisplayName">管理员姓名</label><input id="loginDisplayName" class="input" name="display_name" autocomplete="name" required></div>`}
-            <div class="field loginField"><label for="loginUsername">登录账号</label><input id="loginUsername" class="input" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="请输入账号名称" required><small>无需输入邮箱后缀</small></div>
-            <div class="field loginField"><label for="loginPassword">登录密码</label><div class="loginPasswordWrap"><input id="loginPassword" class="input" type="password" name="password" autocomplete="${initialized?"current-password":"new-password"}" placeholder="请输入登录密码" required><button type="button" class="loginPasswordToggle" aria-label="显示密码" aria-pressed="false">显示</button></div></div>
+            <div class="field loginField"><label for="loginUsername">登录账号</label><input id="loginUsername" class="input" name="username" aria-describedby="loginUsernameHelp loginError" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="请输入账号名称" required><small id="loginUsernameHelp">无需输入邮箱后缀</small></div>
+            <div class="field loginField"><label for="loginPassword">登录密码</label><div class="loginPasswordWrap"><input id="loginPassword" class="input" type="password" name="password" aria-describedby="loginError" autocomplete="${initialized?"current-password":"new-password"}" placeholder="请输入登录密码" required><button type="button" class="loginPasswordToggle" aria-label="显示密码" aria-pressed="false">显示</button></div></div>
             ${initialized?"":`<div class="field loginField"><label for="loginBootstrapCode">一次性初始化码</label><input id="loginBootstrapCode" class="input" type="password" name="bootstrap_code" autocomplete="off" required></div>`}
-            <div id="loginError" class="loginError" role="alert" hidden></div>
+            <div id="loginError" class="loginError" role="alert" tabindex="-1" hidden></div>
             <button class="btn primary loginSubmit" type="submit">${initialized?"登录工作台":"创建管理员并进入系统"} <span aria-hidden="true">↗</span></button>
           </form>
           <div class="loginUtilities">
@@ -191,6 +191,12 @@ function renderLogin(initialized){
   const passwordField=form.querySelector('input[name="password"]');
   if(toggle&&passwordField)toggle.onclick=()=>{const visible=passwordField.type==="password";passwordField.type=visible?"text":"password";toggle.textContent=visible?"隐藏":"显示";toggle.setAttribute("aria-pressed",String(visible));toggle.setAttribute("aria-label",visible?"隐藏密码":"显示密码");};
   form.addEventListener("submit",initialized?login:bootstrap);
+  form.addEventListener("input",event=>{
+    if(!event.target.matches("input"))return;
+    form.querySelectorAll('input[aria-invalid="true"]').forEach(field=>field.removeAttribute("aria-invalid"));
+    const error=form.querySelector("#loginError");
+    if(error&&!error.hidden){error.hidden=true;error.textContent="";}
+  });
   $("#loginLang").onchange=e=>{state.lang=setLang(e.target.value);renderLogin(initialized)};
   translateUI($("#root"),state.lang);
   startRomaniaClock();
@@ -199,13 +205,18 @@ function renderLogin(initialized){
 async function bootstrap(e){
   e.preventDefault(); const f=new FormData(e.currentTarget);
   const body=Object.fromEntries(f.entries());
-  const btn=e.currentTarget.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent="正在初始化…";
+  const btn=e.currentTarget.querySelector('button[type="submit"]');btn.disabled=true;btn.setAttribute("aria-busy","true");btn.textContent="正在初始化…";
   try{
     const r=await fetch(SUPABASE_URL+"/functions/v1/bootstrap-admin",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},body:JSON.stringify(body)});
     const j=await r.json();if(!r.ok)throw new Error(j.error||"初始化失败");
     toast("管理员创建成功，请登录");
     renderLogin(true);
-  }catch(err){toast(err.message,true);btn.disabled=false;btn.textContent="创建管理员并进入系统"}
+  }catch(err){
+    const message="初始化失败："+(err?.message||"请检查初始化码或网络连接");
+    const errorBox=e.currentTarget.querySelector("#loginError");
+    if(errorBox){errorBox.textContent=message;errorBox.hidden=false;errorBox.focus({preventScroll:true});}
+    toast(message,true);btn.disabled=false;btn.removeAttribute("aria-busy");btn.textContent="创建管理员并进入系统";
+  }
 }
 
 async function login(e){
@@ -215,7 +226,7 @@ async function login(e){
   const btn=e.currentTarget.querySelector('button[type="submit"]');
   const errorBox=e.currentTarget.querySelector("#loginError");
   if(errorBox){errorBox.hidden=true;errorBox.textContent="";}
-  btn.disabled=true;btn.textContent="正在验证…";
+  btn.disabled=true;btn.setAttribute("aria-busy","true");btn.textContent="正在验证…";
   try{
     const {data,error}=await supabase.auth.signInWithPassword({email:username+"@crm.nuvexapro.com",password});
     if(error)throw error;
@@ -223,9 +234,13 @@ async function login(e){
     await loadProfileAndStart();
   }catch(err){
     const message="登录失败："+(err?.message||"请检查账号或网络连接");
-    if(errorBox){errorBox.textContent=message;errorBox.hidden=false;}
+    if(errorBox){
+      errorBox.textContent=message;errorBox.hidden=false;
+      e.currentTarget.querySelectorAll('input[name="username"],input[name="password"]').forEach(field=>field.setAttribute("aria-invalid","true"));
+      errorBox.focus({preventScroll:true});
+    }
     toast(message,true);
-    btn.disabled=false;btn.innerHTML='登录工作台 <span aria-hidden="true">↗</span>';
+    btn.disabled=false;btn.removeAttribute("aria-busy");btn.innerHTML='登录工作台 <span aria-hidden="true">↗</span>';
   }
 }
 
@@ -256,7 +271,7 @@ function renderShell(){
     <div class="app"><div class="shell">
       <header class="topbar">
         <div class="brand"><img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-brand-correct" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
-        <div class="navFrame"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}" title="${tr(label,state.lang)}" aria-label="${tr(label,state.lang)}">${tr(label,state.lang)}</button>`).join("")}</nav></div>
+        <div class="navFrame"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}" aria-current="${id===state.activeView?"page":"false"}" title="${tr(label,state.lang)}" aria-label="${tr(label,state.lang)}">${tr(label,state.lang)}</button>`).join("")}</nav></div>
         <form id="globalSearchForm" class="globalSearch" role="search"><span aria-hidden="true">⌕</span><input id="globalSearchInput" type="search" autocomplete="off" placeholder="搜索客户、项目或股票…" aria-label="搜索客户、项目或股票"><button type="submit" aria-label="搜索">↵</button></form><div class="userArea"><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><button class="chip" id="editAccountName" title="修改账号名称">${esc(state.profile.display_name)}</button><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
       </header>
       <main id="main" data-view="${state.activeView}"></main>
@@ -315,7 +330,11 @@ async function switchView(view){
     state.activeView=view;
     const projectHash=view==="shareboard"?"#allocation/"+(state.activeProjectNumber||1):"";
     if((view==="shareboard"||location.hash.startsWith("#allocation/"))&&location.hash!==projectHash)history.pushState(null,"",location.pathname+location.search+projectHash);
-    $$(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+    $$(".nav button").forEach(b=>{
+      const active=b.dataset.view===view;
+      b.classList.toggle("active",active);
+      b.setAttribute("aria-current",active?"page":"false");
+    });
     await renderView(token);
   };
   viewRenderQueue=viewRenderQueue.then(task,task);
