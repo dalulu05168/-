@@ -21,8 +21,8 @@ test("all application logo occurrences use the new transparent asset and remove 
   assert.match(cssLinks.at(-5),/^\/canva-mobile-qa-fix\.css/,"mobile QA must retain original transparent logo");
   assert.match(cssLinks.at(-4),/^\/contrast-guard\.css/,"contrast guard must not recolor the logo");
   assert.match(cssLinks.at(-3),/^\/canva-fullsite-qa\.css/,"full site layout protects original SVG");
-  assert.match(cssLinks.at(-2),/^\/responsive-mobile-system\.css/,"mobile layout before scoped login theme");
-  assert.match(cssLinks.at(-1),/^\/login-redesign\.css/,"login theme must not recolor original logo");
+  assert.match(cssLinks.at(-2),/^\/responsive-mobile-system\.css/,"mobile layout loaded last without modifying logo");
+  assert.match(cssLinks.at(-1),/^\/login-redesign\.css/,"Login theme preserves original SVG");
   assert.match(css,/\.topbar>\.brand/);
   assert.match(css,/background:transparent!important/);
 });
