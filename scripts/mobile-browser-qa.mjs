@@ -16,7 +16,7 @@ const accounts=roles.map(role=>{
  if(!actor)throw new Error("Missing simulated role "+role);
  return {role,id:actor.id};
 });
-const routes=["dashboard","customers","personnel","trades","positions","market","reports","shareboard","settings"];
+const routes=["dashboard","customers","personnel","trades","positions","market","reports","settings","shareboard"];
 const dims=[{width:390,height:844},{width:768,height:1024},{width:360,height:780}];
 
 async function freePort(){
