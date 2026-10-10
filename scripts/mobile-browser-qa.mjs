@@ -54,7 +54,18 @@ try{
    page.on("pageerror",e=>requestErrors.push(String(e)));
    try{
     await page.goto(origin+"/?demo=1&account="+encodeURIComponent(actor.id),{waitUntil:"domcontentloaded",timeout:40000});
-    await page.waitForSelector("#main[data-view]",{timeout:40000});
+    try{await page.waitForSelector("#main[data-view]",{timeout:13000});}
+    catch(error){
+      const failureState=await page.evaluate(()=>({
+        bodyText:document.body?.innerText?.slice(0,600),
+        main:!!document.querySelector("#main"),
+        rootText:document.querySelector("#root")?.innerText?.slice(0,400),
+        pathname:location.pathname,
+        heading:document.title
+      }));
+      failures.push(actor.role+"/"+viewport.width+": failed to boot "+JSON.stringify(failureState)+"; JS errors "+JSON.stringify(requestErrors));
+      continue;
+    }
     await page.waitForTimeout(600);
     for(const view of routes){
      if(view==="personnel"&&actor.role==="level2")continue;
@@ -91,6 +102,16 @@ try{
        shellWidth:document.querySelector(".shell")?.getBoundingClientRect().width,
        mainWidth:rect?.width,mainContentLength:main?.textContent?.trim()?.length||0,
        htmlOverflow:Math.max(0,document.documentElement.scrollWidth-innerWidth),
+       viewportHeight:innerHeight,
+       mainTop:Math.round(rect?.top||0),
+       firstChild:(()=>{
+        const el=main?.firstElementChild;if(!el)return null;
+        const r=el.getBoundingClientRect(),cs=getComputedStyle(el);
+        return {tag:el.tagName,cls:String(el.className).slice(0,90),
+          top:Math.round(r.top),height:Math.round(r.height),
+          display:cs.display,visibility:cs.visibility,
+          opacity:cs.opacity,overflow:cs.overflow}
+       })(),
        navIsScrollable:document.querySelector(".navFrame")?.scrollWidth>document.querySelector(".navFrame")?.clientWidth,
        visibleLogoCount:logos.length,
        badColors:badColors.slice(0,4),
@@ -102,6 +123,7 @@ try{
      });
      report.push({role:actor.role,width:viewport.width,...diagnostics});
      if(diagnostics.mainContentLength===0)failures.push(actor.role+"/"+view+"/"+viewport.width+": empty screen");
+     if(diagnostics.firstChild&&view==="dashboard"&&(diagnostics.firstChild.top>viewport.height-40||diagnostics.firstChild.height<15||diagnostics.firstChild.display==="none"))failures.push(actor.role+"/"+view+"/"+viewport.width+": dashboard visibly missing "+JSON.stringify(diagnostics.firstChild));
      if(diagnostics.mainWidth<260)failures.push(actor.role+"/"+view+"/"+viewport.width+": main container too narrow");
      if(diagnostics.badColors.length)failures.push(actor.role+"/"+view+"/"+viewport.width+": illegible dark panels "+JSON.stringify(diagnostics.badColors));
      if(diagnostics.htmlOverflow>8)failures.push(actor.role+"/"+view+"/"+viewport.width+": document horizontal overflow "+diagnostics.htmlOverflow);
