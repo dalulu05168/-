@@ -621,3 +621,29 @@ html body #root#root .loginPage .loginFoot{
  html body #root#root .loginPage .heroMark{height:55px!important;width:215px!important}
  html body #root#root .loginPage .loginUtilities{grid-template-columns:minmax(0,1fr)!important}
 }
+
+/* Fixed flex-basis: previous login select retained flex:0 1 150px,
+   which becomes a 150px TALL select inside the new column layout. */
+html body #root#root .loginPage .loginUtilities .loginLangRow select{
+ flex:0 0 38px!important;
+ flex-basis:38px!important;
+ align-self:stretch!important;
+ display:block!important;
+ height:38px!important;min-height:38px!important;max-height:38px!important;
+ width:100%!important;max-width:100%!important;
+ padding:7px 28px 7px 11px!important;
+ line-height:1.35!important;
+}
+html body #root#root .loginPage .loginUtilities .loginClockRow .romaniaClock{
+ flex:0 0 auto!important;
+ min-height:38px!important;
+ display:flex!important;align-items:center!important;
+ line-height:1.55!important;
+}
+html body #root#root .loginPage .loginClockRow .romaniaClock::before{
+ white-space:nowrap!important;
+ overflow:hidden!important;
+ min-width:23px!important;
+ width:auto!important;
+ line-height:1.25!important;
+}
