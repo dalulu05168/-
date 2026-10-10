@@ -694,3 +694,335 @@ html body #clientSharePage#clientSharePage :is(.shareKpiRow,.sharePositions,.sha
     scroll-behavior:auto!important;
   }
 }
+
+
+/* P005 — Approved fintech login visual system, 2026-10-10 */
+/* Scoped strictly to unauthenticated CRM screen.
+   Brantone logo remains the original user-approved transparent SVG.
+   Auth implementation, data loading and authorized shell are untouched. */
+html body #root#root .loginPage {
+ --login-outer:#F0F3F8;
+ --login-cream:#F7F9FC;
+ --login-paper:#FFFFFF;
+ --login-ink:#142744;
+ --login-muted:#687890;
+ --login-line:#DFE5EE;
+ --login-accent:#17386F;
+ --login-accent-hover:#214988;
+ display:grid!important;
+ grid-template-columns:minmax(0,1.08fr) minmax(390px,.92fr)!important;
+ align-content:center!important;
+ align-items:stretch!important;
+ width:100%!important;
+ min-height:100dvh!important;
+ height:auto!important;
+ padding:clamp(20px,3vw,46px)!important;
+ background:linear-gradient(145deg,#F7F9FC,#EBEFF5)!important;
+ color:#142744!important;
+}
+html body #root#root .loginPage .loginHero,
+html body #root#root .loginPage .loginSide {
+ min-height:min(740px,calc(100dvh - 74px))!important;
+ height:auto!important;
+ box-shadow:0 22px 65px rgba(25,49,86,.09)!important;
+}
+html body #root#root .loginPage .loginHero {
+ justify-content:center!important;
+ align-items:flex-start!important;
+ padding:clamp(32px,4.5vw,72px)!important;
+ border:1px solid #DFE5EE!important;
+ border-right:0!important;
+ border-radius:19px 0 0 19px!important;
+ background-color:#F8FAFD!important;
+ background-image:linear-gradient(rgba(42,69,115,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(42,69,115,.025) 1px,transparent 1px)!important;
+ background-size:32px 32px!important;
+}
+html body #root#root .loginPage .loginHero::after {display:none!important;}
+html body #root#root .loginPage .heroMark {
+ width:min(440px,100%)!important;
+ height:104px!important;
+ min-height:0!important;
+ max-height:none!important;
+ margin:0 0 clamp(24px,4vh,48px)!important;
+}
+html body #root#root .loginPage .heroMark img.brandLogo {
+ display:block!important;
+ width:100%!important;
+ height:100%!important;
+ object-fit:contain!important;
+ object-position:left center!important;
+ max-height:100%!important;
+ filter:none!important;
+ opacity:1!important;
+}
+html body #root#root .loginPage .heroRule {
+ width:46px!important;
+ height:3px!important;
+ margin:0 0 23px!important;
+ background:#A31628!important;
+ border-radius:1px!important;
+}
+html body #root#root .loginPage .loginEyebrow {
+ font-size:11px!important;
+ line-height:1.55!important;
+ letter-spacing:2.1px!important;
+ margin:0 0 18px!important;
+ color:#942739!important;
+}
+html body #root#root .loginPage .loginHero h1 {
+ font-size:clamp(29px,3vw,46px)!important;
+ line-height:1.3!important;
+ letter-spacing:-.6px!important;
+ font-weight:750!important;
+ margin:0 0 20px!important;
+ color:#142744!important;
+ max-width:570px!important;
+}
+html body #root#root .loginPage .loginHero p {
+ max-width:465px!important;
+ font-size:15px!important;
+ line-height:1.9!important;
+ color:#63748B!important;
+}
+html body #root#root .loginPage .loginHeroModules {
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ width:min(520px,100%)!important;
+ gap:10px!important;
+ margin:35px 0 0!important;
+}
+html body #root#root .loginPage .loginHeroModules span {
+ display:flex!important;
+ justify-content:center!important;
+ align-items:center!important;
+ text-align:center!important;
+ min-height:85px!important;
+ padding:12px 8px!important;
+ white-space:normal!important;
+ font-size:12px!important;
+ line-height:1.5!important;
+ font-weight:650!important;
+ color:#2F405E!important;
+ border:1px solid #E0E6EF!important;
+ border-radius:11px!important;
+ background:rgba(255,255,255,.94)!important;
+ box-shadow:0 4px 14px rgba(22,39,70,.025)!important;
+}
+html body #root#root .loginPage .loginHeroModules span::before{
+ content:"" !important;
+ display:block!important;
+ height:4px!important;
+ width:4px!important;
+ margin-right:8px!important;
+ background:#A31628!important;
+ border-radius:50%!important;
+}
+html body #root#root .loginPage .loginSide {
+ justify-content:center!important;
+ padding:clamp(24px,4vw,70px)!important;
+ border:1px solid #DFE5EE!important;
+ border-radius:0 19px 19px 0!important;
+ background:#FFFFFF!important;
+}
+html body #root#root .loginPage .loginCard {
+ width:min(435px,100%)!important;
+ max-width:100%!important;
+}
+html body #root#root .loginPage .loginCardKicker {
+ display:flex!important;
+ gap:10px!important;
+ color:#912436!important;
+ font-size:10px!important;
+ font-weight:750!important;
+ letter-spacing:1.7px!important;
+ margin-bottom:20px!important;
+}
+html body #root#root .loginPage .loginCardStatus {
+ background:#A31628!important;
+ box-shadow:0 0 0 4px #FBECEF!important;
+}
+html body #root#root .loginPage .loginCard h2 {
+ color:#132748!important;
+ font-size:31px!important;
+ line-height:1.32!important;
+ letter-spacing:-.4px!important;
+ margin:0 0 11px!important;
+}
+html body #root#root .loginPage .loginCardDescription {
+ color:#6F7F94!important;
+ font-size:13px!important;
+ line-height:1.7!important;
+ margin-bottom:28px!important;
+}
+html body #root#root .loginPage .loginFields {
+ gap:16px!important;
+}
+html body #root#root .loginPage .loginField>label {
+ color:#263A58!important;
+ font-size:13px!important;
+ font-weight:650!important;
+ margin-bottom:8px!important;
+}
+html body #root#root .loginPage .loginFields :is(input,.input){
+ height:50px!important;
+ min-height:50px!important;
+ font-size:16px!important;
+ line-height:1.45!important;
+ color:#142744!important;
+ background:#FBFCFE!important;
+ border:1px solid #D6DEEA!important;
+ border-radius:9px!important;
+ padding:11px 14px!important;
+ box-shadow:none!important;
+}
+html body #root#root .loginPage .loginFields input::placeholder {
+ color:#94A1B1!important;
+}
+html body #root#root .loginPage .loginFields input:focus {
+ border-color:#17386F!important;
+ outline:2px solid rgba(23,56,111,.18)!important;
+ outline-offset:0!important;
+}
+html body #root#root .loginPage .loginFields .loginPasswordWrap .input {
+ padding-right:85px!important;
+}
+html body #root#root .loginPage .loginPasswordToggle {
+ top:5px!important;
+ right:5px!important;
+ height:40px!important;
+ min-height:40px!important;
+ background:#F0F3F8!important;
+ border:1px solid #E3E8F0!important;
+ border-radius:7px!important;
+ color:#345578!important;
+}
+html body #root#root .loginPage .loginFields .loginSubmit.btn.primary{
+ height:53px!important;
+ min-height:53px!important;
+ margin-top:8px!important;
+ border:1px solid #17386F!important;
+ border-radius:9px!important;
+ background:#17386F!important;
+ color:white!important;
+ font-size:15px!important;
+ font-weight:700!important;
+ box-shadow:0 9px 23px rgba(23,56,111,.16)!important;
+}
+html body #root#root .loginPage .loginFields .loginSubmit.btn.primary:hover{
+ background:#214988!important;
+ border-color:#214988!important;
+}
+html body #root#root .loginPage .loginFields .loginSubmit.btn.primary:disabled{
+ background:#7184A0!important;
+ border-color:#7184A0!important;
+}
+html body #root#root .loginPage .loginField>small,
+html body #root#root .loginPage .loginFoot {
+ color:#8492A6!important;
+}
+html body #root#root .loginPage .loginFoot span {
+ color:#A31628!important;
+}
+html body #root#root .loginPage .loginUtilities {
+ border-top:1px solid #E5EAF1!important;
+ margin-top:28px!important;
+ padding-top:20px!important;
+}
+html body #root#root .loginPage .loginUtilities :is(label,.loginClockRow>span:first-child){
+ color:#6E7D91!important;
+}
+html body #root#root .loginPage .loginUtilities select {
+ color:#2C405E!important;
+ background:#FCFDFE!important;
+ border-color:#DFE5ED!important;
+}
+html body #root#root .loginPage .romaniaClock {
+ color:#65748A!important;
+}
+html body #root#root .loginPage .loginFields :is(input,button):focus-visible,
+html body #root#root .loginPage .loginUtilities select:focus-visible {
+ outline:2px solid #17386F!important;
+ outline-offset:3px!important;
+ box-shadow:0 0 0 4px rgba(23,56,111,.13)!important;
+}
+@media (min-width:900px) and (max-height:720px) {
+ html body #root#root .loginPage {padding:14px!important;}
+ html body #root#root .loginPage .loginHero,
+ html body #root#root .loginPage .loginSide {min-height:620px!important;}
+ html body #root#root .loginPage .heroMark {height:90px!important;margin-bottom:25px!important;}
+ html body #root#root .loginPage .loginHeroModules {margin-top:22px!important;}
+ html body #root#root .loginPage .loginHeroModules span{min-height:65px!important;}
+}
+@media (max-width:899px) {
+ html body #root#root .loginPage {
+  display:flex!important;
+  flex-direction:column!important;
+  align-content:stretch!important;
+  align-items:center!important;
+  gap:0!important;
+  min-height:100dvh!important;
+  padding:14px!important;
+  background:#F4F6FA!important;
+ }
+ html body #root#root .loginPage .loginHero {
+  width:100%!important;
+  max-width:520px!important;
+  min-height:0!important;
+  height:auto!important;
+  padding:22px 22px 12px!important;
+  border:1px solid #DFE5EE!important;
+  border-bottom:0!important;
+  border-radius:16px 16px 0 0!important;
+  background:#FFFFFF!important;
+  box-shadow:0 8px 24px rgba(25,49,86,.06)!important;
+  text-align:center!important;
+ }
+ html body #root#root .loginPage .heroMark{
+  width:min(310px,100%)!important;
+  height:75px!important;
+  margin:0 auto!important;
+ }
+ html body #root#root .loginPage .loginHero :is(.heroRule,.loginEyebrow,h1,p,.loginHeroModules){display:none!important;}
+ html body #root#root .loginPage .loginSide{
+  width:100%!important;
+  max-width:520px!important;
+  min-height:0!important;
+  padding:0 0 18px!important;
+  border:1px solid #DFE5EE!important;
+  border-top:0!important;
+  border-radius:0 0 16px 16px!important;
+  background:#FFFFFF!important;
+  box-shadow:0 8px 24px rgba(25,49,86,.06)!important;
+ }
+ html body #root#root .loginPage .loginCard{
+  width:100%!important;
+  max-width:100%!important;
+  padding:18px 24px 22px!important;
+  border:0!important;
+  background:#FFFFFF!important;
+  box-shadow:none!important;
+ }
+ html body #root#root .loginPage .loginCard h2{
+  font-size:27px!important;
+ }
+ html body #root#root .loginPage .loginFields :is(input,.input){
+  height:50px!important;
+  min-height:50px!important;
+  font-size:16px!important;
+ }
+ html body #root#root .loginPage .loginUtilities {gap:12px!important;}
+}
+@media(max-width:359px){
+ html body #root#root .loginPage{padding:8px!important;}
+ html body #root#root .loginPage .heroMark{height:60px!important;width:min(240px,100%)!important;}
+ html body #root#root .loginPage .loginCard{padding:16px!important;}
+ html body #root#root .loginPage .loginUtilities{grid-template-columns:minmax(0,1fr)!important;}
+}
+@media (prefers-reduced-motion:reduce) {
+ html body #root#root .loginPage *,
+ html body #root#root .loginPage *::before,
+ html body #root#root .loginPage *::after{
+  transition:none!important;
+  animation:none!important;
+ }
+}
