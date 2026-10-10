@@ -11,7 +11,8 @@ test("cream UI remains the final stylesheet and includes whole-page overrides",a
  const creamIndex=links.findIndex(x=>x.startsWith("/cream-shell-correction.css?"));
  const logoIndex=links.findIndex(x=>x.startsWith("/brand-logo-light-fix.css?"));
  const canvaIndex=links.findIndex(x=>x.startsWith("/canva-unified-ui-audit.css?"));
- assert.ok(creamIndex>=0&&canvaIndex===creamIndex+1&&logoIndex===canvaIndex+1&&logoIndex===links.length-1,"cream shell -> Canva visual audit -> original logo contrast must be the final stylesheet order");
+ const detailIndex=links.findIndex(x=>x.startsWith("/canva-ui-audit-polish.css?"));
+ assert.ok(creamIndex>=0&&canvaIndex===creamIndex+1&&detailIndex===canvaIndex+1&&logoIndex===detailIndex+1&&logoIndex===links.length-1,"cream shell -> Canva visual audit -> detail corrections -> protected original logo must be the final stylesheet order");
  assert.match(cream,/#root#root \.app/,"outer app must be explicitly overridden");
  assert.match(cream,/#root#root \.shell/,"desktop shell must be explicitly overridden");
  assert.match(cream,/\.topbar>\.navFrame/,"sidebar must be covered");
