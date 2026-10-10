@@ -161,7 +161,7 @@ function renderLogin(initialized){
         <div class="heroMark"><img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-brand-correct" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
         <div class="heroRule" aria-hidden="true"></div>
         <div class="loginEyebrow">BRANTONE VEYLOR · PRIVATE WORKSPACE</div>
-        <h1>清晰掌握每一项<br>客户与持仓信息</h1>
+        <h1>客户管理<br>清晰而有序</h1>
         <p>Brantone Veylor 专属管理工作台。客户档案、持仓、交易记录及项目进度，在同一个入口安全访问。</p>
         <div class="loginHeroModules" aria-label="系统业务模块"><span>客户管理</span><span>持仓与交易</span><span>项目预留份额</span></div>
       </div>
@@ -170,8 +170,6 @@ function renderLogin(initialized){
           <div class="loginCardKicker"><span class="loginCardStatus" aria-hidden="true"></span> SECURE ACCESS</div>
           <h2>${initialized?"欢迎回来":"初始化管理员"}</h2>
           <p class="loginCardDescription">${initialized?"请使用已获授权的 CRM 账号登录":"首次启用时，请创建系统管理员账号。"}</p>
-          <div class="loginLangRow"><label for="loginLang">界面语言</label><select id="loginLang" class="select">${languageOptions(state.lang)}</select></div>
-          <div class="loginClockRow"><span>罗马尼亚时间</span><span class="romaniaClock" id="romaniaClock"></span></div>
           <form class="loginFields" id="${initialized?"loginForm":"bootstrapForm"}">
             ${initialized?"":`<div class="field loginField"><label for="loginDisplayName">管理员姓名</label><input id="loginDisplayName" class="input" name="display_name" autocomplete="name" required></div>`}
             <div class="field loginField"><label for="loginUsername">登录账号</label><input id="loginUsername" class="input" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="请输入账号名称" required><small>无需输入邮箱后缀</small></div>
@@ -180,6 +178,10 @@ function renderLogin(initialized){
             <div id="loginError" class="loginError" role="alert" hidden></div>
             <button class="btn primary loginSubmit" type="submit">${initialized?"登录工作台":"创建管理员并进入系统"} <span aria-hidden="true">↗</span></button>
           </form>
+          <div class="loginUtilities">
+          <div class="loginLangRow"><label for="loginLang">界面语言</label><select id="loginLang" class="select">${languageOptions(state.lang)}</select></div>
+          <div class="loginClockRow"><span>罗马尼亚时间</span><span class="romaniaClock" id="romaniaClock"></span></div>
+          </div>
           <div class="loginFoot"><span aria-hidden="true">●</span> 授权账号访问 · 原业务数据不变</div>
         </div>
       </div>
