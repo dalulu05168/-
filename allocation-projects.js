@@ -10,7 +10,7 @@ const text=(ctx,key)=>copy[ctx.state.lang]?.[key]||copy.zh[key];
 const number=(ctx,n,d=2)=>Number(n).toLocaleString(localeFor(ctx.state.lang),{maximumFractionDigits:d});
 const currencyMark=currency=>new Intl.NumberFormat('en-GB',{style:'currency',currency,currencyDisplay:'narrowSymbol'}).formatToParts(0).find(p=>p.type==='currency')?.value||currency;
 const amount=(ctx,p,value)=>number(ctx,value)+' '+text(ctx,'units');
-export const projectEnergyColors=['#129b79','#3e8db8','#61aab0'];
+export const projectEnergyColors=['#D4A126','#279B69','#3684CA'];
 export function compactChartAmount(value){return new Intl.NumberFormat('en-US',{notation:'compact',maximumFractionDigits:1}).format(Number(value));}
 export function gaugeFraction(percent){const p=Math.max(0,Math.min(100,Number(percent)||0));return p<=20?p/20*.6:.6+(p-20)/80*.4;}
 export function validProject(project){return String(project.name||'').trim().length>0&&String(project.name).trim().length<=120&&Number.isFinite(Number(project.total_shares))&&Number(project.total_shares)>0&&Number.isFinite(Number(project.remaining_shares))&&Number(project.remaining_shares)>=0&&Number(project.remaining_shares)<=Number(project.total_shares)&&/^[A-Z]{3}$/.test(project.currency||'')&&/^\d{4}-\d{2}-\d{2}$/.test(project.board_date||'');}

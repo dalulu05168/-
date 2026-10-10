@@ -18,7 +18,8 @@ test("cream card text contrast is WCAG AA and stays explicitly paired",async()=>
  const c=await load("contrast-guard.css"),html=await load("index.html");
  assert.match(html,/\/contrast-guard\.css\?v=20261010-contrast-v1/);
  const cssTags=[...html.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g)].map(x=>x[1]);
- assert.match(cssTags.at(-1),/\/contrast-guard\.css/,"Contrast guard must be last");
+ assert.match(cssTags.at(-2),/\/contrast-guard\.css/,"Contrast guard must precede targeted Canva QA");
+ assert.match(cssTags.at(-1),/\/canva-fullsite-qa\.css/,"Final visual QA must load last");
  for(const declaration of ["--contrast-paper:#FFFEFA","--contrast-page:#FAF9F5","--contrast-panel:#F7F7F2","--contrast-text:#24312E","--contrast-muted:#61736C"]){
    assert.ok(c.includes(declaration),"Missing paired light surface/dark text "+declaration);
  }

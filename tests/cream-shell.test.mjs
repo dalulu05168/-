@@ -13,7 +13,8 @@ test("cream UI remains the final stylesheet and includes whole-page overrides",a
  const canvaIndex=links.findIndex(x=>x.startsWith("/canva-unified-ui-audit.css?"));
  const mobileIndex=links.findIndex(x=>x.startsWith("/canva-mobile-qa-fix.css?"));
  const contrastIndex=links.findIndex(x=>x.startsWith("/contrast-guard.css?"));
- assert.ok(creamIndex>=0&&canvaIndex===creamIndex+1&&logoIndex===canvaIndex+1&&mobileIndex===logoIndex+1&&contrastIndex===mobileIndex+1&&contrastIndex===links.length-1,"cream -> Canva -> logo -> mobile -> final contrast must be in cascade order");
+ const fullSiteIndex=links.findIndex(x=>x.startsWith("/canva-fullsite-qa.css?"));
+ assert.ok(creamIndex>=0&&canvaIndex===creamIndex+1&&logoIndex===canvaIndex+1&&mobileIndex===logoIndex+1&&contrastIndex===mobileIndex+1&&fullSiteIndex===contrastIndex+1&&fullSiteIndex===links.length-1,"cream -> Canva -> logo -> mobile -> final contrast must be in cascade order");
  assert.match(cream,/#root#root \.app/,"outer app must be explicitly overridden");
  assert.match(cream,/#root#root \.shell/,"desktop shell must be explicitly overridden");
  assert.match(cream,/\.topbar>\.navFrame/,"sidebar must be covered");
