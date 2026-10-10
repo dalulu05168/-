@@ -146,12 +146,17 @@ try{
         const KPIs=[...view.querySelectorAll(".shareKpiRow article")];
         const logos=[...view.querySelectorAll(".brandLogo")].filter(x=>{const r=x.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(x).display!=="none"});
         const cards=[...view.querySelectorAll(".sharePositions,.sharePricePanel,.shareServicePanel")];
+        const rect=view.getBoundingClientRect(),style=getComputedStyle(view);
         return {clientWidth:view.clientWidth,overflow:Math.max(0,document.documentElement.scrollWidth-innerWidth),
          cardCount:cards.length,kpiCount:KPIs.length,visibleLogoCount:logos.length,
+         boundingTop:Math.round(rect.top),boundingHeight:Math.round(rect.height),
+         position:style.position,zIndex:style.zIndex,display:style.display,
          cardStyles:cards.slice(0,3).map(x=>({color:getComputedStyle(x).color,background:getComputedStyle(x).backgroundColor}))};
        });
        report.push({role:actor.role,width:viewport.width,view:"customer-detail",...customerDetails});
-       if(customerDetails.overflow>8||customerDetails.visibleLogoCount!==1||customerDetails.kpiCount<3){
+       if(customerDetails.overflow>8||customerDetails.visibleLogoCount!==1||customerDetails.kpiCount<3||
+           customerDetails.position!=="fixed"||Math.abs(customerDetails.boundingTop)>2||
+           customerDetails.boundingHeight<viewport.height-10){
         failures.push("customer detail viewport/brand/KPI failure "+JSON.stringify(customerDetails));
        }
        await page.screenshot({path:"artifacts/mobile/"+actor.role+"-390-customer-detail.png",fullPage:false,timeout:18000,animations:"disabled"});
