@@ -660,15 +660,25 @@
   html body #root#root .loginCard .btn{width:100%!important;min-height:44px!important}
   /* Customer holdings/detail screen is a different DOM tree.
      Keep its own logo; do not add the system header twice. */
-  html body #root#root .customerDetail,
+  /* Customer detail is rendered into #modalRoot OUTSIDE the application
+     shell. It must cover the list as a genuine mobile screen, not appear
+     underneath the list in the normal page document flow. */
   html body #clientSharePage#clientSharePage#clientSharePage{
-    position:relative!important;inset:auto!important;transform:none!important;
     display:block!important;
-    width:100%!important;max-width:100%!important;min-width:0!important;
-    height:auto!important;min-height:100dvh!important;max-height:none!important;
-    padding:12px!important;margin:0!important;
+    position:fixed!important;inset:0!important;z-index:5000!important;
+    transform:none!important;
+    width:100vw!important;max-width:100vw!important;min-width:0!important;
+    height:100dvh!important;min-height:0!important;max-height:100dvh!important;
+    padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(20px + env(safe-area-inset-bottom,0px))!important;
+    margin:0!important;
     background:var(--mobile-page)!important;color:var(--mobile-ink)!important;
-    overflow:visible!important;
+    overflow-x:hidden!important;overflow-y:auto!important;
+    overscroll-behavior-y:contain;
+    -webkit-overflow-scrolling:touch;
+    box-shadow:none!important;
+  }
+  html body:has(#clientSharePage) {
+    overflow:hidden!important;
   }
   html body #clientSharePage#clientSharePage#clientSharePage .shareTopbar{
     display:flex!important;flex-wrap:wrap!important;align-items:center!important;
