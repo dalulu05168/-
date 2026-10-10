@@ -8,7 +8,8 @@ test("Mobile stylesheet loads last without changing desktop frame",async()=>{
   read("index.html"),read("responsive-mobile-system.css"),read("viewport-layout.js"),read("app.js")
  ]);
  const links=[...html.matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(x=>x[1]);
- assert.match(links.at(-1),/^\/responsive-mobile-system\.css\?v=20261010-mobile-native-v1$/);
+ assert.match(links.at(-2),/^\/responsive-mobile-system\.css\?v=20261010-mobile-native-v1$/);
+ assert.match(links.at(-1),/^\/login-redesign\.css\?v=20261010-login-rebuild-v1$/);
  assert.match(css,/@media \(max-width:899px\)/);
  assert.match(css,/@media \(min-width:600px\) and \(max-width:899px\)/);
  assert.match(css,/@media \(max-width:359px\)/);
