@@ -14,7 +14,8 @@ const contrast=(a,b)=>{
 test("Final Canva stylesheet loads after every previous theme and original SVG remains",async()=>{
  const [html,qa,app,project]=await Promise.all(["index.html","canva-fullsite-qa.css","app.js","allocation-projects.js"].map(load));
  const links=[...html.matchAll(/<link[^>]+href="(\/[^"]+\.css[^"]*)"/g)].map(x=>x[1]);
- assert.match(links.at(-1),/^\/canva-fullsite-qa\.css\?v=20261010-fullsite-qa-v1/);
+ assert.match(links.at(-2),/^\/canva-fullsite-qa\.css\?v=20261010-fullsite-qa-v1/);
+ assert.match(links.at(-1),/^\/responsive-mobile-system\.css\?v=20261010-mobile-native-v1/);
  assert.match(app,/brand-logo-transparent-color\.svg/);
  assert.match(project,/brand-logo-transparent-color\.svg/);
  assert.match(qa,/image-rendering:auto!important/);
