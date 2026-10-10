@@ -17,7 +17,8 @@ test("all application logo occurrences use the new transparent asset and remove 
   assert.equal((projects.match(/brand-logo-transparent-color\.svg/g)||[]).length,1,"project screenshot uses the same logo");
   assert.match(index,/brand-logo-light-fix\.css/);
   const cssLinks=[...index.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g)].map(x=>x[1]);
-  assert.match(cssLinks.at(-1),/^\/brand-logo-light-fix\.css/,"logo contrast CSS must load last");
+  assert.match(cssLinks.at(-2),/^\/brand-logo-light-fix\.css/,"original logo contrast loads before mobile QA");
+  assert.match(cssLinks.at(-1),/^\/canva-mobile-qa-fix\.css/,"mobile QA must retain original transparent logo");
   assert.match(css,/\.topbar>\.brand/);
   assert.match(css,/background:transparent!important/);
 });
