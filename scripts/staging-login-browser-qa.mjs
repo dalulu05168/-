@@ -56,11 +56,27 @@ try{
       await page.waitForURL(/account=/,{timeout:20000});
       await page.waitForSelector(".app .topbar",{timeout:20000});
       assert.ok(await page.locator(".app .topbar").isVisible(),"Dashboard must open after demo button");
+      // Reservation pages must stay inside the browser (no native fullscreen).
+      const projectLauncher=page.locator('[data-project-open="1"]').first();
+      await projectLauncher.waitFor({state:"visible",timeout:15000});
+      await projectLauncher.click();
+      await page.waitForSelector('#main[data-view="shareboard"] .projectPresentation',{timeout:20000});
+      const projectFullscreen=await page.evaluate(()=>!!document.fullscreenElement);
+      assert.equal(projectFullscreen,false,"Project detail opened browser fullscreen");
+      assert.ok(await page.locator("#projectPresentationExit").isVisible(),"Project back action missing");
+      await page.locator("#projectPresentationExit").click();
+      await page.waitForSelector('#main[data-view="dashboard"]',{timeout:20000});
+      const navProject=page.locator('.nav button[data-view="shareboard"]').first();
+      await navProject.click();
+      await page.waitForSelector('#main[data-view="shareboard"] .projectPresentation',{timeout:20000});
+      assert.equal(await page.evaluate(()=>!!document.fullscreenElement),false,"Navbar opened browser fullscreen");
+      await page.locator("#projectPresentationExit").click();
+      await page.waitForSelector('#main[data-view="dashboard"]',{timeout:20000});
       const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
       assert.ok(overflow<=3,"Horizontal overflow: "+overflow);
       assert.deepEqual(external,[],"No live Supabase requests allowed");
       assert.deepEqual(errors,[],"Runtime errors: "+errors.join(" ; "));
-      screens.push({size:size.name,roleOptions:roles,openedDemo:true,noCredentialFields:true,externalSupabaseCalls:0,overflow});
+      screens.push({size:size.name,roleOptions:roles,openedDemo:true,reservationLauncherNoFullscreen:true,reservationNavNoFullscreen:true,returnedToDashboard:true,noCredentialFields:true,externalSupabaseCalls:0,overflow});
     }catch(e){issues.push(size.name+": "+String(e)+" ; JS errors: "+errors.join(" | "));}
     await context.close();
   }
