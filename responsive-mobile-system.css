@@ -933,3 +933,31 @@ html body.projectCaptureMode #root#root #main#main#main#main#main .projectDetail
   margin-left:auto!important;flex:0 0 36px!important;
  }
 }
+
+
+/* Allocation history must remain readable on non-fullscreen desktop pages.
+   A fixed-height panorama grid previously collapsed the record table. */
+@media (min-width:900px) {
+ html body.projectPanoramaMode #root#root #main#main#main#main#main .projectOverview{
+  height:auto!important;min-height:100dvh!important;max-height:none!important;
+  display:grid!important;grid-template-rows:70px minmax(230px,auto) minmax(290px,auto) minmax(190px,auto)!important;
+  gap:12px!important;overflow:visible!important;padding:16px 24px!important;
+ }
+ html body.projectPanoramaMode #root#root #main#main#main#main#main .projectOverviewLower{
+  height:auto!important;min-height:290px!important;overflow:visible!important;
+ }
+ html body.projectPanoramaMode #root#root #main#main#main#main#main .projectRecordPanel{
+  display:flex!important;flex-direction:column!important;
+  height:auto!important;min-height:190px!important;max-height:none!important;
+  overflow:visible!important;width:100%!important;
+ }
+ html body.projectPanoramaMode #root#root #main#main#main#main#main .projectRecordPanel .tableWrap{
+  display:block!important;flex:1 1 auto!important;
+  min-height:130px!important;height:auto!important;max-height:360px!important;
+  width:100%!important;overflow:auto!important;
+ }
+ html body.projectPanoramaMode #root#root #main#main#main#main#main .projectRecordPanel .dataTable{
+  display:table!important;visibility:visible!important;height:auto!important;
+  opacity:1!important;width:100%!important;
+ }
+}
