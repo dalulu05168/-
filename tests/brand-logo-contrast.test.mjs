@@ -17,10 +17,11 @@ test("all application logo occurrences use the new transparent asset and remove 
   assert.equal((projects.match(/brand-logo-transparent-color\.svg/g)||[]).length,1,"project screenshot uses the same logo");
   assert.match(index,/brand-logo-light-fix\.css/);
   const cssLinks=[...index.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g)].map(x=>x[1]);
-  assert.match(cssLinks.at(-4),/^\/brand-logo-light-fix\.css/,"original logo contrast loads before mobile QA");
-  assert.match(cssLinks.at(-3),/^\/canva-mobile-qa-fix\.css/,"mobile QA must retain original transparent logo");
-  assert.match(cssLinks.at(-2),/^\/contrast-guard\.css/,"contrast guard must not recolor the logo");
-  assert.match(cssLinks.at(-1),/^\/canva-fullsite-qa\.css/,"full site layout protects original SVG");
+  assert.match(cssLinks.at(-5),/^\/brand-logo-light-fix\.css/,"original logo contrast loads before mobile QA");
+  assert.match(cssLinks.at(-4),/^\/canva-mobile-qa-fix\.css/,"mobile QA must retain original transparent logo");
+  assert.match(cssLinks.at(-3),/^\/contrast-guard\.css/,"contrast guard must not recolor the logo");
+  assert.match(cssLinks.at(-2),/^\/canva-fullsite-qa\.css/,"full site layout protects original SVG");
+  assert.match(cssLinks.at(-1),/^\/responsive-mobile-system\.css/,"mobile layout loaded last without modifying logo");
   assert.match(css,/\.topbar>\.brand/);
   assert.match(css,/background:transparent!important/);
 });

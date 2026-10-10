@@ -7,10 +7,23 @@ export async function createDemoClient(){
  let userId=new URLSearchParams(location.search).get('account')||tables.profiles.find(p=>p.role==='level2').id;
  if(!tables.profiles.some(p=>p.id===userId))userId=tables.profiles.find(p=>p.role==='level2').id;
  const actor=()=>tables.profiles.find(p=>p.id===userId);
- const scope=()=>{const ids=new Set([userId]);let changed=true;while(changed){changed=false;for(const p of tables.profiles)if(ids.has(p.parent_user_id)&&!ids.has(p.id)){ids.add(p.id);changed=true;}}return ids;};
- const visibleCustomers=()=>new Set(tables.customers.filter(c=>scope().has(c.owner_user_id)).map(c=>c.id));
+ // Permission subsets are stable during read-only page rendering.
+ // Cache them rather than re-scanning all 600 synthetic customers for every
+ // trade/position record. Invalidate when the DEMO fixture is modified.
+ let cachedScope=null,cachedVisibleCustomers=null;
+ const scope=()=>{
+  if(cachedScope)return cachedScope;
+  const ids=new Set([userId]);let changed=true;
+  while(changed){changed=false;for(const p of tables.profiles)if(ids.has(p.parent_user_id)&&!ids.has(p.id)){ids.add(p.id);changed=true;}}
+  cachedScope=ids;return ids;
+ };
+ const visibleCustomers=()=>{
+  if(cachedVisibleCustomers)return cachedVisibleCustomers;
+  cachedVisibleCustomers=new Set(tables.customers.filter(c=>scope().has(c.owner_user_id)).map(c=>c.id));
+  return cachedVisibleCustomers;
+ };
  function visible(table,row){if(table==='profiles')return scope().has(row.id);if(table==='customers')return visibleCustomers().has(row.id);if(['trades','positions','customer_followups'].includes(table))return visibleCustomers().has(row.customer_id);if(table.startsWith('allocation_'))return scope().has(row.owner_user_id);return true;}
- const save=()=>localStorage.setItem(STORE,JSON.stringify(tables));
+ const save=()=>{cachedScope=null;cachedVisibleCustomers=null;localStorage.setItem(STORE,JSON.stringify(tables));};
  function from(table){const filters=[],sort=[];let range=null,operation='select',payload,one=false;
  const query={select(){return query},eq(k,v){filters.push(r=>r[k]===v);return query},order(k,o={}){sort.push([k,o.ascending!==false]);return query},range(a,b){range=[a,b];return query},limit(n){range=[0,n-1];return query},maybeSingle(){one=true;return query},single(){one=true;return query},insert(v){operation='insert';payload=v;return query},update(v){operation='update';payload=v;return query},then(resolve,reject){return Promise.resolve().then(()=>{
   if(!tables[table])return {data:null,error:{message:'Unknown demo table'}};

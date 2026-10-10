@@ -1,0 +1,48 @@
+name: Mobile responsive UI browser QA
+
+on:
+  push:
+    branches:
+      - ui/responsive-mobile-system-20261010
+  pull_request:
+    paths:
+      - "responsive-mobile-system.css"
+      - "app.js"
+      - "viewport-layout.js"
+      - "allocation-projects.js"
+      - "index.html"
+      - "scripts/mobile-browser-qa.mjs"
+      - "tests/**"
+      - ".github/workflows/mobile-ui-qa.yml"
+
+jobs:
+  responsive-mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install app and browser QA dependencies
+        run: |
+          npm install --no-audit --no-fund
+          npm install --no-save playwright@1.56.1 --no-audit --no-fund
+      - name: Check app and mobile QA syntax
+        run: |
+          node --check app.js
+          node --check allocation-projects.js
+          node --check scripts/mobile-browser-qa.mjs
+      - name: Run unit and HTTP asset tests
+        run: npm test
+      - name: Install browser and OS dependencies
+        run: npx playwright install --with-deps chromium
+      - name: Read-only phone/tablet browser QA (3 roles, all real screens)
+        run: node scripts/mobile-browser-qa.mjs
+      - name: Upload viewport captures and QA report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: brantone-mobile-qa
+          path: artifacts/mobile/
+          if-no-files-found: ignore
