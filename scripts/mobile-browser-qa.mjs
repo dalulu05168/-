@@ -76,7 +76,7 @@ try{
      }
      await nav.click({timeout:9000});
      await page.waitForFunction(v=>{const main=document.querySelector("#main");return main?.dataset.view===v&&main.classList.contains("viewReveal")&&!main.classList.contains("viewBusy")&&!main.classList.contains("viewLeaving")},view,{timeout:20000});
-     await page.waitForTimeout(160);
+     await page.waitForTimeout(260); // wait for CSS fade-in before visual screenshot
      const diagnostics=await page.evaluate(()=>{
       const main=document.querySelector("#main");
       const rect=main?.getBoundingClientRect();
