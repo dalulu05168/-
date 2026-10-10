@@ -1,0 +1,455 @@
+/*
+ * Brantone Veylor CRM | Cream-shell complete UI correction.
+ * Approved reference: milk-white stock-market administration UI, 2026-10-10.
+ * Loaded AFTER all legacy CSS: use explicit scoped overrides because
+ * reference-theme.css uses important + high specificity dark theme selectors.
+ * NO brand asset, permissions, price feed, records, routes or data altered.
+ */
+:root{
+  color-scheme:light;
+  --cream-outer:#e5f0ed;
+  --cream-page:#faf9f5;
+  --cream-card:#fffefa;
+  --cream-nav:#f6f7f3;
+  --cream-stroke:#e6eae5;
+  --cream-muted:#788883;
+  --cream-ink:#24312e;
+  --cream-brand:#0b897c;
+  --bg:#e5f0ed;
+  --bg2:#faf9f5;
+  --panel:#fffefa;
+  --panel2:#f7f8f4;
+  --line:#e6eae5;
+  --text:#24312e;
+  --muted:#788883;
+  --tv-bg:#faf9f5;
+  --tv-surface:#fffefa;
+  --tv-surface-2:#f7f8f4;
+  --tv-line:#e6eae5;
+  --tv-text:#24312e;
+  --terminal-surface:#fffefa;
+  --terminal-subtle:#f7f8f4;
+}
+html,
+html body,
+html body.desktopFrame,
+html body.projectPresentationMode,
+html body.desktopFrame.projectPresentationMode.projectPanoramaMode,
+html body.desktopFrame.projectPanoramaMode,
+html body #root#root,
+html body.desktopFrame #root#root,
+html body #root#root .app,
+html body.desktopFrame #root#root .app,
+html body.desktopFrame.projectPresentationMode.projectPanoramaMode #root#root .app{
+  background:#e5f0ed!important;
+  background-color:#e5f0ed!important;
+  background-image:
+    radial-gradient(circle at 5% 7%,#cfe6e1 0%,transparent 34%),
+    radial-gradient(circle at 98% 90%,#dbeef0 0%,transparent 43%),
+    linear-gradient(135deg,#eaf2ee,#e4f0f1)!important;
+  color:#24312e!important;
+}
+/* Reference screenshot: floating, contained warm-white application canvas. */
+html body #root#root .shell,
+html body.desktopFrame #root#root .shell,
+html body.desktopFrame.projectPresentationMode #root#root .shell,
+html body.desktopFrame.projectPresentationMode.projectPanoramaMode #root#root .shell,
+html body.projectPresentationMode.projectPanoramaMode #root#root .shell{
+  background:#faf9f5!important;
+  background-color:#faf9f5!important;
+  background-image:none!important;
+  border:1px solid #e6eae6!important;
+  border-radius:12px!important;
+  box-shadow:0 20px 60px rgba(47,83,81,.11)!important;
+  color:#24312e!important;
+}
+/* Stop the project full-screen legacy theme turning the surrounding layout navy. */
+html body.projectPresentationMode.projectPanoramaMode #root#root #main#main,
+html body.desktopFrame.projectPresentationMode.projectPanoramaMode #root#root #main#main,
+html body.desktopFrame #root#root #main#main,
+html body #root#root #main#main,
+html body #root#root .projectOverview,
+html body.projectPanoramaMode #root#root .projectOverview{
+  background:#faf9f5!important;
+  background-color:#faf9f5!important;
+  background-image:none!important;
+  color:#24312e!important;
+}
+/* Reference icon sidebar, non-dark. Keep the real original navigation buttons. */
+html body #root#root .navFrame,
+html body #root#root .topbar .navFrame,
+html body.desktopFrame #root#root .topbar>.navFrame,
+html body.desktopFrame.projectPresentationMode.projectPanoramaMode #root#root .topbar>.navFrame,
+html body:has(#main[data-view="shareboard"]) #root#root .topbar>.navFrame{
+  background:#f6f7f3!important;
+  background-color:#f6f7f3!important;
+  background-image:none!important;
+  border-color:#e5e9e5!important;
+  box-shadow:none!important;
+}
+html body #root#root .nav button,
+html body #root#root .topbar .nav button,
+html body:has(#main[data-view="shareboard"]) #root#root .topbar .nav button{
+  background:transparent!important;
+  background-image:none!important;
+  color:#65736e!important;
+  text-shadow:none!important;
+  border-top-color:transparent!important;
+  border-right-color:transparent!important;
+  border-bottom-color:transparent!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+html body #root#root .topbar .nav button::before{
+  color:#626f6d!important;
+  opacity:1!important;
+}
+html body #root#root .topbar .nav button.active,
+html body:has(#main[data-view="shareboard"]) #root#root .topbar .nav button.active{
+  background:#e6f3ed!important;
+  color:#0c8d7d!important;
+  border-left-color:#0c9b89!important;
+}
+html body #root#root .topbar .nav button.active::before,
+html body #root#root .topbar .nav button:hover::before{
+  color:#0b917f!important;
+}
+html body #root#root .topbar .nav button::after{display:none!important;content:none!important}
+/* A cream full-width top toolbar replaces the isolated dark utility background. */
+html body #root#root .topbar,
+html body #root#root .topbar>.userArea,
+html body.desktopFrame #root#root .topbar>.userArea,
+html body.desktopFrame.projectPresentationMode.projectPanoramaMode #root#root .topbar>.userArea,
+html body:has(#main[data-view="shareboard"]) #root#root .topbar>.userArea{
+  background:#fffefa!important;
+  background-color:#fffefa!important;
+  background-image:none!important;
+  border-color:#e9ece7!important;
+  box-shadow:none!important;
+  color:#293734!important;
+}
+html body.desktopFrame #root#root .topbar>.userArea{
+  border-bottom:1px solid #e6eae5!important;
+}
+/* Logo must not be edited or filtered. Its ORIGINAL red/white lettering is
+   placed on a charcoal plaque only for contrast. */
+html body #root#root .topbar>.brand,
+html body.desktopFrame #root#root .topbar>.brand,
+html body.projectPanoramaMode #root#root .topbar>.brand{
+  background:#17252b!important;
+  background-color:#17252b!important;
+  background-image:none!important;
+  border:1px solid #243d40!important;
+  border-radius:8px!important;
+  box-shadow:none!important;
+}
+html body #root#root .topbar .brandLogo{
+  filter:none!important;
+  object-fit:contain!important;
+  object-position:left center!important;
+}
+html body #root#root .globalSearch,
+html body #root#root .topbar .globalSearch{
+  background:#fffefa!important;
+  background-color:#fffefa!important;
+  background-image:none!important;
+  border:1px solid #e6eae5!important;
+  border-radius:8px!important;
+  box-shadow:0 1px 2px rgba(46,79,76,.035)!important;
+  color:#7a8784!important;
+}
+html body #root#root .globalSearch :is(input,button){
+  color:#34423e!important;
+}
+html body #root#root .globalSearch input{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+html body #root#root .userArea :is(
+  .sysok,.romaniaClock,.chip,.iconBtn,.langSwitch,.btn
+){
+  background:#fffefa!important;
+  background-image:none!important;
+  color:#53625e!important;
+  border:1px solid #e5e9e5!important;
+  box-shadow:none!important;
+}
+/* Unified consistent surfaces in ALL role dashboards and modules. */
+html body #root#root #main#main#main :is(
+  .panel,.projectPanel,.projectLauncher,.projectLauncherRow,
+  .projectOverviewCard,.projectTrendPanel,.projectOverviewSummary,
+  .kpi,.execStat,.metric,.metricCard,.level1Metric,.level2Metric,
+  .level1StaffCard,.staffAvatar,.teamDetailIdentity,.teamDetailSection,
+  .terminalTicker,.terminalChartCard,.terminalPositionCard,
+  .terminalSummaryCard,.terminalFormCard,.terminalOrderPanel,
+  .marketOverviewPanel,.marketListPanel,.marketChartPanel,.marketRow,
+  .marketMetric,.referenceFeatureCard,.indexTile,
+  .exchangeChartPanel,.exchangeSessionPanel,.exchangeQuoteHeader,
+  .allocationDistPanel,.allocationKpiCard,.allocationSlotsPanel,
+  .allocationTrendPanel,.allocationChartPanel,
+  .settingsCard,.securityResult,.listItem,
+  .level1StaffMetrics>div,.level2SummaryList>div,.level1SummaryList>div,
+  .teamDetailKpis>div,.settingsList>div,
+  .allocationIdentity,.allocationMini,.terminalFieldRow,
+  .shareTotals>div,.projectSummaryMetrics>div,.projectLauncherRow
+),
+html body #clientSharePage#clientSharePage#clientSharePage :is(
+ .panel,.shareKpiRow article,.shareTimeBlock,.shareMarketItem,.shareNote,
+ .shareProfileGrid>div,.shareServiceTimeline>div,.portfolioCurrencyGroup
+){
+  background:#fffefa!important;
+  background-color:#fffefa!important;
+  background-image:none!important;
+  border-color:#e5e9e5!important;
+  color:#283630!important;
+  box-shadow:none!important;
+}
+html body #root#root #main#main#main :is(
+  .panelHead,.projectPanelHeading,.projectLauncherHead,.unifiedModuleHead,
+  .marketListHead,.marketChartHeader,.terminalChartToolbar,
+  .allocationStatusStrip,.allocationSecurityBar,.projectOverviewTotals
+){
+  background:#fffefa!important;
+  background-color:#fffefa!important;
+  background-image:none!important;
+  color:#273631!important;
+  border-color:#e7ebe7!important;
+  box-shadow:none!important;
+}
+html body #root#root #main#main#main :is(
+  .panelHead h2,.projectPanelHeading h2,.unifiedModuleHead h2,
+  .metricTitle,.metricValue,.projectDetailName,
+  .referenceMarketHero h1,.referenceFeatureValue,.projectOverviewNumbers strong
+){
+  text-shadow:none!important;
+}
+html body #root#root #main#main#main :is(
+  .panelHead h2,.projectPanelHeading h2,.unifiedModuleHead h2,
+  .projectDetailName,.referenceMarketHero h1,.metricTitle
+){
+  color:#26342f!important;
+}
+html body #root#root #main#main#main :is(
+  .panelHead p,.projectPanelHeading p,.metricLabel,.metricFoot,
+  .headMeta,.muted,.projectOverviewTotals span,.projectOverviewNumbers span,
+  .projectOverviewNumbers small,.projectSummaryMetrics span,.chartSubtitle
+){
+  color:#788780!important;
+}
+html body #root#root #main#main#main :is(
+  .level2Metric .metricValue,.level1Metric .metricValue,
+  .level2Metric .metricTitle,.level1Metric .metricTitle,
+  .execStat strong,.projectSummaryMetrics strong
+){
+  color:#26342f!important;
+  font-weight:600!important;
+}
+/* Project allocation cards: dense like reference, but keep actual 3 ring charts. */
+html body.projectPanoramaMode #root#root #main#main#main .projectOverview{
+  background:#faf9f5!important;
+  background-image:none!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main :is(
+  .projectOverviewCard,.projectTrendPanel,.projectOverviewSummary
+){
+  background:#fffefa!important;
+  background-image:none!important;
+  border:1px solid #e1e8e3!important;
+  border-radius:10px!important;
+  box-shadow:0 1px 3px rgba(42,90,79,.035)!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectOverview .projectPanelHeading{
+  background:#fffefa!important;
+  background-image:none!important;
+  border-bottom:1px solid #e6ece7!important;
+  padding:11px 15px!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectOverview .projectPanelHeading h2{
+  font-size:16px!important;
+  line-height:1.4!important;
+  font-weight:650!important;
+  color:#25332f!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectOverview .projectPanelHeading :is(p,span){
+  color:#86948d!important;font-size:10px!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectOverviewCard.selected{
+  border-color:#a4d7c9!important;
+  box-shadow:inset 0 3px 0 #169b84!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main :is(
+  .projectOverviewTotals,.projectSummaryMetrics,.projectDetailSummary,
+  .projectNameEditor,.projectTrendChart
+){
+  background:#fffefa!important;background-image:none!important;
+  border-color:#e7ebe7!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectOverviewTotals{
+  background:#fbfaf7!important;
+  padding:11px 14px!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectOverviewTotals :is(span,b){
+  font-size:11px!important;
+  line-height:1.4!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectOverviewTotals b{
+  font-weight:600!important;color:#2c3834!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectOverviewNumbers strong{
+  font-size:clamp(20px,2.1vw,31px)!important;
+  font-weight:650!important;
+  color:var(--project-accent)!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectBalanceRatio{
+  color:var(--project-accent)!important;
+  text-shadow:none!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectOverviewBalance{
+  background:#fffefa!important;background-image:none!important;
+  padding:8px 16px!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectEnergySmoke{
+  opacity:.025!important;
+  filter:blur(2px)!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectRecordPanel{
+  display:none!important;/* display only, never delete original data or actions */
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectOverviewLower{
+  gap:13px!important;
+  min-height:0!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectTrendChart{
+  min-height:0!important;
+  height:0!important;
+  flex:1!important;
+  padding:13px!important;
+  background:#fffefa!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectChartEmpty{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  align-items:center!important;
+  width:100%!important;height:100%!important;
+  min-height:0!important;
+  gap:12px!important;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 38px,rgba(113,154,142,.07) 39px),
+    repeating-linear-gradient(90deg,transparent 0 76px,rgba(113,154,142,.07) 77px),
+    #fdfdf9!important;
+  border:1px dashed #dfeae2!important;
+  border-radius:10px!important;
+  color:#778b83!important;
+  font-size:13px!important;
+  font-weight:500!important;
+  text-align:center!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectChartEmpty::before{
+  content:"▤";
+  width:52px;height:52px;line-height:52px;
+  font:normal 35px/52px "Segoe UI Symbol",Arial,sans-serif;
+  color:#92b9a9;
+  text-align:center;
+  border-radius:12px;
+  background:#ebf5ed;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectOverviewSummary :is(
+  .projectDetailSummary h3,.projectDetailSummary b,.projectSummaryMetrics strong
+){
+  color:#253630!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectOverviewSummary .projectDetailSummary{
+  overflow:auto!important;
+  flex:1!important;
+  border-color:#e9eee9!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main .projectOverviewSummary .projectSummaryMetrics{
+  background:#fbfaf7!important;
+  margin-top:auto!important;
+  border-top:1px solid #e6ece7!important;
+}
+/* The data table is visibly empty when it is empty; no simulated prices or positions. */
+html body #root#root #main#main#main .dataTable th{
+  background:#f6f7f2!important;
+  color:#73817a!important;
+  border-color:#e4e9e4!important;
+  font-size:11px!important;
+}
+html body #root#root #main#main#main .dataTable td{
+  background:#fffefa!important;
+  color:#2d3a35!important;
+  border-color:#eef0eb!important;
+  font-size:12px!important;
+}
+html body #root#root #main#main#main .dataTable tbody tr:hover td,
+html body #root#root #main#main#main .marketRow:hover{
+  background:#f0f8f2!important;
+}
+/* Common form and modal light-theme protection against old navy rules. */
+html body #root#root :is(
+  input,.input,select,.select,textarea,.textarea,.btn,.chip,.iconBtn,
+  .langSwitch,.marketRangeBar button,.tabs button
+),
+html body :is(.modalCard,.loginCard,.detailPanel){
+  background:#fffefa!important;
+  background-image:none!important;
+  color:#2d3c35!important;
+  border-color:#e4e9e3!important;
+  box-shadow:none!important;
+}
+html body #root#root :is(.btn.primary,.tabs button.active,.marketRangeBar button.active){
+  background:#128d7e!important;
+  color:#fff!important;
+  border-color:#128d7e!important;
+}
+/* Respect the shared desktop fixed 16:9 stage. Avoid cutting card contents. */
+@media(min-width:900px){
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) #root#root .projectOverview{
+    display:grid!important;
+    grid-template-rows:40px minmax(225px,.84fr) minmax(325px,1.4fr)!important;
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    gap:12px!important;
+    padding:2px!important;
+    overflow:hidden!important;
+  }
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) #root#root .projectOverviewCards{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:12px!important;
+  }
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) #root#root .projectOverviewLower{
+    grid-template-columns:minmax(0,1.38fr) minmax(0,1fr)!important;
+    gap:12px!important;
+    min-height:0!important;
+    height:100%!important;
+  }
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) #root#root .projectOverviewLower>.projectPanel{
+    min-width:0!important;
+    min-height:0!important;
+    height:100%!important;
+  }
+  html body.desktopFrame #root#root .topbar>.brand{
+    min-width:0!important;
+    overflow:hidden!important;
+  }
+}
+/* Mobile is light too. Menu stays horizontally scrollable on small screens. */
+@media(max-width:899px){
+  html body #root#root .shell{background:#faf9f5!important}
+  html body #root#root .topbar{background:#fffefa!important}
+  html body #root#root .navFrame{background:#f6f7f3!important}
+  html body #root#root #main#main{background:#faf9f5!important}
+  html body.projectPanoramaMode #root#root .projectOverviewCards{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  html body.projectPanoramaMode #root#root .projectOverviewLower{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  html body.projectPanoramaMode #root#root .projectTrendChart{min-height:280px!important;height:auto!important}
+}
+@media(prefers-reduced-motion:reduce){
+  html body #root#root :is(.nav button,.panel,.projectPanel,.btn){transition:none!important;animation:none!important}
+}
