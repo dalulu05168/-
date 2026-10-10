@@ -21,7 +21,7 @@ test("Project allocation overview includes detail panels and supervisor owner ch
 
 test("Phone renders reservation details and does not silently hide the history table",async()=>{
  const [css,html]=await Promise.all([read("responsive-mobile-system.css"),read("index.html")]);
- assert.match(html,/responsive-mobile-system\.css\?v=20261011-project-details-v2/);
+ assert.match(html,/responsive-mobile-system\.css\?v=20261011-project-details-v3/);
  const marker="/* P005: Keep allocation details visible";
  const patch=css.slice(css.lastIndexOf(marker));
  assert.ok(patch.length>1000,"Detail repair must be after legacy mobile panorama display rules");
@@ -29,4 +29,6 @@ test("Phone renders reservation details and does not silently hide the history t
  assert.match(patch,/\.projectRecordPanel \.tableWrap\s*\{[\s\S]*?overflow-x:auto!important/);
  assert.match(patch,/\.projectDetailOwner select/);
  assert.match(patch,/max-width:899px/);
+ assert.match(patch,/min-width:900px/);
+ assert.match(patch,/\.projectRecordPanel \.dataTable\s*\{[\s\S]*?display:table!important/);
 });
