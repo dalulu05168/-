@@ -64,8 +64,8 @@ try{
       continue;
      }
      await nav.click({timeout:9000});
-     await page.waitForFunction(v=>document.querySelector("#main")?.dataset.view===v,view,{timeout:15000});
-     await page.waitForTimeout(450);
+     await page.waitForFunction(v=>{const main=document.querySelector("#main");return main?.dataset.view===v&&!main.classList.contains("viewBusy")},view,{timeout:20000});
+     await page.waitForTimeout(160);
      const diagnostics=await page.evaluate(()=>{
       const main=document.querySelector("#main");
       const rect=main?.getBoundingClientRect();
@@ -115,7 +115,7 @@ try{
       }
      }
      if(view==="dashboard"||view==="positions"||view==="shareboard"||view==="market"){
-      await page.screenshot({path:"artifacts/mobile/"+actor.role+"-"+viewport.width+"-"+view+".png",fullPage:viewport.width===390,animations:"disabled"});
+      await page.screenshot({path:"artifacts/mobile/"+actor.role+"-"+viewport.width+"-"+view+".png",fullPage:false,timeout:18000,animations:"disabled"});
      }
     }
    }catch(e){
