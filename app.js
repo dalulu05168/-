@@ -158,7 +158,7 @@ function renderLogin(initialized){
   $("#root").innerHTML=`
     <section class="loginPage">
       <div class="loginHero">
-        <div class="heroMark"><img class="brandLogo" src="/assets/brand-logo-vector.svg" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
+        <div class="heroMark"><img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-brand-correct" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
         <div class="heroRule"></div>
         <h1>客户股票跟踪管理系统</h1>
         <p>Brantone Veylor Private Capital Advisory · 客户、人员、买卖记录、持仓与多市场行情统一管理。</p>
@@ -235,7 +235,7 @@ function renderShell(){
   $("#root").innerHTML=`
     <div class="app"><div class="shell">
       <header class="topbar">
-        <div class="brand"><img class="brandLogo" src="/assets/brand-logo-vector.svg" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
+        <div class="brand"><img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-brand-correct" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
         <div class="navFrame"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}" title="${tr(label,state.lang)}" aria-label="${tr(label,state.lang)}">${tr(label,state.lang)}</button>`).join("")}</nav></div>
         <form id="globalSearchForm" class="globalSearch" role="search"><span aria-hidden="true">⌕</span><input id="globalSearchInput" type="search" autocomplete="off" placeholder="搜索客户、项目或股票…" aria-label="搜索客户、项目或股票"><button type="submit" aria-label="搜索">↵</button></form><div class="userArea"><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><button class="chip" id="editAccountName" title="修改账号名称">${esc(state.profile.display_name)}</button><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
       </header>
@@ -927,7 +927,7 @@ async function openCustomer(id){
     <section class="customerDetail clientPortfolioDetail shareReady" id="clientSharePage">
       <div class="shareTopbar">
         <div class="shareBrand">
-          <img class="brandLogo" src="/assets/brand-logo-vector.svg" alt="Brantone Veylor · Private Capital Advisory · 1996">
+          <img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-brand-correct" alt="Brantone Veylor · Private Capital Advisory · 1996">
         </div>
         <div class="shareTimeBlock">
 
