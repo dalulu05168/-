@@ -187,16 +187,41 @@ function renderLogin(initialized){
       </div>
     </section>`;
   const form=$("#"+(initialized?"loginForm":"bootstrapForm"));
-  const toggle=form.querySelector(".loginPasswordToggle");
-  const passwordField=form.querySelector('input[name="password"]');
-  if(toggle&&passwordField)toggle.onclick=()=>{const visible=passwordField.type==="password";passwordField.type=visible?"text":"password";toggle.textContent=visible?"隐藏":"显示";toggle.setAttribute("aria-pressed",String(visible));toggle.setAttribute("aria-label",visible?"隐藏密码":"显示密码");};
-  form.addEventListener("submit",initialized?login:bootstrap);
-  form.addEventListener("input",event=>{
-    if(!event.target.matches("input"))return;
-    form.querySelectorAll('input[aria-invalid="true"]').forEach(field=>field.removeAttribute("aria-invalid"));
-    const error=form.querySelector("#loginError");
-    if(error&&!error.hidden){error.hidden=true;error.textContent="";}
-  });
+  if(demoMode){
+    // PREVIEW ONLY: this isolated staging instance never collects CRM credentials.
+    // Its demo adapter has no real signInWithPassword function by design.
+    const accounts=supabase.previewAccounts();
+    form.innerHTML=`
+      <div class="field loginField">
+        <label for="stagingDemoRole">演示身份（模拟数据）</label>
+        <select id="stagingDemoRole" class="input" name="preview_role" required>
+          ${accounts.map((person,i)=>`<option value="${esc(person.id)}">${["管理员", "一级人员", "二级人员"][i]||"演示人员"} · ${esc(person.name)}</option>`).join("")}
+        </select>
+      </div>
+      <div class="loginDemoNotice" role="note">本页面仅供 UI 与业务流程预览。账号、客户、交易、持仓均为测试数据；无需输入真实用户名或密码。</div>
+      <button class="btn primary loginSubmit" type="submit">进入模拟工作台 <span aria-hidden="true">→</span></button>`;
+    $(".loginCardKicker").textContent="SANDBOX · 仅供测试";
+    $(".loginCard h2").textContent="预发布演示入口";
+    $(".loginCardDescription").textContent="选择一个演示身份体验 CRM 页面。请勿输入真实账号密码。";
+    $(".loginFoot").textContent="测试数据隔离 · 无真实 Supabase 认证连接";
+    form.addEventListener("submit",event=>{
+      event.preventDefault();
+      const selected=$("#stagingDemoRole").value;
+      if(accounts.some(person=>person.id===selected))
+        supabase.selectPreviewAccount(selected);
+    });
+  }else{
+    const toggle=form.querySelector(".loginPasswordToggle");
+    const passwordField=form.querySelector('input[name="password"]');
+    if(toggle&&passwordField)toggle.onclick=()=>{const visible=passwordField.type==="password";passwordField.type=visible?"text":"password";toggle.textContent=visible?"隐藏":"显示";toggle.setAttribute("aria-pressed",String(visible));toggle.setAttribute("aria-label",visible?"隐藏密码":"显示密码");};
+    form.addEventListener("submit",initialized?login:bootstrap);
+    form.addEventListener("input",event=>{
+      if(!event.target.matches("input"))return;
+      form.querySelectorAll('input[aria-invalid="true"]').forEach(field=>field.removeAttribute("aria-invalid"));
+      const error=form.querySelector("#loginError");
+      if(error&&!error.hidden){error.hidden=true;error.textContent="";}
+    });
+  }
   $("#loginLang").onchange=e=>{state.lang=setLang(e.target.value);renderLogin(initialized)};
   translateUI($("#root"),state.lang);
   startRomaniaClock();
