@@ -1,0 +1,69 @@
+/**
+ * Render P005 private preview: real Chromium click-through, isolated local server.
+ * No Supabase credentials or real account information are supplied.
+ */
+import {chromium} from "playwright";
+import {spawn} from "node:child_process";
+import {createServer} from "node:net";
+import {fileURLToPath} from "node:url";
+import path from "node:path";
+import assert from "node:assert/strict";
+
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
+const username="qa-review",password="staging-test-very-long-qa-secret";
+const port=await new Promise((resolve,reject)=>{
+  const s=createServer();
+  s.once("error",reject);
+  s.listen(0,"127.0.0.1",()=>{const port=s.address().port;s.close(()=>resolve(port))});
+});
+const origin="http://127.0.0.1:"+port;
+const server=spawn(process.execPath,["server.js"],{
+ cwd:root,
+ env:{...process.env,PORT:String(port),STAGING_PREVIEW:"1",STAGING_PREVIEW_USERNAME:username,STAGING_PREVIEW_PASSWORD:password},
+ stdio:["ignore","pipe","pipe"]
+});
+let err="";
+server.stderr.on("data",v=>err+=v.toString());
+const issues=[],screens=[];
+let browser;
+try{
+  let ready=false;
+  for(let i=0;i<80;i++){
+    try{const res=await fetch(origin+"/healthz");if(res.status===200){ready=true;break}}catch{}
+    if(server.exitCode!==null)throw new Error("Server died: "+err);
+    await new Promise(ok=>setTimeout(ok,150));
+  }
+  assert.ok(ready,"Staging server readiness failed "+err);
+  browser=await chromium.launch({headless:true,args:["--no-sandbox"]});
+  for(const size of [{name:"desktop",width:1440,height:900},{name:"phone",width:390,height:844}]){
+    const context=await browser.newContext({viewport:{width:size.width,height:size.height},httpCredentials:{username,password}});
+    const page=await context.newPage();
+    const errors=[],external=[];
+    page.on("pageerror",e=>errors.push(String(e)));
+    page.on("request",req=>{
+      if(req.url().includes(".supabase.co"))external.push(req.url().split("/")[2]);
+    });
+    try{
+      await page.goto(origin+"/",{waitUntil:"domcontentloaded",timeout:25000});
+      await page.waitForSelector("#stagingDemoRole",{timeout:20000});
+      assert.equal(await page.locator('input[name="password"]').count(),0,"Preview must not request an actual password");
+      assert.equal(await page.locator('input[name="username"]').count(),0,"Preview must not request an actual username");
+      assert.ok(await page.locator(".loginDemoNotice").isVisible(),"Preview warning must be visible");
+      const roles=await page.locator("#stagingDemoRole option").count();
+      assert.ok(roles>=2,"Demo role selector missing fixture accounts");
+      await page.locator("#stagingDemoRole").selectOption({index:0});
+      await page.locator("#loginForm button[type=submit]").click();
+      await page.waitForURL(/account=/,{timeout:20000});
+      await page.waitForSelector(".app .topbar",{timeout:20000});
+      assert.ok(await page.locator(".app .topbar").isVisible(),"Dashboard must open after demo button");
+      const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
+      assert.ok(overflow<=3,"Horizontal overflow: "+overflow);
+      assert.deepEqual(external,[],"No live Supabase requests allowed");
+      assert.deepEqual(errors,[],"Runtime errors: "+errors.join(" ; "));
+      screens.push({size:size.name,roleOptions:roles,openedDemo:true,noCredentialFields:true,externalSupabaseCalls:0,overflow});
+    }catch(e){issues.push(size.name+": "+String(e)+" ; JS errors: "+errors.join(" | "));}
+    await context.close();
+  }
+  console.log("P005_STAGING_BROWSER_QA "+JSON.stringify({screens,issues}));
+  if(issues.length)process.exitCode=1;
+}finally{if(browser)await browser.close();server.kill("SIGTERM");}
