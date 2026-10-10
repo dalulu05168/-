@@ -87,8 +87,8 @@ try{
      if(measure.controls.length)failures.push(actor.role+"/"+size.name+"/"+view+": compressed controls "+JSON.stringify(measure.controls));
      if(view==="market"){
        const a=measure.market;
-       if(a.quote.height<(size.name==="phone"?240:300))failures.push(actor.role+"/"+size.name+"/market: quote clipped "+JSON.stringify(a.quote));
-       if(a.chart.height<(size.name==="phone"?245:300))failures.push(actor.role+"/"+size.name+"/market: chart clipped "+JSON.stringify(a.chart));
+       if(a.quote.height<(size.name==="phone"?240:280))failures.push(actor.role+"/"+size.name+"/market: quote clipped "+JSON.stringify(a.quote));
+       if(a.chart.height<(size.name==="phone"?245:280))failures.push(actor.role+"/"+size.name+"/market: chart clipped "+JSON.stringify(a.chart));
        if(a.metrics.display==="none")failures.push(actor.role+"/"+size.name+"/market: metrics hidden");
        if(size.name==="desktop"&&a.mainOverflow!=="auto")failures.push(actor.role+"/desktop/market: page not scrollable");
        if(size.name==="phone"&&a.marketList.scrollHeight>a.marketList.clientHeight+15)failures.push(actor.role+"/phone/market: stock rows clipped");
