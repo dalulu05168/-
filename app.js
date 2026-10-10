@@ -303,7 +303,7 @@ function renderShell(){
     </div></div>
     <div id="modalRoot"></div>
   `;
-  $$(".nav button").forEach(b=>b.onclick=()=>{if(b.dataset.view==="shareboard"&&document.documentElement.requestFullscreen&&!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});switchView(b.dataset.view)});
+  $$(".nav button").forEach(b=>b.onclick=()=>{switchView(b.dataset.view)});
   $("#globalSearchForm").onsubmit=async event=>{
     event.preventDefault();
     const query=$("#globalSearchInput").value.trim();
