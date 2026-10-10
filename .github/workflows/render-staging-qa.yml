@@ -15,6 +15,7 @@ on:
       - "server.js"
       - "tests/private-staging.test.mjs"
       - "scripts/staging-login-browser-qa.mjs"
+      - "scripts/p005-ui-density-browser-audit.mjs"
       - ".github/workflows/render-staging-qa.yml"
   workflow_dispatch:
 
@@ -40,3 +41,12 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Verify simulated login opens dashboard on desktop and phone
         run: node scripts/staging-login-browser-qa.mjs
+      - name: Three-role all-page desktop and phone UI density audit
+        run: node scripts/p005-ui-density-browser-audit.mjs
+      - name: Save finance UI layout reports and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p005-finance-ui-density
+          path: artifacts/finance-audit/
+          if-no-files-found: ignore
