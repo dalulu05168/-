@@ -836,10 +836,10 @@ function chartOpts(){return{
   interaction:{mode:"index",intersect:false},
   hover:{mode:"index",intersect:false},
   plugins:{
-    legend:{position:"top",align:"end",labels:{color:"#dce3eb",font:{size:10,weight:"normal"},boxWidth:12,boxHeight:4,padding:8}},
+    legend:{position:"top",align:"end",labels:{color:"#111111",font:{size:11,weight:"normal"},boxWidth:12,boxHeight:4,padding:8}},
     tooltip:{enabled:true,mode:"index",intersect:false,backgroundColor:"#252524",borderColor:"#53595f",borderWidth:1,titleFont:{weight:"normal"},bodyFont:{weight:"normal"}}
   },
-  scales:{x:{ticks:{color:"#e1eaf2",font:{weight:"normal",size:10},maxTicksLimit:7,maxRotation:0,autoSkip:true},grid:{color:"#6c8193"}},y:{ticks:{color:"#e1eaf2",font:{weight:"normal"}},grid:{color:"#6c8193"}}}
+  scales:{x:{ticks:{color:"#111111",font:{family:"Arial, Microsoft YaHei, sans-serif",weight:"normal",size:11},maxTicksLimit:7,maxRotation:0,autoSkip:true},grid:{color:"rgba(42,62,86,.13)"}},y:{ticks:{color:"#111111",font:{family:"Arial, Microsoft YaHei, sans-serif",weight:"normal",size:11}},grid:{color:"rgba(42,62,86,.13)"}}}
 }}
 
 function customerTable(rows,full=true){
@@ -1197,7 +1197,10 @@ function drawCustomerShareCharts(pos,trades,q,primary,realized,unreal){
   }
   const quote=q[primary.symbol];
   const pts=(quote.points||[]).filter(p=>p.close!=null);
-  const labels=pts.map(p=>new Date(p.t).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}));
+  const labels=pts.map(p=>new Intl.DateTimeFormat(localeFor(state.lang),marketRange==="1D"?
+    {timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit",hour12:false}:
+    {timeZone:ROMANIA_TZ,year:marketRange==="1W"||marketRange==="1M"?undefined:"numeric",month:"2-digit",day:"2-digit"}
+  ).format(new Date(p.t)));
   const buys=trades.filter(t=>t.symbol===primary.symbol&&t.side==="buy");
   const sells=trades.filter(t=>t.symbol===primary.symbol&&t.side==="sell");
   if(pEl){
