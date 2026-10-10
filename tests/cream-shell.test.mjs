@@ -15,7 +15,9 @@ test("cream UI remains the final stylesheet and includes whole-page overrides",a
  const contrastIndex=links.findIndex(x=>x.startsWith("/contrast-guard.css?"));
  const fullSiteIndex=links.findIndex(x=>x.startsWith("/canva-fullsite-qa.css?"));
  const mobileNativeIndex=links.findIndex(x=>x.startsWith("/responsive-mobile-system.css?"));
- assert.ok(creamIndex>=0&&canvaIndex===creamIndex+1&&logoIndex===canvaIndex+1&&mobileIndex===logoIndex+1&&contrastIndex===mobileIndex+1&&fullSiteIndex===contrastIndex+1&&mobileNativeIndex===fullSiteIndex+1&&mobileNativeIndex===links.length-1,"cream -> Canva -> logo -> mobile -> final contrast must be in cascade order");
+ const loginIndex=links.findIndex(x=>x.startsWith("/login-redesign.css?"));
+ assert.ok(loginIndex===mobileNativeIndex+1&&loginIndex===links.length-1,"login stylesheet must load last");
+ assert.ok(creamIndex>=0&&canvaIndex===creamIndex+1&&logoIndex===canvaIndex+1&&mobileIndex===logoIndex+1&&contrastIndex===mobileIndex+1&&fullSiteIndex===contrastIndex+1&&mobileNativeIndex===fullSiteIndex+1&&mobileNativeIndex===links.length-2,"cream -> Canva -> logo -> mobile -> final contrast must be in cascade order");
  assert.match(cream,/#root#root \.app/,"outer app must be explicitly overridden");
  assert.match(cream,/#root#root \.shell/,"desktop shell must be explicitly overridden");
  assert.match(cream,/\.topbar>\.navFrame/,"sidebar must be covered");

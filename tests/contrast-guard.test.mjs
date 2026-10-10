@@ -18,9 +18,10 @@ test("cream card text contrast is WCAG AA and stays explicitly paired",async()=>
  const c=await load("contrast-guard.css"),html=await load("index.html");
  assert.match(html,/\/contrast-guard\.css\?v=20261010-contrast-v1/);
  const cssTags=[...html.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g)].map(x=>x[1]);
- assert.match(cssTags.at(-3),/\/contrast-guard\.css/,"Contrast guard must precede targeted Canva QA");
- assert.match(cssTags.at(-2),/\/canva-fullsite-qa\.css/,"Final Canva base before mobile");
- assert.match(cssTags.at(-1),/\/responsive-mobile-system\.css/,"Mobile layout must load after contrast guard");
+ assert.match(cssTags.at(-4),/\/contrast-guard\.css/,"Contrast guard must precede targeted Canva QA");
+ assert.match(cssTags.at(-3),/\/canva-fullsite-qa\.css/,"Final Canva base before mobile");
+ assert.match(cssTags.at(-2),/\/responsive-mobile-system\.css/,"Mobile layout must load after contrast guard");
+ assert.match(cssTags.at(-1),/\/login-redesign\.css/,"Login theme is scoped last");
  for(const declaration of ["--contrast-paper:#FFFEFA","--contrast-page:#FAF9F5","--contrast-panel:#F7F7F2","--contrast-text:#24312E","--contrast-muted:#61736C"]){
    assert.ok(c.includes(declaration),"Missing paired light surface/dark text "+declaration);
  }

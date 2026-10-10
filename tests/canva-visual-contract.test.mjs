@@ -9,12 +9,13 @@ test("Canva visual contract: final stylesheet, readable cream tokens and origina
    read("index.html"),read("canva-unified-ui-audit.css"),read("app.js"),read("brand-logo-light-fix.css")
  ]);
  const cssLinks=[...html.matchAll(/href="(\/[^"]+\.css[^"]*)"/g)].map(match=>match[1]);
- assert.match(cssLinks.at(-6),/^\/canva-unified-ui-audit\.css\?v=/,"Canva audit must load after base themes");
- assert.match(cssLinks.at(-5),/^\/brand-logo-light-fix\.css\?v=/,"Original logo contrast loads before mobile adjustments");
- assert.match(cssLinks.at(-4),/^\/canva-mobile-qa-fix\.css\?v=/,"Mobile QA stylesheet must load before final contrast");
- assert.match(cssLinks.at(-3),/^\/contrast-guard\.css\?v=/,"Contrast guard loads before targeted review");
- assert.match(cssLinks.at(-2),/^\/canva-fullsite-qa\.css\?v=/,"Fullsite Canva QA before mobile layout");
- assert.match(cssLinks.at(-1),/^\/responsive-mobile-system\.css\?v=/,"Mobile-specific responsive system is last");
+ assert.match(cssLinks.at(-7),/^\/canva-unified-ui-audit\.css\?v=/,"Canva audit must load after base themes");
+ assert.match(cssLinks.at(-6),/^\/brand-logo-light-fix\.css\?v=/,"Original logo contrast loads before mobile adjustments");
+ assert.match(cssLinks.at(-5),/^\/canva-mobile-qa-fix\.css\?v=/,"Mobile QA stylesheet must load before final contrast");
+ assert.match(cssLinks.at(-4),/^\/contrast-guard\.css\?v=/,"Contrast guard loads before targeted review");
+ assert.match(cssLinks.at(-3),/^\/canva-fullsite-qa\.css\?v=/,"Fullsite Canva QA before mobile layout");
+ assert.match(cssLinks.at(-2),/^\/responsive-mobile-system\.css\?v=/,"Mobile-specific responsive system is last");
+ assert.match(cssLinks.at(-1),/^\/login-redesign\.css\?v=/,"Login theme is last");
  for(const token of ["--bv-page:#FAF9F5","--bv-paper:#FFFEFA","--bv-line:#E6EAE5",
                      "--bv-ink:#24312E","--bv-teal:#128D7F","--bv-font:Inter"]){
    assert.ok(css.includes(token),"Missing standard design token "+token);
