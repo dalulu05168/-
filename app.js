@@ -213,7 +213,7 @@ async function bootstrap(e){
     renderLogin(true);
   }catch(err){
     const message="初始化失败："+(err?.message||"请检查初始化码或网络连接");
-    const errorBox=e.currentTarget.querySelector("#loginError");
+    const errorBox=btn.form.querySelector("#loginError");
     if(errorBox){errorBox.textContent=message;errorBox.hidden=false;errorBox.focus({preventScroll:true});}
     toast(message,true);btn.disabled=false;btn.removeAttribute("aria-busy");btn.textContent="创建管理员并进入系统";
   }
@@ -236,7 +236,7 @@ async function login(e){
     const message="登录失败："+(err?.message||"请检查账号或网络连接");
     if(errorBox){
       errorBox.textContent=message;errorBox.hidden=false;
-      e.currentTarget.querySelectorAll('input[name="username"],input[name="password"]').forEach(field=>field.setAttribute("aria-invalid","true"));
+      btn.form.querySelectorAll('input[name="username"],input[name="password"]').forEach(field=>field.setAttribute("aria-invalid","true"));
       errorBox.focus({preventScroll:true});
     }
     toast(message,true);
