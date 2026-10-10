@@ -1,0 +1,270 @@
+/*
+ * Brantone Veylor CRM: CRITICAL CONTRAST HOTFIX
+ * Prevent the legacy navy theme's !important backgrounds from combining with
+ * the new cream theme's dark typography. Loaded LAST after all visual layers.
+ * The authentic Brantone Veylor logo is never redrawn, filtered or recolored.
+ * Business records, quotations and interaction handlers are untouched.
+ */
+:root{
+ color-scheme:light;
+ --contrast-paper:#FFFEFA;
+ --contrast-page:#FAF9F5;
+ --contrast-panel:#F7F7F2;
+ --contrast-border:#E5E8E2;
+ --contrast-text:#24312E;
+ --contrast-muted:#61736C;
+ --contrast-accent:#138B7D;
+ --contrast-up:#12835E;
+ --contrast-down:#C44756;
+}
+html body #root#root .app,
+html body #root#root .shell,
+html body #root#root #main#main#main#main#main,
+html body.projectPresentationMode.projectPanoramaMode #root#root #main#main#main#main#main,
+html body #root#root .loginPage,
+html body #root#root .customerDetail,
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage{
+ background:var(--contrast-page)!important;
+ background-image:none!important;
+ color:var(--contrast-text)!important;
+}
+/* High-specificity surface guard, precisely targeting all container types
+   which can inherit the obsolete dark-blue CSS even after the cream overlay. */
+html body #root#root #main#main#main#main#main :is(
+ .panel,.panelBody,.panelHead,.kpi,.execStat,.metric,.metricCard,
+ .metricValuePanel,.indexTile,.listItem,.level1Metric,.level2Metric,
+ .level1StaffCard,.level2SideStack>.panel,.level1StaffMetrics>div,
+ .level1SummaryList>div,.level2SummaryList>div,.level2PositionsPanel,
+ .level2OrdersPanel,.teamDetailKpis>div,.teamDetailSection,.teamDetailIdentity,
+ .terminalTicker,.tickerIdentity,.tickerStat,.tickerGear,.terminalPositionCard,
+ .terminalFormCard,.terminalOrderPanel,.terminalChartCard,.terminalChartWrap,
+ .terminalChartToolbar,.terminalChartSubtitleRow,.terminalSummaryCard,
+ .terminalEmptyCard,.terminalFieldRow,.tradeflareShell,.tradeflareCanvas,
+ .tradeflareRail,.terminalLeft,.terminalRight,.usageRow,.terminalSegment,
+ .terminalTabs,.terminalIntervals,.terminalSecondary,.railBtn,.chartBox,
+ .marketStatus,.marketMetric,.marketRow,.referenceMarketRow,.marketList,
+ .marketListHead,.marketOverviewPanel,.marketChartPanel,.marketCanvas,
+ .marketStatusBadge,.referenceFeatureCard,.referenceMarketTabs,
+ .referenceMarketFilters,.referenceMarketHero,.marketRangeBar,
+ .exchangeQuoteHeader,.exchangeQuoteMini,.exchangeQuoteBlock,.exchangeKpiStrip,
+ .exchangeChartPanel,.exchangeSessionPanel,.exchangeSessionGrid>div,
+ .exchangeStatusRail,.exchangeStatusRail>span,.allocationIdentity,
+ .allocationMini,.allocationChartPanel,.allocationConfigCompact,
+ .allocationDistPanel,.allocationDistributionPanel,.allocationSlotsPanel,
+ .allocationSlotsTable,.allocationTrendPanel,.allocationKpiCard,
+ .allocationStatusStrip,.allocationSecurityBar,.allocationSearchLike,
+ .allocationTimingGrid>div,.allocationBar,.allocationBoardV2,
+ .allocationBoardV3,.countdownPanel,.countdownBox,.timePair,.settingsCard,
+ .settingsList>div,.customerInfoGrid>div,.holdingsGrid>div,
+ .securityResult,.projectLauncher,.projectLauncherHead,.projectLauncherRow,
+ .projectPanel,.projectOverviewCard,.projectOverviewBalance,
+ .projectOverviewTotals,.projectPanelHeading,.projectOverviewSummary,
+ .projectTrendPanel,.projectTrendChart,.projectSummaryMetrics,
+ .projectNameEditor,.projectDetailSummary,.projectPresentationHeader,
+ .projectChartEmpty,.projectRecordPanel,.projectOverviewCards
+){
+ background-color:var(--contrast-paper)!important;
+ background-image:none!important;
+ color:var(--contrast-text)!important;
+ border-color:var(--contrast-border)!important;
+ box-shadow:none!important;
+ text-shadow:none!important;
+}
+html body #root#root #main#main#main#main#main :is(
+ .panel,.kpi,.metric,.metricCard,.level1Metric,.level2Metric,
+ .terminalChartCard,.terminalPositionCard,.terminalFormCard,.terminalOrderPanel,
+ .marketOverviewPanel,.marketChartPanel,.marketRow,.referenceFeatureCard,
+ .projectPanel,.projectLauncher,.projectOverviewCard,.level1StaffCard
+){
+ border:1px solid var(--contrast-border)!important;
+ border-radius:9px!important;
+}
+html body #root#root #main#main#main#main#main :is(
+ .tradeflareShell,.tradeflareCanvas,.terminalLeft,.terminalRight,
+ .projectOverviewCards,.projectOverviewLower,.referenceMarketTabs,
+ .referenceMarketFilters,.projectTrendChart,.marketCanvas
+){
+ background:transparent!important;
+}
+/* Header, tabs, menus and admin subnavigation cannot remain black-on-black. */
+html body #root#root :is(.topbar,.navFrame,.userArea,.globalSearch),
+html body #root#root #main#main#main#main#main :is(
+ .panelHead,.projectPanelHeading,.projectLauncherHead,.unifiedModuleHead,
+ .marketListHead,.marketChartHeader,.terminalChartToolbar,
+ .terminalSegment,.terminalTabs,.terminalIntervals,.allocationStatusStrip,
+ .allocationSecurityBar,.projectOverviewTotals
+){
+ background:var(--contrast-panel)!important;
+ background-image:none!important;
+ color:var(--contrast-text)!important;
+ border-color:var(--contrast-border)!important;
+}
+html body #root#root #main#main#main#main#main :is(
+ h1,h2,h3,h4,label,.metricTitle,.metricValue,.terminalChartTitle,
+ .panelHead h2,.projectPanelHeading h2,.marketCompany,
+ .projectDetailName,.tickerStat>span,.quotePrice,.referenceFeatureValue,
+ .level2SummaryList strong,.level1SummaryList strong
+){
+ color:var(--contrast-text)!important;
+ text-shadow:none!important;
+}
+html body #root#root #main#main#main#main#main :is(
+ .muted,.metricLabel,.metricFoot,.panelHead p,.projectPanelHeading p,
+ .pageHead p,.chartSubtitle,.marketCompany small,.headMeta,
+ .projectOverviewTotals span,.projectOverviewNumbers span,
+ .projectOverviewNumbers small,.projectSummaryMetrics span,
+ .quoteTimeBadge,.referenceFeatureTop small
+){
+ color:var(--contrast-muted)!important;
+ text-shadow:none!important;
+}
+/* A readable default for otherwise-unclassified text inside risky widgets. */
+html body #root#root #main#main#main#main#main :is(
+ .terminalTicker,.terminalPositionCard,.terminalOrderPanel,.terminalChartCard,
+ .projectPanel,.level2SummaryList>div,.allocationStatusStrip,
+ .marketStatus,.marketRow,.exchangeQuoteHeader,.terminalTabs
+) :is(p,span,label,small,td,th){
+ color:var(--contrast-text)!important;
+}
+html body #root#root #main#main#main#main#main :is(
+ .terminalTicker,.terminalPositionCard,.terminalOrderPanel,.terminalChartCard,
+ .projectPanel,.level2SummaryList>div,.allocationStatusStrip,
+ .marketStatus,.marketRow,.exchangeQuoteHeader,.terminalTabs
+) :is(.muted,.metricLabel,.metricFoot,.quoteTimeBadge,.projectOverviewTotals span){
+ color:var(--contrast-muted)!important;
+}
+/* Preserve financial semantics and selected project color, rather than
+   changing positive/negative values to plain dark text. */
+html body #root#root #main#main#main#main#main :is(.up,.positive,.referenceFeatureChange.up,.marketRow .up){
+ color:var(--contrast-up)!important;
+}
+html body #root#root #main#main#main#main#main :is(.down,.negative,.referenceFeatureChange.down,.marketRow .down){
+ color:var(--contrast-down)!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main#main#main .projectOverview :is(
+ .projectOverviewNumbers strong,.projectBalanceRatio,.projectBalanceRatio small
+){
+ color:var(--project-accent)!important;
+}
+/* Form elements, tables, chart legends and popups are independently styled.
+   These are rendered outside #main in several roles, hence the separate scope. */
+html body #root#root :is(
+ input,select,textarea,.input,.select,.textarea,.btn,.iconBtn,.chip,
+ .langSwitch,.loginLangRow,.terminalSecondary,.terminalSegment button,
+ .terminalTabs button,.terminalIntervals button,.tickerGear,
+ .projectAddRecord,.projectExit,.projectNameEditor input
+),
+html body :is(.modalCard,.loginCard,.detailPanel,.customerDetail,.shareReady){
+ background:var(--contrast-paper)!important;
+ background-image:none!important;
+ color:var(--contrast-text)!important;
+ border:1px solid var(--contrast-border)!important;
+ box-shadow:none!important;
+}
+html body #root#root :is(
+ .btn.primary,.terminalPrimary,.terminalTabs button.active,
+ .terminalIntervals button.active,.terminalSegment button.active,
+ .marketRangeBar button.active,.tabs button.active
+){
+ background:var(--contrast-accent)!important;
+ color:#FFFFFF!important;
+ border-color:var(--contrast-accent)!important;
+}
+html body #root#root .btn.danger{color:var(--contrast-down)!important}
+html body #root#root .nav button,
+html body #root#root .nav button:not(.active),
+html body #root#root .railBtn:not(.active){
+ color:#40574F!important;background:transparent!important;
+}
+html body #root#root :is(.nav button.active,.railBtn.active){
+ color:var(--contrast-accent)!important;
+ background:#E9F5EF!important;
+ border-color:#B3D8CA!important;
+}
+/* Modal/popup content that the root theme cannot reach. */
+html body :is(.modalCard,.loginCard,.detailPanel,.shareReady) :is(
+ h1,h2,h3,h4,p,label,span,small,td,th,strong,b
+){
+ color:var(--contrast-text)!important;
+}
+html body :is(.modalHead,.detailTop,.loginFoot,.loginSide){
+ background:var(--contrast-panel)!important;
+ color:var(--contrast-text)!important;
+ border-color:var(--contrast-border)!important;
+}
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage :is(
+ .shareTopbar,.shareKpiRow article,.shareTimeBlock,.shareMarketTile,
+ .shareServiceGrid>div,.shareClientNote,.shareServiceList,
+ .shareMarketItem,.shareProfileGrid>div,.shareNote,.shareServiceTimeline>div,
+ .portfolioBreakdown,.portfolioCurrencyGroup,.chartBox,.dataTable,
+ .shareStatus,.marketStatusBadge,.quoteTimeBadge
+){
+ background:var(--contrast-paper)!important;
+ background-image:none!important;
+ color:var(--contrast-text)!important;
+ border-color:var(--contrast-border)!important;
+ box-shadow:none!important;
+}
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage :is(
+ h1,h2,h3,h4,p,label,span,td,th,small,strong,b
+){color:var(--contrast-text)!important}
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage :is(
+ .muted,.quoteTimeBadge,.metricLabel
+){color:var(--contrast-muted)!important}
+html body #root#root #main#main#main#main#main .dataTable,
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage .dataTable{
+ background:var(--contrast-paper)!important;color:var(--contrast-text)!important;
+}
+html body #root#root #main#main#main#main#main .dataTable th,
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage .dataTable th{
+ color:#53665F!important;
+ background:var(--contrast-panel)!important;
+ border-color:var(--contrast-border)!important;
+}
+html body #root#root #main#main#main#main#main .dataTable td,
+html body #clientSharePage#clientSharePage#clientSharePage#clientSharePage .dataTable td{
+ background:var(--contrast-paper)!important;
+ color:var(--contrast-text)!important;
+ border-color:var(--contrast-border)!important;
+}
+html body #root#root #main#main#main#main#main .dataTable tbody tr:hover td{
+ background:#EDF6EF!important;
+}
+/* Project stats use solid cream, not the original navy. */
+html body.projectPanoramaMode #root#root #main#main#main#main#main :is(
+ .projectOverview,.projectOverviewCards,.projectOverviewLower
+){background:var(--contrast-page)!important}
+html body.projectPanoramaMode #root#root #main#main#main#main#main :is(
+ .projectPanel,.projectOverviewCard,.projectOverviewBalance,
+ .projectPanelHeading,.projectOverviewTotals,.projectTrendPanel,
+ .projectOverviewSummary,.projectDetailSummary,.projectSummaryMetrics
+){
+ background:var(--contrast-paper)!important;
+ color:var(--contrast-text)!important;
+ border-color:var(--contrast-border)!important;
+}
+html body.projectPanoramaMode #root#root #main#main#main#main#main .projectRecordPanel{
+ display:none!important;
+}
+/* Decorative rail shouldn't inherit a dark fill either. */
+html body #root#root #main#main#main#main#main .tradeflareRail,
+html body #root#root #main#main#main#main#main .terminalRail{
+ background:var(--contrast-panel)!important;color:var(--contrast-text)!important;
+}
+/* User's SVG logo artwork remains EXACTLY as currently stored, no filters. */
+html body #root#root .brandLogo{filter:none!important;mix-blend-mode:normal!important}
+/* Visible focus, and no low contrast in user input fields. */
+html body #root#root :is(input,select,textarea,.btn,.nav button):focus-visible{
+ outline:2px solid var(--contrast-accent)!important;outline-offset:2px!important;
+}
+@media(max-width:899px){
+ html body #root#root #main#main#main#main#main :is(.terminalTicker,.tickerStat,.tickerIdentity,
+ .panel,.projectPanel,.referenceFeatureCard,.marketRow,.terminalChartCard){
+  background:var(--contrast-paper)!important;color:var(--contrast-text)!important;
+ }
+ html body #root#root #main#main#main#main#main :is(
+ .projectOverviewNumbers strong,.referenceFeatureValue,.metricValue,.tickerStat>span
+ ){
+  line-height:1.3!important;overflow-wrap:anywhere!important;
+ }
+}
