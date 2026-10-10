@@ -7,7 +7,10 @@ const load=async name=>readFile(new URL("../"+name,import.meta.url),"utf8");
 test("cream UI remains the final stylesheet and includes whole-page overrides",async()=>{
  const [index,cream]=await Promise.all([load("index.html"),load("cream-shell-correction.css")]);
  const links=[...index.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g)].map(m=>m[1]);
- assert.match(links.at(-1),/^\/cream-shell-correction\.css\?v=/,"full-cream shell MUST load last");
+ assert.ok(links.some(x=>x.startsWith("/cream-shell-correction.css?")),"cream shell stylesheet must load");
+ const creamIndex=links.findIndex(x=>x.startsWith("/cream-shell-correction.css?"));
+ const logoIndex=links.findIndex(x=>x.startsWith("/brand-logo-light-fix.css?"));
+ assert.ok(creamIndex===links.length-1 || (logoIndex===links.length-1 && creamIndex===logoIndex-1),"only the logo contrast fix may load after the cream shell");
  assert.match(cream,/#root#root \.app/,"outer app must be explicitly overridden");
  assert.match(cream,/#root#root \.shell/,"desktop shell must be explicitly overridden");
  assert.match(cream,/\.topbar>\.navFrame/,"sidebar must be covered");
