@@ -25,7 +25,7 @@ test("All nine screens and three dashboard roles have responsive coverage",async
   ".dataTable",".tableWrap",".level2HoldingsTable",".canvaReferenceMarket",
   ".referenceFeatureCards",".marketListPanel",".reportsLower",".settingsGrid",
   ".settingsList",".projectOverviewCards",".projectOverviewLower",".projectRecordPanel",
-  ".modalCard",".loginPage",".customerDetail",".shareTopbar",".shareKpiRow",
+  ".modalCard",".loginPage","#clientSharePage",".shareTopbar",".shareKpiRow",
   ".shareMainGrid",".shareLowerGrid",".sharePositions",".shareServicePanel"]){
    assert.ok(css.includes(marker),"Missing responsive treatment for "+marker);
  }
@@ -36,6 +36,7 @@ test("All nine screens and three dashboard roles have responsive coverage",async
  assert.ok(css.includes("min-width:820px!important"),"Do not hide trading/holdings columns");
  assert.ok(css.includes(".marketRow"),"Market rows remain accessible");
  assert.ok(css.includes(".nav button.active"),"Active navigation state visible");
+ assert.ok(css.includes("position:fixed!important;inset:0!important;z-index:5000!important"),"Customer detail must overlay customer list on phones");
 });
 test("Mobile CSS syntax is balanced and critical visual contracts remain",async()=>{
  const css=await read("responsive-mobile-system.css");
