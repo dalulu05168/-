@@ -663,6 +663,7 @@
   /* Customer detail is rendered into #modalRoot OUTSIDE the application
      shell. It must cover the list as a genuine mobile screen, not appear
      underneath the list in the normal page document flow. */
+  html body .customerDetail,
   html body #clientSharePage#clientSharePage#clientSharePage{
     display:block!important;
     position:fixed!important;inset:0!important;z-index:5000!important;
