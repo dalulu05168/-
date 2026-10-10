@@ -156,31 +156,38 @@ async function checkBootstrap(){
 
 function renderLogin(initialized){
   $("#root").innerHTML=`
-    <section class="loginPage">
+    <section class="loginPage" aria-label="Brantone Veylor 系统登录">
       <div class="loginHero">
         <div class="heroMark"><img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-brand-correct" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
-        <div class="heroRule"></div>
-        <h1>客户股票跟踪管理系统</h1>
-        <p>Brantone Veylor Private Capital Advisory · 客户、人员、买卖记录、持仓与多市场行情统一管理。</p>
+        <div class="heroRule" aria-hidden="true"></div>
+        <div class="loginEyebrow">BRANTONE VEYLOR · PRIVATE WORKSPACE</div>
+        <h1>清晰掌握每一项<br>客户与持仓信息</h1>
+        <p>Brantone Veylor 专属管理工作台。客户档案、持仓、交易记录及项目进度，在同一个入口安全访问。</p>
+        <div class="loginHeroModules" aria-label="系统业务模块"><span>客户管理</span><span>持仓与交易</span><span>项目预留份额</span></div>
       </div>
       <div class="loginSide">
         <div class="loginCard">
-          <h2>${initialized?"登录系统":"首次初始化管理员"}</h2>
-          <p>${initialized?"管理员 / 一级人员 / 二级人员统一入口":"系统尚未初始化，请创建第一个管理员账户。"}</p>
-          <div class="loginLangRow"><span>语言</span><select id="loginLang" class="select">${languageOptions(state.lang)}</select></div>
-          <div class="romaniaClock" id="romaniaClock" style="margin-bottom:14px"></div>
-          <form id="${initialized?"loginForm":"bootstrapForm"}">
-            ${initialized?"":`<div class="field"><label>管理员姓名</label><input class="input" name="display_name" required></div>`}
-            <div class="field"><label>账号</label><input class="input" name="username" autocomplete="username" required></div>
-            <div class="field"><label>密码</label><input class="input" type="password" name="password" autocomplete="current-password" required></div>
-            ${initialized?"":`<div class="field"><label>一次性初始化码</label><input class="input" type="password" name="bootstrap_code" required></div>`}
-            <button class="btn primary" style="width:100%;margin-top:8px" type="submit">${initialized?"登录系统":"创建管理员并进入系统"}</button>
+          <div class="loginCardKicker"><span class="loginCardStatus" aria-hidden="true"></span> SECURE ACCESS</div>
+          <h2>${initialized?"欢迎回来":"初始化管理员"}</h2>
+          <p class="loginCardDescription">${initialized?"请使用已获授权的 CRM 账号登录":"首次启用时，请创建系统管理员账号。"}</p>
+          <div class="loginLangRow"><label for="loginLang">界面语言</label><select id="loginLang" class="select">${languageOptions(state.lang)}</select></div>
+          <div class="loginClockRow"><span>罗马尼亚时间</span><span class="romaniaClock" id="romaniaClock"></span></div>
+          <form class="loginFields" id="${initialized?"loginForm":"bootstrapForm"}">
+            ${initialized?"":`<div class="field loginField"><label for="loginDisplayName">管理员姓名</label><input id="loginDisplayName" class="input" name="display_name" autocomplete="name" required></div>`}
+            <div class="field loginField"><label for="loginUsername">登录账号</label><input id="loginUsername" class="input" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="请输入账号名称" required><small>无需输入邮箱后缀</small></div>
+            <div class="field loginField"><label for="loginPassword">登录密码</label><div class="loginPasswordWrap"><input id="loginPassword" class="input" type="password" name="password" autocomplete="${initialized?"current-password":"new-password"}" placeholder="请输入登录密码" required><button type="button" class="loginPasswordToggle" aria-label="显示密码" aria-pressed="false">显示</button></div></div>
+            ${initialized?"":`<div class="field loginField"><label for="loginBootstrapCode">一次性初始化码</label><input id="loginBootstrapCode" class="input" type="password" name="bootstrap_code" autocomplete="off" required></div>`}
+            <div id="loginError" class="loginError" role="alert" hidden></div>
+            <button class="btn primary loginSubmit" type="submit">${initialized?"登录工作台":"创建管理员并进入系统"} <span aria-hidden="true">↗</span></button>
           </form>
-          <div class="loginFoot">安全登录 · 数据库权限隔离 · 操作记录审计</div>
+          <div class="loginFoot"><span aria-hidden="true">●</span> 授权账号访问 · 原业务数据不变</div>
         </div>
       </div>
     </section>`;
   const form=$("#"+(initialized?"loginForm":"bootstrapForm"));
+  const toggle=form.querySelector(".loginPasswordToggle");
+  const passwordField=form.querySelector('input[name="password"]');
+  if(toggle&&passwordField)toggle.onclick=()=>{const visible=passwordField.type==="password";passwordField.type=visible?"text":"password";toggle.textContent=visible?"隐藏":"显示";toggle.setAttribute("aria-pressed",String(visible));toggle.setAttribute("aria-label",visible?"隐藏密码":"显示密码");};
   form.addEventListener("submit",initialized?login:bootstrap);
   $("#loginLang").onchange=e=>{state.lang=setLang(e.target.value);renderLogin(initialized)};
   translateUI($("#root"),state.lang);
@@ -203,10 +210,21 @@ async function login(e){
   e.preventDefault(); const f=new FormData(e.currentTarget);
   const username=String(f.get("username")||"").trim().toLowerCase();
   const password=String(f.get("password")||"");
-  const btn=$("button",e.currentTarget);btn.disabled=true;btn.textContent="正在登录…";
-  const {data,error}=await supabase.auth.signInWithPassword({email:username+"@crm.nuvexapro.com",password});
-  if(error){toast("登录失败："+error.message,true);btn.disabled=false;btn.textContent="登录系统";return}
-  state.session=data.session; await loadProfileAndStart();
+  const btn=e.currentTarget.querySelector('button[type="submit"]');
+  const errorBox=e.currentTarget.querySelector("#loginError");
+  if(errorBox){errorBox.hidden=true;errorBox.textContent="";}
+  btn.disabled=true;btn.textContent="正在验证…";
+  try{
+    const {data,error}=await supabase.auth.signInWithPassword({email:username+"@crm.nuvexapro.com",password});
+    if(error)throw error;
+    state.session=data.session;
+    await loadProfileAndStart();
+  }catch(err){
+    const message="登录失败："+(err?.message||"请检查账号或网络连接");
+    if(errorBox){errorBox.textContent=message;errorBox.hidden=false;}
+    toast(message,true);
+    btn.disabled=false;btn.innerHTML='登录工作台 <span aria-hidden="true">↗</span>';
+  }
 }
 
 async function loadProfileAndStart(){
@@ -1650,4 +1668,4 @@ function closeModal(){
 window.addEventListener("popstate",()=>{if(!state.profile)return;const route=location.hash.match(/^#allocation\/([123])$/);if(route){state.activeProjectNumber=Number(route[1]);switchView("shareboard")}else if(state.activeView==="shareboard")switchView("dashboard")});
 supabase.auth.onAuthStateChange(async(event,session)=>{if(event==="SIGNED_OUT"){exitProjectPresentation(featureCtx());clearMarketRefreshTimers();state.allocationProjects=[];state.allocationRecords=[];state.allocationOwnerId=null;state.session=null;state.profile=null;state.activeView="dashboard";renderLogin(true)}});
 installViewportLayout({getLanguage:()=>state.lang});
-(async()=>{const {data:{session}}=await supabase.auth.getSession();if(session){state.session=session;await loadProfileAndStart()}else renderLogin(await checkBootstrap())})();
+if(demoMode&&new URLSearchParams(location.search).get("loginPreview")==="1"){renderLogin(true)}else{(async()=>{const {data:{session}}=await supabase.auth.getSession();if(session){state.session=session;await loadProfileAndStart()}else renderLogin(await checkBootstrap())})()}
