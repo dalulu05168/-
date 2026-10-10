@@ -197,7 +197,7 @@ function renderLogin(initialized){
 async function bootstrap(e){
   e.preventDefault(); const f=new FormData(e.currentTarget);
   const body=Object.fromEntries(f.entries());
-  const btn=$("button",e.currentTarget);btn.disabled=true;btn.textContent="正在初始化…";
+  const btn=e.currentTarget.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent="正在初始化…";
   try{
     const r=await fetch(SUPABASE_URL+"/functions/v1/bootstrap-admin",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},body:JSON.stringify(body)});
     const j=await r.json();if(!r.ok)throw new Error(j.error||"初始化失败");
