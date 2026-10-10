@@ -60,8 +60,17 @@ try{
       }).slice(0,8).map(el=>({className:String(el.className).slice(0,55),client:el.clientHeight,content:el.scrollHeight}));
       const whitespace=boxes.filter(el=>{
         const raw=(el.innerText||"").trim(),hasVisual=!!el.querySelector("canvas,svg,table");
-        return raw.length>20&&!hasVisual&&el.clientHeight>250&&el.scrollHeight<el.clientHeight*.55;
-      }).slice(0,8).map(el=>({className:String(el.className).slice(0,55),height:el.clientHeight,contentHeight:el.scrollHeight}));
+        if(raw.length<=20||hasVisual||el.clientHeight<=250)return false;
+        const host=el.getBoundingClientRect();
+        const direct=[...el.children].filter(c=>{
+          const st=getComputedStyle(c),rc=c.getBoundingClientRect();
+          return st.display!=="none"&&st.position!=="absolute"&&rc.height>2;
+        });
+        if(!direct.length)return false;
+        const contentTop=Math.min(...direct.map(c=>c.getBoundingClientRect().top));
+        const contentBottom=Math.max(...direct.map(c=>c.getBoundingClientRect().bottom));
+        return (contentBottom-contentTop)/Math.max(1,host.height)<.42;
+      }).slice(0,8).map(el=>({className:String(el.className).slice(0,55),height:el.clientHeight,children:el.children.length}));
       const controls=[...m.querySelectorAll("input,select,button")].filter(el=>{
         const r=el.getBoundingClientRect(),cs=getComputedStyle(el);
         return cs.display!=="none"&&r.width>0&&r.width<25;
