@@ -15,7 +15,7 @@ test("P005 private staging cannot initialize the live Supabase client",async()=>
   assert.match(app,/const SUPABASE_URL = "https:\/\/preview-data\.invalid";/);
   assert.match(app,/const SUPABASE_KEY = "disabled-in-private-staging";/);
   assert.doesNotMatch(app,/igcmvzoxminzvcgwimwi|sb_publishable_/);
-  assert.match(app,/brand-logo-transparent-color\\.svg/);
+  assert.match(app,/brand-logo-transparent-color\.svg/);
   const start=app.indexOf("function renderLogin(initialized)");
   const end=app.indexOf("async function bootstrap",start);
   const loginUi=app.slice(start,end);
