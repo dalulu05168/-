@@ -61,6 +61,23 @@ try{
       await projectLauncher.waitFor({state:"visible",timeout:15000});
       await projectLauncher.click();
       await page.waitForSelector('#main[data-view="shareboard"] .projectPresentation',{timeout:20000});
+      // A supervisor with no own projects must see a permitted subordinate's complete detail page.
+      const activeOwner=page.locator("#projectDetailOwnerSelect");
+      await activeOwner.waitFor({state:"visible",timeout:15000});
+      const ownerOptions=await activeOwner.locator("option").count();
+      assert.ok(ownerOptions>=2,"Supervisor must be able to choose a subordinate account");
+      assert.notEqual(await activeOwner.inputValue(),"TEST-ADMIN","Admin must not be stuck on three empty cards");
+      await page.locator(".projectOverviewLower .projectTrendPanel").waitFor({state:"visible",timeout:15000});
+      await page.locator(".projectOverviewSummary").waitFor({state:"visible",timeout:15000});
+      await page.locator(".projectRecordPanel .dataTable").waitFor({state:"visible",timeout:15000});
+      assert.ok(await page.locator(".projectOverviewCards .projectOverviewCard").count()===3,"Three overview cards must remain");
+      const ownerBefore=await activeOwner.inputValue();
+      const nextOwner=await activeOwner.locator("option").nth(1).getAttribute("value");
+      if(nextOwner&&nextOwner!==ownerBefore){
+        await activeOwner.selectOption(nextOwner);
+        await page.waitForFunction(id=>document.querySelector("#projectDetailOwnerSelect")?.value===id,nextOwner,{timeout:15000});
+        await page.locator(".projectRecordPanel .dataTable").waitFor({state:"visible",timeout:15000});
+      }
       const projectFullscreen=await page.evaluate(()=>!!document.fullscreenElement);
       assert.equal(projectFullscreen,false,"Project detail opened browser fullscreen");
       assert.ok(await page.locator("#projectPresentationExit").isVisible(),"Project back action missing");
@@ -76,7 +93,7 @@ try{
       assert.ok(overflow<=3,"Horizontal overflow: "+overflow);
       assert.deepEqual(external,[],"No live Supabase requests allowed");
       assert.deepEqual(errors,[],"Runtime errors: "+errors.join(" ; "));
-      screens.push({size:size.name,roleOptions:roles,openedDemo:true,reservationLauncherNoFullscreen:true,reservationNavNoFullscreen:true,returnedToDashboard:true,noCredentialFields:true,externalSupabaseCalls:0,overflow});
+      screens.push({size:size.name,roleOptions:roles,openedDemo:true,reservationLauncherNoFullscreen:true,reservationNavNoFullscreen:true,detailsVisible:true,reservationTableVisible:true,supervisorOwnerChooser:true,returnedToDashboard:true,noCredentialFields:true,externalSupabaseCalls:0,overflow});
     }catch(e){issues.push(size.name+": "+String(e)+" ; JS errors: "+errors.join(" | "));}
     await context.close();
   }
