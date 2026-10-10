@@ -1,0 +1,390 @@
+/*
+ Brantone Veylor CRM | Canva reference visual QA pass | 2026-10-10
+ UI-only correction for admin, first-level and second-level dashboards and modules.
+ Audit based on actual browser inspection of EXPLICIT SIMULATION mode in each role,
+ and the approved Canva Stock markets design DAHXjeRzK8E.
+ Keep actual data, business logic, access control and ORIGINAL brand asset unchanged.
+*/
+:root{
+ --bv-ui-page:#faf9f5;
+ --bv-ui-paper:#fffefa;
+ --bv-ui-nav:#f6f7f3;
+ --bv-ui-hairline:#e5e9e5;
+ --bv-ui-ink:#24312e;
+ --bv-ui-secondary:#64756f;
+ --bv-ui-teal:#0e8f7e;
+ --bv-ui-hover:#f0f8f3;
+ --bv-ui-radius:10px;
+ --bv-ui-font:Inter,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;
+ --bv-ui-control:12px;
+}
+html body #root#root,html body #root#root .app,
+html body #root#root .shell,html body #root#root #main#main{
+ font-family:var(--bv-ui-font)!important;
+ font-synthesis:none;
+}
+html body #root#root #main#main{
+ color:var(--bv-ui-ink)!important;
+ line-height:1.48!important;
+}
+html body #root#root #main#main :is(.pageHead h1,.referenceMarketHero h1){
+ font:650 22px/1.3 var(--bv-ui-font)!important;
+ letter-spacing:-.2px!important;
+ color:var(--bv-ui-ink)!important;
+}
+html body #root#root #main#main :is(
+ .panelHead h2,.projectPanelHeading h2,.projectLauncherHead h2,
+ .unifiedModuleHead h2,.terminalChartToolbar h2,.marketChartHeader h2,
+ .terminalUsage h3,.terminalOrderPanel h2,.level1StaffCard h3,
+ .level2SideStack h2,.settingsCard h2,.referenceMarketHero h2
+){
+ font-family:var(--bv-ui-font)!important;
+ font-size:15px!important;
+ font-weight:600!important;
+ line-height:1.4!important;
+ letter-spacing:0!important;
+ color:var(--bv-ui-ink)!important;
+ overflow-wrap:break-word!important;
+}
+html body #root#root #main#main :is(
+ .panelHead,.projectPanelHeading,.projectLauncherHead,.unifiedModuleHead,
+ .terminalChartToolbar,.marketChartHeader
+){
+ min-height:43px!important;
+ height:auto;
+ padding-top:8px!important;
+ padding-bottom:8px!important;
+ box-sizing:border-box!important;
+ align-items:center!important;
+ background:var(--bv-ui-paper)!important;
+ border-color:var(--bv-ui-hairline)!important;
+}
+html body #root#root #main#main :is(
+ .panelHead p,.projectPanelHeading p,.metricFoot,.metricLabel,
+ .headMeta,.muted,.chartSubtitle,.projectOverviewTotals span,
+ .terminalChartSubtitleRow .chartSubtitle,.terminalFieldRow label,
+ .terminalFieldRow span,.level1Metric .metricLabel,
+ .level2Metric .metricLabel,.level1StaffCard small,
+ .level1StaffCard .muted,.tickerStat small,.projectLauncher small
+){
+ font-family:var(--bv-ui-font)!important;
+ font-size:12px!important;
+ line-height:1.45!important;
+ letter-spacing:0!important;
+ color:var(--bv-ui-secondary)!important;
+ text-shadow:none!important;
+}
+html body #root#root #main#main :is(
+ .terminalChartSubtitleRow,.panelSubtitleRow,.terminalFieldRow,
+ .terminalUsage,.projectLauncherHead
+){
+ line-height:1.45!important;
+}
+html body #root#root #main#main :is(
+ .execStat,.level1Metric,.level2Metric,.terminalFieldRow,
+ .marketMetric,.referenceFeatureCard,.projectLauncherRow,
+ .level1StaffCard,.teamDetailKpis>div,.level1StaffMetrics>div
+){
+ min-width:0!important;
+ box-sizing:border-box!important;
+}
+/* Uniform labels / numeric hierarchy across all three role dashboards. */
+html body #root#root #main#main :is(
+ .terminalTicker .tickerStat small,.terminalTicker .tickerIdentity small,
+ .level1Metric .metricTitle,.level2Metric .metricTitle,
+ .execStat span,.execStat small,
+ .level1StaffMetrics span,.teamDetailKpis span,.terminalFieldRow span,
+ .terminalFieldRow label,.metricTitle,.projectLauncherRow span
+){
+ font-size:12px!important;
+ line-height:1.35!important;
+ font-weight:500!important;
+ letter-spacing:0!important;
+}
+html body #root#root #main#main :is(
+ .metricValue,.level1Metric .metricValue,.level2Metric .metricValue,
+ .execStat strong,.terminalTicker .tickerStat>span
+){
+ font-variant-numeric:tabular-nums;
+ font-size:19px!important;
+ line-height:1.25!important;
+ font-weight:650!important;
+ color:var(--bv-ui-ink)!important;
+}
+html body #root#root #main#main :is(
+ .level1StaffMetrics b,.teamDetailKpis b,.terminalFieldRow strong,
+ .projectLauncherRow strong
+){
+ font-size:14px!important;
+ line-height:1.35!important;
+ color:var(--bv-ui-ink)!important;
+}
+/* Inputs, actions and pagination were 9–10px in the running site. */
+html body #root#root :is(
+ input,.input,textarea,.textarea,select,.select,button,.btn,
+ .userArea button,.userArea select,
+ .viewportPager button,.viewportPager span,.pageSizeSelect
+),
+html body :is(.modalCard input,.modalCard select,.modalCard textarea,.modalCard .btn){
+ font-family:var(--bv-ui-font)!important;
+ font-size:12px!important;
+ line-height:1.4!important;
+ letter-spacing:0!important;
+}
+html body #root#root :is(.btn,.iconBtn,.chip,.langSwitch,.select,.input){
+ min-height:32px;
+ box-sizing:border-box!important;
+}
+html body #root#root #main#main :is(
+ .projectLauncher button,.terminalUsage button,.positionBadge,.positionState,
+ .terminalTab,.terminalIntervals button,.referenceMarketFilters button,
+ .referenceMarketTabs button,.marketRangeBar button,
+ .marketRow,.marketRow span,.marketRow small,.quoteTimeBadge,
+ .projectOverviewTotals b,.projectOverviewTotals span,
+ .projectPanelHeading span,.referenceFeatureTop small,.referenceFeatureChange
+){
+ font-size:12px!important;
+ line-height:1.4!important;
+ letter-spacing:0!important;
+}
+html body #root#root #main#main .positionBadge{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ min-height:23px!important;
+ padding:3px 7px!important;
+ border-radius:5px!important;
+}
+html body #root#root #main#main .referenceMarketFilters input{
+ font-size:12px!important;
+ min-height:32px!important;
+}
+/* Small pagination strips must NOT revert to the legacy navy appearance. */
+html body #root#root .viewportPager,
+html body #root#root #main#main .viewportPager,
+html body #clientSharePage .viewportPager{
+ background:var(--bv-ui-paper)!important;
+ background-image:none!important;
+ border:1px solid var(--bv-ui-hairline)!important;
+ border-radius:7px!important;
+ color:var(--bv-ui-secondary)!important;
+ box-shadow:none!important;
+ min-height:36px!important;
+ padding:4px 7px!important;
+ gap:7px!important;
+ align-items:center!important;
+ box-sizing:border-box!important;
+}
+html body #root#root .viewportPager :is(button,span),
+html body #root#root #main#main .viewportPager :is(button,span),
+html body #clientSharePage .viewportPager :is(button,span){
+ font-size:12px!important;
+ line-height:1.35!important;
+ color:#4e5e58!important;
+ background:var(--bv-ui-paper)!important;
+ border-color:var(--bv-ui-hairline)!important;
+ text-shadow:none!important;
+ box-shadow:none!important;
+ white-space:nowrap!important;
+}
+html body #root#root .viewportPager button:hover:not(:disabled){
+ color:#0e8b7b!important;
+ background:var(--bv-ui-hover)!important;
+ border-color:#b3d4c5!important;
+}
+html body #root#root .viewportPager button:disabled{
+ opacity:.52!important;
+}
+html body #root#root .viewportPager[hidden]{display:none!important}
+/* Top clock was ellipsized even in the normal 1600x900 desktop frame. */
+html body #root#root .topbar .romaniaClock,
+html body.desktopFrame #root#root .topbar .romaniaClock{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ flex:0 0 207px!important;
+ min-width:207px!important;
+ max-width:none!important;
+ box-sizing:border-box!important;
+ padding:5px 8px!important;
+ white-space:nowrap!important;
+ overflow:visible!important;
+ text-overflow:clip!important;
+ font:500 12px/1.35 var(--bv-ui-font)!important;
+ color:#4d605a!important;
+}
+@media(min-width:900px){
+ html body.desktopFrame:not(.projectCaptureMode) #root#root .topbar>.userArea,
+ html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar>.userArea{
+   width:632px!important;
+   min-width:0!important;
+   max-width:calc(100% - 665px)!important;
+   padding:0 10px!important;
+   gap:7px!important;
+   overflow:visible!important;
+   justify-self:end!important;
+   justify-content:flex-end!important;
+   white-space:nowrap!important;
+ }
+ html body.desktopFrame #root#root .topbar .userArea :is(.romaniaClock,.chip,.btn,.iconBtn,.langSwitch){
+   font-size:12px!important;
+   line-height:1.35!important;
+   white-space:nowrap!important;
+ }
+ html body.desktopFrame #root#root .topbar .userArea .chip{
+   max-width:170px!important;
+   overflow:hidden!important;
+   text-overflow:ellipsis!important;
+ }
+ html body.desktopFrame #root#root .topbar .userArea .langSwitch{
+   min-width:80px!important;
+ }
+}
+/* Prevent ticket/ticker children from forcing panels wider than the canvas. */
+html body #root#root #main#main .terminalTicker{
+ width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+ grid-template-columns:minmax(155px,1.05fr) repeat(5,minmax(0,1fr)) minmax(60px,.4fr)!important;
+ gap:7px!important;
+ overflow:hidden!important;
+ box-sizing:border-box!important;
+}
+html body #root#root #main#main .terminalTicker :is(
+ .tickerIdentity,.tickerStat,.tickerGear
+){
+ min-width:0!important;
+ width:100%!important;
+ max-width:100%!important;
+ box-sizing:border-box!important;
+ padding:10px!important;
+ overflow:hidden!important;
+}
+html body #root#root #main#main .terminalTicker .tickerStat>span{
+ width:100%!important;
+ min-width:0!important;
+ overflow-wrap:anywhere!important;
+ font-size:18px!important;
+}
+html body #root#root #main#main .terminalTicker .tickerStat small{
+ width:100%!important;
+ overflow:hidden!important;
+ text-overflow:ellipsis!important;
+ white-space:nowrap!important;
+}
+/* Original logo: never stretch its SVG to a different box ratio, never recolor. */
+html body #root#root .brand .brandLogo,
+html body.desktopFrame #root#root .topbar>.brand .brandLogo{
+ display:block!important;
+ object-fit:contain!important;
+ object-position:left center!important;
+ width:100%!important;
+ max-width:222px!important;
+ height:auto!important;
+ max-height:51px!important;
+ aspect-ratio:300 / 69!important;
+ filter:none!important;
+ mix-blend-mode:normal!important;
+}
+html body.desktopFrame #root#root .topbar>.brand{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:flex-start!important;
+ padding:4px 8px!important;
+ background:transparent!important;
+ border:0!important;
+ overflow:visible!important;
+}
+html body #root#root .topbar>.brand img{
+ border:0!important;box-shadow:none!important;
+}
+/* Residual navy chips from the original trading terminal. */
+html body #root#root #main#main :is(
+ .exchangeBadge,.quoteTimeBadge,.positionBadge,.positionState,
+ .terminalSegment,.terminalChartSubtitleRow,.terminalUsage,
+ .terminalFieldRow,.referenceLiveFlag
+){
+ background:var(--bv-ui-paper)!important;
+ background-image:none!important;
+ border-color:var(--bv-ui-hairline)!important;
+ color:var(--bv-ui-secondary)!important;
+ box-shadow:none!important;
+}
+html body #root#root #main#main .exchangeBadge{
+ display:inline-flex!important;
+ align-items:center!important;
+ border:1px solid var(--bv-ui-hairline)!important;
+ border-radius:5px!important;
+ padding:3px 8px!important;
+ font-size:12px!important;
+ white-space:nowrap!important;
+}
+html body #root#root #main#main :is(.positionBadge.up,.exchangeBadge.up,.positive,.up){color:#0a906b!important}
+html body #root#root #main#main :is(.positionBadge.down,.exchangeBadge.down,.negative,.down){color:#cf5362!important}
+/* Carefully constrained borders and spacing, no text touching frame lines. */
+html body #root#root #main#main :is(
+ .panel,.terminalChartCard,.terminalPositionCard,.terminalOrderPanel,
+ .terminalFormCard,.projectPanel,.level1StaffCard,.marketListPanel,
+ .marketOverviewPanel,.referenceFeatureCard,.metricCard,.settingsCard
+){
+ border:1px solid var(--bv-ui-hairline)!important;
+ border-radius:var(--bv-ui-radius)!important;
+ box-shadow:none!important;
+ box-sizing:border-box!important;
+ min-width:0!important;
+}
+html body #root#root #main#main :is(.panelBody,.terminalCardBody,.modalBody,.settingsList){
+ box-sizing:border-box!important;
+ min-width:0!important;
+}
+html body #root#root #main#main :is(.dataTable th,.dataTable td){
+ line-height:1.45!important;
+ vertical-align:middle!important;
+}
+html body #root#root #main#main .dataTable th{
+ font-size:12px!important;
+ color:#5f6f68!important;
+ padding:9px 12px!important;
+}
+html body #root#root #main#main .dataTable td{
+ font-size:12px!important;
+ color:#2b3933!important;
+ padding:9px 12px!important;
+}
+html body #root#root #main#main .dataTable :is(button,.btn){
+ font-size:12px!important;
+ line-height:1.35!important;
+}
+html body #root#root #main#main :is(.projectPanelHeading,.panelHead)>*{
+ min-width:0!important;
+}
+/* Keep icon-only desktop rail as reference, expose labels via existing titles. */
+html body.desktopFrame #root#root .nav button::before{
+ font-size:21px!important;
+ color:inherit!important;
+}
+html body.desktopFrame #root#root .nav button:focus-visible,
+html body.desktopFrame #root#root .nav button:hover{
+ outline-offset:-2px!important;
+}
+@media(max-width:899px){
+ html body #root#root .topbar .romaniaClock{
+   flex:0 0 auto!important;
+   min-width:0!important;
+   width:auto!important;
+   max-width:none!important;
+ }
+ html body #root#root .viewportPager{
+   flex-wrap:wrap!important;
+   justify-content:center!important;
+ }
+ html body #root#root #main#main .terminalTicker{
+   grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+ html body #root#root .brand .brandLogo{
+   max-width:240px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html body #root#root :is(.btn,.nav button,.panel){transition:none!important}
+}
