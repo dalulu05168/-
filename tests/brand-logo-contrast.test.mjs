@@ -5,7 +5,7 @@ const read=name=>readFile(new URL("../"+name,import.meta.url),"utf8");
 test("the user-approved transparent Brantone Veylor artwork replaces the prior wordmark",async()=>{
   const [oldBrand,newBrand]=await Promise.all([read("assets/brand-logo-vector.svg"),read("assets/brand-logo-transparent-color.svg")]);
   assert.match(newBrand,/<svg[^>]*viewBox="101 127 1874 431"/);
-  const paths=s=>[...s.matchAll(/<path\\b[^>]*\\bd="([^"]+)"/g)].map(match=>match[1]);
+  const paths=s=>[...s.matchAll(/<path\b[^>]*\bd="([^"]+)"/g)].map(match=>match[1]);
   assert.equal(paths(newBrand).length,2,"navy and crimson vector paths");
   assert.notDeepEqual(paths(newBrand),paths(oldBrand),"the explicitly supplied artwork has different contours");
   assert.match(newBrand,/fill="#001242"/);
