@@ -54,7 +54,20 @@ async function serveStatic(req,res,url){
   const pathname=decodeURIComponent(url.pathname);
   const allowed=new Set(["/","/index.html","/app.js","/ui-features.js","/allocation-projects.js","/viewport-layout.js","/styles.css","/reference-theme.css","/unified-ui.css","/dashboard-data.js","/customer-reservations.js","/demo-client.js","/demo-data.json"]);
   let target=pathname==="/"?"/index.html":pathname;
-  if(!allowed.has(target)&&!/^\/assets\/[a-z0-9-]+\.(svg|png|webp)$/.test(target)){
+  // Serve all safe root-level CSS files, including the Canva/cream themes.
+  // The previous strict whitelist silently returned index.html for new CSS files.
+  // Browsers then ignored those responses (text/html), leaving the dark theme.
+  const cssAsset=/^\/[a-zA-Z0-9][a-zA-Z0-9_-]*\.css$/.test(target);
+  const imageAsset=/^\/assets\/[a-z0-9-]+\.(svg|png|webp)$/.test(target);
+  if(!allowed.has(target)&&!cssAsset&&!imageAsset){
+    // Never disguise a missing/blocked asset as successful HTML.
+    if(/\.(css|js|json|svg|png|webp|jpe?g)$/i.test(target)){
+      res.statusCode=404;
+      res.setHeader("Content-Type","text/plain; charset=utf-8");
+      res.end("Not found");
+      return;
+    }
+    // Keep deep links (/nishizhege, project/client routes) working.
     target="/index.html";
   }
   const filePath=path.join(__dirname,target.replace(/^\//,""));
