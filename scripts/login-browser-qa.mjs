@@ -70,6 +70,10 @@ try{
       username:bounds($('#loginUsername')),
       password:bounds($('#loginPassword')),
       button:bounds($('.loginSubmit')),
+      language:bounds($("#loginLang")),
+      utilities:bounds($(".loginUtilities")),
+      clock:bounds($(".loginClockRow")),
+      utilityBeforeSubmit:!!$(".loginUtilities")&&$(".loginUtilities").compareDocumentPosition($(".loginSubmit"))===0,
       buttonStyle:computed($('.loginSubmit')),
       inputStyle:computed($('#loginUsername')),
       formPresent:!!form,passToggle:!!$(".loginPasswordToggle"),
@@ -83,6 +87,8 @@ try{
    if(a.card?.right>a.innerWidth+2||a.card?.x<0)failures.push(size.name+": form card outside viewport");
    if(a.username?.w<200||a.password?.w<200||a.button?.w<200)failures.push(size.name+": form fields too narrow");
    if(a.username?.h<42||a.password?.h<42||a.button?.h<45)failures.push(size.name+": touch targets too small");
+   if(!a.language||a.language.h<32||a.language.h>49)failures.push(size.name+": language selector height invalid "+a.language?.h);
+   if(a.utilities?.y<=a.button?.bottom)failures.push(size.name+": optional metadata displayed before/over login CTA");
    if(size.mobile&&a.button?.bottom>size.height+80)failures.push(size.name+": submit button buried below initial phone viewport "+a.button.bottom);
    if(size.mobile&&parseFloat(a.inputStyle?.font||"0")<16)failures.push(size.name+": iPhone input text triggers zoom");
    if(!a.buttonStyle?.background.includes("18, 136, 122"))failures.push(size.name+": primary login button is not teal "+a.buttonStyle?.background);
