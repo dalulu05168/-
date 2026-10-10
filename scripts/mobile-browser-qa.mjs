@@ -75,7 +75,7 @@ try{
       continue;
      }
      await nav.click({timeout:9000});
-     await page.waitForFunction(v=>{const main=document.querySelector("#main");return main?.dataset.view===v&&!main.classList.contains("viewBusy")},view,{timeout:20000});
+     await page.waitForFunction(v=>{const main=document.querySelector("#main");return main?.dataset.view===v&&main.classList.contains("viewReveal")&&!main.classList.contains("viewBusy")&&!main.classList.contains("viewLeaving")},view,{timeout:20000});
      await page.waitForTimeout(160);
      const diagnostics=await page.evaluate(()=>{
       const main=document.querySelector("#main");
@@ -127,6 +127,32 @@ try{
      if(diagnostics.mainWidth<260)failures.push(actor.role+"/"+view+"/"+viewport.width+": main container too narrow");
      if(diagnostics.badColors.length)failures.push(actor.role+"/"+view+"/"+viewport.width+": illegible dark panels "+JSON.stringify(diagnostics.badColors));
      if(diagnostics.htmlOverflow>8)failures.push(actor.role+"/"+view+"/"+viewport.width+": document horizontal overflow "+diagnostics.htmlOverflow);
+     /* Customer holdings detail is its own full-screen DOM tree. Audit a
+        read-only opened customer in the Level 2 390px simulated session. */
+     if(view==="customers"&&viewport.width===390&&actor.role==="level2"){
+      const customer=page.locator(".customerLink").first();
+      if(await customer.count()){
+       await customer.click({timeout:10000});
+       await page.waitForSelector("#clientSharePage",{timeout:22000});
+       await page.waitForTimeout(300);
+       const customerDetails=await page.evaluate(()=>{
+        const view=document.querySelector("#clientSharePage");
+        const KPIs=[...view.querySelectorAll(".shareKpiRow article")];
+        const logos=[...view.querySelectorAll(".brandLogo")].filter(x=>{const r=x.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(x).display!=="none"});
+        const cards=[...view.querySelectorAll(".sharePositions,.sharePricePanel,.shareServicePanel")];
+        return {clientWidth:view.clientWidth,overflow:Math.max(0,document.documentElement.scrollWidth-innerWidth),
+         cardCount:cards.length,kpiCount:KPIs.length,visibleLogoCount:logos.length,
+         cardStyles:cards.slice(0,3).map(x=>({color:getComputedStyle(x).color,background:getComputedStyle(x).backgroundColor}))};
+       });
+       report.push({role:actor.role,width:viewport.width,view:"customer-detail",...customerDetails});
+       if(customerDetails.overflow>8||customerDetails.visibleLogoCount!==1||customerDetails.kpiCount<3){
+        failures.push("customer detail viewport/brand/KPI failure "+JSON.stringify(customerDetails));
+       }
+       await page.screenshot({path:"artifacts/mobile/"+actor.role+"-390-customer-detail.png",fullPage:false,timeout:18000,animations:"disabled"});
+       await page.locator("#backCustomers").click({timeout:12000});
+       await page.waitForSelector("#main[data-view='customers']",{timeout:15000});
+      }
+     }
      if(view==="shareboard"&&viewport.width<=390){
       const cards=page.locator(".projectOverviewCard");
       const count=await cards.count();
