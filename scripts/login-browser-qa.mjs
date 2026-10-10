@@ -91,7 +91,7 @@ try{
    if(a.utilities?.y<=a.button?.bottom)failures.push(size.name+": optional metadata displayed before/over login CTA");
    if(size.mobile&&a.button?.bottom>size.height+80)failures.push(size.name+": submit button buried below initial phone viewport "+a.button.bottom);
    if(size.mobile&&parseFloat(a.inputStyle?.font||"0")<16)failures.push(size.name+": iPhone input text triggers zoom");
-   if(!a.buttonStyle?.background.includes("18, 136, 122"))failures.push(size.name+": primary login button is not teal "+a.buttonStyle?.background);
+   if(!a.buttonStyle?.background.includes("23, 56, 111"))failures.push(size.name+": approved primary login button is not navy "+a.buttonStyle?.background);
    if(errors.length)failures.push(size.name+": runtime JS errors "+JSON.stringify(errors));
    await page.locator("#loginPassword").fill("do-not-submit-demo-password");
    await page.locator(".loginPasswordToggle").click();
