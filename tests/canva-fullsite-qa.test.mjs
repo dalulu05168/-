@@ -16,7 +16,7 @@ test("Final Canva stylesheet loads after every previous theme and original SVG r
  const links=[...html.matchAll(/<link[^>]+href="(\/[^"]+\.css[^"]*)"/g)].map(x=>x[1]);
  assert.match(links.at(-3),/^\/canva-fullsite-qa\.css\?v=20261010-fullsite-qa-v1/);
  assert.match(links.at(-2),/^\/responsive-mobile-system\.css\?v=20261010-mobile-native-v1/);
- assert.match(links.at(-1),/^\/login-redesign\.css\?v=20261010-login-rebuild-v1/);
+ assert.match(links.at(-1),/^\/login-redesign\.css\?v=20261010-form-first-v2/);
  assert.match(app,/brand-logo-transparent-color\.svg/);
  assert.match(project,/brand-logo-transparent-color\.svg/);
  assert.match(qa,/image-rendering:auto!important/);
