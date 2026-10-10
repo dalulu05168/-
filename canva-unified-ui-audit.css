@@ -1,0 +1,446 @@
+/*
+ * BRANTONE VEYLOR | CANVA LIGHT UI CONSISTENCY PASS
+ * Reference: user's milky white market UI + Canva design DAHXjeRzK8E.
+ *
+ * One source of visual truth, loaded AFTER ALL older theme files.
+ * Colors        background #FAF9F5, cards #FFFEFA, rail #F6F7F3,
+ *               border #E6EAE5, text #24312E, muted #687872,
+ *               teal #128D7F, loss #C95162.
+ * Typography    base 13px / 1.5, body ≥12px, panel heading 15px,
+ *               page title 22px, main data 22–27px.
+ * Spacing       8px small, 12px cards, 16px panels, 20px page.
+ * Geometry      8px fields, 10px cards, 1px border, 16:9 desktop.
+ * This file is presentational only: original logo, real data,
+ * role permissions, routes, actions and database are UNCHANGED.
+ */
+:root{
+ color-scheme:light;
+ --bv-page:#FAF9F5;
+ --bv-paper:#FFFEFA;
+ --bv-rail:#F6F7F3;
+ --bv-line:#E6EAE5;
+ --bv-ink:#24312E;
+ --bv-muted:#687872;
+ --bv-teal:#128D7F;
+ --bv-teal-pale:#EAF5F0;
+ --bv-loss:#C95162;
+ --bv-shadow:0 1px 2px rgba(47,83,76,.035);
+ --bv-font:Inter,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans CJK SC",Arial,sans-serif;
+}
+html body,
+html body #root#root,
+html body #root#root .app,
+html body #root#root .shell,
+html body #root#root #main{
+ font-family:var(--bv-font)!important;
+ font-size:13px!important;
+ line-height:1.5!important;
+ color:var(--bv-ink)!important;
+ text-shadow:none!important;
+}
+html body #root#root .shell{
+ background:var(--bv-page)!important;
+ border:1px solid var(--bv-line)!important;
+ border-radius:12px!important;
+}
+html body #root#root #main,
+html body.desktopFrame #root#root #main#main,
+html body.projectPanoramaMode #root#root #main#main{
+ background:var(--bv-page)!important;
+ background-image:none!important;
+ color:var(--bv-ink)!important;
+ min-width:0!important;
+}
+html body #root#root .navFrame{
+ background:var(--bv-rail)!important;
+ border-color:var(--bv-line)!important;
+}
+html body #root#root .topbar,
+html body #root#root .topbar>.userArea{
+ background:var(--bv-paper)!important;
+ border-color:var(--bv-line)!important;
+}
+html body #root#root .topbar>.brand,
+html body #root#root .topbar .brandLogo{
+ box-shadow:none!important;
+ /* This does not alter the logo asset, proportions or red/blue artwork. */
+ filter:none!important;
+}
+html body.desktopFrame #root#root .topbar>.brand{
+ height:54px!important;
+ align-self:center!important;
+ padding:5px 7px!important;
+ overflow:hidden!important;
+ background:transparent!important;
+ border:0!important;
+}
+html body.desktopFrame #root#root .topbar>.brand .brandLogo{
+ width:100%!important;
+ height:100%!important;
+ max-height:48px!important;
+ object-fit:contain!important;
+ object-position:left center!important;
+}
+html body #root#root .nav button{
+ font-family:var(--bv-font)!important;
+ color:#5E716C!important;
+ background:transparent!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+}
+html body #root#root .nav button.active{
+ background:var(--bv-teal-pale)!important;
+ color:var(--bv-teal)!important;
+ border-left-color:var(--bv-teal)!important;
+}
+html body #root#root .nav button:hover{
+ background:#EFF6F2!important;
+ color:var(--bv-teal)!important;
+}
+/* Icon rail follows the reference image; keep original menu names in
+   aria-label/title, keeping every role-appropriate route accessible. */
+@media(min-width:900px){
+ html body.desktopFrame #root#root .nav button{
+   position:relative!important;
+   height:65px!important;
+   min-height:65px!important;
+   padding:8px 4px!important;
+   font-size:0!important;
+   line-height:0!important;
+   border-left-width:3px!important;
+   overflow:visible!important;
+ }
+ html body.desktopFrame #root#root .nav button::before{
+   display:block!important;
+   width:27px!important;height:27px!important;
+   margin:0 auto!important;
+   font:normal 21px/27px "Segoe UI Symbol",Arial,sans-serif!important;
+ }
+ html body.desktopFrame #root#root .topbar>.globalSearch{
+   height:40px!important;
+   min-width:220px!important;
+   max-width:360px!important;
+ }
+ html body.desktopFrame #root#root .topbar>.userArea{
+   gap:6px!important;
+   overflow:hidden!important;
+ }
+}
+/* Title scale, body size and labels. No more random 10px essential content. */
+html body #root#root #main#main :is(.pageHead h1,.referenceMarketHero h1,h1){
+ font-family:var(--bv-font)!important;
+ font-size:22px!important;line-height:1.32!important;
+ font-weight:650!important;letter-spacing:-.2px!important;
+ color:var(--bv-ink)!important;
+ max-width:100%!important;overflow-wrap:anywhere!important;
+}
+html body #root#root #main#main :is(.panelHead h2,.projectPanelHeading h2,.unifiedModuleHead h2,h2){
+ font-family:var(--bv-font)!important;
+ font-size:15px!important;line-height:1.4!important;
+ font-weight:600!important;letter-spacing:0!important;
+ color:var(--bv-ink)!important;
+ overflow-wrap:anywhere!important;
+}
+html body #root#root #main#main :is(.metricValue,.level1Metric .metricValue,.level2Metric .metricValue,.execStat strong,.tickerStat>span){
+ color:var(--bv-ink)!important;
+ font-family:var(--bv-font)!important;
+ font-size:23px!important;
+ font-weight:650!important;
+ line-height:1.2!important;
+ font-variant-numeric:tabular-nums!important;
+ white-space:normal!important;
+ overflow-wrap:anywhere!important;
+}
+html body #root#root #main#main :is(
+ .metricLabel,.metricFoot,.muted,.panelHead p,.pageHead p,
+ .panelSubtitleRow p,.quoteTimeBadge,.projectOverviewTotals span,
+ .projectSummaryMetrics span,.projectPanelHeading p,.referenceMarketHero p
+){
+ color:var(--bv-muted)!important;
+ font-family:var(--bv-font)!important;
+ font-size:12px!important;
+ font-weight:400!important;
+ line-height:1.45!important;
+ text-shadow:none!important;
+}
+html body #root#root #main#main :is(.panelBody,.listItem,.teamDetailSection,.settingsList,.marketMetrics,.metricTitle),
+html body #clientSharePage#clientSharePage :is(.panelBody,.listItem,.shareMarketItem,.portfolioCurrencyGroup){
+ font-family:var(--bv-font)!important;
+ font-size:13px!important;
+ line-height:1.5!important;
+ color:var(--bv-ink)!important;
+}
+/* Regularize all app and customer-share panel surfaces */
+html body #root#root #main#main :is(
+ .panel,.projectPanel,.projectLauncher,.projectLauncherRow,.projectOverviewCard,
+ .projectOverviewSummary,.projectTrendPanel,.kpi,.execStat,.metric,.metricCard,
+ .level1Metric,.level2Metric,.level1StaffCard,.teamDetailSection,.teamDetailIdentity,
+ .terminalTicker,.tickerStat,.tickerIdentity,.terminalChartCard,
+ .terminalPositionCard,.terminalFormCard,.terminalOrderPanel,.terminalSummaryCard,
+ .terminalEmptyCard,.marketOverviewPanel,.marketListPanel,.marketChartPanel,
+ .marketRow,.referenceFeatureCard,.indexTile,.exchangeChartPanel,
+ .exchangeSessionPanel,.exchangeQuoteHeader,.allocationDistPanel,
+ .allocationSlotsPanel,.allocationKpiCard,.allocationTrendPanel,.allocationChartPanel,
+ .settingsCard,.securityResult,.shareTotals>div,.timePair,.countdownBox,
+ .level1StaffMetrics>div,.level2SummaryList>div,.level1SummaryList>div,
+ .teamDetailKpis>div,.settingsList>div,.allocationIdentity,.allocationMini
+),
+html body #clientSharePage#clientSharePage :is(
+ .panel,.shareKpiRow article,.shareTimeBlock,.shareMarketItem,
+ .shareProfileGrid>div,.shareNote,.shareServiceTimeline>div,.portfolioCurrencyGroup
+){
+ background:var(--bv-paper)!important;
+ background-image:none!important;
+ border:1px solid var(--bv-line)!important;
+ border-radius:10px!important;
+ color:var(--bv-ink)!important;
+ box-shadow:var(--bv-shadow)!important;
+ text-shadow:none!important;
+ min-width:0!important;
+ box-sizing:border-box!important;
+}
+html body #root#root #main#main :is(
+ .panelHead,.projectPanelHeading,.projectLauncherHead,.unifiedModuleHead,
+ .marketListHead,.marketChartHeader,.terminalChartToolbar,
+ .allocationStatusStrip,.allocationSecurityBar,.projectOverviewTotals
+){
+ background:var(--bv-paper)!important;
+ background-image:none!important;
+ border-color:var(--bv-line)!important;
+ box-shadow:none!important;
+ min-height:42px!important;
+ padding-top:9px!important;
+ padding-bottom:9px!important;
+ color:var(--bv-ink)!important;
+}
+html body #root#root #main#main :is(
+ .panelHead h2,.projectPanelHeading h2,.unifiedModuleHead h2,
+ .referenceFeatureValue,.metricTitle,.metricValue,.projectDetailName
+){
+ color:var(--bv-ink)!important;
+ text-shadow:none!important;
+}
+html body #root#root #main#main :is(
+ .projectPanel,.panel,.projectLauncher,.terminalChartCard,.terminalPositionCard,
+ .terminalFormCard,.marketChartPanel,.marketListPanel,.settingsCard
+)>.panelBody{
+ min-width:0!important;min-height:0!important;
+ padding:14px 16px!important;
+}
+html body #root#root #main#main .projectOverview :is(.projectPanel,.panel)>.panelBody{
+ padding:12px!important;
+}
+html body #root#root #main#main .projectOverviewNumbers strong{
+ font-size:clamp(19px,2.25vw,29px)!important;
+ font-weight:650!important;
+ font-variant-numeric:tabular-nums!important;
+}
+html body #root#root #main#main .projectOverviewCard .projectPanelHeading,
+html body #root#root #main#main .projectOverviewCard .projectOverviewTotals{
+ padding-left:14px!important;
+ padding-right:14px!important;
+}
+html body #root#root #main#main .projectOverviewCard .projectOverviewTotals{
+ background:#FBFAF7!important;
+}
+/* Uniform 1px separators, table density, and readable form controls */
+html body #root#root #main#main .dataTable,
+html body #clientSharePage#clientSharePage .dataTable{
+ background:var(--bv-paper)!important;
+ border-collapse:collapse!important;
+ width:100%!important;
+}
+html body #root#root #main#main .dataTable th,
+html body #clientSharePage#clientSharePage .dataTable th{
+ background:var(--bv-rail)!important;
+ color:#63736D!important;
+ border-color:var(--bv-line)!important;
+ font-size:12px!important;
+ font-weight:550!important;
+ line-height:1.35!important;
+ padding:10px 12px!important;
+ white-space:normal!important;
+}
+html body #root#root #main#main .dataTable td,
+html body #clientSharePage#clientSharePage .dataTable td{
+ background:var(--bv-paper)!important;
+ color:#2C3B35!important;
+ border-color:#EDEEE9!important;
+ font-size:12px!important;
+ font-weight:400!important;
+ line-height:1.45!important;
+ padding:10px 12px!important;
+ vertical-align:middle!important;
+}
+html body #root#root #main#main .dataTable tbody tr:hover td{background:#F0F7F2!important}
+html body #root#root #main#main .tableWrap{
+ min-width:0!important;overflow:auto!important;
+ border:1px solid var(--bv-line)!important;
+ border-radius:9px!important;
+}
+html body #root#root :is(input,.input,select,.select,textarea,.textarea,.btn,.chip,.iconBtn,.langSwitch,.marketRangeBar button,.tabs button),
+html body :is(.modalCard,.loginCard,.detailPanel){
+ background:var(--bv-paper)!important;
+ background-image:none!important;
+ color:var(--bv-ink)!important;
+ border:1px solid var(--bv-line)!important;
+ border-radius:8px!important;
+ box-shadow:none!important;
+ font:400 12px/1.45 var(--bv-font)!important;
+}
+html body #root#root :is(input,.input,select,.select,.btn,.chip,.iconBtn,.langSwitch){
+ min-height:34px!important;
+ box-sizing:border-box!important;
+}
+html body #root#root :is(.input,select,textarea,.textarea) {
+ padding:7px 10px!important;
+}
+html body #root#root :is(.btn,.iconBtn,.chip,.langSwitch){
+ padding:7px 11px!important;white-space:normal!important;
+}
+html body #root#root :is(.btn.primary,.tabs button.active,.marketRangeBar button.active){
+ background:var(--bv-teal)!important;
+ border-color:var(--bv-teal)!important;
+ color:#fff!important;
+}
+html body #root#root :is(input,select,textarea,button):focus-visible{
+ outline:2px solid #2A9C87!important;
+ outline-offset:2px!important;
+}
+html body #root#root :is(.globalSearch,.referenceMarketFilters input){
+ background:var(--bv-paper)!important;
+ border:1px solid var(--bv-line)!important;
+ border-radius:8px!important;
+ box-shadow:none!important;
+}
+html body #root#root .globalSearch input{
+ border:0!important;background:transparent!important;min-height:30px!important;
+ outline:0!important;padding:0!important;
+}
+html body #root#root .globalSearch button{border:0!important}
+html body #root#root .userArea :is(.sysok,.romaniaClock,.chip,.iconBtn,.langSwitch,.btn){
+ background:var(--bv-paper)!important;
+ border-color:var(--bv-line)!important;
+ color:#51655D!important;
+}
+/* Stock reference page: card typography, chip spacing, row alignment */
+html body #root#root #main#main .referenceFeatureCards{
+ gap:12px!important;
+ align-content:stretch!important;
+}
+html body #root#root #main#main .referenceFeatureCard{
+ border:1px solid var(--bv-line)!important;
+ border-radius:10px!important;
+ padding:12px 15px!important;
+ text-align:left!important;
+}
+html body #root#root #main#main .referenceFeatureTop strong{font-size:13px!important;font-weight:600!important}
+html body #root#root #main#main .referenceFeatureTop small{
+ font-size:12px!important;color:var(--bv-muted)!important;
+}
+html body #root#root #main#main .referenceFeatureValue{
+ font-size:23px!important;font-weight:650!important;line-height:1.25!important;
+ font-variant-numeric:tabular-nums!important;
+}
+html body #root#root #main#main .referenceFeatureChange{
+ font-size:12px!important;line-height:1.4!important;
+}
+html body #root#root #main#main .referenceMarketTabs{
+ gap:14px!important;
+ border-color:var(--bv-line)!important;
+}
+html body #root#root #main#main .referenceMarketTabs button{
+ font-family:var(--bv-font)!important;
+ font-size:12px!important;
+}
+html body #root#root #main#main .referenceMarketFilters{
+ gap:8px!important;align-items:center!important;flex-wrap:nowrap!important;
+}
+html body #root#root #main#main .referenceMarketFilters button{
+ font-family:var(--bv-font)!important;
+ font-size:12px!important;
+ padding:7px 9px!important;
+ background:var(--bv-paper)!important;
+ border:1px solid var(--bv-line)!important;
+ border-radius:7px!important;
+}
+html body #root#root #main#main .referenceMarketFilters button.active{
+ background:var(--bv-teal-pale)!important;
+ color:var(--bv-teal)!important;
+ border-color:#8EC6B8!important;
+}
+html body #root#root #main#main .canvaReferenceMarket .marketListHead{
+ background:var(--bv-rail)!important;
+ border-color:var(--bv-line)!important;
+ padding:0 12px!important;
+ font-size:11px!important;
+}
+html body #root#root #main#main .canvaReferenceMarket .marketRow{
+ background:var(--bv-paper)!important;
+ border-bottom:1px solid #ECEFE9!important;
+ font-family:var(--bv-font)!important;
+ font-size:12px!important;
+ color:var(--bv-ink)!important;
+}
+html body #root#root #main#main .canvaReferenceMarket .marketRow:hover{background:#F1F8F3!important}
+html body #root#root #main#main .canvaReferenceMarket .marketRow .marketCompany small{
+ font-size:11px!important;
+}
+html body #root#root #main#main :is(.up,.referenceFeatureChange.up){color:#118F68!important}
+html body #root#root #main#main :is(.down,.referenceFeatureChange.down){color:var(--bv-loss)!important}
+/* Modal header, list rows, profile cards */
+html body #root#root .modalCard,html body .loginCard{
+ background:var(--bv-paper)!important;
+ border:1px solid var(--bv-line)!important;
+ border-radius:12px!important;
+ box-shadow:0 20px 55px rgba(34,64,54,.15)!important;
+}
+html body #root#root :is(.modalHead,.detailTop,.loginFoot,.loginSide){
+ background:var(--bv-page)!important;
+ border-color:var(--bv-line)!important;
+}
+html body #root#root .modalHead h2,html body #root#root .loginCard h2{
+ color:var(--bv-ink)!important;font-size:18px!important;
+ line-height:1.4!important;
+}
+html body #root#root #main#main :is(.listItem,.teamDetailSection,.settingsList>div){
+ border-color:var(--bv-line)!important;
+ min-width:0!important;
+}
+/* Avoid text bleeding into borders, and preserve scrollable content in fixed 16:9. */
+html body #root#root #main#main :is(.panel,.projectPanel,.projectLauncher,.terminalChartCard,.terminalOrderPanel){
+ overflow:hidden!important;
+}
+html body #root#root #main#main :is(.panelHead,.projectPanelHeading){
+ min-width:0!important;gap:9px!important;
+}
+html body #root#root #main#main :is(.panelHead,.projectPanelHeading)>*{
+ min-width:0!important;
+}
+html body #root#root #main#main .panelHead .btn{
+ flex-shrink:0!important;
+}
+html body #root#root #main#main .projectOverviewLower{
+ min-height:0!important;gap:12px!important;
+}
+/* Responsive: never suppress visible labels on mobile, allow horizontal scroll. */
+@media(max-width:899px){
+ html body #root#root #main#main :is(h1,.referenceMarketHero h1){font-size:20px!important}
+ html body #root#root .nav button{
+   font-size:12px!important;
+   line-height:1.3!important;
+ }
+ html body #root#root .navFrame{
+   overflow-x:auto!important;overflow-y:hidden!important;
+ }
+ html body #root#root .topbar>.globalSearch{min-width:0!important;width:100%!important}
+ html body #root#root #main#main .referenceFeatureCards{gap:8px!important}
+ html body #root#root #main#main .referenceFeatureCard{padding:10px!important}
+ html body #root#root #main#main .referenceFeatureValue{font-size:18px!important}
+ html body #root#root #main#main .referenceMarketFilters{overflow-x:auto!important}
+ html body #root#root #main#main .tableWrap{overflow-x:auto!important}
+ html body #root#root #main#main .panel>.panelBody{padding:12px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ html body #root#root :is(.nav button,.btn,.panel,.projectPanel){transition:none!important;animation:none!important}
+}
