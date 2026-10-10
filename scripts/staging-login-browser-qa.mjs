@@ -89,11 +89,52 @@ try{
       assert.equal(await page.evaluate(()=>!!document.fullscreenElement),false,"Navbar opened browser fullscreen");
       await page.locator("#projectPresentationExit").click();
       await page.waitForSelector('#main[data-view="dashboard"]',{timeout:20000});
+      // Stock-market audit: lower quotes, axes canvas and all list columns must be reachable.
+      await page.locator('.nav button[data-view="market"]').click();
+      await page.waitForSelector('#main[data-view="market"] .marketChartPanel',{timeout:25000});
+      const marketLayout=await page.evaluate(()=>{
+        const main=document.querySelector('#main[data-view="market"]');
+        const grid=main?.querySelector('.canvaReferenceMarket');
+        const list=main?.querySelector('.marketListPanel');
+        const summary=main?.querySelector('.marketOverviewPanel');
+        const metrics=main?.querySelector('.marketMetrics');
+        const chart=main?.querySelector('.marketChartPanel');
+        const canvas=main?.querySelector('#marketChart');
+        const bounds=node=>node?.getBoundingClientRect();
+        const style=node=>node?getComputedStyle(node):null;
+        return {
+          mainOverflow:style(main)?.overflowY,
+          gridHeight:Math.round(bounds(grid)?.height||0),
+          listHeight:Math.round(bounds(list)?.height||0),
+          summaryHeight:Math.round(bounds(summary)?.height||0),
+          chartHeight:Math.round(bounds(chart)?.height||0),
+          canvasHeight:Math.round(bounds(canvas)?.height||0),
+          metricPanelVisible:style(metrics)?.display!=="none",
+          marketRows:main?.querySelectorAll("#marketRows .marketRow").length||0,
+          minChartHeight:sizeHint(),
+          chartHidden:style(chart)?.display==="none",
+          bodyOverflow:document.documentElement.scrollWidth-innerWidth
+        };
+        function sizeHint(){return window.innerWidth<900?245:300}
+      });
+      assert.equal(marketLayout.chartHidden,false,"Market bottom chart is hidden");
+      assert.ok(marketLayout.summaryHeight>=245,"Stock quote detail is cut off "+JSON.stringify(marketLayout));
+      assert.ok(marketLayout.chartHeight>=marketLayout.minChartHeight,"Stock chart bottom is cut off "+JSON.stringify(marketLayout));
+      assert.ok(marketLayout.metricPanelVisible,"Six stock stats are hidden");
+      assert.ok(marketLayout.bodyOverflow<=3,"Market overflows the entire viewport");
+      if(size.width>=900){
+        assert.equal(marketLayout.mainOverflow,"auto","Desktop must scroll to reveal all bottom market panels");
+        assert.ok(marketLayout.listHeight>=320,"Stock list is compressed");
+      }
+      await page.locator('.marketChartPanel').scrollIntoViewIfNeeded({timeout:10000});
+      assert.ok(await page.locator('.marketChartPanel').isVisible(),"Bottom chart cannot be reached");
+      await page.locator('.nav button[data-view="dashboard"]').click();
+      await page.waitForSelector('#main[data-view="dashboard"]',{timeout:20000});
       const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
       assert.ok(overflow<=3,"Horizontal overflow: "+overflow);
       assert.deepEqual(external,[],"No live Supabase requests allowed");
       assert.deepEqual(errors,[],"Runtime errors: "+errors.join(" ; "));
-      screens.push({size:size.name,roleOptions:roles,openedDemo:true,reservationLauncherNoFullscreen:true,reservationNavNoFullscreen:true,detailsVisible:true,reservationTableVisible:true,supervisorOwnerChooser:true,returnedToDashboard:true,noCredentialFields:true,externalSupabaseCalls:0,overflow});
+      screens.push({size:size.name,roleOptions:roles,openedDemo:true,reservationLauncherNoFullscreen:true,reservationNavNoFullscreen:true,detailsVisible:true,reservationTableVisible:true,supervisorOwnerChooser:true,marketLayoutAudited:true,returnedToDashboard:true,noCredentialFields:true,externalSupabaseCalls:0,overflow});
     }catch(e){issues.push(size.name+": "+String(e)+" ; JS errors: "+errors.join(" | "));}
     await context.close();
   }
