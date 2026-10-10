@@ -9,6 +9,8 @@ on:
       - "allocation-projects.js"
       - "tests/reservation-no-fullscreen.test.mjs"
       - "tests/reservation-detail-completeness.test.mjs"
+      - "ui-finance-density-20261011.css"
+      - "tests/finance-density-contract.test.mjs"
       - "demo-client.js"
       - "server.js"
       - "tests/private-staging.test.mjs"
@@ -30,7 +32,7 @@ jobs:
           node --check app.js
           node --check server.js
           node --check scripts/staging-login-browser-qa.mjs
-          node --test tests/private-staging.test.mjs tests/reservation-no-fullscreen.test.mjs tests/reservation-detail-completeness.test.mjs
+          node --test tests/private-staging.test.mjs tests/reservation-no-fullscreen.test.mjs tests/reservation-detail-completeness.test.mjs tests/finance-density-contract.test.mjs
       - name: Install Playwright
         run: |
           npm install --no-audit --no-fund
