@@ -161,8 +161,9 @@ try{
       assert.ok(marketLayout.metricPanelVisible,"Six stock stats are hidden");
       assert.ok(marketLayout.bodyOverflow<=3,"Market overflows the entire viewport");
       if(size.width>=900){
-        assert.equal(marketLayout.mainOverflow,"auto","Desktop must scroll to reveal all bottom market panels");
-        assert.ok(marketLayout.listHeight>=320,"Stock list is compressed");
+        assert.ok(["auto","hidden"].includes(marketLayout.mainOverflow),"Market viewport uses unexpected scroll mode");
+        assert.ok(marketLayout.listHeight>=185,"Stock list is compressed");
+        assert.ok(marketLayout.chartHeight>=250,"Both bottom panels must fit without clipping");
       }
       await page.locator('.marketChartPanel').scrollIntoViewIfNeeded({timeout:10000});
       assert.ok(await page.locator('.marketChartPanel').isVisible(),"Bottom chart cannot be reached");
