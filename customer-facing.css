@@ -1,0 +1,106 @@
+/* Customer Facing Mode: isolated print/screenshot document; legacy admin views remain unchanged. */
+body.cfActive{overflow:hidden!important}
+#customerFacingRoot.cfRoot{position:fixed;inset:0;z-index:2147483000;display:grid;grid-template-columns:minmax(285px,345px) minmax(0,1fr);background:#e9efec;color:#243e35;font:14px/1.5 "Microsoft YaHei",Arial,sans-serif;box-sizing:border-box}
+#customerFacingRoot *{box-sizing:border-box}
+#customerFacingRoot .cfEditor{background:#fff;border-right:1px solid #dce5df;box-shadow:4px 0 20px rgba(20,56,40,.065);min-width:0;padding:19px 15px;overflow-y:auto;max-height:100vh;display:flex;flex-direction:column;gap:15px}
+#customerFacingRoot .cfEditorTitle{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+#customerFacingRoot .cfEditorTitle h2{font-size:18px;line-height:1.4;margin:0 0 5px;color:#223c32}
+#customerFacingRoot .cfEditorTitle p{font-size:11px;color:#708276;margin:0}
+#customerFacingRoot .cfClose{appearance:none;border:1px solid #dbe4de;background:#f7f9f7;border-radius:9px;font-size:26px;line-height:32px;width:35px;height:35px;cursor:pointer;color:#344c40;flex-shrink:0}
+#customerFacingRoot .cfField{display:flex;flex-direction:column;gap:7px}
+#customerFacingRoot .cfField label{font-size:12px;font-weight:650;color:#344e3f}
+#customerFacingRoot .cfField select,#customerFacingRoot .cfField textarea{font:13px/1.5 "Microsoft YaHei",Arial,sans-serif;border:1px solid #cfdbd3;border-radius:9px;background:#fcfdfc;color:#293e35;padding:10px;min-width:0;width:100%}
+#customerFacingRoot .cfField textarea{min-height:74px;resize:vertical}
+#customerFacingRoot .cfFormHelp{font-size:12px;line-height:1.7;background:#f5f8f6;border:1px dashed #c6d8cd;border-radius:10px;margin:0;padding:12px;color:#536e5b}
+#customerFacingRoot .cfRawEntries{display:flex;flex-direction:column;gap:10px}
+#customerFacingRoot .cfRawEntry{border:1px dashed #bfcfc4;border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px}
+#customerFacingRoot .cfRawEntry label{font-size:12px}
+#customerFacingRoot .cfRawEntry input{accent-color:#467d5d}
+#customerFacingRoot .cfRawEntry small{font-size:11px;color:#9a6a51}
+#customerFacingRoot .cfRawEntry p{font-size:12px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;margin:0;color:#59665d;max-height:100px;overflow:auto;background:#f9fafa;padding:7px}
+#customerFacingRoot .cfPreviewControls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#customerFacingRoot .cfPreviewControls button{padding:10px 6px;border:1px solid #b8cdc0;background:#f8fbf8;border-radius:9px;color:#365d4a;cursor:pointer;font-size:12px;font-weight:650}
+#customerFacingRoot .cfPreviewControls button:is(:hover,[aria-pressed="true"]){background:#e9f2eb;border-color:#528b69}
+#customerFacingRoot .cfPreviewControls #cfDownloadPng{background:#285b48;color:#fff}
+#customerFacingRoot .cfPreviewControls button:disabled{opacity:.45;cursor:not-allowed}
+#customerFacingRoot .cfWarning{font-size:11px;line-height:1.7;color:#6a7d70;margin:0}
+#customerFacingRoot .cfStage{overflow:auto;padding:25px;min-width:0;display:flex;align-items:start;justify-content:center}
+#customerFacingRoot .cfPreview{width:100%;max-width:1360px;min-width:0}
+#customerFacingRoot[data-format="mobile"] .cfPreview{max-width:465px}
+#customerFacingRoot .cfSheet{position:relative;isolation:isolate;background:#fff;color:#2a4537;padding:clamp(18px,2.4vw,45px);border-radius:15px;box-shadow:0 14px 54px rgba(29,66,45,.12);min-width:0;display:flex;flex-direction:column;gap:19px;overflow:hidden}
+#customerFacingRoot[data-format="wide"] .cfSheet{aspect-ratio:16/9;min-height:600px}
+#customerFacingRoot .cfSheet>*:not(.cfWatermark){z-index:1}
+#customerFacingRoot .cfBrandHeader{display:flex;justify-content:space-between;align-items:center;gap:18px;padding-bottom:18px;border-bottom:1px solid #dce4de}
+#customerFacingRoot .cfBrandHeader img{width:clamp(145px,19%,280px);height:72px;object-fit:contain;object-position:left center}
+#customerFacingRoot .cfBrandHeader>div{text-align:right;min-width:0}
+#customerFacingRoot .cfBrandHeader p{margin:0 0 5px;font-size:10px;letter-spacing:.16em;color:#789081}
+#customerFacingRoot .cfBrandHeader h1{margin:0;color:#263d32;font-size:clamp(16px,2.1vw,28px)}
+#customerFacingRoot .cfBrandHeader small{font-size:10px;color:#789082}
+#customerFacingRoot .cfClientHeader{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:12px;background:#f7faf8;border:1px solid #e4eae5;border-radius:9px;padding:12px}
+#customerFacingRoot .cfClientHeader>div{display:flex;flex-direction:column;min-width:0;gap:4px}
+#customerFacingRoot .cfClientHeader small{color:#71847a;font-size:11px}
+#customerFacingRoot .cfClientHeader strong{color:#324d3f;font-size:13px;overflow-wrap:anywhere}
+#customerFacingRoot .cfMetrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+#customerFacingRoot .cfMetric{background:#fbfcfb;border:1px solid #e4eae6;box-shadow:0 3px 13px rgba(33,75,50,.035);border-radius:10px;min-height:105px;padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+#customerFacingRoot .cfMetric small{color:#6c8173;font-size:11px}
+#customerFacingRoot .cfMetric strong{font-size:clamp(14px,1.6vw,23px);color:#285844;font-weight:700;overflow-wrap:anywhere;line-height:1.2}
+#customerFacingRoot .cfMetric span{margin-top:auto;color:#8b9b90;font-size:10px;line-height:1.5}
+#customerFacingRoot .cfBlock{border:1px solid #e6ece7;border-radius:11px;padding:15px 18px;background:#fff;min-width:0}
+#customerFacingRoot .cfBlock h2,#customerFacingRoot .cfNote h2{font-size:14px;font-weight:700;color:#315244;margin:0 0 12px}
+#customerFacingRoot .cfSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+#customerFacingRoot .cfSteps>div{position:relative;min-width:0;display:flex;flex-direction:column;gap:4px;align-items:center;text-align:center;color:#7b8c80}
+#customerFacingRoot .cfSteps>div b{border:1px solid #d8e1da;background:#f6f8f7;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:12px}
+#customerFacingRoot .cfSteps>div.done b{background:#dceee2;border-color:#a4c8ad;color:#31674d}
+#customerFacingRoot .cfSteps strong{color:#345446;font-size:12px}
+#customerFacingRoot .cfSteps small{font-size:10px}
+#customerFacingRoot .cfInfoGrid,#customerFacingRoot .cfConclusions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#customerFacingRoot .cfInfoItem{display:flex;flex-direction:column;gap:4px;min-width:0;background:#f8faf8;border-radius:7px;padding:9px}
+#customerFacingRoot .cfInfoItem span{font-size:10px;color:#76897b}
+#customerFacingRoot .cfInfoItem strong{font-size:12px;line-height:1.45;color:#2c4b3e;overflow-wrap:anywhere}
+#customerFacingRoot .cfNote{border:1px solid #dae8dd;background:#f9fcfa;border-radius:9px;padding:12px 16px}
+#customerFacingRoot .cfNote p{color:#577061;margin:0;font-size:11px;line-height:1.8}
+#customerFacingRoot .cfTimeline{min-height:0;flex:1;overflow:auto}
+#customerFacingRoot .cfTimelineItem{padding:7px 0 8px 15px;border-left:2px solid #8fbba0;position:relative;margin-left:5px}
+#customerFacingRoot .cfTimelineItem:before{content:"";position:absolute;left:-6px;top:12px;width:10px;height:10px;background:#659874;border-radius:50%}
+#customerFacingRoot .cfTimelineItem>div{display:flex;align-items:center;gap:9px;font-size:12px}
+#customerFacingRoot .cfTimelineItem b{color:#325344}
+#customerFacingRoot .cfTimelineItem span{color:#6e8477}
+#customerFacingRoot .cfTimelineItem p{margin:6px 0 0;font-size:11px;color:#566c5b;line-height:1.55;overflow-wrap:anywhere;white-space:pre-wrap}
+#customerFacingRoot .cfNoEntry{color:#788d80;font-size:12px}
+#customerFacingRoot .cfFooter{margin-top:auto;border-top:1px solid #e2e9e4;padding-top:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:10px;color:#809184}
+#customerFacingRoot .cfDemoStamp{align-self:start;color:#a74b40;font-size:10px;font-weight:700;border:1px solid #eccfc8;background:#fdf7f6;padding:6px 12px;border-radius:7px}
+#customerFacingRoot .cfWatermark{position:absolute!important;z-index:0!important;right:23px;bottom:95px;font-size:clamp(20px,3vw,55px);letter-spacing:.18em;font-weight:700;opacity:.035;transform:rotate(-12deg);pointer-events:none;white-space:nowrap}
+#customerFacingRoot[data-format="mobile"] .cfSheet{min-height:850px;aspect-ratio:auto;padding:25px 17px;gap:13px;border-radius:12px}
+#customerFacingRoot[data-format="mobile"] .cfBrandHeader{align-items:start}
+#customerFacingRoot[data-format="mobile"] .cfBrandHeader img{width:120px;height:56px}
+#customerFacingRoot[data-format="mobile"] .cfBrandHeader h1{font-size:17px}
+#customerFacingRoot[data-format="mobile"] .cfBrandHeader p{font-size:8px}
+#customerFacingRoot[data-format="mobile"] .cfClientHeader{grid-template-columns:1fr 1fr}
+#customerFacingRoot[data-format="mobile"] .cfClientHeader strong{font-size:11px}
+#customerFacingRoot[data-format="mobile"] .cfMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+#customerFacingRoot[data-format="mobile"] .cfMetric{min-height:98px;padding:9px}
+#customerFacingRoot[data-format="mobile"] .cfMetric strong{font-size:16px}
+#customerFacingRoot[data-format="mobile"] .cfBlock{padding:11px}
+#customerFacingRoot[data-format="mobile"] .cfInfoGrid{grid-template-columns:1fr 1fr}
+@media(max-width:850px){
+ #customerFacingRoot.cfRoot{grid-template-columns:1fr;grid-template-rows:minmax(145px,auto) minmax(0,1fr)}
+ #customerFacingRoot .cfEditor{max-height:39vh;border-right:0;border-bottom:1px solid #dce5df}
+ #customerFacingRoot .cfStage{padding:12px}
+ #customerFacingRoot[data-format="wide"] .cfSheet{min-height:560px;aspect-ratio:auto}
+ #customerFacingRoot[data-format="wide"] .cfMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media print{
+ @page{size:A4 landscape;margin:8mm}
+ body.cfActive{margin:0!important;background:#fff!important;overflow:visible!important}
+ body.cfActive>*:not(#customerFacingRoot){display:none!important}
+ #customerFacingRoot.cfRoot{position:static!important;display:block!important;background:#fff!important;width:100%!important;min-height:0!important}
+ #customerFacingRoot .cfEditor{display:none!important}
+ #customerFacingRoot .cfStage{overflow:visible!important;display:block!important;padding:0!important}
+ #customerFacingRoot .cfPreview{max-width:none!important;width:100%!important}
+ #customerFacingRoot .cfSheet{display:block!important;box-shadow:none!important;aspect-ratio:auto!important;min-height:0!important;border-radius:0!important;padding:6mm 8mm!important}
+ #customerFacingRoot .cfSheet>section{margin:4mm 0!important;break-inside:avoid}
+ #customerFacingRoot .cfMetrics{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ #customerFacingRoot .cfTimeline{overflow:visible!important}
+ #customerFacingRoot .cfDemoStamp{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ #customerFacingRoot .cfWatermark{position:fixed!important}
+}
