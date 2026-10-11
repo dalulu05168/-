@@ -1216,6 +1216,7 @@ html body #root#root .loginPage .loginDemoNotice {
     min-height:100dvh!important;
     overflow:visible!important;
     padding:clamp(10px,2.4vw,20px)!important;
+    justify-content:safe center!important;
   }
   html body #root#root .loginPage .loginHero,
   html body #root#root .loginPage .loginSide {
