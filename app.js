@@ -308,7 +308,7 @@ function renderShell(){
     </div></div>
     <div id="modalRoot"></div>
   `;
-  $(".nav button").forEach(b=>b.onclick=()=>{switchView(b.dataset.view)});
+  $$(".nav button").forEach(b=>b.onclick=()=>{switchView(b.dataset.view)});
   const navToggle=$("#navToggle"),shell=$(".shell");
   const setNavCollapsed=collapsed=>{shell.classList.toggle("navCollapsed",collapsed);navToggle.setAttribute("aria-expanded",String(!collapsed));navToggle.setAttribute("aria-label",collapsed?"展开导航":"收起导航");};
   setNavCollapsed(localStorage.getItem("bv-nav-collapsed")==="1");
@@ -427,7 +427,7 @@ async function refreshAll(){
 }
 
 function featureCtx(){
-  return {state,supabase,$,$,esc,num,money,dt,romaniaClockText,romaniaDateKey,romaniaInputNow,romaniaLocalToISO,ROMANIA_TZ,fetchQuotes,chartOpts,toast,modal,closeModal,switchView,refreshAll,fetchPagedRows,openCustomer,openCustomerForm,openStaffForm,openStaffEdit,resetStaffPassword,setStaffStatus,deleteStaffAccount,roleName,customerStatus,monthlyTradeTotals,isDemo:demoMode};
+  return {state,supabase,$,$$,esc,num,money,dt,romaniaClockText,romaniaDateKey,romaniaInputNow,romaniaLocalToISO,ROMANIA_TZ,fetchQuotes,chartOpts,toast,modal,closeModal,switchView,refreshAll,fetchPagedRows,openCustomer,openCustomerForm,openStaffForm,openStaffEdit,resetStaffPassword,setStaffStatus,deleteStaffAccount,roleName,customerStatus,monthlyTradeTotals,isDemo:demoMode};
 }
 function clearMarketRefreshTimers(){
   for(const k of ["marketRefreshTimer","positionRefreshTimer","customerMarketTimer","shareBoardRefreshTimer"]){if(state[k]){clearInterval(state[k]);state[k]=null}}
@@ -549,7 +549,7 @@ function renderLevel1Dashboard(){
       </div>
     </section>`;
 
-  $(".level1StaffCard").forEach(card=>card.onclick=()=>openLevel2Overview(card.dataset.staffId));
+  $$(".level1StaffCard").forEach(card=>card.onclick=()=>openLevel2Overview(card.dataset.staffId));
   const orderEl=$("#level1OrderChart");
   if(orderEl){
     const buys=trades.filter(t=>t.side==="buy").length,sells=trades.filter(t=>t.side==="sell").length;
@@ -809,7 +809,7 @@ async function renderDashboard(){
       </div>
     </section>`;
 
-  $(".tradeflareRail [data-view], .terminalTab[data-view], .terminalSecondary[data-view], .terminalSegment [data-view]").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+  $$(".tradeflareRail [data-view], .terminalTab[data-view], .terminalSecondary[data-view], .terminalSegment [data-view]").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
   const trendBtn=$('.terminalTab[data-action="trend"]');
   if(trendBtn)trendBtn.onclick=()=>{drawDashboardCharts(7);toast("已切换业务趋势")};
   $$(".terminalIntervals [data-days]").forEach(b=>b.onclick=()=>{
