@@ -137,15 +137,17 @@ try{
         const rect=sel=>{const r=document.querySelector(sel)?.getBoundingClientRect();return r?{top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null};
         return {main:rect("#main"),hero:rect(".referenceMarketHero"),features:rect(".referenceFeatureCards"),
           list:rect(".marketListPanel"),quote:rect(".marketOverviewPanel"),
-          chart:rect(".marketChartPanel"),chartCanvas:rect(".marketCanvas"),rows:document.querySelectorAll("#marketRows .marketRow").length};
+          chart:rect(".marketChartPanel"),chartCanvas:rect(".marketCanvas"),rows:document.querySelectorAll("#marketRows .marketRow").length,metrics:[...document.querySelectorAll(".marketOverviewPanel .marketMetric")].map(x=>{const r=x.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:r.height}})};
       });
       assert.ok(marketGeometry.rows>=1,"Stock market list must contain real or isolated fixture rows");
       assert.ok(marketGeometry.quote?.height>210,"Quote details cannot be clipped");
       assert.ok(marketGeometry.chart?.height>210,"Market chart cannot be clipped");
+      assert.equal(marketGeometry.metrics.length,6,"All six stock metrics must be rendered");
       if(size.width>=900){
         assert.ok(Math.abs(marketGeometry.quote.top-marketGeometry.chart.top)<7,"Market bottom row not aligned");
         assert.ok(Math.abs(marketGeometry.quote.bottom-marketGeometry.chart.bottom)<7,"Market quote and chart heights differ");
         assert.ok(marketGeometry.chart.bottom<=marketGeometry.main.bottom+12,"Market chart extends below viewport");
+        assert.ok(marketGeometry.metrics.every(m=>m.height>=25&&m.top>=marketGeometry.quote.top&&m.bottom<=marketGeometry.quote.bottom-2),"Stock metrics are clipped outside the quote panel");
       }
       records.push({view:"market-geometry",size:size.name,data:marketGeometry});
       await page.locator('.nav button[data-view="shareboard"]').click();
