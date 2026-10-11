@@ -242,3 +242,33 @@ html body.projectCaptureMode #root#root #main#main#main#main#main .projectOvervi
     max-width:calc(100% - 8px)!important;
   }
 }
+
+/* Ensure the unchanged, decorative logo never intercepts the relocated
+   account/capture/back controls even when old topbar sizing rules overlap. */
+html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar>.brand{
+  position:relative!important;
+  flex:0 0 230px!important;
+  width:230px!important;
+  max-width:230px!important;
+  min-width:0!important;
+  pointer-events:none!important;
+  z-index:0!important;
+}
+html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar>.userArea{
+  position:relative!important;
+  z-index:6!important;
+}
+html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar>.userArea :is(
+  .projectDetailOwner,.projectCaptureControl,.projectExit
+){
+  position:relative!important;
+  z-index:7!important;
+  pointer-events:auto!important;
+}
+@media(max-width:899px){
+  html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar>.brand{
+    flex:0 0 auto!important;
+    width:min(270px,100%)!important;
+    max-width:min(270px,100%)!important;
+  }
+}
