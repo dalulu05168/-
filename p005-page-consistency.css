@@ -48,7 +48,7 @@
  html body.desktopFrame #root#root #main#main#main#main#main[data-view="reports"]{
    display:grid!important;
    grid-template-columns:minmax(0,1fr)!important;
-   grid-template-rows:minmax(0,1.04fr) minmax(0,.96fr)!important;
+   grid-template-rows:minmax(0,1fr)!important;
    align-content:stretch!important;
    gap:var(--p005-gutter)!important;
  }
