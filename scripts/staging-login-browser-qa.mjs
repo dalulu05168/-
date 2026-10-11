@@ -74,6 +74,16 @@ try{
       assert.ok(await page.locator("#projectCaptureButton").isVisible(),"Capture action must be in the global topbar");
       assert.ok(await page.locator("#projectPresentationExit").isVisible(),"Back action must remain visible in global topbar");
       assert.ok(await page.locator("#projectDetailOwnerSelect").isVisible(),"Account selector must remain visible in global topbar");
+      const probe=await page.evaluate(()=>{
+        const get=s=>document.querySelector(s);
+        const targets=[".topbar",".topbar>.brand",".topbar>.userArea","#projectCaptureButton","#projectPresentationExit","#projectDetailOwnerSelect"];
+        return targets.map(sel=>{
+          const el=get(sel),rc=el?.getBoundingClientRect(),cs=el?getComputedStyle(el):null;
+          const cx=rc?.x+rc?.width/2,cy=rc?.y+rc?.height/2;
+          const at=Number.isFinite(cx)&&Number.isFinite(cy)?document.elementFromPoint(cx,cy):null;
+          return {selector:sel,rect:rc?{x:rc.x,y:rc.y,w:rc.width,h:rc.height}:null,display:cs?.display,position:cs?.position,events:cs?.pointerEvents,z:cs?.zIndex,hit:at?.tagName+"."+at?.className,hitID:at?.id};
+        });
+      });console.log("P005_CAPTURE_GEOMETRY "+JSON.stringify({size:size.name,probe}));
       await page.locator("#projectCaptureButton").click();
       assert.ok(await page.evaluate(()=>document.body.classList.contains("projectCaptureMode")),"Capture mode must still work");
       await page.keyboard.press("Escape");
