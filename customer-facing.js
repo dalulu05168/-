@@ -132,7 +132,7 @@ async function drawSnapshot(data,format){
  const line=(label,value)=>{c.font=(mobile?24:28)+'px Arial';c.fillStyle='#698075';c.fillText(label,margin+60,y+24);c.fillStyle='#274639';c.font='bold '+(mobile?27:31)+'px Arial';const h=wrapped(c,value,margin+60+Math.min(250,inner*.25),y+24,inner-Math.min(320,inner*.3)-100,mobile?40:45,3);y=Math.max(y+57,h+19);};
  if(data.kind==='reservation'){bar('预留进度');line('确认状态','已登记 · 系统预留记录已确认');line('项目代码',data.symbol);line('项目日期',data.projectDate);line('最近确认时间',data.updated);line('确认记录数',data.recordCount);
   bar('说明');c.fillStyle='#536c60';c.font=(mobile?22:27)+'px Arial';y=wrapped(c,'系统确认仅代表记录状态，不等于资金到账、合同额度锁定或投资收益保证。',margin+55,y+15,inner-110,mobile?36:41,5);
- }else{bar('服务跟进时间轴');const limit=mobile?4:4;
+ }else{bar('服务跟进时间轴');const limit=mobile?3:2;
  for(const entry of data.entries.slice(0,limit)){line(entry.date,entry.channel);c.font=(mobile?23:27)+'px Arial';c.fillStyle='#305647';y=wrapped(c,entry.summary,margin+67,y+8,inner-150,mobile?36:42,3)+10;}
  if(data.entries.length>limit){c.fillStyle='#73877d';c.font='22px Arial';c.fillText('其余经审核条目请查看 PDF 报告',margin+55,y+18);y+=50;}
  bar('阶段性结论与下一步安排');line('当前结论',data.conclusion||'暂无已审核结论');line('下一步安排',data.nextAction||'暂无已审核安排');
@@ -142,3 +142,5 @@ async function drawSnapshot(data,format){
  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!blob)throw new Error('PNG 图像生成失败');
  const link=document.createElement('a'),url=URL.createObjectURL(blob);link.href=url;link.download=(data.kind==='reservation'?'客户预留确认':'客户服务进度')+'-'+new Date().toISOString().slice(0,10)+(mobile?'-mobile':'-wide')+'.png';link.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
 }
+
+export const __facingTest={visibleRows,frame};
