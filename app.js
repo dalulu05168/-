@@ -229,6 +229,7 @@ function renderLogin(initialized){
   $("#loginLang").onchange=e=>{state.lang=setLang(e.target.value);renderLogin(initialized)};
   translateUI($("#root"),state.lang);
   startRomaniaClock();
+  document.body.dataset.crmInteractiveReady="1";
 }
 
 async function bootstrap(e){
@@ -342,6 +343,7 @@ function renderShell(){
   $("#logoutBtn").onclick=async()=>{exitProjectPresentation(featureCtx());clearMarketRefreshTimers();await supabase.auth.signOut();state.profile=null;state.session=null;state.allocationProjects=[];state.allocationRecords=[];state.allocationOwnerId=null;state.activeCustomer=null;state.activeView="dashboard";renderLogin(true)};
   translateUI($("#root"),state.lang);
   startRomaniaClock();
+  document.body.dataset.crmInteractiveReady="1";
 }
 
 let viewSwitchToken=0;
