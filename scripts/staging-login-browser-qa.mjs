@@ -84,10 +84,17 @@ try{
           return {selector:sel,rect:rc?{x:rc.x,y:rc.y,w:rc.width,h:rc.height}:null,display:cs?.display,position:cs?.position,events:cs?.pointerEvents,z:cs?.zIndex,hit:at?.tagName+"."+at?.className,hitID:at?.id};
         });
       });console.log("P005_CAPTURE_GEOMETRY "+JSON.stringify({size:size.name,probe}));
+      // The toolbar now launches the privacy-scoped client reservation
+      // confirmation preview instead of the old CSS screenshot-only mode.
       await page.locator("#projectCaptureButton").click();
-      assert.ok(await page.evaluate(()=>document.body.classList.contains("projectCaptureMode")),"Capture mode must still work");
+      await page.waitForSelector("#customerFacingRoot .cfPreview .cfSheet",{timeout:15000});
+      assert.match(await page.locator("#customerFacingRoot").innerText(),/预留信息确认页|预留信息 · 客户对外展示/,"Client reservation confirmation preview must open");
+      assert.ok(await page.locator("#cfDownloadPng").isVisible(),"Customer PNG export control missing");
+      assert.ok(await page.locator("#cfPrintPdf").isVisible(),"Customer PDF export control missing");
+      assert.equal(await page.evaluate(()=>document.body.classList.contains("projectCaptureMode")),false,"Client preview must not enter obsolete CSS capture mode");
       await page.keyboard.press("Escape");
-      assert.equal(await page.evaluate(()=>document.body.classList.contains("projectCaptureMode")),false,"Escape should exit screenshot mode");
+      await page.locator("#customerFacingRoot").waitFor({state:"detached",timeout:5000});
+      assert.ok(await page.locator("#projectCaptureButton").isVisible(),"Client confirmation action should remain after closing preview");
 
       // A supervisor with no own projects must see a permitted subordinate's complete detail page.
       const activeOwner=page.locator("#projectDetailOwnerSelect");
