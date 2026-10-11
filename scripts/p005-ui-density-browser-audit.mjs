@@ -116,8 +116,11 @@ try{
        }
      }
      if(view==="shareboard"&&actor.role==="admin"){
-       for(const selector of [".projectOverviewLower",".projectOverviewSummary",".projectRecordPanel .dataTable"]){
+       for(const selector of [".projectOverviewCards",".projectOverviewLower",".projectTrendPanel",".projectOverviewSummary"]){
          if(!(await page.locator(selector).isVisible()))failures.push(actor.role+"/"+size.name+"/shareboard: missing "+selector);
+       }
+       if(await page.locator(".projectRecordPanel").count()){
+         failures.push(actor.role+"/"+size.name+"/shareboard: obsolete bottom data bar still exists");
        }
      }
     }catch(err){failures.push(actor.role+"/"+size.name+"/"+view+": "+String(err).slice(0,240));}
