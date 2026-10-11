@@ -281,3 +281,112 @@ html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar>.userA
     display:contents!important;
   }
 }
+
+
+/* P005 allocation two-row redesign (approved removal, 2026-10-11).
+   The reservation detail/history table is NO LONGER rendered in JS.
+   Reclaim its entire height for the top project cards and the two detail panels.
+   Leave project details and reservation actions intact. */
+@media (min-width:900px){
+ html body.projectPanoramaMode:not(.projectCaptureMode) #root#root #main#main#main#main#main .projectOverview{
+   display:grid!important;
+   grid-template-columns:minmax(0,1fr)!important;
+   grid-template-rows:minmax(300px,.94fr) minmax(340px,1.2fr)!important;
+   grid-auto-rows:0!important;
+   align-content:stretch!important;
+   justify-content:stretch!important;
+   width:100%!important;
+   height:100%!important;
+   max-height:100%!important;
+   min-height:0!important;
+   padding:10px 11px 10px!important;
+   margin:0!important;
+   gap:12px!important;
+   overflow:hidden!important;
+ }
+ html body.projectPanoramaMode:not(.projectCaptureMode) #root#root #main#main#main#main#main .projectOverviewCards{
+   grid-row:1!important;
+   width:100%!important;
+   height:100%!important;
+   min-height:0!important;
+   margin:0!important;
+   display:grid!important;
+   grid-template-columns:repeat(3,minmax(0,1fr))!important;
+   align-items:stretch!important;
+   overflow:hidden!important;
+ }
+ html body.projectPanoramaMode:not(.projectCaptureMode) #root#root #main#main#main#main#main .projectOverviewCards>.projectOverviewCard{
+   height:100%!important;
+   min-height:0!important;
+   max-height:none!important;
+   overflow:hidden!important;
+   grid-template-rows:minmax(42px,auto) minmax(0,1fr) minmax(56px,auto)!important;
+ }
+ html body.projectPanoramaMode:not(.projectCaptureMode) #root#root #main#main#main#main#main .projectOverviewLower{
+   grid-row:2!important;
+   display:grid!important;
+   grid-template-columns:minmax(0,1.4fr) minmax(0,.86fr)!important;
+   width:100%!important;
+   height:100%!important;
+   min-height:0!important;
+   max-height:none!important;
+   margin:0!important;
+   padding:0!important;
+   gap:12px!important;
+   align-items:stretch!important;
+   overflow:hidden!important;
+ }
+ html body.projectPanoramaMode:not(.projectCaptureMode) #root#root #main#main#main#main#main .projectOverviewLower>.projectPanel{
+   width:100%!important;
+   height:100%!important;
+   max-height:none!important;
+   min-height:0!important;
+   margin:0!important;
+   overflow:hidden!important;
+ }
+ html body.projectPanoramaMode:not(.projectCaptureMode) #root#root #main#main#main#main#main .projectTrendPanel{
+   display:grid!important;
+   grid-template-rows:minmax(42px,auto) minmax(0,1fr)!important;
+ }
+ html body.projectPanoramaMode:not(.projectCaptureMode) #root#root #main#main#main#main#main .projectTrendChart{
+   height:100%!important;
+   min-height:0!important;
+   max-height:none!important;
+   overflow:hidden!important;
+ }
+ html body.projectPanoramaMode:not(.projectCaptureMode) #root#root #main#main#main#main#main .projectOverviewSummary{
+   display:flex!important;
+   flex-direction:column!important;
+   min-height:0!important;
+   overflow-y:auto!important;
+ }
+ html body.projectPanoramaMode:not(.projectCaptureMode) #root#root #main#main#main#main#main .projectDetailSummary{
+   flex:1 1 auto!important;
+   min-height:0!important;
+ }
+}
+/* The old row must not exist, even in screenshot view or small-screen mode.
+   JS owns removal; this prevents stale CSS from resurrecting old markup. */
+html body.projectPanoramaMode #root#root #main#main#main#main#main .projectRecordPanel{
+ display:none!important;
+}
+@media (max-width:899px){
+ html body.projectPanoramaMode:not(.projectCaptureMode) #root#root #main#main#main#main#main .projectOverview{
+   grid-template-rows:none!important;
+   height:auto!important;
+   min-height:0!important;
+   max-height:none!important;
+   overflow:visible!important;
+ }
+ html body.projectPanoramaMode:not(.projectCaptureMode) #root#root #main#main#main#main#main .projectOverviewCards{
+   height:auto!important;
+   min-height:0!important;
+ }
+ html body.projectPanoramaMode:not(.projectCaptureMode) #root#root #main#main#main#main#main .projectOverviewLower,
+ html body.projectPanoramaMode:not(.projectCaptureMode) #root#root #main#main#main#main#main .projectOverviewLower>.projectPanel{
+   height:auto!important;
+   min-height:280px!important;
+   max-height:none!important;
+   overflow:visible!important;
+ }
+}
