@@ -51,7 +51,14 @@ try{
     const button=page.locator('.nav button[data-view="'+view+'"]');
     if(!(await button.count())){failures.push(actor.role+"/"+size.name+"/"+view+": tab not found");continue;}
     try{
-     await button.click({timeout:10000});
+     // The phone header has a horizontally scrolling navigation strip.
+     // Return to the header after tall modules and scroll the intended
+     // tab into view before the real Playwright user click.
+     if(size.name==="phone"){
+      await page.evaluate(()=>window.scrollTo({top:0,behavior:"instant"}));
+      await button.scrollIntoViewIfNeeded({timeout:15000});
+     }
+     await button.click({timeout:15000});
      await page.waitForFunction(v=>{
       const m=document.querySelector("#main");
       return m?.dataset.view===v&&!m.classList.contains("viewBusy")&&m.classList.contains("viewReveal");
