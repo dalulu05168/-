@@ -101,32 +101,29 @@ try{
         const after=await pager.locator('span').textContent();
         assert.notEqual(before,after,"Personnel table next-page navigation must work");
       }
-      // Compare the three business pages at identical browser viewport size.
-      // Report panels must be usable; never cram dozens of columns into one chart.
+      // New CRM reports use two modules: personnel/customer statistics
+      // and monthly trading. The old ownership/order charts were removed.
       await page.locator('.nav button[data-view="reports"]').click();
-      await page.waitForSelector('#main[data-view="reports"] .reportOrderPanel',{timeout:22000});
+      await page.waitForSelector('#main[data-view="reports"] .crmReportsGrid>.crmSubPanel',{timeout:22000});
       const reports=await audit(page,"reports",size);
       const reportGeometry=await page.evaluate(()=>{
         const rect=sel=>{const r=document.querySelector(sel)?.getBoundingClientRect();return r?{top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null};
-        const canvas=document.querySelector("#ownerChart");
-        const ownerChart=window.Chart?.getChart(canvas);
-        return {
-          main:rect("#main"),topLeft:rect(".reportOwnershipPanel"),topRight:rect(".reportOrderPanel"),
-          lowerLeft:rect(".reportsLower>.panel"),lowerRight:rect(".reportsLower>.monthlyReport"),
-          ownerDirection:ownerChart?.options?.indexAxis,
-          ownerBarCount:ownerChart?.data?.labels?.length,
-          ownershipTotal:(ownerChart?.data?.datasets?.[0]?.data||[]).reduce((a,b)=>a+Number(b||0),0),
-          customerTotal:document.querySelector('.reportOwnershipPanel .goldLegend')?.textContent||""
-        };
+        const panels=[...document.querySelectorAll(".crmReportsGrid>.crmSubPanel")].map(el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,width:r.width,height:r.height}});
+        return {main:rect("#main"),grid:rect(".crmReportsGrid"),panels,
+          peopleList:!!document.querySelector("#crmReportPeople"),
+          monthlyChart:!!document.querySelector("#monthlyTradeChart"),
+          monthControl:!!document.querySelector("#reportMonth"),
+          currencyControl:!!document.querySelector("#reportCurrency"),
+          removedLegacyPanels:document.querySelectorAll(".reportOwnershipPanel,.reportOrderPanel").length};
       });
-      assert.equal(reportGeometry.ownerDirection,"y","Ownership display must use readable horizontal bars");
-      assert.ok(reportGeometry.ownerBarCount<=9,"Ownership chart must aggregate excessive owner bars");
-      assert.ok(reportGeometry.topLeft?.height>185&&reportGeometry.topRight?.height>185,"Report charts too short");
-      assert.ok(reportGeometry.lowerLeft?.height>185&&reportGeometry.lowerRight?.height>185,"Report lower panels must be visible");
-      if(size.width>=900){
-        assert.ok(Math.abs(reportGeometry.topLeft.top-reportGeometry.topRight.top)<7,"Report top row not aligned");
-        assert.ok(Math.abs(reportGeometry.lowerLeft.bottom-reportGeometry.lowerRight.bottom)<7,"Report lower row not aligned");
-        assert.ok(reportGeometry.lowerRight.bottom<=reportGeometry.main.bottom+12,"Report bottom overflows its frame");
+      assert.equal(reportGeometry.panels.length,2,"Two CRM reporting modules must render");
+      assert.ok(reportGeometry.peopleList&&reportGeometry.monthlyChart,"Staff and monthly-trade modules must exist");
+      assert.ok(reportGeometry.monthControl&&reportGeometry.currencyControl,"Month/currency filters must remain usable");
+      assert.equal(reportGeometry.removedLegacyPanels,0,"Removed legacy owner/order panels must not return");
+      assert.ok(reportGeometry.panels.every(p=>p.height>185),"CRM reporting modules collapsed");
+      if(size.width>=1100){
+        assert.ok(Math.abs(reportGeometry.panels[0].top-reportGeometry.panels[1].top)<8,"CRM report columns must align");
+        assert.ok(reportGeometry.panels.every(p=>p.bottom<=reportGeometry.main.bottom+15),"CRM reports exceed 16:9 desktop frame");
       }
       records.push({view:"reports-geometry",size:size.name,data:reportGeometry});
       await page.locator('.nav button[data-view="market"]').click();
@@ -200,19 +197,19 @@ try{
         await page.waitForTimeout(250);
         const metric=await page.evaluate(view=>{
           const rect=selector=>{const el=document.querySelector(selector),b=el?.getBoundingClientRect();return b?{top:b.top,bottom:b.bottom,width:b.width,height:b.height}:null};
-          const main=document.querySelector("#main"),root=main?.querySelector(view==="reports"?".grid2":".canvaReferenceMarket");
-          const panels=[...(main?.querySelectorAll(view==="reports"?".grid2>.panel,.reportsLower>.panel":".referenceFeatureCards,.marketListPanel,.marketOverviewPanel,.marketChartPanel")||[])].map(x=>{
+          const main=document.querySelector("#main"),root=main?.querySelector(view==="reports"?".crmReportsGrid":".canvaReferenceMarket");
+          const panels=[...(main?.querySelectorAll(view==="reports"?".crmReportsGrid>.crmSubPanel":".referenceFeatureCards,.marketListPanel,.marketOverviewPanel,.marketChartPanel")||[])].map(x=>{
             const b=x.getBoundingClientRect();return {name:String(x.className),height:b.height,bottom:b.bottom,
               hidden:getComputedStyle(x).display==="none",scrollHeight:x.scrollHeight,clientHeight:x.clientHeight};
           });
-          return {view,main:rect("#main"),root:rect(view==="reports"?"#main>.grid2":"#main>.canvaReferenceMarket"),
+          return {view,main:rect("#main"),root:rect(view==="reports"?"#main>.crmReportsSection .crmReportsGrid":"#main>.canvaReferenceMarket"),
             height:main?.clientHeight,width:main?.clientWidth,
             charts:[...main.querySelectorAll("canvas")].map(c=>({id:c.id,box:{width:c.getBoundingClientRect().width,height:c.getBoundingClientRect().height}})),
             panels,scrollWidth:document.documentElement.scrollWidth};
         },view);
         canvasByView[view]=metric;
         assert.ok(metric.scrollWidth<=size.width+5,view+" horizontal overflow");
-        assert.ok(metric.panels.length>=4,view+" modules missing");
+        assert.ok(metric.panels.length>=(view==="reports"?2:4),view+" modules missing");
         assert.ok(metric.panels.every(p=>p.height>65&&!p.hidden),view+" contains collapsed panel "+JSON.stringify(metric.panels));
         if(size.width>=900){
           assert.ok(metric.root?.height>350,view+" uses too little vertical space");
