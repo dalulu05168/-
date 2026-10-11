@@ -208,7 +208,7 @@
  html body.desktopFrame #root#root #main#main#main#main#main[data-view="market"]>.canvaReferenceMarket{
    display:grid!important;
    grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr)!important;
-   grid-template-rows:45px 118px minmax(185px,.9fr) minmax(255px,1.16fr)!important;
+   grid-template-rows:45px 118px minmax(185px,.82fr) minmax(255px,1.24fr)!important;
    align-items:stretch!important;
    width:100%!important;
    height:100%!important;
