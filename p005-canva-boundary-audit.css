@@ -1,0 +1,45 @@
+/* P005 Canva original-colour layout inspection — 2026-10-11
+ * User instruction: red annotations indicate section geometry, not colour changes.
+ * Restrict this pass to module perimeter strokes. Inherit original text, data,
+ * icon, chart, logo and button colours unchanged.
+ * Module boundary = subtle dashed stroke AROUND each whole card, never on text.
+ */
+html body #root#root #main#main#main#main#main :is(
+  .kpi,
+  .execStat,
+  .tickerStat,
+  .tickerIdentity,
+  .terminalChartCard,
+  .terminalOrderPanel,
+  .terminalPositionCard,
+  .terminalSummaryCard,
+  .terminalEmptyCard,
+  .level1StaffCard,
+  .level1SummaryPanel,
+  .level2Metric,
+  .level2OrdersPanel,
+  .settingsCard,
+  .referenceFeatureCard,
+  .marketListPanel,
+  .marketOverviewPanel,
+  .marketChartPanel,
+  .projectOverviewCard,
+  .projectTrendPanel,
+  .projectOverviewSummary,
+  .reportsLower > .panel,
+  .grid2 > .panel,
+  .modulePane,
+  .panel
+) {
+  border-style: dashed !important;
+}
+/* Do not dash interactive controls, individual table rows, fields, or graphic
+ * marks: dashed perimeter is a visual container indicator only. */
+html body #root#root #main#main#main#main#main :is(
+  button, input, select, textarea, .btn,
+  .dataTable, .dataTable tr, .dataTable td, .dataTable th,
+  .viewportPager, .viewportPager button,
+  .chartBox, canvas
+) {
+  border-style: solid !important;
+}
