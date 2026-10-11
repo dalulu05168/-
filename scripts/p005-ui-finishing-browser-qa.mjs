@@ -104,6 +104,29 @@ try{
       await page.locator('.nav button[data-view="shareboard"]').click();
       await page.waitForSelector('#main[data-view="shareboard"] .projectPresentation',{timeout:22000});
       const project=await audit(page,"allocation",size);
+      const twoRows=await page.evaluate(()=>{
+        const bbox=sel=>{const el=document.querySelector(sel),b=el?.getBoundingClientRect();return b?{x:b.x,y:b.y,width:b.width,height:b.height,bottom:b.bottom}:null};
+        const el=document.querySelector(".projectOverview");
+        return {recordCount:document.querySelectorAll(".projectRecordPanel").length,
+          grid:getComputedStyle(el).gridTemplateRows,cards:bbox(".projectOverviewCards"),
+          lower:bbox(".projectOverviewLower"),main:bbox("#main"),top:bbox(".projectOverview"),
+          lowerPanels:[...document.querySelectorAll(".projectOverviewLower>.projectPanel")].map(x=>{
+            const b=x.getBoundingClientRect();return {width:b.width,height:b.height,bottom:b.bottom};
+          })
+        };
+      });
+      assert.equal(twoRows.recordCount,0,"Red-boxed bottom reservation history MUST NOT exist in the DOM");
+      assert.ok(twoRows.cards?.height>220,"Top project row must remain substantial");
+      assert.ok(twoRows.lower?.height>250,"Trend and details row must occupy freed vertical space");
+      assert.equal(twoRows.lowerPanels.length,2,"Trend and detail panels must both remain");
+      if(size.width>=900){
+        assert.ok(twoRows.cards.height>=270,"Top row was not expanded after removing history strip");
+        assert.ok(twoRows.lower.height>=320,"Bottom row was not expanded after removing history strip");
+        assert.ok(twoRows.lower.bottom<=size.height+20,"Two-row project layout overflows the viewport");
+        assert.ok(Math.abs(twoRows.lowerPanels[0].height-twoRows.lowerPanels[1].height)<20,
+           "Expanded lower panels must align in height");
+      }
+      records.push({view:"allocation-two-row-geometry",size:size.name,data:twoRows});
       assert.equal(project.headerDisplay,"none","Old marked allocation strip must be deleted");
       assert.equal(project.topVisible,true,"Topbar must remain visible");
       assert.ok(project.ownerInTopbar&&project.ownerVisible,"Account selector was lost");
