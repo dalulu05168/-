@@ -41,6 +41,9 @@ try{
    await page.locator("#password").fill(password);
    await page.locator('form[action="/_preview/login"] button[type="submit"]').click();
    await page.waitForURL(/loginPreview=1/,{timeout:15000});
+   // Wait for the first isolated fixture fetch to finish before navigating.
+   // Aborting the pending demo-data request caused intermittent Failed to fetch errors.
+   await page.waitForSelector("#stagingDemoRole",{timeout:15000});
    await page.goto(origin+"/?demo=1&account="+encodeURIComponent(actor.id),{waitUntil:"domcontentloaded",timeout:30000});
    await page.waitForSelector("#main[data-view]",{timeout:20000});
    for(const view of views){
