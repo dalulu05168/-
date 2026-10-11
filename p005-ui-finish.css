@@ -272,3 +272,12 @@ html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar>.userA
     max-width:min(270px,100%)!important;
   }
 }
+
+/* Desktop CRM shell uses display:contents so the original sidebar stays
+   in grid-column 1 and brand/user tools stay in the top grid row.
+   Restoring that exact layout fixes the topbar overlay on capture controls. */
+@media(min-width:900px){
+  html body.desktopFrame.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar{
+    display:contents!important;
+  }
+}
