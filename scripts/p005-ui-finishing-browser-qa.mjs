@@ -101,6 +101,53 @@ try{
         const after=await pager.locator('span').textContent();
         assert.notEqual(before,after,"Personnel table next-page navigation must work");
       }
+      // Compare the three business pages at identical browser viewport size.
+      // Report panels must be usable; never cram dozens of columns into one chart.
+      await page.locator('.nav button[data-view="reports"]').click();
+      await page.waitForSelector('#main[data-view="reports"] .reportOrderPanel',{timeout:22000});
+      const reports=await audit(page,"reports",size);
+      const reportGeometry=await page.evaluate(()=>{
+        const rect=sel=>{const r=document.querySelector(sel)?.getBoundingClientRect();return r?{top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null};
+        const canvas=document.querySelector("#ownerChart");
+        const ownerChart=window.Chart?.getChart(canvas);
+        return {
+          main:rect("#main"),topLeft:rect(".reportOwnershipPanel"),topRight:rect(".reportOrderPanel"),
+          lowerLeft:rect(".reportsLower>.panel"),lowerRight:rect(".reportsLower>.monthlyReport"),
+          ownerDirection:ownerChart?.options?.indexAxis,
+          ownerBarCount:ownerChart?.data?.labels?.length,
+          ownershipTotal:(ownerChart?.data?.datasets?.[0]?.data||[]).reduce((a,b)=>a+Number(b||0),0),
+          customerTotal:document.querySelector('.reportOwnershipPanel .goldLegend')?.textContent||""
+        };
+      });
+      assert.equal(reportGeometry.ownerDirection,"y","Ownership display must use readable horizontal bars");
+      assert.ok(reportGeometry.ownerBarCount<=9,"Ownership chart must aggregate excessive owner bars");
+      assert.ok(reportGeometry.topLeft?.height>185&&reportGeometry.topRight?.height>185,"Report charts too short");
+      assert.ok(reportGeometry.lowerLeft?.height>185&&reportGeometry.lowerRight?.height>185,"Report lower panels must be visible");
+      if(size.width>=900){
+        assert.ok(Math.abs(reportGeometry.topLeft.top-reportGeometry.topRight.top)<7,"Report top row not aligned");
+        assert.ok(Math.abs(reportGeometry.lowerLeft.bottom-reportGeometry.lowerRight.bottom)<7,"Report lower row not aligned");
+        assert.ok(reportGeometry.lowerRight.bottom<=reportGeometry.main.bottom+12,"Report bottom overflows its frame");
+      }
+      records.push({view:"reports-geometry",size:size.name,data:reportGeometry});
+      await page.locator('.nav button[data-view="market"]').click();
+      await page.waitForSelector('#main[data-view="market"] .marketChartPanel',{timeout:22000});
+      await page.waitForSelector("#marketRows .marketRow",{timeout:22000});
+      const market=await audit(page,"market",size);
+      const marketGeometry=await page.evaluate(()=>{
+        const rect=sel=>{const r=document.querySelector(sel)?.getBoundingClientRect();return r?{top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null};
+        return {main:rect("#main"),hero:rect(".referenceMarketHero"),features:rect(".referenceFeatureCards"),
+          list:rect(".marketListPanel"),quote:rect(".marketOverviewPanel"),
+          chart:rect(".marketChartPanel"),chartCanvas:rect(".marketCanvas"),rows:document.querySelectorAll("#marketRows .marketRow").length};
+      });
+      assert.ok(marketGeometry.rows>=1,"Stock market list must contain real or isolated fixture rows");
+      assert.ok(marketGeometry.quote?.height>210,"Quote details cannot be clipped");
+      assert.ok(marketGeometry.chart?.height>210,"Market chart cannot be clipped");
+      if(size.width>=900){
+        assert.ok(Math.abs(marketGeometry.quote.top-marketGeometry.chart.top)<7,"Market bottom row not aligned");
+        assert.ok(Math.abs(marketGeometry.quote.bottom-marketGeometry.chart.bottom)<7,"Market quote and chart heights differ");
+        assert.ok(marketGeometry.chart.bottom<=marketGeometry.main.bottom+12,"Market chart extends below viewport");
+      }
+      records.push({view:"market-geometry",size:size.name,data:marketGeometry});
       await page.locator('.nav button[data-view="shareboard"]').click();
       await page.waitForSelector('#main[data-view="shareboard"] .projectPresentation',{timeout:22000});
       const project=await audit(page,"allocation",size);
@@ -125,6 +172,12 @@ try{
         assert.ok(twoRows.lower.bottom<=size.height+20,"Two-row project layout overflows the viewport");
         assert.ok(Math.abs(twoRows.lowerPanels[0].height-twoRows.lowerPanels[1].height)<20,
            "Expanded lower panels must align in height");
+      }
+      if(size.width>=900){
+        assert.ok(Math.abs(twoRows.main.top-reportGeometry.main.top)<8,"Allocation top not aligned to reports");
+        assert.ok(Math.abs(twoRows.main.bottom-reportGeometry.main.bottom)<8,"Allocation frame height differs from reports");
+        assert.ok(Math.abs(twoRows.main.bottom-marketGeometry.main.bottom)<8,"Allocation frame height differs from market");
+        assert.ok(twoRows.lower.bottom>=twoRows.main.bottom-35,"Allocation lower row leaves unused footer band");
       }
       records.push({view:"allocation-two-row-geometry",size:size.name,data:twoRows});
       assert.equal(project.headerDisplay,"none","Old marked allocation strip must be deleted");
