@@ -1,0 +1,244 @@
+/* P005 CRM finishing pass — 2026-10-11
+ * Remove legacy navy footer backgrounds, embed compact pagination controls,
+ * and free the allocation view's unused heading strip.
+ * This stylesheet is final in source order. It never changes Supabase data.
+ */
+:root {
+  --p005-paper:#ffffff;
+  --p005-canvas:#f7faf8;
+  --p005-soft:#f3f7f5;
+  --p005-border:#e0e8e3;
+  --p005-text:#203b3a;
+  --p005-muted:#657976;
+  --p005-primary:#118e7f;
+}
+/* Major block surfaces across all authenticated roles/views. Do not recolor
+   charts, project status rings, trend lines, or primary CTA accents. */
+html body #root#root .app .shell,
+html body #root#root .app #main {
+  background-color:var(--p005-canvas)!important;
+  background-image:none!important;
+}
+html body #root#root #main#main#main#main#main :is(
+  .terminalPositionList,.terminalPositionCard,.terminalSummaryCard,.terminalEmptyCard,
+  .terminalOrderPanel,.terminalChartCard,.terminalMarketPanel,
+  .level1StaffCard,.level1TeamPanel,.level1SummaryPanel,.level2SummaryPanel,
+  .level2PositionsPanel,.level2OrdersPanel,.level2Metric,
+  .settingsCard,.settingsGrid,.teamDetailSection,
+  .projectRecordPanel,.projectTrendPanel,.projectOverviewSummary,.projectOverviewCard,
+  .panel,.projectPanel,.tableWrap,.marketListPanel,.marketOverviewPanel,.marketChartPanel
+) {
+  background-color:var(--p005-paper)!important;
+  background-image:none!important;
+  border-color:var(--p005-border)!important;
+}
+html body #root#root #main#main#main#main#main :is(
+  .terminalPositionList,.terminalGrid,.terminalLeft,.terminalRight,
+  .level1BodyGrid,.level2MainGrid,.level2SideStack,.projectOverviewLower
+) {
+  background-color:transparent!important;
+  background-image:none!important;
+}
+/* Important: the old navy pagination bars occupy a full table row.
+   Keep the real working pager; float its buttons inside the containing table
+   and leave only a small pale translucent control, never a footer slab. */
+html body #root#root #main#main#main#main#main .tableWrap:has(> .viewportPager),
+html body #root#root #main#main#main#main#main .marketList:has(> .viewportPager),
+html body #clientSharePage#clientSharePage .tableWrap:has(> .viewportPager) {
+  position:relative!important;
+  padding-bottom:33px!important;
+  background:var(--p005-paper)!important;
+  overflow-x:auto!important;
+}
+html body #root#root #main#main#main#main#main .viewportPager,
+html body #clientSharePage#clientSharePage .viewportPager {
+  position:relative!important;
+  display:flex!important;
+  width:max-content!important;
+  max-width:calc(100% - 12px)!important;
+  min-width:0!important;
+  min-height:29px!important;
+  height:29px!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:6px!important;
+  margin:0 6px 0 auto!important;
+  padding:2px 5px!important;
+  background:#fff!important;
+  background-image:none!important;
+  color:#526965!important;
+  border:1px solid var(--p005-border)!important;
+  border-radius:7px!important;
+  box-shadow:none!important;
+  z-index:2!important;
+  flex:none!important;
+}
+html body #root#root #main#main#main#main#main .tableWrap > .viewportPager,
+html body #clientSharePage#clientSharePage .tableWrap > .viewportPager {
+  position:absolute!important;
+  right:6px!important;
+  bottom:3px!important;
+}
+html body #root#root #main#main#main#main#main .viewportPager[hidden],
+html body #clientSharePage#clientSharePage .viewportPager[hidden]{
+  display:none!important;
+}
+html body #root#root #main#main#main#main#main .viewportPager .btn,
+html body #clientSharePage#clientSharePage .viewportPager .btn {
+  display:inline-flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  min-height:25px!important;
+  height:25px!important;
+  width:auto!important;
+  padding:3px 9px!important;
+  margin:0!important;
+  font-size:11px!important;
+  line-height:1.3!important;
+  font-weight:600!important;
+  background:#fff!important;
+  color:#254642!important;
+  border:1px solid #e0e8e3!important;
+  border-radius:6px!important;
+  box-shadow:none!important;
+}
+html body #root#root #main#main#main#main#main .viewportPager .btn:disabled,
+html body #clientSharePage#clientSharePage .viewportPager .btn:disabled {
+  opacity:.45!important;cursor:not-allowed!important;
+}
+html body #root#root #main#main#main#main#main .viewportPager span,
+html body #clientSharePage#clientSharePage .viewportPager span {
+  display:inline-block!important;flex:none!important;
+  color:#526965!important;font-size:10px!important;
+  line-height:1.3!important;white-space:nowrap!important;
+}
+html body #root#root #main#main#main#main#main .dataTable,
+html body #root#root #main#main#main#main#main .dataTable :is(thead,tbody,tr,td){
+  background-color:transparent!important;
+}
+/* Remove the full-width allocation heading row outlined by the user.
+   Topbar already exists and houses the relocated account/capture/back controls.
+   Keep its internal SVG brand for screenshot-only mode. */
+html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar{
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  background:#fff!important;
+}
+html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar>.globalSearch {
+  display:none!important;
+}
+html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar>.userArea {
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  flex-wrap:nowrap!important;
+  gap:8px!important;
+  min-width:0!important;
+  width:auto!important;
+  max-width:calc(100% - 245px)!important;
+  margin-left:auto!important;
+}
+html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar .projectDetailOwner {
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 1 auto!important;
+  width:auto!important;
+  max-width:280px!important;
+  min-width:0!important;
+  min-height:36px!important;
+  margin:0!important;
+  padding:0!important;
+  gap:7px!important;
+  color:#435a56!important;
+  font-size:12px!important;
+  white-space:nowrap!important;
+}
+html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar .projectDetailOwner select{
+  display:block!important;
+  width:clamp(125px,13vw,220px)!important;
+  min-width:95px!important;
+  max-width:220px!important;
+  height:34px!important;
+  min-height:34px!important;
+  font-size:12px!important;
+  background:#fff!important;
+  border:1px solid var(--p005-border)!important;
+  border-radius:7px!important;
+  color:#264842!important;
+}
+html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar .projectCaptureControl,
+html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar .projectExit {
+  display:inline-flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  flex:0 0 auto!important;
+  height:34px!important;
+  min-height:34px!important;
+  min-width:36px!important;
+  margin:0!important;
+  padding:5px 10px!important;
+  font-size:12px!important;
+  color:#24504b!important;
+  background:#fff!important;
+  border:1px solid var(--p005-border)!important;
+  border-radius:7px!important;
+  box-shadow:none!important;
+}
+html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar .projectExit img {
+  width:18px!important;height:18px!important;object-fit:contain!important;
+}
+html body.projectPanoramaMode:not(.projectCaptureMode) #root#root #main#main#main#main#main .projectOverview>.projectPresentationHeader{
+  display:none!important;
+  height:0!important;min-height:0!important;max-height:0!important;
+  margin:0!important;padding:0!important;
+  border:0!important;overflow:hidden!important;
+}
+html body.projectPanoramaMode:not(.projectCaptureMode) #root#root #main#main#main#main#main .projectOverview{
+  grid-template-rows:minmax(220px,auto) minmax(290px,auto) minmax(155px,auto)!important;
+  align-content:start!important;
+  gap:11px!important;
+  padding-top:10px!important;
+}
+html body.projectPanoramaMode:not(.projectCaptureMode) #root#root #main#main#main#main#main .projectOverviewCards{
+  margin-top:0!important;
+}
+/* Screenshot mode: do not show interactive controls; preserve clean branded
+   internal capture canvas as it was before. */
+html body.projectCaptureMode #root#root #main#main#main#main#main .projectOverview>.projectPresentationHeader {
+  display:flex!important;
+}
+/* Mobile project topbar keeps tools reachable without horizontal clipping. */
+@media(max-width:899px){
+  html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar{
+    display:flex!important;flex-wrap:wrap!important;gap:7px!important;
+  }
+  html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar>.userArea{
+    flex:1 1 100%!important;
+    max-width:100%!important;
+    width:100%!important;
+    margin:0!important;
+    justify-content:flex-start!important;
+    flex-wrap:wrap!important;
+    gap:7px!important;
+  }
+  html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar .projectDetailOwner {
+    flex:1 1 210px!important;
+    max-width:calc(100% - 4px)!important;
+  }
+  html body.projectPanoramaMode:not(.projectCaptureMode) #root#root .topbar .projectDetailOwner select{
+    width:min(190px,57vw)!important;
+  }
+  html body.projectPanoramaMode:not(.projectCaptureMode) #root#root #main#main#main#main#main .projectOverview{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:10px!important;
+    padding:6px!important;
+  }
+  html body #root#root #main#main#main#main#main .viewportPager,
+  html body #clientSharePage#clientSharePage .viewportPager {
+    flex-wrap:nowrap!important;
+    max-width:calc(100% - 8px)!important;
+  }
+}
