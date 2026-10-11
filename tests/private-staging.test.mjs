@@ -38,31 +38,75 @@ async function port(){
   return n;
 }
 
-test("P005 staging HTTP denies unauthenticated access and serves only a protected demo", {timeout:20000},async t=>{
+test("P005 embedded browser login uses a secure HTML form, not a native popup", {timeout:20000},async t=>{
   const p=await port(),origin="http://127.0.0.1:"+p;
   const user="local-auditor",pass="staging-test-32-character-secret";
-  const server=spawn(process.execPath,["server.js"],{cwd:root,stdio:["ignore","pipe","pipe"],env:{...process.env,PORT:String(p),STAGING_PREVIEW:"1",STAGING_PREVIEW_USERNAME:user,STAGING_PREVIEW_PASSWORD:pass}});
+  const server=spawn(process.execPath,["server.js"],{
+    cwd:root,stdio:["ignore","pipe","pipe"],
+    env:{...process.env,PORT:String(p),STAGING_PREVIEW:"1",STAGING_PREVIEW_USERNAME:user,STAGING_PREVIEW_PASSWORD:pass}
+  });
   t.after(()=>{if(server.exitCode===null)server.kill("SIGTERM")});
   let stderr="";server.stderr.on("data",v=>stderr+=v);
   let ready=false;
-  for(let i=0;i<80;i++){try{const r=await fetch(origin+"/healthz");if(r.status===200){ready=true;break}}catch{}if(server.exitCode!==null)break;await new Promise(r=>setTimeout(r,100))}
-  assert.ok(ready,"Private staging test server must start: "+stderr);
-  const no=await fetch(origin+"/?demo=1&loginPreview=1");
-  assert.equal(no.status,401);
-  assert.match(no.headers.get("www-authenticate")||"",/^Basic/);
-  assert.match(no.headers.get("x-robots-tag")||"",/noindex/);
-  const unauthorizedApi=await fetch(origin+"/api/security-info?symbol=TLV.RO");
-  assert.equal(unauthorizedApi.status,401);
-  const wrong=await fetch(origin+"/",{headers:{Authorization:"Basic "+Buffer.from(user+":incorrect").toString("base64")}});
-  assert.equal(wrong.status,401);
-  const headers={Authorization:"Basic "+Buffer.from(user+":"+pass).toString("base64")};
-  const redirect=await fetch(origin+"/",{headers,redirect:"manual"});
+  for(let i=0;i<80;i++){
+    try{const r=await fetch(origin+"/healthz");if(r.status===200){ready=true;break}}catch{}
+    if(server.exitCode!==null)break;
+    await new Promise(r=>setTimeout(r,100));
+  }
+  assert.ok(ready,"Private staging server must start: "+stderr);
+
+  // Native Basic challenge is gone: the initial page itself is always reachable.
+  const page=await fetch(origin+"/");
+  assert.equal(page.status,200);
+  assert.equal(page.headers.get("www-authenticate"),null);
+  assert.match(page.headers.get("x-robots-tag")||"",/noindex/);
+  assert.match(page.headers.get("cache-control")||"",/no-store/);
+  const html=await page.text();
+  assert.match(html,/action="\/_preview\/login" method="POST"/);
+  assert.match(html,/name="username"/);
+  assert.match(html,/name="password" type="password"/);
+  assert.match(html,/Brantone Veylor/i);
+
+  const withoutCookie=await fetch(origin+"/api/security-info?symbol=TLV.RO");
+  assert.equal(withoutCookie.status,401);
+  const privateAsset=await fetch(origin+"/app.js");
+  assert.equal(privateAsset.status,401);
+  const fakeBasic=await fetch(origin+"/app.js",{
+    headers:{Authorization:"Basic "+Buffer.from(user+":"+pass).toString("base64")}
+  });
+  assert.equal(fakeBasic.status,401,"Basic auth must no longer bypass the session gate");
+
+  const bad=await fetch(origin+"/_preview/login",{
+    method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:new URLSearchParams({username:user,password:"incorrect"}),redirect:"manual"
+  });
+  assert.equal(bad.status,401);
+  assert.equal(bad.headers.get("set-cookie"),null);
+  assert.match(await bad.text(),/用户名或密码不正确/);
+
+  const signIn=await fetch(origin+"/_preview/login",{
+    method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:new URLSearchParams({username:user,password:pass}),redirect:"manual"
+  });
+  assert.equal(signIn.status,303);
+  assert.equal(signIn.headers.get("location"),"/?demo=1&loginPreview=1");
+  const cookieHeader=signIn.headers.get("set-cookie")||"";
+  assert.match(cookieHeader,/HttpOnly/);
+  assert.match(cookieHeader,/Secure/);
+  assert.match(cookieHeader,/SameSite=Lax/);
+  const cookie=cookieHeader.split(";")[0];
+
+  const redirect=await fetch(origin+"/",{headers:{Cookie:cookie},redirect:"manual"});
   assert.equal(redirect.status,302);
   assert.equal(redirect.headers.get("location"),"/?demo=1&loginPreview=1");
-  const html=await fetch(origin+"/?demo=1&loginPreview=1",{headers});
-  assert.equal(html.status,200);
-  assert.match(await html.text(),/Brantone Veylor/);
-  const js=await fetch(origin+"/app.js",{headers});
+
+  const authorized=await fetch(origin+"/?demo=1&loginPreview=1",{headers:{Cookie:cookie}});
+  assert.equal(authorized.status,200);
+  assert.match(await authorized.text(),/Brantone Veylor/);
+  const js=await fetch(origin+"/app.js",{headers:{Cookie:cookie}});
   assert.equal(js.status,200);
+  assert.match(js.headers.get("cache-control")||"",/no-store/);
   assert.match(await js.text(),/const demoMode=true;/);
+  const invalid=await fetch(origin+"/app.js",{headers:{Cookie:"p005_preview_session=1234567890."+ "0".repeat(64)}});
+  assert.equal(invalid.status,401);
 });
