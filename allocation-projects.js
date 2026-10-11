@@ -1,5 +1,6 @@
 import {customerProject,attachCustomerRanking,editCustomerReservation} from './customer-reservations.js?v=20261009-brighter';
 import {localeFor} from './ui-features.js?v=20261009-brighter';
+import {openReservationClientMode} from './customer-facing.js?v=20261011-facing-v1';
 
 const copy={
  zh:{capture:'截图模式',projects:'项目预留份额',project:'项目',edit:'编辑项目',open:'查看项目',back:'返回主页面',mine:'我的项目',account:'查看账号',readonly:'上级只读查看',configure:'请先填写项目名称和份额数量',setup:'数据库权限尚未配置',setupHelp:'请先执行项目权限迁移脚本，再刷新页面。',error:'项目数据加载失败',total:'总份额',remaining:'剩余份额',reserved:'已预留份额',ratio:'剩余份额占比',low:'剩余份额低于 20%',normal:'可预留份额',date:'项目日期',currency:'币种',name:'项目名称',symbol:'股票代码（可选）',details:'项目明细',intro:'项目介绍',scarce:'仅剩',save:'保存项目',saved:'项目已保存',invalid:'请输入有效项目名称与份额数量',timeline:'预留份额走势',subtitle:'累计预留快照 · 罗马尼亚时间',empty:'暂无预留记录',add:'填写预留记录',editRecord:'修改记录',records:'预留明细记录',time:'记录时间',participants:'参与人数',notes:'备注',cumulative:'累计已预留份额',saveRecord:'保存记录',recordSaved:'记录已保存',invalidRecord:'请输入有效记录，累计预留不能超过总份额',sameDate:'记录日期必须与项目日期一致',scale:'低余量刻度展开 · 0–20%',notConfigured:'尚未配置',escape:'按 Esc 返回主页面',updated:'最后更新',own:'各账号独立填写',units:'份额',unitHelp:'按份额数量记录，不代表货币金额',failed:'保存失败，请重试'},
@@ -111,7 +112,7 @@ export async function renderProjectPresentation(ctx){
  }
  if(projectExit)projectExit.onclick=()=>ctx.switchView('dashboard');
  const ownerSelect=$('#projectDetailOwnerSelect');if(ownerSelect)ownerSelect.onchange=()=>{if(!owners.some(owner=>owner.id===ownerSelect.value))return;state.allocationOwnerId=ownerSelect.value;state.activeProjectNumber=1;ctx.switchView('shareboard');};
- const capture=$('#projectCaptureButton');if(capture){capture.textContent=text(ctx,'capture');capture.onclick=()=>document.body.classList.add('projectCaptureMode');}
+ const capture=$('#projectCaptureButton');if(capture){capture.textContent='客户预留对外确认';capture.onclick=()=>{if(!project){ctx.toast('请先选择有数据的预留项目',true);return;}openReservationClientMode(ctx,project);};}
  ctx.$$('[data-project-edit]').forEach(b=>b.onclick=()=>editProject(ctx,Number(b.dataset.projectEdit)));
  ctx.$$('[data-project-select]').forEach(b=>b.onclick=()=>{state.activeProjectNumber=Number(b.dataset.projectSelect);ctx.switchView('shareboard');});
  const nameForm=$('#projectNameForm');if(nameForm)nameForm.onsubmit=async event=>{
@@ -122,7 +123,7 @@ export async function renderProjectPresentation(ctx){
  attachCustomerRanking(ctx,project);
  ctx.$$('[data-edit-record]').forEach(b=>b.onclick=()=>editReservation(ctx,project,rows.find(r=>r.id===b.dataset.editRecord)));
  if(state.projectEscapeHandler)document.removeEventListener('keydown',state.projectEscapeHandler);
- state.projectEscapeHandler=e=>{if(e.key==='Escape'&&!$('#modalRoot')?.children.length){if(document.body.classList.contains('projectCaptureMode'))document.body.classList.remove('projectCaptureMode');else ctx.switchView('dashboard');}};document.addEventListener('keydown',state.projectEscapeHandler);
+ state.projectEscapeHandler=e=>{if(document.getElementById('customerFacingRoot'))return;if(e.key==='Escape'&&!$('#modalRoot')?.children.length){if(document.body.classList.contains('projectCaptureMode'))document.body.classList.remove('projectCaptureMode');else ctx.switchView('dashboard');}};document.addEventListener('keydown',state.projectEscapeHandler);
  const redraw=()=>projects.forEach((p,i)=>{const canvas=$('#projectRing'+(i+1));if(p&&canvas){const pc=p.remaining_shares/p.total_shares*100;drawProjectRing(canvas,pc,projectEnergyColors[i]);}});
  redraw();state.projectResizeObserver=new ResizeObserver(redraw);ctx.$$('.projectRingDock').forEach(el=>state.projectResizeObserver.observe(el));
  projects.forEach((p,i)=>{if(p)companyHeader($('#projectCompany'+(i+1)),p);});
