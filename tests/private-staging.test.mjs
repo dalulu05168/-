@@ -73,6 +73,8 @@ test("P005 embedded browser login uses a secure HTML form, not a native popup", 
   assert.equal(privateAsset.status,401);
   const privateCrmModule=await fetch(origin+"/crm-six-page.js");
   assert.equal(privateCrmModule.status,401,"New CRM module must stay behind the private gate");
+  const privateBoot=await fetch(origin+"/crm-boot.js");
+  assert.equal(privateBoot.status,401,"Recovery bootstrap also requires authentication");
   const fakeBasic=await fetch(origin+"/app.js",{
     headers:{Authorization:"Basic "+Buffer.from(user+":"+pass).toString("base64")}
   });
@@ -112,6 +114,9 @@ test("P005 embedded browser login uses a secure HTML form, not a native popup", 
   const crmModule=await fetch(origin+"/crm-six-page.js",{headers:{Cookie:cookie}});
   assert.equal(crmModule.status,200);
   assert.match(await crmModule.text(),/renderCrmTrades/);
+  const publicBoot=await fetch(origin+"/crm-boot.js",{headers:{Cookie:cookie}});
+  assert.equal(publicBoot.status,200);
+  assert.match(await publicBoot.text(),/showBootError/);
   const invalid=await fetch(origin+"/app.js",{headers:{Cookie:"p005_preview_session=1234567890."+ "0".repeat(64)}});
   assert.equal(invalid.status,401);
 });
@@ -192,3 +197,27 @@ test("Customer-facing service report does not auto-publish internal follow-up no
  assert.match(css,/@media print/);
 });
 
+
+
+test("CRM dashboard stays interactive even when chart scripts fail",async()=>{
+ const [app,html,boot,css,demo]=await Promise.all([
+  read("app.js"),read("index.html"),read("crm-boot.js"),read("crm-runtime-fix.css"),read("demo-client.js")
+ ]);
+ assert.match(html,/crm-boot\.js/);
+ assert.doesNotMatch(html,/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/chart\.js/);
+ assert.match(boot,/cdn\.jsdelivr\.net/);
+ assert.match(boot,/cdnjs\.cloudflare\.com/);
+ assert.match(boot,/fallbackChart/);
+ assert.match(app,/document\.body\.dataset\.crmInteractiveReady="1"/);
+ assert.match(css,/#main\.viewBusy,#main\.viewLeaving\{pointer-events:auto!important\}/);
+ assert.match(demo,/response\.redirected\|\|response\.status===401/);
+ const adminStart=app.indexOf("async function renderDashboard(){");
+ const adminEnd=app.indexOf("function drawDashboardCharts(",adminStart);
+ const dashboard=app.slice(adminStart,adminEnd);
+ assert.ok(dashboard.indexOf('$$(".tradeflareRail [data-view]')<dashboard.lastIndexOf('try{drawDashboardCharts(7)}'),"Bind dashboard buttons before drawing charts");
+ const teamStart=app.indexOf("function renderLevel1Dashboard(){");
+ const teamEnd=app.indexOf("function openLevel2Overview(",teamStart);
+ const team=app.slice(teamStart,teamEnd);
+ assert.ok(team.indexOf('$$(".level1StaffCard").forEach')<team.indexOf('new Chart(orderEl'),"Staff details remain clickable if charts fail");
+ assert.match(app,/if\(!main\.children\.length\)main\.innerHTML/);
+});
