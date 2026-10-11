@@ -1668,15 +1668,19 @@ async function renderReports(){
     <section class="reportsLower"><article class="panel"><div class="panelHead"><div><h2>人员客户统计</h2><p>按角色层级计算可见客户数量</p></div></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>人员</th><th>角色</th><th>客户数量</th><th>持仓客户</th></tr></thead><tbody>${staffRows||'<tr><td colspan="4"><div class="empty">暂无人员数据</div></td></tr>'}</tbody></table></div></article><article class="panel monthlyReport"><div class="panelHead"><h2>月度成交额 / 笔数</h2><input id="reportMonth" class="input" type="month" value="${romaniaDateKey().slice(0,7)}"><select id="reportCurrency" class="select"><option>USD</option><option>RON</option></select></div><div class="chartBox" style="height:140px;min-height:100px"><canvas id="monthlyTradeChart"></canvas></div><div class="tableWrap" id="monthlyTradeRows"></div></article></section>`;
   const renderMonthly=()=>{const monthly=monthlyTradeTotals(state.trades,state.customers),currency=$("#reportCurrency").value,selected=$("#reportMonth").value;const rows=monthly.filter(r=>r.month===selected&&r.currency===currency);$("#monthlyTradeRows").innerHTML=`<table class="dataTable"><thead><tr><th>月份</th><th>买入成交额</th><th>卖出成交额</th><th>笔数</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.month)}</td><td>${money(r.buy,r.currency)}</td><td>${money(r.sell,r.currency)}</td><td>${r.count}</td></tr>`).join("")||'<tr><td colspan="4">该月该币种暂无交易</td></tr>'}</tbody></table>`;const series=monthly.filter(r=>r.currency===currency);state.charts.monthly?.destroy();state.charts.monthly=new Chart($("#monthlyTradeChart"),{type:"bar",data:{labels:series.map(r=>r.month),datasets:[{label:tr("买入",state.lang)+" · "+currency,data:series.map(r=>r.buy),backgroundColor:"#8eafd0"},{label:tr("卖出",state.lang)+" · "+currency,data:series.map(r=>r.sell),backgroundColor:"#ef3456"}]},options:chartOpts()});window.dispatchEvent(new Event("crm-layout"));};
   $("#reportMonth").onchange=renderMonthly;$("#reportCurrency").onchange=renderMonthly;renderMonthly();
+  const ownerRanking=Object.entries(byOwner).sort((a,b)=>b[1]-a[1]);
+  const ownerTop=ownerRanking.slice(0,8);
+  const ownerRest=ownerRanking.slice(8).reduce((sum,[,count])=>sum+count,0);
+  if(ownerRest>0)ownerTop.push(["其他人员（"+(ownerRanking.length-8)+"人）",ownerRest]);
   state.charts.owner=new Chart($("#ownerChart"),{
-    type:"bar",
-    data:{labels:topOwnerCounts.map(([name])=>name.length>20?name.slice(0,18)+"…":name),
-      datasets:[{label:tr("客户数量",state.lang),data:topOwnerCounts.map(([,count])=>count),
-        backgroundColor:"#89aacc",hoverBackgroundColor:"#247f77",borderRadius:5,maxBarThickness:21,barPercentage:.72}]},
-    options:{...chartOpts(),indexAxis:"y",layout:{padding:{top:5,right:12,bottom:6,left:3}},
+    type:"bar",data:{labels:ownerTop.map(([name])=>name),datasets:[{
+      label:tr("客户数量",state.lang),data:ownerTop.map(([,count])=>count),
+      backgroundColor:"#86afc7",borderRadius:5,maxBarThickness:23,categoryPercentage:.72
+    }]},options:{...chartOpts(),indexAxis:"y",
       plugins:{...chartOpts().plugins,legend:{display:false}},
-      scales:{x:{beginAtZero:true,grid:{color:"rgba(36,72,81,.09)"},ticks:{color:"#60736e",precision:0,font:{size:11}}},
-        y:{grid:{display:false},ticks:{color:"#344943",autoSkip:false,font:{size:11}}}}}
+      scales:{x:{...chartOpts().scales.x,beginAtZero:true,ticks:{...chartOpts().scales.x.ticks,precision:0,maxTicksLimit:6}},
+        y:{...chartOpts().scales.y,grid:{display:false},ticks:{...chartOpts().scales.y.ticks,autoSkip:false,font:{size:11}}}}
+    }
   });
   state.charts.side=new Chart($("#sideChart"),{
     type:"doughnut",
