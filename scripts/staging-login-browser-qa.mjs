@@ -36,7 +36,7 @@ try{
   assert.ok(ready,"Staging server readiness failed "+err);
   browser=await chromium.launch({headless:true,args:["--no-sandbox"]});
   for(const size of [{name:"desktop",width:1440,height:900},{name:"phone",width:390,height:844}]){
-    const context=await browser.newContext({viewport:{width:size.width,height:size.height},httpCredentials:{username,password}});
+    const context=await browser.newContext({viewport:{width:size.width,height:size.height}});
     const page=await context.newPage();
     const errors=[],external=[];
     page.on("pageerror",e=>errors.push(String(e)));
@@ -45,6 +45,11 @@ try{
     });
     try{
       await page.goto(origin+"/",{waitUntil:"domcontentloaded",timeout:25000});
+      await page.waitForSelector('form[action="/_preview/login"]',{timeout:15000});
+      await page.locator("#username").fill(username);
+      await page.locator("#password").fill(password);
+      await page.locator('form[action="/_preview/login"] button[type="submit"]').click();
+      await page.waitForURL(/loginPreview=1/,{timeout:15000});
       await page.waitForSelector("#stagingDemoRole",{timeout:20000});
       assert.equal(await page.locator('input[name="password"]').count(),0,"Preview must not request an actual password");
       assert.equal(await page.locator('input[name="username"]').count(),0,"Preview must not request an actual username");
