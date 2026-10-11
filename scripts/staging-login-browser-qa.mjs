@@ -66,6 +66,19 @@ try{
       await projectLauncher.waitFor({state:"visible",timeout:15000});
       await projectLauncher.click();
       await page.waitForSelector('#main[data-view="shareboard"] .projectPresentation',{timeout:20000});
+      // P005 finishing: the old blue/blank allocation top strip is fully removed.
+      await page.waitForFunction(()=>{
+        const header=document.querySelector('.projectPresentationHeader');
+        return header&&getComputedStyle(header).display==='none';
+      },{timeout:12000});
+      assert.ok(await page.locator("#projectCaptureButton").isVisible(),"Capture action must be in the global topbar");
+      assert.ok(await page.locator("#projectPresentationExit").isVisible(),"Back action must remain visible in global topbar");
+      assert.ok(await page.locator("#projectDetailOwnerSelect").isVisible(),"Account selector must remain visible in global topbar");
+      await page.locator("#projectCaptureButton").click();
+      assert.ok(await page.evaluate(()=>document.body.classList.contains("projectCaptureMode")),"Capture mode must still work");
+      await page.keyboard.press("Escape");
+      assert.equal(await page.evaluate(()=>document.body.classList.contains("projectCaptureMode")),false,"Escape should exit screenshot mode");
+
       // A supervisor with no own projects must see a permitted subordinate's complete detail page.
       const activeOwner=page.locator("#projectDetailOwnerSelect");
       await activeOwner.waitFor({state:"visible",timeout:15000});
@@ -88,6 +101,16 @@ try{
       assert.ok(await page.locator("#projectPresentationExit").isVisible(),"Project back action missing");
       await page.locator("#projectPresentationExit").click();
       await page.waitForSelector('#main[data-view="dashboard"]',{timeout:20000});
+      // The old full-width navy pager must never reappear on role dashboards.
+      const pagerStyles=await page.evaluate(()=>{
+        const el=document.querySelector('#main .viewportPager:not([hidden])');
+        if(!el)return null;
+        const cs=getComputedStyle(el);return {background:cs.backgroundColor,width:el.getBoundingClientRect().width};
+      });
+      if(pagerStyles){
+        assert.ok(pagerStyles.background.includes("255, 255, 255"),"Paginator must be white, not navy: "+JSON.stringify(pagerStyles));
+        assert.ok(pagerStyles.width<490,"Paginator must not span full dashboard width");
+      }
       const navProject=page.locator('.nav button[data-view="shareboard"]').first();
       await navProject.click();
       await page.waitForSelector('#main[data-view="shareboard"] .projectPresentation',{timeout:20000});
