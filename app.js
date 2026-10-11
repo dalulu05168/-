@@ -1637,6 +1637,14 @@ async function renderReports(){
     byOwner[o]=(byOwner[o]||0)+1;
   }
 
+  // Actual counts only: show the busiest owners as legible horizontal bars,
+  // aggregating everyone else so the visible total remains accurate.
+  const allOwnerCounts=Object.entries(byOwner).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+  const topOwnerCounts=allOwnerCounts.slice(0,8);
+  const remainingOwnerCount=allOwnerCounts.slice(8).reduce((total,[,count])=>total+count,0);
+  if(remainingOwnerCount>0)topOwnerCounts.push(["其他 "+(allOwnerCounts.length-8)+" 位",remainingOwnerCount]);
+  const totalOrders=state.trades.filter(t=>t.side==="buy"||t.side==="sell").length;
+
   const reportStaff=state.profile.role==="admin"
     ? state.staff.filter(s=>s.status==="active"&&s.role!=="admin")
     : state.profile.role==="level1"
@@ -1654,14 +1662,31 @@ async function renderReports(){
 
   $("#main").innerHTML=pageHead("统计报表","按当前权限范围实时汇总，不使用虚拟业务数据。")+`
     <section class="grid2">
-      <article class="panel"><div class="panelHead"><div><h2>客户归属分布</h2><div class="panelSubtitleRow"><p>按二级负责人统计</p><span class="inlineLegend goldLegend">客户数量 · ${state.customers.length}</span></div></div></div><div class="chartBox"><canvas id="ownerChart"></canvas></div></article>
-      <article class="panel"><div class="panelHead"><div><h2>买卖结构</h2><div class="panelSubtitleRow"><p>交易记录数量</p><span class="inlineLegend up">买入 · ${state.trades.filter(t=>t.side==="buy").length}</span><span class="inlineLegend down">卖出 · ${state.trades.filter(t=>t.side==="sell").length}</span></div></div></div><div class="chartBox"><canvas id="sideChart"></canvas></div></article>
+      <article class="panel reportOwnershipPanel"><div class="panelHead"><div><h2>客户归属分布</h2><div class="panelSubtitleRow"><p>负责人 Top 8 · 其他已合并</p><span class="inlineLegend goldLegend">客户总数 · ${state.customers.length}</span></div></div></div><div class="chartBox"><canvas id="ownerChart"></canvas></div></article>
+      <article class="panel reportOrderPanel"><div class="panelHead"><div><h2>买卖结构</h2><div class="panelSubtitleRow"><p>按可见交易记录统计</p><span class="inlineLegend up">买入 · ${state.trades.filter(t=>t.side==="buy").length}</span><span class="inlineLegend down">卖出 · ${state.trades.filter(t=>t.side==="sell").length}</span></div></div></div><div class="chartBox"><canvas id="sideChart"></canvas><div class="reportDoughnutTotal"><strong>${totalOrders.toLocaleString("en-US")}</strong><small>笔交易</small></div></div></article>
     </section>
     <section class="reportsLower"><article class="panel"><div class="panelHead"><div><h2>人员客户统计</h2><p>按角色层级计算可见客户数量</p></div></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>人员</th><th>角色</th><th>客户数量</th><th>持仓客户</th></tr></thead><tbody>${staffRows||'<tr><td colspan="4"><div class="empty">暂无人员数据</div></td></tr>'}</tbody></table></div></article><article class="panel monthlyReport"><div class="panelHead"><h2>月度成交额 / 笔数</h2><input id="reportMonth" class="input" type="month" value="${romaniaDateKey().slice(0,7)}"><select id="reportCurrency" class="select"><option>USD</option><option>RON</option></select></div><div class="chartBox" style="height:140px;min-height:100px"><canvas id="monthlyTradeChart"></canvas></div><div class="tableWrap" id="monthlyTradeRows"></div></article></section>`;
   const renderMonthly=()=>{const monthly=monthlyTradeTotals(state.trades,state.customers),currency=$("#reportCurrency").value,selected=$("#reportMonth").value;const rows=monthly.filter(r=>r.month===selected&&r.currency===currency);$("#monthlyTradeRows").innerHTML=`<table class="dataTable"><thead><tr><th>月份</th><th>买入成交额</th><th>卖出成交额</th><th>笔数</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.month)}</td><td>${money(r.buy,r.currency)}</td><td>${money(r.sell,r.currency)}</td><td>${r.count}</td></tr>`).join("")||'<tr><td colspan="4">该月该币种暂无交易</td></tr>'}</tbody></table>`;const series=monthly.filter(r=>r.currency===currency);state.charts.monthly?.destroy();state.charts.monthly=new Chart($("#monthlyTradeChart"),{type:"bar",data:{labels:series.map(r=>r.month),datasets:[{label:tr("买入",state.lang)+" · "+currency,data:series.map(r=>r.buy),backgroundColor:"#8eafd0"},{label:tr("卖出",state.lang)+" · "+currency,data:series.map(r=>r.sell),backgroundColor:"#ef3456"}]},options:chartOpts()});window.dispatchEvent(new Event("crm-layout"));};
   $("#reportMonth").onchange=renderMonthly;$("#reportCurrency").onchange=renderMonthly;renderMonthly();
-  state.charts.owner=new Chart($("#ownerChart"),{type:"bar",data:{labels:Object.keys(byOwner),datasets:[{label:tr("客户数量",state.lang),data:Object.values(byOwner),backgroundColor:"#8eafd0",maxBarThickness:36}]},options:{...chartOpts(),plugins:{...chartOpts().plugins,legend:{display:false}},scales:{...chartOpts().scales,y:{...chartOpts().scales.y,beginAtZero:true,max:Math.max(10,Math.ceil(Math.max(0,...Object.values(byOwner))/10)*10),ticks:{...chartOpts().scales.y.ticks,precision:0,stepSize:10}}}}});
-  state.charts.side=new Chart($("#sideChart"),{type:"doughnut",data:{labels:[tr("买入",state.lang),tr("卖出",state.lang)],datasets:[{data:[state.trades.filter(t=>t.side==="buy").length,state.trades.filter(t=>t.side==="sell").length],backgroundColor:["#00d59b","#ef3456"],borderColor:"#061722",borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:"72%",plugins:{...chartOpts().plugins,legend:{display:false}}}});
+  state.charts.owner=new Chart($("#ownerChart"),{
+    type:"bar",
+    data:{labels:topOwnerCounts.map(([name])=>name.length>20?name.slice(0,18)+"…":name),
+      datasets:[{label:tr("客户数量",state.lang),data:topOwnerCounts.map(([,count])=>count),
+        backgroundColor:"#89aacc",hoverBackgroundColor:"#247f77",borderRadius:5,maxBarThickness:21,barPercentage:.72}]},
+    options:{...chartOpts(),indexAxis:"y",layout:{padding:{top:5,right:12,bottom:6,left:3}},
+      plugins:{...chartOpts().plugins,legend:{display:false}},
+      scales:{x:{beginAtZero:true,grid:{color:"rgba(36,72,81,.09)"},ticks:{color:"#60736e",precision:0,font:{size:11}}},
+        y:{grid:{display:false},ticks:{color:"#344943",autoSkip:false,font:{size:11}}}}}
+  });
+  state.charts.side=new Chart($("#sideChart"),{
+    type:"doughnut",
+    data:{labels:[tr("买入",state.lang),tr("卖出",state.lang)],
+      datasets:[{data:[state.trades.filter(t=>t.side==="buy").length,state.trades.filter(t=>t.side==="sell").length],
+        backgroundColor:["#159d84","#d85a70"],hoverBackgroundColor:["#0b846f","#b83b55"],
+        borderColor:"#fff",borderWidth:5,hoverOffset:4,borderRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:"77%",
+      layout:{padding:14},plugins:{...chartOpts().plugins,legend:{display:false}}}
+  });
 }
 
 async function renderSettings(){
