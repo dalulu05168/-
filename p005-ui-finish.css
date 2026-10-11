@@ -490,3 +490,233 @@ html body.projectPanoramaMode #root#root #main#main#main#main#main .projectRecor
    height:100%!important;min-height:0!important;max-height:100%!important;overflow:hidden!important;
  }
 }
+
+
+/* P005 three-page proportional finishing – preserve all business data/controls.
+   Report, stock market and project allocation use the same desktop viewport.
+   Mobile retains natural vertical scrolling rather than clipping. 2026-10-11 */
+@media (min-width:900px) and (min-height:700px) {
+  /* The allocation route formerly changed the ENTIRE CRM shell to one grid
+     row. That left an auto row and a visible aqua strip below the content. */
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode)
+    #root#root .app .shell {
+    grid-template-columns:72px minmax(0,1fr)!important;
+    grid-template-rows:66px minmax(0,1fr)!important;
+    height:900px!important;
+    min-height:900px!important;
+    max-height:900px!important;
+    overflow:hidden!important;
+  }
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode)
+    #root#root #main#main#main#main#main[data-view="shareboard"] {
+    grid-column:2!important;
+    grid-row:2!important;
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    max-height:100%!important;
+    overflow:hidden!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  html body.desktopFrame.projectPresentationMode.projectPanoramaMode:not(.projectCaptureMode)
+    #root#root #main#main#main#main#main .projectOverview {
+    height:100%!important;
+    min-height:0!important;
+    max-height:100%!important;
+    padding:10px 11px 11px!important;
+  }
+  /* Report: balanced dense but readable 2-row dashboard. */
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="reports"]{
+    display:grid!important;
+    grid-template-rows:minmax(0,.99fr) minmax(0,1.01fr)!important;
+    gap:11px!important;
+    height:100%!important;
+    max-height:100%!important;
+    overflow:hidden!important;
+    padding:10px 11px 11px!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="reports"] > :is(.grid2,.reportsLower){
+    display:grid!important;
+    height:100%!important;
+    min-height:0!important;
+    max-height:100%!important;
+    margin:0!important;
+    gap:11px!important;
+    overflow:hidden!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="reports"] > .grid2 {
+    grid-template-columns:minmax(0,1.64fr) minmax(0,.78fr)!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="reports"] > .reportsLower {
+    grid-template-columns:minmax(0,1fr) minmax(0,1.25fr)!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="reports"] :is(.panel,.chartBox,.tableWrap){
+    min-height:0!important;
+    min-width:0!important;
+    max-height:100%!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="reports"] .grid2>.panel,
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="reports"] .reportsLower>.panel {
+    display:flex!important;
+    flex-direction:column!important;
+    height:100%!important;
+    overflow:hidden!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="reports"] .panelHead {
+    flex:0 0 50px!important;
+    height:50px!important;
+    min-height:50px!important;
+    padding:8px 14px!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="reports"] .grid2>.panel>.chartBox {
+    flex:1 1 auto!important;
+    height:0!important;
+    min-height:0!important;
+    max-height:none!important;
+    padding:12px 16px!important;
+    position:relative!important;
+    overflow:hidden!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="reports"] .grid2>.panel:nth-child(2)>.chartBox {
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:20px!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="reports"] #sideChart {
+    display:block!important;
+    width:min(255px,100%)!important;
+    height:min(255px,100%)!important;
+    max-width:255px!important;
+    max-height:255px!important;
+    flex:none!important;
+    margin:auto!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="reports"] .reportsLower>.panel>.tableWrap {
+    flex:1 1 auto!important;
+    height:0!important;
+    overflow:auto!important;
+    padding-bottom:32px!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="reports"] .monthlyReport>.chartBox {
+    flex:0 0 140px!important;
+    height:140px!important;
+    min-height:110px!important;
+    max-height:140px!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="reports"] .monthlyReport>#monthlyTradeRows {
+    flex:1 1 auto!important;
+    height:auto!important;
+    min-height:0!important;
+  }
+  /* Stock market: reserve genuine screen real estate for the quote details
+     and the line chart instead of allocating almost all height to list rows. */
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="market"]{
+    overflow:hidden!important;
+    padding:10px 11px 11px!important;
+    max-height:100%!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="market"]>.canvaReferenceMarket {
+    display:grid!important;
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    max-height:100%!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    grid-template-rows:51px 103px minmax(220px,.86fr) minmax(230px,1fr)!important;
+    gap:9px!important;
+    overflow:hidden!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="market"] .referenceFeatureCards{
+    gap:9px!important;
+    min-height:0!important;
+    max-height:103px!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="market"] .referenceFeatureCard{
+    grid-template-rows:29px 25px 19px!important;
+    align-content:center!important;
+    gap:2px!important;
+    min-height:0!important;
+    height:100%!important;
+    padding:8px 12px!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="market"] .referenceFeatureValue {
+    font-size:20px!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="market"]>.canvaReferenceMarket>.marketListPanel{
+    min-height:0!important;
+    height:100%!important;
+    grid-template-rows:36px 37px 27px minmax(0,1fr)!important;
+    margin:0!important;
+    overflow:hidden!important;
+    border:1px solid var(--p005-border)!important;
+    border-radius:11px!important;
+    background:#fff!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="market"] .referenceMarketTabs {
+    height:36px!important;
+    padding:0 10px!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="market"] .referenceMarketFilters {
+    height:37px!important;
+    padding:4px 10px!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="market"] .canvaReferenceMarket .marketListHead {
+    height:27px!important;
+    padding:0 11px!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="market"] .canvaReferenceMarket .marketRow{
+    height:42px!important;
+    min-height:42px!important;
+    max-height:42px!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="market"]>.canvaReferenceMarket>.marketOverviewPanel,
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="market"]>.canvaReferenceMarket>.marketChartPanel {
+    display:flex!important;
+    flex-direction:column!important;
+    min-height:0!important;
+    height:100%!important;
+    max-height:100%!important;
+    overflow:hidden!important;
+    border:1px solid var(--p005-border)!important;
+    border-radius:11px!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="market"] .marketOverviewPanel>.panelBody {
+    flex:1 1 auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    padding:12px!important;
+    overflow:auto!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="market"] .marketChartPanel>.chartBox {
+    flex:1 1 auto!important;
+    height:0!important;
+    min-height:0!important;
+    max-height:none!important;
+    padding:10px!important;
+    overflow:hidden!important;
+  }
+  html body.desktopFrame #root#root #main#main#main#main#main[data-view="market"] .marketChartPanel .marketCanvas {
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    max-height:100%!important;
+    overflow:hidden!important;
+  }
+}
+/* Phone layouts intentionally scroll: never squash data into a 16:9 frame. */
+@media(max-width:899px){
+  html body #root#root #main#main#main#main#main[data-view="reports"] .grid2>.panel>.chartBox {
+    min-height:240px!important;
+    height:240px!important;
+  }
+  html body #root#root #main#main#main#main#main[data-view="reports"] .grid2>.panel:nth-child(2)>.chartBox {
+    display:grid!important;place-items:center!important;
+    min-height:220px!important;height:220px!important;
+  }
+  html body #root#root #main#main#main#main#main[data-view="reports"] #sideChart {
+    max-width:190px!important;max-height:190px!important;
+    width:100%!important;height:100%!important;
+  }
+}
