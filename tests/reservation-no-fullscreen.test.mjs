@@ -12,7 +12,9 @@ test("Reservation pages never request or exit browser fullscreen",async()=>{
   assert.match(projects,/export async function openProject\(ctx,n\)\{ctx\.state\.activeProjectNumber=[^\n]+await ctx\.switchView\('shareboard'\)/);
   assert.match(app,/\$\$\("\.nav button"\)\.forEach\(b=>b\.onclick=\(\)=>\{switchView\(b\.dataset\.view\)\}\)/);
   assert.match(projects,/id="projectPresentationExit"/);
-  assert.match(projects,/#projectPresentationExit'\)\.onclick=\(\)=>ctx\.switchView\('dashboard'\)/);
+  assert.match(projects,/if\(projectExit\)projectExit\.onclick=\(\)=>ctx\.switchView\('dashboard'\)/);
+  assert.match(projects,/globalActions\.prepend\(projectExit\)/);
+  assert.match(projects,/globalActions\.prepend\(projectOwnerControl\)/);
 });
 
 test("Reservation functions and translations remain available",async()=>{
