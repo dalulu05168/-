@@ -191,6 +191,37 @@ try{
       assert.equal(await page.evaluate(()=>document.body.classList.contains("projectCaptureMode")),true);
       await page.keyboard.press("Escape");
       assert.equal(await page.evaluate(()=>document.body.classList.contains("projectCaptureMode")),false);
+      const canvasByView={};
+      for(const view of ["reports","market"]){
+        await page.locator('.nav button[data-view="'+view+'"]').click();
+        await page.waitForSelector('#main[data-view="'+view+'"]',{timeout:20000});
+        await page.waitForTimeout(250);
+        const metric=await page.evaluate(view=>{
+          const rect=selector=>{const el=document.querySelector(selector),b=el?.getBoundingClientRect();return b?{top:b.top,bottom:b.bottom,width:b.width,height:b.height}:null};
+          const main=document.querySelector("#main"),root=main?.querySelector(view==="reports"?".grid2":".canvaReferenceMarket");
+          const panels=[...(main?.querySelectorAll(view==="reports"?".grid2>.panel,.reportsLower>.panel":".referenceFeatureCards,.marketListPanel,.marketOverviewPanel,.marketChartPanel")||[])].map(x=>{
+            const b=x.getBoundingClientRect();return {name:String(x.className),height:b.height,bottom:b.bottom,
+              hidden:getComputedStyle(x).display==="none",scrollHeight:x.scrollHeight,clientHeight:x.clientHeight};
+          });
+          return {view,main:rect("#main"),root:rect(view==="reports"?"#main>.grid2":"#main>.canvaReferenceMarket"),
+            height:main?.clientHeight,width:main?.clientWidth,
+            charts:[...main.querySelectorAll("canvas")].map(c=>({id:c.id,box:{width:c.getBoundingClientRect().width,height:c.getBoundingClientRect().height}})),
+            panels,scrollWidth:document.documentElement.scrollWidth};
+        },view);
+        canvasByView[view]=metric;
+        assert.ok(metric.scrollWidth<=size.width+5,view+" horizontal overflow");
+        assert.ok(metric.panels.length>=4,view+" modules missing");
+        assert.ok(metric.panels.every(p=>p.height>65&&!p.hidden),view+" contains collapsed panel "+JSON.stringify(metric.panels));
+        if(size.width>=900){
+          assert.ok(metric.root?.height>350,view+" uses too little vertical space");
+          assert.ok(metric.panels.every(p=>p.bottom<=size.height+18),
+            view+" panels cut off below 16:9 viewport "+JSON.stringify(metric.panels));
+          assert.ok(metric.charts.every(c=>c.box.width>40&&c.box.height>70),
+            view+" chart clipped "+JSON.stringify(metric.charts));
+        }
+        await page.screenshot({path:path.join(saveDir,size.name+"-"+view+"-unified.png"),fullPage:true,animations:"disabled"});
+      }
+      records.push({view:"unified-three-page-geometry",size:size.name,data:canvasByView});
       assert.equal(errors.length,0,"Browser errors "+errors.join("; "));
     }catch(e){failures.push({size:size.name,error:String(e),errors});}
     finally{await ctx.close();}
