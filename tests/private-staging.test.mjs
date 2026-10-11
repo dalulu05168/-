@@ -5,6 +5,7 @@ import {spawn} from "node:child_process";
 import {createServer} from "node:net";
 import {fileURLToPath} from "node:url";
 import path from "node:path";
+import vm from "node:vm";
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 const read=name=>readFile(path.join(root,name),"utf8");
@@ -220,4 +221,39 @@ test("CRM dashboard stays interactive even when chart scripts fail",async()=>{
  const team=app.slice(teamStart,teamEnd);
  assert.ok(team.indexOf('$$(".level1StaffCard").forEach')<team.indexOf('new Chart(orderEl'),"Staff details remain clickable if charts fail");
  assert.match(app,/if\(!main\.children\.length\)main\.innerHTML/);
+});
+
+
+test("CRM shell genuinely binds navigation clicks and exposes array selectors to modules",async()=>{
+ const app=await read("app.js");
+ const start=app.indexOf("function renderShell(){");
+ const stop=app.indexOf("\nlet viewSwitchToken",start);
+ assert.ok(start>=0&&stop>start,"renderShell must be present");
+ const rootElement={innerHTML:""};
+ const button={dataset:{view:"customers"}};
+ let selectedView=null;
+ const classList={toggle(){}};
+ const node={classList, setAttribute(){}, onclick:null, onsubmit:null, onchange:null};
+ const $=selector=>selector==="#root"?rootElement:node;
+ const $$=selector=>selector===".nav button"?[button]:[];
+ const ctx={
+  state:{profile:{role:"admin",display_name:"测试管理员"},activeView:"dashboard",lang:"zh",systemHealth:"ok"},
+  $, $$, canPersonnel:()=>true, tr:v=>String(v), esc:v=>String(v),languageOptions:()=>'<option value="zh">中文</option>',
+  switchView:view=>{selectedView=view;},
+  localStorage:{getItem:()=>null,setItem(){}},
+  document:{body:{dataset:{}}},
+  translateUI(){},startRomaniaClock(){},openAccountNameForm(){},
+  setLang(){}, featureCtx(){}, clearMarketRefreshTimers(){},
+  supabase:{auth:{signOut:async()=>{}}},renderLogin(){}
+ };
+ vm.runInNewContext(app.slice(start,stop)+"\nrenderShell();",ctx);
+ assert.ok(rootElement.innerHTML.includes("客户中心"),"Main shell was built");
+ assert.equal(typeof button.onclick,"function","Real navigation button has click handler");
+ button.onclick();
+ assert.equal(selectedView,"customers","Click invokes view switch");
+ assert.equal(ctx.document.body.dataset.crmInteractiveReady,"1");
+ const feature=app.slice(app.indexOf("function featureCtx(){"),app.indexOf("function clearMarketRefreshTimers(){"));
+ assert.match(feature,/state,supabase,\$,\$\$,esc/,"Feature modules receive the multiple-element selector");
+ const erroneous=[...app.matchAll(/(?<!\$)\$\("[^"]+"\)\.(?:forEach|map|filter|reduce|find|some|every)\s*\(/g)];
+ assert.equal(erroneous.length,0,"No querySelector return value can be treated as a collection");
 });
