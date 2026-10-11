@@ -71,6 +71,8 @@ test("P005 embedded browser login uses a secure HTML form, not a native popup", 
   assert.equal(withoutCookie.status,401);
   const privateAsset=await fetch(origin+"/app.js");
   assert.equal(privateAsset.status,401);
+  const privateCrmModule=await fetch(origin+"/crm-six-page.js");
+  assert.equal(privateCrmModule.status,401,"New CRM module must stay behind the private gate");
   const fakeBasic=await fetch(origin+"/app.js",{
     headers:{Authorization:"Basic "+Buffer.from(user+":"+pass).toString("base64")}
   });
@@ -107,6 +109,32 @@ test("P005 embedded browser login uses a secure HTML form, not a native popup", 
   assert.equal(js.status,200);
   assert.match(js.headers.get("cache-control")||"",/no-store/);
   assert.match(await js.text(),/const demoMode=true;/);
+  const crmModule=await fetch(origin+"/crm-six-page.js",{headers:{Cookie:cookie}});
+  assert.equal(crmModule.status,200);
+  assert.match(await crmModule.text(),/renderCrmTrades/);
   const invalid=await fetch(origin+"/app.js",{headers:{Cookie:"p005_preview_session=1234567890."+ "0".repeat(64)}});
   assert.equal(invalid.status,401);
+});
+
+
+test("P005 six-page account hierarchy filters unauthorized descendants",async()=>{
+ const {__crmHelpers,renderCrmCustomers,renderCrmPersonnel,renderCrmTrades,renderCrmPositions,renderCrmReports}=await import("../crm-six-page.js");
+ for(const item of [renderCrmCustomers,renderCrmPersonnel,renderCrmTrades,renderCrmPositions,renderCrmReports])assert.equal(typeof item,"function");
+ const state={staff:[
+  {id:"admin",status:"active"},
+  {id:"level1",parent_user_id:"admin",status:"active"},
+  {id:"level2",parent_user_id:"level1",status:"active"},
+  {id:"other",parent_user_id:"elsewhere",status:"active"},
+  {id:"deleted",parent_user_id:"admin",status:"deleted"}
+ ],customers:[{id:"mine",owner_user_id:"level2"},{id:"notmine",owner_user_id:"other"},{id:"old",owner_user_id:"deleted"}]};
+ assert.deepEqual([...__crmHelpers.descendantIds(state,"admin")].sort(),["admin","level1","level2"]);
+ assert.deepEqual(__crmHelpers.visibleClients(state,"admin").map(c=>c.id),["mine"]);
+ assert.deepEqual(__crmHelpers.visibleClients(state,"level1").map(c=>c.id),["mine"]);
+ assert.deepEqual(__crmHelpers.visibleClients(state,"other").map(c=>c.id),["notmine"]);
+ const [app,html,server,css]=await Promise.all(["app.js","index.html","server.js","crm-six-page.css"].map(read));
+ assert.match(app,/renderCrmCustomers\(featureCtx\(\)\)/);
+ assert.match(app,/grid:\{display:false\}/);
+ assert.match(html,/crm-six-page\.css/);
+ assert.match(server,/crm-six-page\.js/);
+ assert.match(css,/crmCardGrid/);
 });
