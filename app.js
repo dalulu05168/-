@@ -1,4 +1,5 @@
 import {installViewportLayout} from './viewport-layout.js?v=20261009-brighter';
+import {renderCrmCustomers,renderCrmPersonnel,renderCrmTrades,renderCrmPositions,renderCrmReports} from './crm-six-page.js?v=20261011-six-pages-v1';
 
 import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-brighter";
 import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261009-brighter";
@@ -298,14 +299,18 @@ function renderShell(){
     <div class="app"><div class="shell">
       <header class="topbar">
         <div class="brand"><img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-approved-logo-v2" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
-        <div class="navFrame"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}" aria-current="${id===state.activeView?"page":"false"}" title="${tr(label,state.lang)}" aria-label="${tr(label,state.lang)}">${tr(label,state.lang)}</button>`).join("")}</nav></div>
+        <button type="button" id="navToggle" aria-label="收起导航" aria-expanded="true" title="展开或收起导航">☰</button><div class="navFrame"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}" aria-current="${id===state.activeView?"page":"false"}" title="${tr(label,state.lang)}" aria-label="${tr(label,state.lang)}">${tr(label,state.lang)}</button>`).join("")}</nav></div>
         <form id="globalSearchForm" class="globalSearch" role="search"><span aria-hidden="true">⌕</span><input id="globalSearchInput" type="search" autocomplete="off" placeholder="搜索客户、项目或股票…" aria-label="搜索客户、项目或股票"><button type="submit" aria-label="搜索">↵</button></form><div class="userArea"><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><button class="chip" id="editAccountName" title="修改账号名称">${esc(state.profile.display_name)}</button><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
       </header>
       <main id="main" data-view="${state.activeView}"></main>
     </div></div>
     <div id="modalRoot"></div>
   `;
-  $$(".nav button").forEach(b=>b.onclick=()=>{switchView(b.dataset.view)});
+  $(".nav button").forEach(b=>b.onclick=()=>{switchView(b.dataset.view)});
+  const navToggle=$("#navToggle"),shell=$(".shell");
+  const setNavCollapsed=collapsed=>{shell.classList.toggle("navCollapsed",collapsed);navToggle.setAttribute("aria-expanded",String(!collapsed));navToggle.setAttribute("aria-label",collapsed?"展开导航":"收起导航");};
+  setNavCollapsed(localStorage.getItem("bv-nav-collapsed")==="1");
+  navToggle.onclick=()=>{const next=!shell.classList.contains("navCollapsed");setNavCollapsed(next);localStorage.setItem("bv-nav-collapsed",next?"1":"0");window.dispatchEvent(new Event("crm-layout"));};
   $("#globalSearchForm").onsubmit=async event=>{
     event.preventDefault();
     const query=$("#globalSearchInput").value.trim();
@@ -419,7 +424,7 @@ async function refreshAll(){
 }
 
 function featureCtx(){
-  return {state,supabase,$,$$,esc,num,money,dt,romaniaClockText,romaniaDateKey,romaniaInputNow,romaniaLocalToISO,ROMANIA_TZ,fetchQuotes,chartOpts,toast,modal,closeModal,switchView,refreshAll,fetchPagedRows};
+  return {state,supabase,$,$,esc,num,money,dt,romaniaClockText,romaniaDateKey,romaniaInputNow,romaniaLocalToISO,ROMANIA_TZ,fetchQuotes,chartOpts,toast,modal,closeModal,switchView,refreshAll,fetchPagedRows,openCustomer,openCustomerForm,openStaffForm,openStaffEdit,resetStaffPassword,setStaffStatus,deleteStaffAccount,roleName,customerStatus,monthlyTradeTotals};
 }
 function clearMarketRefreshTimers(){
   for(const k of ["marketRefreshTimer","positionRefreshTimer","customerMarketTimer","shareBoardRefreshTimer"]){if(state[k]){clearInterval(state[k]);state[k]=null}}
@@ -824,7 +829,7 @@ function drawDashboardCharts(days=14){
   if(trendEl){
     state.charts.trend=new Chart(trendEl,{type:"line",data:{labels,datasets:[
       {label:tr("新增客户数",state.lang),data:newC,borderColor:"#00d59b",backgroundColor:"rgba(0,213,155,.10)",tension:.32,fill:true,pointRadius:0,pointHoverRadius:4},
-      {label:tr("交易记录",state.lang),data:tradeC,borderColor:"#6e8ba7",backgroundColor:"rgba(110,124,255,.05)",tension:.32,pointRadius:0,pointHoverRadius:4}
+      {label:tr("交易记录",state.lang),data:tradeC,borderColor:"#6e8ba7",backgroundColor:"rgba(110,124,255,.09)",fill:true,tension:.32,pointRadius:0,pointHoverRadius:4}
     ]},options:{...chartOpts(),plugins:{...chartOpts().plugins,legend:{display:false}}}});
   }
   const statusEl=$("#statusChart");
@@ -841,7 +846,7 @@ function chartOpts(){return{
     legend:{position:"top",align:"end",labels:{color:"#111111",font:{size:11,weight:"normal"},boxWidth:12,boxHeight:4,padding:8}},
     tooltip:{enabled:true,mode:"index",intersect:false,backgroundColor:"#252524",borderColor:"#53595f",borderWidth:1,titleFont:{weight:"normal"},bodyFont:{weight:"normal"}}
   },
-  scales:{x:{ticks:{color:"#111111",font:{family:"Arial, Microsoft YaHei, sans-serif",weight:"normal",size:11},maxTicksLimit:7,maxRotation:0,autoSkip:true},grid:{color:"rgba(42,62,86,.13)"}},y:{ticks:{color:"#111111",font:{family:"Arial, Microsoft YaHei, sans-serif",weight:"normal",size:11}},grid:{color:"rgba(42,62,86,.13)"}}}
+  scales:{x:{ticks:{color:"#111111",font:{family:"Arial, Microsoft YaHei, sans-serif",weight:"normal",size:11},maxTicksLimit:7,maxRotation:0,autoSkip:true},grid:{display:false}},y:{ticks:{color:"#111111",font:{family:"Arial, Microsoft YaHei, sans-serif",weight:"normal",size:11}},grid:{display:false}}}
 }}
 
 function customerTable(rows,full=true){
@@ -852,31 +857,7 @@ function customerTable(rows,full=true){
 }
 function bindCustomerLinks(){$$(".customerLink").forEach(x=>x.onclick=()=>openCustomer(x.dataset.id))}
 
-async function renderCustomers(){
-  $("#main").innerHTML=`
-    <article class="panel modulePanel">
-      <div class="panelHead unifiedModuleHead">
-        <div><h2>客户列表</h2><p>按当前账户权限管理客户资料、交易与跟进</p></div>
-        <div class="toolbar unifiedActions">
-          <input id="customerSearch" class="input" placeholder="搜索姓名 / 编号 / 电话">
-          <select id="customerStatus" class="select">
-            <option value="">全部状态</option><option value="prospect">潜在客户</option><option value="following">跟进中</option><option value="holding">持仓中</option><option value="closed">已结束</option><option value="archived">已归档</option>
-          </select>
-          <button class="btn primary" id="newCustomer">新增客户</button>
-        </div>
-      </div>
-      <div id="customerTable" class="tableWrap moduleContent"></div>
-    </article>`;
-  $("#newCustomer").onclick=openCustomerForm;
-  const refresh=()=>{
-    const q=$("#customerSearch").value.toLowerCase(),s=$("#customerStatus").value;
-    const rows=state.customers.filter(c=>(!q||[c.name,c.customer_code,c.phone].some(v=>String(v||"").toLowerCase().includes(q)))&&(!s||c.status===s));
-    $("#customerTable").innerHTML=customerTable(rows);bindCustomerLinks();
-  };
-  $("#customerSearch").oninput=refresh;
-  $("#customerStatus").onchange=refresh;
-  refresh();
-}
+async function renderCustomers(){return renderCrmCustomers(featureCtx());}
 
 function eligibleOwners(){
   if(state.profile.role==="admin")return state.staff.filter(s=>s.status==="active"&&["level1","level2"].includes(s.role));
@@ -1273,45 +1254,7 @@ function openFollowForm(c){
   $("#followForm").onsubmit=async e=>{e.preventDefault();const b=Object.fromEntries(new FormData(e.currentTarget).entries());b.customer_id=c.id;b.user_id=state.profile.id;if(!b.next_followup_at)b.next_followup_at=null;else b.next_followup_at=romaniaLocalToISO(String(b.next_followup_at));const {error}=await supabase.from("customer_followups").insert(b);if(error){toast(error.message,true);return}closeModal();toast("跟进记录已保存");await refreshAll();await openCustomer(c.id)};
 }
 
-async function renderPersonnel(){
-  if(!canPersonnel()){state.activeView="dashboard";await renderDashboard();return}
-  const rows=state.staff.filter(s=>s.status!=="deleted"&&(state.profile.role==="admin"||s.id===state.profile.id||s.parent_user_id===state.profile.id));
-  const createButton=state.profile.role==="admin"?'<button class="btn primary" id="newStaff">新建人员账户</button>':"";
-  $("#main").innerHTML=`
-    <article class="panel modulePanel">
-      <div class="panelHead unifiedModuleHead">
-        <div><h2>人员账户管理</h2><p>${state.profile.role==="admin"?"管理员拥有最高权限：一级人员直属管理员，二级人员直属一级人员；可修改、重置、禁用与删除人员账号":"查看本人及名下二级人员；权限由数据库 RLS 强制执行"}</p></div>
-        <div class="toolbar unifiedActions">${createButton}</div>
-      </div>
-      <div class="tableWrap moduleContent personnelModuleContent">
-        <table class="dataTable personnelTable">
-          <colgroup>
-            <col style="width:12%"><col style="width:8%"><col style="width:10%"><col style="width:10%">
-            <col style="width:9%"><col style="width:17%"><col style="width:34%">
-          </colgroup>
-          <thead><tr><th>账号</th><th>姓名</th><th>角色</th><th>上级</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead><tbody>
-        ${rows.map(s=>{
-          const parent=state.staff.find(x=>x.id===s.parent_user_id);
-          const parentName=s.role==="admin"?"最高管理员":parent?.display_name||"--";
-          let actions="--";
-          if(state.profile.role==="admin"){
-            if(s.role==="admin"){
-              actions=`<div class="staffActions"><button class="btn editStaff" data-id="${s.id}">编辑账号</button><button class="btn resetPwd" data-id="${s.id}">重置密码</button></div>`;
-            }else{
-              actions=`<div class="staffActions"><button class="btn editStaff" data-id="${s.id}">编辑账号</button><button class="btn resetPwd" data-id="${s.id}">重置密码</button><button class="btn danger toggleStaff" data-id="${s.id}" data-status="${s.status==="active"?"disabled":"active"}">${s.status==="active"?"禁用":"启用"}</button><button class="btn danger deleteStaff" data-id="${s.id}">删除账号</button></div>`;
-            }
-          }
-          return`<tr><td class="link">${esc(s.username)}</td><td>${esc(s.display_name)}</td><td>${roleName(s.role)}</td><td>${esc(parentName)}</td><td><span class="statusDot ${s.status}"></span>${s.status}</td><td>${dt(s.created_at)}</td><td>${actions}</td></tr>`;
-        }).join("")}
-        </tbody></table>
-      </div>
-    </article>`;
-  if($("#newStaff"))$("#newStaff").onclick=openStaffForm;
-  $$(".editStaff").forEach(b=>b.onclick=()=>openStaffEdit(b.dataset.id));
-  $$(".resetPwd").forEach(b=>b.onclick=()=>resetStaffPassword(b.dataset.id));
-  $$(".toggleStaff").forEach(b=>b.onclick=()=>setStaffStatus(b.dataset.id,b.dataset.status));
-  $$(".deleteStaff").forEach(b=>b.onclick=()=>deleteStaffAccount(b.dataset.id));
-}
+async function renderPersonnel(){if(!canPersonnel()){state.activeView='dashboard';return renderDashboard();}return renderCrmPersonnel(featureCtx());}
 
 function openStaffForm(){
   const level1=state.staff.filter(s=>s.role==="level1"&&s.status==="active");
@@ -1426,23 +1369,7 @@ async function deleteStaffAccount(id){
   };
 }
 
-async function renderTrades(){
-  $("#main").innerHTML=`
-    <article class="panel modulePanel">
-      <div class="panelHead unifiedModuleHead">
-        <div><h2>交易流水</h2><p>当前权限范围内全部客户买入 / 卖出流水；持仓由此自动计算</p></div>
-        <div class="toolbar unifiedActions"><input id="tradeSearch" class="input" placeholder="搜索客户 / 股票"></div>
-      </div>
-      <div id="tradesTable" class="tableWrap moduleContent"></div>
-    </article>`;
-  const refresh=()=>{
-    const q=$("#tradeSearch").value.toLowerCase();
-    const rows=state.trades.filter(t=>!q||[t.symbol,t.stock_name,t.customers?.name,t.customers?.customer_code].some(v=>String(v||"").toLowerCase().includes(q)));
-    $("#tradesTable").innerHTML=`<table class="dataTable"><thead><tr><th>时间</th><th>客户</th><th>股票</th><th>市场</th><th>类型</th><th>数量</th><th>价格</th><th>手续费</th></tr></thead><tbody>${rows.map(t=>`<tr><td>${dt(t.traded_at)}</td><td>${esc(t.customers?.name||"--")}</td><td class="link">${esc(t.symbol)}</td><td>${esc(t.market)}</td><td class="${t.side==="buy"?"up":"down"}">${t.side==="buy"?"买入":"卖出"}</td><td>${num(t.quantity,4)}</td><td>${money(t.price,t.currency)}</td><td>${money(t.fees,t.currency)}</td></tr>`).join("")}</tbody></table>`;
-  };
-  $("#tradeSearch").oninput=refresh;
-  refresh();
-}
+async function renderTrades(){return renderCrmTrades(featureCtx());}
 
 async function fetchQuotes(symbols,{realtimeOnly=false}={}){
   if(demoMode){const rows=(await import("./demo-client.js?v=20261009-brighter")).demoQuotes(symbols);Object.assign(state.quotes,rows);return rows;}
@@ -1459,41 +1386,7 @@ async function fetchQuotes(symbols,{realtimeOnly=false}={}){
   return out;
 }
 
-async function renderPositions(){
-  const rows=state.positions.filter(p=>Number(p.quantity)>0);
-  const symbols=[...new Set(rows.map(p=>p.symbol))];
-  const q=await fetchQuotes(symbols,{realtimeOnly:false});
-  $("#main").innerHTML=`
-    <article class="panel modulePanel">
-      <div class="panelHead unifiedModuleHead">
-        <div><h2>当前持仓明细</h2><p>使用免费公开行情源的最新可用报价，并显示数据更新时间</p></div>
-        <div class="toolbar unifiedActions"><button class="btn" id="refreshPositions">刷新持仓</button></div>
-      </div>
-      <div class="tableWrap moduleContent"><table class="dataTable"><thead><tr><th>客户</th><th>股票</th><th>市场</th><th>数量</th><th>平均成本</th><th>行情价</th><th>更新时间</th><th>市值</th><th>未实现盈亏</th><th>已实现盈亏</th></tr></thead><tbody>${rows.map(p=>{
-        const x=q[p.symbol],usable=x&&!x.error&&Number.isFinite(Number(x.price));
-        const px=usable?Number(x.price):null,mv=usable?Number(p.quantity)*px:null,u=usable?Number(p.quantity)*(px-Number(p.avg_cost)):null;
-        const stamp=usable&&x.lastTradeAt?dt(x.lastTradeAt):"--";
-        return`<tr class="positionQuoteRow" data-symbol="${esc(p.symbol)}" data-qty="${Number(p.quantity)}" data-cost="${Number(p.avg_cost)}" data-currency="${esc(p.currency||"USD")}"><td>${esc(p.customers?.name||"--")}</td><td class="link">${esc(p.symbol)}</td><td>${esc(p.market)}</td><td>${num(p.quantity,4)}</td><td>${money(p.avg_cost,p.currency)}</td><td class="positionLivePrice">${px==null?"--":money(px,p.currency)}</td><td class="positionLiveTime">${stamp}</td><td class="positionLiveValue">${mv==null?"--":money(mv,p.currency)}</td><td class="positionLivePnl ${u==null?"":u>=0?"up":"down"}">${u==null?"--":money(u,p.currency)}</td><td class="${Number(p.realized_pnl)>=0?"up":"down"}">${money(p.realized_pnl,p.currency)}</td></tr>`
-      }).join("")}</tbody></table></div>
-    </article>`;
-  const refreshQuotesOnly=async()=>{
-    const liveRows=$$(".positionQuoteRow");
-    const symbols=[...new Set(liveRows.map(r=>r.dataset.symbol).filter(Boolean))];
-    const fresh=await fetchQuotes(symbols,{realtimeOnly:false});
-    liveRows.forEach(r=>{
-      const x=fresh[r.dataset.symbol],usable=x&&!x.error&&Number.isFinite(Number(x.price));
-      const qty=Number(r.dataset.qty||0),cost=Number(r.dataset.cost||0),currency=r.dataset.currency||"USD";
-      const px=usable?Number(x.price):null,mv=px==null?null:qty*px,pnl=px==null?null:qty*(px-cost);
-      const priceEl=$(".positionLivePrice",r),timeEl=$(".positionLiveTime",r),valueEl=$(".positionLiveValue",r),pnlEl=$(".positionLivePnl",r);
-      if(priceEl)priceEl.textContent=px==null?"--":money(px,currency);
-      if(timeEl)timeEl.textContent=usable&&x.lastTradeAt?dt(x.lastTradeAt):"--";
-      if(valueEl)valueEl.textContent=mv==null?"--":money(mv,currency);
-      if(pnlEl){pnlEl.textContent=pnl==null?"--":money(pnl,currency);pnlEl.className="positionLivePnl "+(pnl==null?"":pnl>=0?"up":"down")}
-    });
-  };
-  $("#refreshPositions").onclick=()=>refreshQuotesOnly().catch(()=>{});
-  state.positionRefreshTimer=setInterval(()=>{if(state.activeView==="positions")refreshQuotesOnly().catch(()=>{})},60000);
-}
+async function renderPositions(){return renderCrmPositions(featureCtx());}
 
 let currentMarketQuote=null;
 let marketRange="1D";
@@ -1630,68 +1523,7 @@ function drawMarket(x){
   state.charts.market.$bvSymbol=x.symbol;
 }
 
-async function renderReports(){
-  const byOwner={};
-  for(const c of state.customers){
-    const o=state.staff.find(s=>s.id===c.owner_user_id)?.display_name||"未知";
-    byOwner[o]=(byOwner[o]||0)+1;
-  }
-
-  // Actual counts only: show the busiest owners as legible horizontal bars,
-  // aggregating everyone else so the visible total remains accurate.
-  const allOwnerCounts=Object.entries(byOwner).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
-  const topOwnerCounts=allOwnerCounts.slice(0,8);
-  const remainingOwnerCount=allOwnerCounts.slice(8).reduce((total,[,count])=>total+count,0);
-  if(remainingOwnerCount>0)topOwnerCounts.push(["其他 "+(allOwnerCounts.length-8)+" 位",remainingOwnerCount]);
-  const totalOrders=state.trades.filter(t=>t.side==="buy"||t.side==="sell").length;
-
-  const reportStaff=state.profile.role==="admin"
-    ? state.staff.filter(s=>s.status==="active"&&s.role!=="admin")
-    : state.profile.role==="level1"
-      ? state.staff.filter(s=>s.status==="active"&&s.role==="level2"&&s.parent_user_id===state.profile.id)
-      : [state.profile];
-
-  const staffRows=reportStaff.map(s=>{
-    const cs=s.role==="level1"
-      ? state.customers.filter(c=>c.level_one_user_id===s.id)
-      : state.customers.filter(c=>c.owner_user_id===s.id);
-    const ids=new Set(cs.map(c=>c.id));
-    const holding=new Set(state.positions.filter(p=>Number(p.quantity)>0&&ids.has(p.customer_id)).map(p=>p.customer_id));
-    return `<tr><td>${esc(s.display_name)}</td><td>${roleName(s.role)}</td><td>${cs.length}</td><td>${holding.size}</td></tr>`;
-  }).join("");
-
-  $("#main").innerHTML=pageHead("统计报表","按当前权限范围实时汇总，不使用虚拟业务数据。")+`
-    <section class="grid2">
-      <article class="panel reportOwnershipPanel"><div class="panelHead"><div><h2>客户归属分布</h2><div class="panelSubtitleRow"><p>负责人 Top 8 · 其他已合并</p><span class="inlineLegend goldLegend">客户总数 · ${state.customers.length}</span></div></div></div><div class="chartBox"><canvas id="ownerChart"></canvas></div></article>
-      <article class="panel reportOrderPanel"><div class="panelHead"><div><h2>买卖结构</h2><div class="panelSubtitleRow"><p>按可见交易记录统计</p><span class="inlineLegend up">买入 · ${state.trades.filter(t=>t.side==="buy").length}</span><span class="inlineLegend down">卖出 · ${state.trades.filter(t=>t.side==="sell").length}</span></div></div></div><div class="chartBox"><canvas id="sideChart"></canvas><div class="reportDoughnutTotal"><strong>${totalOrders.toLocaleString("en-US")}</strong><small>笔交易</small></div></div></article>
-    </section>
-    <section class="reportsLower"><article class="panel"><div class="panelHead"><div><h2>人员客户统计</h2><p>按角色层级计算可见客户数量</p></div></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>人员</th><th>角色</th><th>客户数量</th><th>持仓客户</th></tr></thead><tbody>${staffRows||'<tr><td colspan="4"><div class="empty">暂无人员数据</div></td></tr>'}</tbody></table></div></article><article class="panel monthlyReport"><div class="panelHead"><h2>月度成交额 / 笔数</h2><input id="reportMonth" class="input" type="month" value="${romaniaDateKey().slice(0,7)}"><select id="reportCurrency" class="select"><option>USD</option><option>RON</option></select></div><div class="chartBox" style="height:140px;min-height:100px"><canvas id="monthlyTradeChart"></canvas></div><div class="tableWrap" id="monthlyTradeRows"></div></article></section>`;
-  const renderMonthly=()=>{const monthly=monthlyTradeTotals(state.trades,state.customers),currency=$("#reportCurrency").value,selected=$("#reportMonth").value;const rows=monthly.filter(r=>r.month===selected&&r.currency===currency);$("#monthlyTradeRows").innerHTML=`<table class="dataTable"><thead><tr><th>月份</th><th>买入成交额</th><th>卖出成交额</th><th>笔数</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.month)}</td><td>${money(r.buy,r.currency)}</td><td>${money(r.sell,r.currency)}</td><td>${r.count}</td></tr>`).join("")||'<tr><td colspan="4">该月该币种暂无交易</td></tr>'}</tbody></table>`;const series=monthly.filter(r=>r.currency===currency);state.charts.monthly?.destroy();state.charts.monthly=new Chart($("#monthlyTradeChart"),{type:"bar",data:{labels:series.map(r=>r.month),datasets:[{label:tr("买入",state.lang)+" · "+currency,data:series.map(r=>r.buy),backgroundColor:"#8eafd0"},{label:tr("卖出",state.lang)+" · "+currency,data:series.map(r=>r.sell),backgroundColor:"#ef3456"}]},options:chartOpts()});window.dispatchEvent(new Event("crm-layout"));};
-  $("#reportMonth").onchange=renderMonthly;$("#reportCurrency").onchange=renderMonthly;renderMonthly();
-  const ownerRanking=Object.entries(byOwner).sort((a,b)=>b[1]-a[1]);
-  const ownerTop=ownerRanking.slice(0,8);
-  const ownerRest=ownerRanking.slice(8).reduce((sum,[,count])=>sum+count,0);
-  if(ownerRest>0)ownerTop.push(["其他人员（"+(ownerRanking.length-8)+"人）",ownerRest]);
-  state.charts.owner=new Chart($("#ownerChart"),{
-    type:"bar",data:{labels:ownerTop.map(([name])=>name),datasets:[{
-      label:tr("客户数量",state.lang),data:ownerTop.map(([,count])=>count),
-      backgroundColor:"#86afc7",borderRadius:5,maxBarThickness:23,categoryPercentage:.72
-    }]},options:{...chartOpts(),indexAxis:"y",
-      plugins:{...chartOpts().plugins,legend:{display:false}},
-      scales:{x:{...chartOpts().scales.x,beginAtZero:true,ticks:{...chartOpts().scales.x.ticks,precision:0,maxTicksLimit:6}},
-        y:{...chartOpts().scales.y,grid:{display:false},ticks:{...chartOpts().scales.y.ticks,autoSkip:false,font:{size:11}}}}
-    }
-  });
-  state.charts.side=new Chart($("#sideChart"),{
-    type:"doughnut",
-    data:{labels:[tr("买入",state.lang),tr("卖出",state.lang)],
-      datasets:[{data:[state.trades.filter(t=>t.side==="buy").length,state.trades.filter(t=>t.side==="sell").length],
-        backgroundColor:["#159d84","#d85a70"],hoverBackgroundColor:["#0b846f","#b83b55"],
-        borderColor:"#fff",borderWidth:5,hoverOffset:4,borderRadius:5}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:"77%",
-      layout:{padding:14},plugins:{...chartOpts().plugins,legend:{display:false}}}
-  });
-}
+async function renderReports(){return renderCrmReports(featureCtx());}
 
 async function renderSettings(){
   $("#main").classList.add("settingsMain");
