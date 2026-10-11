@@ -461,7 +461,8 @@ async function renderView(token=0){
     translateUI(main,state.lang);
   }catch(err){
     console.error("renderView failed",state.activeView,err);
-    main.innerHTML='<div class="empty" style="padding:40px">页面加载失败，请点击顶部导航重新进入。</div>';
+    if(!main.children.length)main.innerHTML='<div class="empty" style="padding:40px">页面加载失败，请点击顶部导航重新进入。</div>';
+    else main.insertAdjacentHTML("afterbegin",'<div class="crmViewWarning">部分数据或图表加载失败，已保留可用按钮。可点击顶部导航重新进入。</div>');
     toast("页面加载异常："+(err?.message||"未知错误"),true);
   }finally{
     if(token!==0 && token!==viewSwitchToken)return;
@@ -548,12 +549,12 @@ function renderLevel1Dashboard(){
       </div>
     </section>`;
 
+  $(".level1StaffCard").forEach(card=>card.onclick=()=>openLevel2Overview(card.dataset.staffId));
   const orderEl=$("#level1OrderChart");
   if(orderEl){
     const buys=trades.filter(t=>t.side==="buy").length,sells=trades.filter(t=>t.side==="sell").length;
-    state.charts.level1Order=new Chart(orderEl,{type:"doughnut",data:{labels:[tr("买进",state.lang),tr("卖出",state.lang)],datasets:[{data:[buys,sells],backgroundColor:["#00d59b","#ef3456"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"70%",plugins:{...chartOpts().plugins,legend:{display:false}}}});
+    try{state.charts.level1Order=new Chart(orderEl,{type:"doughnut",data:{labels:[tr("买进",state.lang),tr("卖出",state.lang)],datasets:[{data:[buys,sells],backgroundColor:["#00d59b","#ef3456"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"70%",plugins:{...chartOpts().plugins,legend:{display:false}}}})}catch(error){console.error("Team chart failed",error)}
   }
-  $$(".level1StaffCard").forEach(card=>card.onclick=()=>openLevel2Overview(card.dataset.staffId));
 }
 
 function openLevel2Overview(id){
@@ -664,8 +665,8 @@ function renderLevel2Dashboard(){
         </div>
       </article>
     </section>`;
-  drawLevel2Charts(buys,sells);
   bindCustomerLinks();
+  try{drawLevel2Charts(buys,sells)}catch(error){console.error("Trade direction chart failed",error)}
 }
 
 function drawLevel2Charts(buys,sells){
@@ -808,8 +809,7 @@ async function renderDashboard(){
       </div>
     </section>`;
 
-  drawDashboardCharts(7);
-  $$(".tradeflareRail [data-view], .terminalTab[data-view], .terminalSecondary[data-view], .terminalSegment [data-view]").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+  $(".tradeflareRail [data-view], .terminalTab[data-view], .terminalSecondary[data-view], .terminalSegment [data-view]").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
   const trendBtn=$('.terminalTab[data-action="trend"]');
   if(trendBtn)trendBtn.onclick=()=>{drawDashboardCharts(7);toast("已切换业务趋势")};
   $$(".terminalIntervals [data-days]").forEach(b=>b.onclick=()=>{
@@ -820,6 +820,7 @@ async function renderDashboard(){
   const sbc=$("#openShareBoardConfig");if(sbc)sbc.onclick=()=>openShareBoardConfig(featureCtx());
   const mts=$("#openTimeSettings");if(mts)mts.onclick=()=>openTimeSettings(featureCtx());
   $("#terminalRefresh").onclick=async()=>{toast("正在刷新数据");await refreshAll()};
+  try{drawDashboardCharts(7)}catch(error){console.error("Dashboard chart failed",error);toast("趋势图暂不可用，其他模块仍可操作",true)}
 }
 function drawDashboardCharts(days=14){
   const count=Math.max(1,Math.min(365,Number(days)||14));
