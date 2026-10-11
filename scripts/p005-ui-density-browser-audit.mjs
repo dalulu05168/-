@@ -31,10 +31,16 @@ try{
  browser=await chromium.launch({headless:true,args:["--no-sandbox"]});
  await mkdir(path.join(root,"artifacts/finance-audit"),{recursive:true});
  for(const size of sizes)for(const actor of roles){
-  const context=await browser.newContext({viewport:{width:size.width,height:size.height},httpCredentials:{username:user,password},deviceScaleFactor:1});
+  const context=await browser.newContext({viewport:{width:size.width,height:size.height},deviceScaleFactor:1});
   const page=await context.newPage();const errors=[];
   page.on("pageerror",e=>errors.push(String(e)));
   try{
+   await page.goto(origin+"/",{waitUntil:"domcontentloaded",timeout:30000});
+   await page.waitForSelector('form[action="/_preview/login"]',{timeout:15000});
+   await page.locator("#username").fill(user);
+   await page.locator("#password").fill(password);
+   await page.locator('form[action="/_preview/login"] button[type="submit"]').click();
+   await page.waitForURL(/loginPreview=1/,{timeout:15000});
    await page.goto(origin+"/?demo=1&account="+encodeURIComponent(actor.id),{waitUntil:"domcontentloaded",timeout:30000});
    await page.waitForSelector("#main[data-view]",{timeout:20000});
    for(const view of views){
