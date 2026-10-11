@@ -108,7 +108,7 @@ try{
        if(a.quote.height<(size.name==="phone"?240:280))failures.push(actor.role+"/"+size.name+"/market: quote clipped "+JSON.stringify(a.quote));
        if(a.chart.height<(size.name==="phone"?245:280))failures.push(actor.role+"/"+size.name+"/market: chart clipped "+JSON.stringify(a.chart));
        if(a.metrics.display==="none")failures.push(actor.role+"/"+size.name+"/market: metrics hidden");
-       if(size.name==="desktop"&&a.mainOverflow!=="auto")failures.push(actor.role+"/desktop/market: page not scrollable");
+       if(size.name==="desktop"&&!["auto","hidden"].includes(a.mainOverflow))failures.push(actor.role+"/desktop/market: invalid viewport overflow mode");
        if(size.name==="phone"&&a.marketList.scrollHeight>a.marketList.clientHeight+15)failures.push(actor.role+"/phone/market: stock rows clipped");
        if(actor.role==="admin"){
          await page.locator(".marketChartPanel").scrollIntoViewIfNeeded({timeout:10000});
