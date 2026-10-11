@@ -185,12 +185,14 @@ try{
       assert.equal(project.headerDisplay,"none","Old marked allocation strip must be deleted");
       assert.equal(project.topVisible,true,"Topbar must remain visible");
       assert.ok(project.ownerInTopbar&&project.ownerVisible,"Account selector was lost");
-      assert.ok(project.captureInTopbar&&project.captureVisible,"Screenshot button was lost");
+      assert.ok(project.captureInTopbar&&project.captureVisible,"Customer confirmation action was lost");
       assert.ok(project.backInTopbar&&project.backVisible,"Back button was lost");
       await page.locator("#projectCaptureButton").click();
-      assert.equal(await page.evaluate(()=>document.body.classList.contains("projectCaptureMode")),true);
+      await page.waitForSelector("#customerFacingRoot .cfPreview .cfSheet",{timeout:15000});
+      assert.ok(await page.locator("#cfDownloadPng").isVisible(),"Client confirmation PNG export action missing");
+      assert.ok(await page.locator("#cfPrintPdf").isVisible(),"Client confirmation PDF print action missing");
       await page.keyboard.press("Escape");
-      assert.equal(await page.evaluate(()=>document.body.classList.contains("projectCaptureMode")),false);
+      await page.locator("#customerFacingRoot").waitFor({state:"detached",timeout:5000});
       const canvasByView={};
       for(const view of ["reports","market"]){
         await page.locator('.nav button[data-view="'+view+'"]').click();
