@@ -82,7 +82,7 @@ export async function renderCrmPersonnel(ctx){
 }
 const chooseAccount=(ctx,id)=>id==="all"?ctx.state.customers:visibleClients(ctx.state,id);
 const accountOptions=ctx=>{
- const own=ctx.state.profile,accounts=ctx.state.staff.filter(s=>s.status!=="deleted"&&withinScope(ctx,s.id));
+ const accounts=ctx.state.staff.filter(s=>s.id!==ctx.state.profile.id&&s.status!=="deleted"&&["level1","level2"].includes(s.role)&&withinScope(ctx,s.id));
  return '<option value="all">全部可见账户</option>'+accounts.map(p=>'<option value="'+cleanId(p.id)+'">'+escapeValue(p.display_name||p.username)+' · '+(p.role==="level1"?"一级":"二级")+'</option>').join("");
 };
 function days14(ctx){const base=ctx.romaniaDateKey();const y=Number(base.slice(0,4)),m=Number(base.slice(5,7)),d=Number(base.slice(8,10));return Array.from({length:14},(_,i)=>{const day=new Date(Date.UTC(y,m-1,d-13+i));return day.toISOString().slice(0,10);});}
@@ -102,7 +102,7 @@ export async function renderCrmTrades(ctx){
    gradient.addColorStop(0,"rgba(48,132,114,.28)");gradient.addColorStop(1,"rgba(48,132,114,0)");
    ctx.state.charts.tradeAccounts=new window.Chart(canvas,{type:"line",data:{labels:keys.map(s=>s.slice(5)),datasets:[{label:"交易笔数",data:counts,borderColor:"#317d70",backgroundColor:gradient,fill:true,tension:.4,pointRadius:2,pointHoverRadius:5,borderWidth:2}]},options:{...ctx.chartOpts(),scales:{x:{grid:{display:false}},y:{beginAtZero:true,ticks:{precision:0},grid:{display:false}}}}});
   }
-  ctx.$("#tradesTable").innerHTML=rows.map(t=>card(t.customers?.name||ownerLabel(ctx.state,t.customer_id),t.symbol+" · "+(t.side==="buy"?"买入":"卖出"),[metric("数量",ctx.num(t.quantity,4)),metric("成交单价",ctx.money(t.price,t.currency)),metric("日期",ctx.dt(t.traded_at))], 'data-transaction-id="'+cleanId(t.id)+'"','<details class="crmDisclosure"><summary>查看完整流水</summary><div class="crmDetails">'+detailCell("股票名称",t.stock_name||t.symbol)+detailCell("交易市场",t.market)+detailCell("交易方向",t.side==="buy"?"买入":"卖出")+detailCell("手续费",ctx.money(t.fees,t.currency))+detailCell("成交金额",ctx.money(Number(t.quantity||0)*Number(t.price||0),t.currency))+detailCell("交易时间",ctx.dt(t.traded_at))+'</div></details>')).join("")||EMPTY;
+  ctx.$("#tradesTable").innerHTML=rows.map(t=>card(t.customers?.name||ctx.state.customers.find(c=>c.id===t.customer_id)?.name||"未知客户",t.symbol+" · "+(t.side==="buy"?"买入":"卖出"),[metric("数量",ctx.num(t.quantity,4)),metric("成交单价",ctx.money(t.price,t.currency)),metric("日期",ctx.dt(t.traded_at))], 'data-transaction-id="'+cleanId(t.id)+'"','<details class="crmDisclosure"><summary>查看完整流水</summary><div class="crmDetails">'+detailCell("股票名称",t.stock_name||t.symbol)+detailCell("交易市场",t.market)+detailCell("交易方向",t.side==="buy"?"买入":"卖出")+detailCell("手续费",ctx.money(t.fees,t.currency))+detailCell("成交金额",ctx.money(Number(t.quantity||0)*Number(t.price||0),t.currency))+detailCell("交易时间",ctx.dt(t.traded_at))+'</div></details>')).join("")||EMPTY;
   ctx.$("#tradesTable").querySelectorAll("details").forEach(d=>d.addEventListener("click",e=>e.stopPropagation()));
  };
  ctx.$("#crmTradeAccount").onchange=redraw;ctx.$("#tradeSearch").oninput=redraw;redraw();
@@ -126,11 +126,12 @@ export async function renderCrmPositions(ctx){
  };
  ctx.$("#crmPositionAccount").onchange=draw;
  ctx.$("#refreshPositions").onclick=async()=>{quotes=await ctx.fetchQuotes([...new Set(symbolRows.map(p=>p.symbol))],{realtimeOnly:false});draw();};
+ ctx.state.positionRefreshTimer=setInterval(()=>{if(ctx.state.activeView==="positions")ctx.$("#refreshPositions")?.click();},60000);
  draw();
 }
 export async function renderCrmReports(ctx){
  const main=ctx.$("#main"),active=ctx.state.staff.filter(s=>s.status==="active"&&s.role!=="admin"&&withinScope(ctx,s.id));
- main.innerHTML='<section class="crmSection crmReportsSection">'+head("统计报表","已移除客户归属分布和买卖结构，剩余统计按当前账号权限均匀排列。","")+'<div class="crmReportsGrid"><article class="crmSubPanel"><div class="crmSubHead"><h3>人员客户统计</h3><small>仅统计当前权限可见资料</small></div><div class="crmCardGrid" id="crmReportPeople"></div></article><article class="crmSubPanel"><div class="crmSubHead"><h3>月度交易数据</h3><div class="crmReportControls"><input id="reportMonth" class="input" type="month"><select id="reportCurrency" class="select"><option>USD</option><option>RON</option><option>EUR</option><option>GBP</option></select></div></div><div class="crmTradeChart"><canvas id="monthlyTradeChart"></canvas></div><div id="monthlyTradeRows" class="crmReportBreakdown"></div></article></div></section>';
+ main.innerHTML='<section class="crmSection crmReportsSection">'+head("统计报表","已移除客户归属分布和买卖结构，剩余统计按当前账号权限均匀排列。","")+'<div class="crmReportsGrid"><article class="crmSubPanel"><div class="crmSubHead"><h3>人员客户统计</h3><small>仅统计当前权限可见资料</small></div><div class="crmCardGrid" id="crmReportPeople"></div></article><article class="crmSubPanel"><div class="crmSubHead"><h3>月度交易数据</h3><div class="crmReportControls"><input id="reportMonth" class="input" type="month"><select id="reportCurrency" class="select"><option>USD</option><option>RON</option><option>EUR</option><option>GBP</option><option>CHF</option><option>PLN</option><option>JPY</option></select></div></div><div class="crmTradeChart"><canvas id="monthlyTradeChart"></canvas></div><div id="monthlyTradeRows" class="crmReportBreakdown"></div></article></div></section>';
  ctx.$("#crmReportPeople").innerHTML=active.map(p=>{const cs=visibleClients(ctx.state,p.id);const ids=new Set(cs.map(c=>c.id));const holding=new Set(ctx.state.positions.filter(t=>ids.has(t.customer_id)&&Number(t.quantity)>0).map(t=>t.customer_id));return card(p.display_name,p.username+" · "+(p.role==="level1"?"一级人员":"二级人员"),[metric("客户",cs.length),metric("持仓客户",holding.size),metric("交易记录",ctx.state.trades.filter(t=>ids.has(t.customer_id)).length)],'');}).join("")||EMPTY;
  const monthly=ctx.monthlyTradeTotals(ctx.state.trades,ctx.state.customers);
  const period=ctx.romaniaDateKey().slice(0,7);ctx.$("#reportMonth").value=period;
@@ -142,3 +143,6 @@ export async function renderCrmReports(ctx){
  };
  ctx.$("#reportMonth").onchange=draw;ctx.$("#reportCurrency").onchange=draw;draw();
 }
+
+// Pure helpers exported for isolated hierarchy/permission regression checks.
+export const __crmHelpers={accountChildren,descendantIds,visibleClients};
