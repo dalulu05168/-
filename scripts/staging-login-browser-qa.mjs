@@ -97,14 +97,14 @@ try{
       assert.notEqual(await activeOwner.inputValue(),"TEST-ADMIN","Admin must not be stuck on three empty cards");
       await page.locator(".projectOverviewLower .projectTrendPanel").waitFor({state:"visible",timeout:15000});
       await page.locator(".projectOverviewSummary").waitFor({state:"visible",timeout:15000});
-      await page.locator(".projectRecordPanel .dataTable").waitFor({state:"visible",timeout:15000});
+      assert.equal(await page.locator(".projectRecordPanel").count(),0,"Obsolete bottom history area must be absent");
       assert.ok(await page.locator(".projectOverviewCards .projectOverviewCard").count()===3,"Three overview cards must remain");
       const ownerBefore=await activeOwner.inputValue();
       const nextOwner=await activeOwner.locator("option").nth(1).getAttribute("value");
       if(nextOwner&&nextOwner!==ownerBefore){
         await activeOwner.selectOption(nextOwner);
         await page.waitForFunction(id=>document.querySelector("#projectDetailOwnerSelect")?.value===id,nextOwner,{timeout:15000});
-        await page.locator(".projectRecordPanel .dataTable").waitFor({state:"visible",timeout:15000});
+        assert.equal(await page.locator(".projectRecordPanel").count(),0,"Obsolete bottom history area must be absent");
       }
       const projectFullscreen=await page.evaluate(()=>!!document.fullscreenElement);
       assert.equal(projectFullscreen,false,"Project detail opened browser fullscreen");
@@ -172,7 +172,7 @@ try{
       assert.ok(overflow<=3,"Horizontal overflow: "+overflow);
       assert.deepEqual(external,[],"No live Supabase requests allowed");
       assert.deepEqual(errors,[],"Runtime errors: "+errors.join(" ; "));
-      screens.push({size:size.name,roleOptions:roles,openedDemo:true,reservationLauncherNoFullscreen:true,reservationNavNoFullscreen:true,detailsVisible:true,reservationTableVisible:true,supervisorOwnerChooser:true,marketLayoutAudited:true,returnedToDashboard:true,noCredentialFields:true,externalSupabaseCalls:0,overflow});
+      screens.push({size:size.name,roleOptions:roles,openedDemo:true,reservationLauncherNoFullscreen:true,reservationNavNoFullscreen:true,detailsVisible:true,reservationTableRemoved:true,supervisorOwnerChooser:true,marketLayoutAudited:true,returnedToDashboard:true,noCredentialFields:true,externalSupabaseCalls:0,overflow});
     }catch(e){issues.push(size.name+": "+String(e)+" ; JS errors: "+errors.join(" | "));}
     await context.close();
   }
