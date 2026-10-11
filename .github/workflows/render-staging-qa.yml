@@ -37,6 +37,7 @@ jobs:
       - name: Syntax and HTTP access-control checks
         run: |
           node --check app.js
+          node --check allocation-projects.js
           node --check server.js
           node --check scripts/staging-login-browser-qa.mjs
           node --check scripts/staging-login-layout-qa.mjs
