@@ -1,4 +1,5 @@
 import {installViewportLayout} from './viewport-layout.js?v=20261009-brighter';
+import {openFollowupClientMode} from './customer-facing.js?v=20261011-facing-v1';
 import {renderCrmCustomers,renderCrmPersonnel,renderCrmTrades,renderCrmPositions,renderCrmReports} from './crm-six-page.js?v=20261011-six-pages-v1';
 
 import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-brighter";
@@ -424,7 +425,7 @@ async function refreshAll(){
 }
 
 function featureCtx(){
-  return {state,supabase,$,$,esc,num,money,dt,romaniaClockText,romaniaDateKey,romaniaInputNow,romaniaLocalToISO,ROMANIA_TZ,fetchQuotes,chartOpts,toast,modal,closeModal,switchView,refreshAll,fetchPagedRows,openCustomer,openCustomerForm,openStaffForm,openStaffEdit,resetStaffPassword,setStaffStatus,deleteStaffAccount,roleName,customerStatus,monthlyTradeTotals};
+  return {state,supabase,$,$,esc,num,money,dt,romaniaClockText,romaniaDateKey,romaniaInputNow,romaniaLocalToISO,ROMANIA_TZ,fetchQuotes,chartOpts,toast,modal,closeModal,switchView,refreshAll,fetchPagedRows,openCustomer,openCustomerForm,openStaffForm,openStaffEdit,resetStaffPassword,setStaffStatus,deleteStaffAccount,roleName,customerStatus,monthlyTradeTotals,isDemo:demoMode};
 }
 function clearMarketRefreshTimers(){
   for(const k of ["marketRefreshTimer","positionRefreshTimer","customerMarketTimer","shareBoardRefreshTimer"]){if(state[k]){clearInterval(state[k]);state[k]=null}}
@@ -1061,11 +1062,7 @@ async function openCustomer(id){
     }
   };
   document.addEventListener('keydown',state.customerCaptureEscapeHandler);
-  if(capture)capture.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
-    $('#clientSharePage').classList.add('clientCaptureMode');
-    document.body.classList.add('screenshotCaptureMode');
-  };
+  if(capture){capture.textContent="客户服务对外报告";capture.onclick=e=>{e.preventDefault();e.stopPropagation();openFollowupClientMode(featureCtx(),c);};}
   const note=$("#clientSharePage .shareNote");if(note&&c.notes){note.dataset.hasNotes="true";note.onclick=()=>modal("客户备注",`<p data-no-i18n style="white-space:pre-wrap;line-height:1.6">${esc(c.notes)}</p>`);}
   drawCustomerShareCharts(pos,chartTrades,q,primary,realized,unreal);
   if(state.customerMarketTimer)clearInterval(state.customerMarketTimer);
