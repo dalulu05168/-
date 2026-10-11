@@ -159,10 +159,12 @@ function renderLogin(initialized){
     <section class="loginPage" aria-label="Brantone Veylor 系统登录">
       <div class="loginHero">
         <div class="heroMark"><img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-approved-logo-v2" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
+        <div class="loginHeroIntro">
         <div class="heroRule" aria-hidden="true"></div>
         <div class="loginEyebrow">BRANTONE VEYLOR · PRIVATE WORKSPACE</div>
         <h1>客户管理<br>清晰而有序</h1>
         <p>Brantone Veylor 专属管理工作台。客户档案、持仓、交易记录及项目进度，在同一个入口安全访问。</p>
+        </div>
         <div class="loginHeroModules" aria-label="系统业务模块"><span>客户管理</span><span>持仓与交易</span><span>项目预留份额</span></div>
       </div>
       <div class="loginSide">
