@@ -141,6 +141,6 @@ try{
     finally{await ctx.close();}
   }
   await writeFile(path.join(saveDir,"audit.json"),JSON.stringify({records,failures},null,2));
-  console.log("P005_UI_FINISH_ACCEPTANCE "+JSON.stringify({checks:records.length,failures,views:records.map(r=>({size:r.size,view:r.view,footer:r.data.footer.length,bigDark:r.data.bigDark.length,header:r.data.headerDisplay}))}));
+  console.log("P005_UI_FINISH_ACCEPTANCE "+JSON.stringify({checks:records.length,failures,views:records.map(r=>({size:r.size,view:r.view,footer:r.data.footer?.length??0,bigDark:r.data.bigDark?.length??0,header:r.data.headerDisplay}))}));
   if(failures.length)process.exitCode=1;
 }finally{await browser?.close();server.kill("SIGTERM");}
