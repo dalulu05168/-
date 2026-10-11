@@ -138,3 +138,57 @@ test("P005 six-page account hierarchy filters unauthorized descendants",async()=
  assert.match(server,/crm-six-page\.js/);
  assert.match(css,/crmCardGrid/);
 });
+
+
+test("Customer-facing reservation only includes confirmed records for one owner, project and customer",async()=>{
+ const {__facingTest}=await import("../customer-facing.js");
+ const project={id:"p1",owner_user_id:"staff-one",name:"Example"};
+ const ctx={state:{
+  customers:[{id:"c1",owner_user_id:"staff-one",name:"Customer One"},{id:"c2",owner_user_id:"staff-two",name:"Private Other"}],
+  customerReservations:[
+   {id:"r1",project_id:"p1",owner_user_id:"staff-one",customer_id:"c1",status:"confirmed",reserved_shares:10},
+   {id:"r2",project_id:"p1",owner_user_id:"staff-two",customer_id:"c2",status:"confirmed",reserved_shares:20},
+   {id:"r3",project_id:"p1",owner_user_id:"staff-one",customer_id:"c1",status:"pending",reserved_shares:30},
+   {id:"r4",project_id:"p2",owner_user_id:"staff-one",customer_id:"c1",status:"confirmed",reserved_shares:40},
+  ]
+ }};
+ const visible=__facingTest.visibleRows(ctx,project);
+ assert.deepEqual(visible.map(r=>r.id),["r1"]);
+ assert.equal(visible[0].client.name,"Customer One");
+ const safeMarkup=__facingTest.frame({
+  kind:"reservation",project:"Example",quantity:"10 份",amount:"未记录",status:"系统记录已确认",owner:"Service",
+  client:"Customer One",code:"C01",generated:"2026-10-11",recordCount:"1",updated:"2026-10-11",symbol:"EX",projectDate:"2026-10-11",demo:true
+ });
+ assert.match(safeMarkup,/演示预览/);
+ assert.doesNotMatch(safeMarkup,/Private Other|20 份|40 份/);
+ assert.match(safeMarkup,/不表示资金到账/);
+});
+
+test("Customer-facing service report does not auto-publish internal follow-up notes",async()=>{
+ const {__facingTest}=await import("../customer-facing.js");
+ const unsafe="内部敏感评价与操作日志，不得给客户";
+ const report=__facingTest.frame({
+  kind:"followup",client:"客户甲",code:"C1",owner:"员工乙",status:"服务中",
+  last:"2026-10-10",nextDate:"未安排",generated:"2026-10-11",totalRecords:1,
+  entries:[{date:"2026-10-10",channel:"电话",summary:"已就服务方案进行沟通"}],
+  conclusion:"当前等待客户确认",nextAction:"联系确认后续时间",demo:true
+ });
+ assert.doesNotMatch(report,new RegExp(unsafe));
+ assert.match(report,/已就服务方案进行沟通/);
+ assert.match(report,/演示预览/);
+ const escaped=__facingTest.frame({
+  kind:"followup",client:"C <script>alert(1)</script>",code:"C1",owner:"Service",
+  status:"服务中",last:"2026-10-10",nextDate:"未安排",generated:"2026-10-11",totalRecords:1,
+  entries:[{date:"2026-10-10",channel:"电话",summary:"<img src=x onerror=alert(1)>"}],
+  conclusion:"",nextAction:"",demo:true
+ });
+ assert.doesNotMatch(escaped,/<script>|<img src=x/);
+ assert.match(escaped,/&lt;script&gt;/);
+ const [app,allocation,server,html,css]=await Promise.all(["app.js","allocation-projects.js","server.js","index.html","customer-facing.css"].map(read));
+ assert.match(app,/openFollowupClientMode\(featureCtx\(\),c\)/);
+ assert.match(allocation,/openReservationClientMode\(ctx,project\)/);
+ assert.match(server,/customer-facing\.js/);
+ assert.match(html,/customer-facing\.css/);
+ assert.match(css,/@media print/);
+});
+
