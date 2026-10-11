@@ -8,6 +8,7 @@ on:
       - "app.js"
       - "login-redesign.css"
       - "p005-ui-finish.css"
+      - "p005-page-consistency.css"
       - "p005-canva-boundary-audit.css"
       - "tests/canva-color-stroke-contract.test.mjs"
       - "scripts/p005-ui-finishing-browser-qa.mjs"
