@@ -4,31 +4,28 @@ import {readFile} from "node:fs/promises";
 
 const read=file=>readFile(new URL("../"+file,import.meta.url),"utf8");
 
-test("Project allocation overview includes detail panels and supervisor owner chooser",async()=>{
-  const js=await read("allocation-projects.js");
-  assert.match(js,/const available=\(state\.allocationProjects\|\|\[\]\)\.filter\(p=>allowed\.has\(p\.owner_user_id\)\)/);
-  assert.match(js,/if\(available\.length&&!available\.some\(p=>p\.owner_user_id===requestedOwner\)\)state\.allocationOwnerId=available\[0\]\.owner_user_id/);
-  assert.match(js,/id="projectDetailOwnerSelect"/);
-  assert.match(js,/ownerSelect\.onchange=\(\)=>/);
-  assert.match(js,/class="projectOverviewLower"/);
-  assert.match(js,/class="projectPanel projectTrendPanel"/);
-  assert.match(js,/class="projectPanel projectRecordPanel"/);
-  assert.match(js,/class="projectEmptyDetail"/);
-  assert.match(js,/id="projectAddRecord"/);
-  assert.match(js,/attachCustomerRanking\(ctx,project\)/);
-  assert.match(js,/id="projectPresentationExit"/);
+test("Allocation page renders two content rows and retains account/capture actions",async()=>{
+ const js=await read("allocation-projects.js");
+ assert.match(js,/const available=\(state\.allocationProjects\|\|\[\]\)\.filter\(p=>allowed\.has\(p\.owner_user_id\)\)/);
+ assert.match(js,/id="projectDetailOwnerSelect"/);
+ assert.match(js,/ownerSelect\.onchange=\(\)=>/);
+ assert.match(js,/class="projectOverviewCards"/);
+ assert.match(js,/class="projectOverviewLower"/);
+ assert.match(js,/class="projectPanel projectTrendPanel"/);
+ assert.match(js,/class="projectPanel projectOverviewSummary"/);
+ assert.doesNotMatch(js,/class="projectPanel projectRecordPanel"/,"The obsolete bottom history panel must not be rendered");
+ assert.match(js,/id="projectAddRecord"/);
+ assert.match(js,/attachCustomerRanking\(ctx,project\)/);
+ assert.match(js,/id="projectPresentationExit"/);
+ assert.match(js,/globalActions\.prepend\(projectOwnerControl\)/);
 });
 
-test("Phone renders reservation details and does not silently hide the history table",async()=>{
- const [css,html]=await Promise.all([read("responsive-mobile-system.css"),read("index.html")]);
- assert.match(html,/responsive-mobile-system\.css\?v=20261011-project-details-v3/);
- const marker="/* P005: Keep allocation details visible";
- const patch=css.slice(css.lastIndexOf(marker));
- assert.ok(patch.length>1000,"Detail repair must be after legacy mobile panorama display rules");
- assert.match(patch,/\.projectRecordPanel\s*\{[\s\S]*?display:block!important/);
- assert.match(patch,/\.projectRecordPanel \.tableWrap\s*\{[\s\S]*?overflow-x:auto!important/);
- assert.match(patch,/\.projectDetailOwner select/);
- assert.match(patch,/max-width:899px/);
- assert.match(patch,/min-width:900px/);
- assert.match(patch,/\.projectRecordPanel \.dataTable\s*\{[\s\S]*?display:table!important/);
+test("Desktop is exactly two expanded rows; mobile remains readable without old history panel",async()=>{
+ const [css,html]=await Promise.all([read("p005-ui-finish.css"),read("index.html")]);
+ assert.match(html,/p005-ui-finish\.css\?v=20261011-ui-finish-v2/);
+ assert.match(css,/two-row redesign/);
+ assert.match(css,/grid-template-rows:minmax\(300px,\.94fr\) minmax\(340px,1\.2fr\)!important/);
+ assert.match(css,/\.projectRecordPanel\s*\{\s*display:none!important/);
+ assert.match(css,/@media \(max-width:899px\)/);
+ assert.match(css,/\.projectOverviewLower/);
 });
