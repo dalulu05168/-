@@ -13,7 +13,7 @@ function constantEquals(a,b){
 }
 function htmlPage(error=false,locked=false){
   const message=locked?"尝试次数过多，请稍后再试。":"用户名或密码不正确，请重试。";
-  return \`<!doctype html>
+  return `<!doctype html>
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive"><meta name="color-scheme" content="light">
 <title>预发布访问验证 · Brantone Veylor</title>
@@ -35,13 +35,13 @@ button:focus-visible{outline:3px solid #7a9dd2;outline-offset:3px}button:hover{b
 <main><div class="eyebrow">Private Staging Access</div>
 <div class="brand">BRANTONE <span>VEYLOR</span></div>
 <h1>访问测试版本</h1><p class="sub">请输入预发布访问账号和密码。验证成功后进入 CRM 页面预览，不会连接真实客户数据。</p>
-\${error?'<div class="alert" role="alert">'+message+'</div>':''}
+${error?'<div class="alert" role="alert">'+message+'</div>':''}
 <form action="/_preview/login" method="POST" autocomplete="on">
 <label for="username">访问账号</label><input id="username" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="100" required>
 <label for="password">访问密码</label><input id="password" name="password" type="password" autocomplete="current-password" maxlength="256" required>
 <button type="submit">进入预发布系统 →</button></form>
 <p class="note">仅供授权测试 · 使用模拟数据 · 访问凭据与 CRM 正式账户不同</p></main>
-</body></html>\`;
+</body></html>`;
 }
 
 export function createStagingAccess({username,password}){
