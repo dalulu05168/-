@@ -174,7 +174,7 @@ try{
            "Expanded lower panels must align in height");
       }
       if(size.width>=900){
-        assert.ok(Math.abs(twoRows.main.top-reportGeometry.main.top)<8,"Allocation top not aligned to reports");
+        assert.ok(Math.abs(twoRows.main.y-reportGeometry.main.top)<8,"Allocation top not aligned to reports");
         assert.ok(Math.abs(twoRows.main.bottom-reportGeometry.main.bottom)<8,"Allocation frame height differs from reports");
         assert.ok(Math.abs(twoRows.main.bottom-marketGeometry.main.bottom)<8,"Allocation frame height differs from market");
         assert.ok(twoRows.lower.bottom>=twoRows.main.bottom-35,"Allocation lower row leaves unused footer band");
