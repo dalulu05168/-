@@ -159,44 +159,65 @@ async function checkBootstrap(){
 }
 
 function renderLogin(initialized){
+  // Login-only redesign: no changes to authentication, CRM roles or database.
+  const copies={
+    zh:{eyebrow:"全球资本市场 · 专业客户管理",hero:"构筑卓越机遇。",sub:"全球专业视野，长期稳健合作。",intro:"一站式管理客户关系、投资持仓、交易记录及项目预留。",welcome:"欢迎回来",initialize:"初始化管理员",caption:"使用已授权的账户安全登录",setup:"首次使用，请先创建管理员账号。",name:"管理员姓名",username:"登录账号",userHint:"使用现有账号，无需输入邮箱后缀",userPlaceholder:"请输入登录账号",password:"登录密码",passwordPlaceholder:"请输入登录密码",show:"显示",hide:"隐藏",code:"一次性初始化码",button:"登录工作台",setupButton:"创建管理员并进入系统",language:"界面语言",clock:"罗马尼亚时间",secure:"安全访问 · 保留现有业务数据",usernameLabel:"账号",passwordLabel:"密码"},
+    en:{eyebrow:"GLOBAL MARKETS · CLIENT OPERATIONS",hero:"Building Exceptional Opportunities.",sub:"GLOBAL EXPERTISE. LASTING PARTNERSHIPS.",intro:"A secure workspace for client relationships, holdings, trades and project allocations.",welcome:"Welcome back",initialize:"Set up administrator",caption:"Sign in securely with your authorized account",setup:"Create the administrator account to get started.",name:"Administrator name",username:"Username",userHint:"Use your existing username; no email suffix needed",userPlaceholder:"Enter your username",password:"Password",passwordPlaceholder:"Enter your password",show:"Show",hide:"Hide",code:"One-time setup code",button:"Sign in to workspace",setupButton:"Create administrator",language:"Interface language",clock:"Romania time",secure:"Authorized access · Existing business data stays intact",usernameLabel:"Username",passwordLabel:"Password"},
+    ro:{eyebrow:"PIEȚE GLOBALE · RELAȚII CU CLIENȚII",hero:"Construim oportunități excepționale.",sub:"EXPERTIZĂ GLOBALĂ. PARTENERIATE DURABILE.",intro:"Un spațiu sigur pentru clienți, dețineri, tranzacții și alocări de proiect.",welcome:"Bine ați revenit",initialize:"Configurare administrator",caption:"Autentificați-vă în siguranță cu un cont autorizat",setup:"Creați contul de administrator pentru a începe.",name:"Numele administratorului",username:"Nume de utilizator",userHint:"Folosiți utilizatorul existent, fără sufix de e-mail",userPlaceholder:"Introduceți numele de utilizator",password:"Parolă",passwordPlaceholder:"Introduceți parola",show:"Afișează",hide:"Ascunde",code:"Cod de inițializare unic",button:"Autentificare",setupButton:"Creați administratorul",language:"Limba interfeței",clock:"Ora României",secure:"Acces autorizat · Datele existente sunt păstrate",usernameLabel:"Utilizator",passwordLabel:"Parolă"}
+  };
+  const l=copies[state.lang]||copies.zh;
   $("#root").innerHTML=`
-    <section class="loginPage" aria-label="ELLERY WESTCOTT CAPITAL MARKETS 系统登录">
+    <section class="loginPage ewLoginV3" aria-label="ELLERY WESTCOTT CAPITAL MARKETS">
       <div class="loginHero">
-        <div class="heroMark"><img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-brand-correct" alt="ELLERY WESTCOTT CAPITAL MARKETS · Private Capital Advisory · 1996"></div>
-        <div class="heroRule" aria-hidden="true"></div>
-        <div class="loginEyebrow">ELLERY WESTCOTT · CAPITAL MARKETS</div>
-        <h1>客户管理<br>清晰而有序</h1>
-        <p>ELLERY WESTCOTT CAPITAL MARKETS 专属管理工作台。客户档案、持仓、交易记录及项目进度，在同一个入口安全访问。</p>
-        <div class="loginHeroModules" aria-label="系统业务模块"><span>客户管理</span><span>持仓与交易</span><span>项目预留份额</span></div>
+        <div class="ewLoginHeroContents">
+          <div class="heroMark"><img class="brandLogo" src="/assets/ellery-westcott-logo.svg?v=20261013-login-v3" alt="ELLERY WESTCOTT CAPITAL MARKETS"></div>
+          <div class="ewLoginHeroNarrative">
+            <div class="loginEyebrow">${l.eyebrow}</div>
+            <h1>${l.hero}</h1>
+            <div class="heroRule" aria-hidden="true"></div>
+            <p class="ewLoginHeroSub">${l.sub}</p>
+            <p class="ewLoginHeroIntro">${l.intro}</p>
+          </div>
+          <div class="loginHeroModules" aria-hidden="true"><span>CLIENTS</span><span>PORTFOLIOS</span><span>PROJECTS</span></div>
+        </div>
+        <div class="ewCityscape" aria-hidden="true">
+          <span style="--h:22%;--w:7%"></span><span style="--h:31%;--w:8%"></span><span style="--h:27%;--w:6%"></span>
+          <span style="--h:40%;--w:9%"></span><span style="--h:52%;--w:8%"></span><span style="--h:36%;--w:7%"></span>
+          <span style="--h:67%;--w:11%"></span><span style="--h:44%;--w:7%"></span><span style="--h:57%;--w:12%"></span>
+          <span style="--h:73%;--w:10%"></span><span style="--h:46%;--w:8%"></span><span style="--h:32%;--w:7%"></span>
+        </div>
       </div>
       <div class="loginSide">
         <div class="loginCard">
+          <div class="ewLoginWelcome">ELLERY WESTCOTT <span>CAPITAL MARKETS</span></div>
           <div class="loginCardKicker"><span class="loginCardStatus" aria-hidden="true"></span> SECURE ACCESS</div>
-          <h2>${initialized?"欢迎回来":"初始化管理员"}</h2>
-          <p class="loginCardDescription">${initialized?"请使用已获授权的 CRM 账号登录":"首次启用时，请创建系统管理员账号。"}</p>
+          <h2>${initialized?l.welcome:l.initialize}</h2>
+          <p class="loginCardDescription">${initialized?l.caption:l.setup}</p>
           <form class="loginFields" id="${initialized?"loginForm":"bootstrapForm"}">
-            ${initialized?"":`<div class="field loginField"><label for="loginDisplayName">管理员姓名</label><input id="loginDisplayName" class="input" name="display_name" autocomplete="name" required></div>`}
-            <div class="field loginField"><label for="loginUsername">登录账号</label><input id="loginUsername" class="input" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="请输入账号名称" required><small>无需输入邮箱后缀</small></div>
-            <div class="field loginField"><label for="loginPassword">登录密码</label><div class="loginPasswordWrap"><input id="loginPassword" class="input" type="password" name="password" autocomplete="${initialized?"current-password":"new-password"}" placeholder="请输入登录密码" required><button type="button" class="loginPasswordToggle" aria-label="显示密码" aria-pressed="false">显示</button></div></div>
-            ${initialized?"":`<div class="field loginField"><label for="loginBootstrapCode">一次性初始化码</label><input id="loginBootstrapCode" class="input" type="password" name="bootstrap_code" autocomplete="off" required></div>`}
+            ${initialized?"":`<div class="field loginField"><label for="loginDisplayName">${l.name}</label><input id="loginDisplayName" class="input" name="display_name" autocomplete="name" required></div>`}
+            <div class="field loginField"><label for="loginUsername">${l.username}</label><div class="ewInputField"><span aria-hidden="true">♙</span><input id="loginUsername" class="input" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="${l.userPlaceholder}" required></div><small>${l.userHint}</small></div>
+            <div class="field loginField"><label for="loginPassword">${l.password}</label><div class="loginPasswordWrap"><span class="ewInputIcon" aria-hidden="true">◇</span><input id="loginPassword" class="input" type="password" name="password" autocomplete="${initialized?"current-password":"new-password"}" placeholder="${l.passwordPlaceholder}" required><button type="button" class="loginPasswordToggle" aria-label="${l.show}" aria-pressed="false">${l.show}</button></div></div>
+            ${initialized?"":`<div class="field loginField"><label for="loginBootstrapCode">${l.code}</label><input id="loginBootstrapCode" class="input" type="password" name="bootstrap_code" autocomplete="off" required></div>`}
             <div id="loginError" class="loginError" role="alert" hidden></div>
-            <button class="btn primary loginSubmit" type="submit">${initialized?"登录工作台":"创建管理员并进入系统"} <span aria-hidden="true">↗</span></button>
+            <button class="btn primary loginSubmit" type="submit">${initialized?l.button:l.setupButton} <span aria-hidden="true">→</span></button>
           </form>
           <div class="loginUtilities">
-          <div class="loginLangRow"><label for="loginLang">界面语言</label><select id="loginLang" class="select">${languageOptions(state.lang)}</select></div>
-          <div class="loginClockRow"><span>罗马尼亚时间</span><span class="romaniaClock" id="romaniaClock"></span></div>
+            <div class="loginLangRow"><label for="loginLang">${l.language}</label><select id="loginLang" class="select">${languageOptions(state.lang)}</select></div>
+            <div class="loginClockRow"><span>${l.clock}</span><span class="romaniaClock" id="romaniaClock"></span></div>
           </div>
-          <div class="loginFoot"><span aria-hidden="true">●</span> 授权账号访问 · 原业务数据不变</div>
+          <div class="loginFoot"><span aria-hidden="true">●</span> ${l.secure}</div>
         </div>
       </div>
     </section>`;
   const form=$("#"+(initialized?"loginForm":"bootstrapForm"));
   const toggle=form.querySelector(".loginPasswordToggle");
   const passwordField=form.querySelector('input[name="password"]');
-  if(toggle&&passwordField)toggle.onclick=()=>{const visible=passwordField.type==="password";passwordField.type=visible?"text":"password";toggle.textContent=visible?"隐藏":"显示";toggle.setAttribute("aria-pressed",String(visible));toggle.setAttribute("aria-label",visible?"隐藏密码":"显示密码");};
+  if(toggle&&passwordField)toggle.onclick=()=>{const visible=passwordField.type==="password";passwordField.type=visible?"text":"password";toggle.textContent=visible?l.hide:l.show;toggle.setAttribute("aria-pressed",String(visible));toggle.setAttribute("aria-label",visible?l.hide:l.show);};
   form.addEventListener("submit",initialized?login:bootstrap);
   $("#loginLang").onchange=e=>{state.lang=setLang(e.target.value);renderLogin(initialized)};
-  translateUI($("#root"),state.lang);
+  // The login has a complete three-language dictionary; translating again here
+  // could accidentally overwrite the localized labels with legacy labels.
+  document.documentElement.lang=state.lang==="zh"?"zh-CN":state.lang;
   startRomaniaClock();
 }
 
