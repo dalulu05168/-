@@ -8,7 +8,7 @@ test("Canva visual contract: final stylesheet, readable cream tokens and origina
  const [html,css,app,legacyLogo]=await Promise.all([
    read("index.html"),read("canva-unified-ui-audit.css"),read("app.js"),read("brand-logo-light-fix.css")
  ]);
- const cssLinks=[...html.matchAll(/href="(\/[^"]+\.css[^"]*)"/g)].map(match=>match[1]);
+ const cssLinks=[...html.matchAll(/href="(\/[^"]+\.css[^"]*)"/g)].map(match=>match[1]).filter(href=>!href.startsWith("/delivery-layout.css"));
  assert.match(cssLinks.at(-7),/^\/canva-unified-ui-audit\.css\?v=/,"Canva audit must load after base themes");
  assert.match(cssLinks.at(-6),/^\/brand-logo-light-fix\.css\?v=/,"Original logo contrast loads before mobile adjustments");
  assert.match(cssLinks.at(-5),/^\/canva-mobile-qa-fix\.css\?v=/,"Mobile QA stylesheet must load before final contrast");

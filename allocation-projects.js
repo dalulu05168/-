@@ -1,4 +1,4 @@
-import {customerProject,attachCustomerRanking,editCustomerReservation} from './customer-reservations.js?v=20261009-brighter';
+import {customerProject,attachCustomerRanking,editCustomerReservation} from './customer-reservations.js?v=20261012-remediation-10';
 import {localeFor} from './ui-features.js?v=20261009-brighter';
 
 const copy={
@@ -51,7 +51,7 @@ function bindLauncher(ctx){
  ctx.$$('[data-project-edit]').forEach(b=>b.onclick=()=>editProject(ctx,Number(b.dataset.projectEdit)));
  const owner=ctx.$('#allocationOwnerSelect');if(owner)owner.onchange=async()=>{ctx.state.allocationOwnerId=owner.value;await ctx.switchView('dashboard');};
 }
-export async function openProject(ctx,n){if(document.documentElement.requestFullscreen&&!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});ctx.state.activeProjectNumber=Math.max(1,Math.min(3,n));await ctx.switchView('shareboard');}
+export async function openProject(ctx,n){ctx.state.activeProjectNumber=Math.max(1,Math.min(3,n));await ctx.switchView('shareboard');}
 export function exitProjectPresentation(ctx){const capture=ctx.$('#projectCaptureButton');const area=ctx.$('.userArea');if(capture&&area)area.prepend(capture);document.body.classList.remove('projectPresentationMode','projectCaptureMode','projectPanoramaMode');if(ctx.state.projectEscapeHandler){document.removeEventListener('keydown',ctx.state.projectEscapeHandler);ctx.state.projectEscapeHandler=null;}if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});}
 function projectRows(ctx,p){
  if(p?.customerSummary){let reserved=0;const participants=new Set();return [...p.customerSummary.rows].sort((a,b)=>new Date(a.confirmed_at)-new Date(b.confirmed_at)||String(a.id).localeCompare(String(b.id))).map(r=>{reserved+=Number(r.reserved_shares);participants.add(r.customer_id);return {...r,slot_at:r.confirmed_at,reserved_shares:reserved,participant_count:participants.size,notes:'Customer ledger'};});}
@@ -76,12 +76,12 @@ function companyHeader(el,p){
 export async function renderProjectPresentation(ctx){
  const {state,$,esc}=ctx,canEdit=own(ctx),projects=[1,2,3].map(n=>projectFor(ctx,n));
  const toolbarCapture=$('#projectCaptureButton');if(toolbarCapture&&$('.userArea'))$('.userArea').prepend(toolbarCapture);
- document.body.classList.add('projectPresentationMode','projectPanoramaMode');
+ document.body.classList.remove('projectPresentationMode','projectPanoramaMode','projectCaptureMode');
  let n=state.activeProjectNumber||1;if(!projectFor(ctx,n)&&projects.some(Boolean))n=projects.find(Boolean).project_number;state.activeProjectNumber=n;
  const activeColor=projectEnergyColors[n-1];
  const project=projectFor(ctx,n),rows=project?projectRows(ctx,project):[],latest=rows.at(-1);
  $('#main').innerHTML=`<section class="projectPresentation projectOverview">
- <header class="projectPresentationHeader"><div class="brand"><img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-brand-correct" alt="Brantone Veylor · Private Capital Advisory · 1996"></div><button id="projectPresentationExit" class="projectExit" title="${text(ctx,'back')}" aria-label="${text(ctx,'back')}"><img src="/assets/arrow-left.svg" alt=""></button></header>
+ <header class="projectPresentationHeader"><h1 class="projectPageTitle">${text(ctx,'project')}</h1><div class="brand"><img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-brand-correct" alt="Brantone Veylor · Private Capital Advisory · 1996"></div><button id="projectPresentationExit" class="projectExit" title="${text(ctx,'back')}" aria-label="${text(ctx,'back')}"><img src="/assets/arrow-left.svg" alt=""></button></header>
  ${state.projectLoadError?errorHTML(ctx):`<div class="projectOverviewCards">${projects.map((p,i)=>{
   const pn=i+1,percent=p?Number(p.remaining_shares)/Number(p.total_shares)*100:0,color=projectEnergyColors[i];
   return `<article class="projectPanel projectOverviewCard ${p&&p.remaining_shares/p.total_shares<.2?'projectScarce':''} ${pn===n?'selected':''}" style="--project-accent:${color}"><div class="projectPanelHeading"><div><h2 data-no-i18n>${esc(p?.name||text(ctx,'project')+' '+pn)}</h2><p id="projectCompany${pn}" data-no-i18n></p></div><span class="projectInternalLabel">0${pn}</span></div>${p?`<div class="projectOverviewBalance"><div class="projectRingDock"><button type="button" class="projectEnergyRingButton ${percent<20?'is-low':''}" data-project-select="${pn}" aria-pressed="${pn===n}" aria-label="${esc(p.name)} · ${text(ctx,'details')}"><span class="projectEnergySmoke" aria-hidden="true"></span><canvas id="projectRing${pn}" role="img" aria-label="${text(ctx,'ratio')}: ${number(ctx,percent,2)}%"></canvas></button></div><div class="projectOverviewNumbers"><span>${text(ctx,percent<20?'scarce':'remaining')}</span><b class="projectBalanceRatio">${number(ctx,percent,2)}<small>%</small></b><strong>${amount(ctx,p,p.remaining_shares)}</strong><small>${text(ctx,percent<20?'low':'normal')}</small></div></div><div class="projectOverviewTotals"><div><span>${text(ctx,'total')}</span><b>${number(ctx,p.total_shares)}</b></div><div><span>${text(ctx,'reserved')}</span><b>${amount(ctx,p,p.total_shares-p.remaining_shares)}</b></div><div><span>${text(ctx,'date')}</span><b>${esc(p.board_date)}</b></div></div>`:`<div class="projectUnconfigured"><p>${text(ctx,'configure')}</p></div>`}</article>`;

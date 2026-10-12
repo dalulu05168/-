@@ -1,10 +1,10 @@
-import {installViewportLayout} from './viewport-layout.js?v=20261009-brighter';
+import {installViewportLayout} from './viewport-layout.js?v=20261012-remediation-10';
 
 import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-brighter";
-import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261009-brighter";
+import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261012-remediation-10";
 const demoMode=new URLSearchParams(location.search).get("demo")==="1";
 import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-brighter";
-import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261009-brighter";
+import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261012-remediation-10";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
@@ -113,6 +113,9 @@ const crosshairPlugin={
 if(window.Chart){
   Chart.register(crosshairPlugin);
   Chart.defaults.font.weight="normal";
+  Chart.defaults.font.family="Segoe UI, Microsoft YaHei, Arial, sans-serif";
+  Chart.defaults.color="#52645d";
+  Chart.defaults.elements.arc.borderWidth=0;
   Chart.defaults.devicePixelRatio=Math.min(Math.max(window.devicePixelRatio||1,1),2);
   Chart.defaults.animation.duration=180;
   Chart.defaults.interaction.mode="nearest";
@@ -259,11 +262,11 @@ function renderShell(){
         <div class="navFrame"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}" title="${tr(label,state.lang)}" aria-label="${tr(label,state.lang)}">${tr(label,state.lang)}</button>`).join("")}</nav></div>
         <form id="globalSearchForm" class="globalSearch" role="search"><span aria-hidden="true">⌕</span><input id="globalSearchInput" type="search" autocomplete="off" placeholder="搜索客户、项目或股票…" aria-label="搜索客户、项目或股票"><button type="submit" aria-label="搜索">↵</button></form><div class="userArea"><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><button class="chip" id="editAccountName" title="修改账号名称">${esc(state.profile.display_name)}</button><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
       </header>
-      <main id="main" data-view="${state.activeView}"></main>
+      ${demoMode?'<div class="previewNotice" role="status">隔离验收预览 · 全部数据为模拟数据 · 不连接生产写入</div>':''}<main id="main" data-view="${state.activeView}"></main>
     </div></div>
     <div id="modalRoot"></div>
   `;
-  $$(".nav button").forEach(b=>b.onclick=()=>{if(b.dataset.view==="shareboard"&&document.documentElement.requestFullscreen&&!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});switchView(b.dataset.view)});
+  $$(".nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
   $("#globalSearchForm").onsubmit=async event=>{
     event.preventDefault();
     const query=$("#globalSearchInput").value.trim();
@@ -301,6 +304,7 @@ let viewRenderQueue=Promise.resolve();
 
 async function switchView(view){
   if(!view)return;
+  if($("#clientSharePage"))closeModal(true);
   const token=++viewSwitchToken;
   const main=$("#main");
   if(main){
@@ -662,7 +666,7 @@ async function renderDashboard(){
           <div class="tickerStat"><small>当前持仓</small><span>${openPositions.length}</span></div>
           <div class="tickerStat"><small>今日交易</small><span>${todayTrades}</span></div>
           <div class="tickerStat"><small>待跟进</small><span class="${dueFollowups?"terminalRed":""}">${dueFollowups}</span></div>
-          <div class="tickerStat"><small>成本基准</small><span>${formattedTotals(openPositions,p=>Number(p.quantity)*Number(p.avg_cost))}</span></div>
+          <div class="tickerStat tickerCost"><small>成本基准</small><span>${formattedTotals(openPositions,p=>Number(p.quantity)*Number(p.avg_cost))}</span></div>
           <button class="tickerGear" id="terminalRefresh">刷新</button>
         </div>
 
@@ -789,13 +793,14 @@ function drawDashboardCharts(days=14){
 }
 function chartOpts(){return{
   responsive:true,maintainAspectRatio:false,
+  layout:{padding:8},
   interaction:{mode:"index",intersect:false},
   hover:{mode:"index",intersect:false},
   plugins:{
-    legend:{position:"top",align:"end",labels:{color:"#dce3eb",font:{size:10,weight:"normal"},boxWidth:12,boxHeight:4,padding:8}},
+    legend:{position:"top",align:"end",labels:{color:"#52645d",font:{size:12,weight:"normal"},boxWidth:12,boxHeight:4,padding:8}},
     tooltip:{enabled:true,mode:"index",intersect:false,backgroundColor:"#252524",borderColor:"#53595f",borderWidth:1,titleFont:{weight:"normal"},bodyFont:{weight:"normal"}}
   },
-  scales:{x:{ticks:{color:"#e1eaf2",font:{weight:"normal",size:10},maxTicksLimit:7,maxRotation:0,autoSkip:true},grid:{color:"#6c8193"}},y:{ticks:{color:"#e1eaf2",font:{weight:"normal"}},grid:{color:"#6c8193"}}}
+  scales:{x:{ticks:{color:"#52645d",font:{weight:"normal",size:12},maxTicksLimit:7,maxRotation:0,autoSkip:true},grid:{color:"#dce5df"}},y:{ticks:{color:"#52645d",font:{weight:"normal",size:12}},grid:{color:"#dce5df"}}}
 }}
 
 function customerTable(rows,full=true){
@@ -1018,7 +1023,7 @@ async function openCustomer(id){
     </section>`;
 
   translateUI($("#clientSharePage"),state.lang);
-  const back=$("#backCustomers");if(back)back.onclick=async()=>{const page=$("#clientSharePage");document.body.classList.remove("screenshotCaptureMode");if(state.customerMarketTimer){clearInterval(state.customerMarketTimer);state.customerMarketTimer=null}page?.classList.add("viewLeaving");if(!matchMedia("(prefers-reduced-motion: reduce)").matches)await new Promise(resolve=>setTimeout(resolve,180));if(page===$("#clientSharePage")){$("#modalRoot").innerHTML="";state.activeCustomer=null}};
+  const back=$("#backCustomers");if(back)back.onclick=()=>closeModal(true);
   const addTrade=$("#addTradeBtn");if(addTrade)addTrade.onclick=()=>openTradeForm(c);
   const addProject=$("#addCustomerProjectBtn");if(addProject)addProject.onclick=()=>{const projects=state.allocationProjects.filter(p=>p.owner_user_id===c.owner_user_id);if(!projects.length||state.customerReservationError){toast("请先配置该账号的项目客户明细",true);return;}editCustomerReservation(featureCtx(),projects[0],{customer:c,projects,onSaved:()=>openCustomer(c.id)});};
   const serviceEditor=$("#editServiceNotesBtn");if(serviceEditor)serviceEditor.onclick=()=>openFollowForm(c);
@@ -1237,8 +1242,8 @@ async function renderPersonnel(){
       <div class="tableWrap moduleContent personnelModuleContent">
         <table class="dataTable personnelTable">
           <colgroup>
-            <col style="width:12%"><col style="width:8%"><col style="width:10%"><col style="width:10%">
-            <col style="width:9%"><col style="width:17%"><col style="width:34%">
+            <col style="width:15%"><col style="width:17%"><col style="width:10%"><col style="width:17%">
+            <col style="width:9%"><col style="width:17%"><col style="width:15%">
           </colgroup>
           <thead><tr><th>账号</th><th>姓名</th><th>角色</th><th>上级</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead><tbody>
         ${rows.map(s=>{
@@ -1252,7 +1257,7 @@ async function renderPersonnel(){
               actions=`<div class="staffActions"><button class="btn editStaff" data-id="${s.id}">编辑账号</button><button class="btn resetPwd" data-id="${s.id}">重置密码</button><button class="btn danger toggleStaff" data-id="${s.id}" data-status="${s.status==="active"?"disabled":"active"}">${s.status==="active"?"禁用":"启用"}</button><button class="btn danger deleteStaff" data-id="${s.id}">删除账号</button></div>`;
             }
           }
-          return`<tr><td class="link">${esc(s.username)}</td><td>${esc(s.display_name)}</td><td>${roleName(s.role)}</td><td>${esc(parentName)}</td><td><span class="statusDot ${s.status}"></span>${s.status}</td><td>${dt(s.created_at)}</td><td>${actions}</td></tr>`;
+          return`<tr><td class="link">${esc(s.username)}</td><td>${esc(s.display_name)}</td><td>${roleName(s.role)}</td><td>${esc(parentName)}</td><td><span class="statusDot ${s.status}"></span>${s.status==="active"?"正常":s.status==="disabled"?"已停用":esc(s.status)}</td><td>${dt(s.created_at)}</td><td>${actions}</td></tr>`;
         }).join("")}
         </tbody></table>
       </div>
@@ -1420,7 +1425,7 @@ async function renderPositions(){
         <div><h2>当前持仓明细</h2><p>使用免费公开行情源的最新可用报价，并显示数据更新时间</p></div>
         <div class="toolbar unifiedActions"><button class="btn" id="refreshPositions">刷新持仓</button></div>
       </div>
-      <div class="tableWrap moduleContent"><table class="dataTable"><thead><tr><th>客户</th><th>股票</th><th>市场</th><th>数量</th><th>平均成本</th><th>行情价</th><th>更新时间</th><th>市值</th><th>未实现盈亏</th><th>已实现盈亏</th></tr></thead><tbody>${rows.map(p=>{
+      <div class="tableWrap moduleContent"><table class="dataTable holdingsTable"><thead><tr><th>客户</th><th>股票</th><th>市场</th><th>数量</th><th>平均成本</th><th>行情价</th><th>更新时间</th><th>市值</th><th>未实现盈亏</th><th>已实现盈亏</th></tr></thead><tbody>${rows.map(p=>{
         const x=q[p.symbol],usable=x&&!x.error&&Number.isFinite(Number(x.price));
         const px=usable?Number(x.price):null,mv=usable?Number(p.quantity)*px:null,u=usable?Number(p.quantity)*(px-Number(p.avg_cost)):null;
         const stamp=usable&&x.lastTradeAt?dt(x.lastTradeAt):"--";
@@ -1605,14 +1610,14 @@ async function renderReports(){
 
   $("#main").innerHTML=pageHead("统计报表","按当前权限范围实时汇总，不使用虚拟业务数据。")+`
     <section class="grid2">
-      <article class="panel"><div class="panelHead"><div><h2>客户归属分布</h2><div class="panelSubtitleRow"><p>按二级负责人统计</p><span class="inlineLegend goldLegend">客户数量 · ${state.customers.length}</span></div></div></div><div class="chartBox"><canvas id="ownerChart"></canvas></div></article>
+      <article class="panel"><div class="panelHead"><div><h2>客户归属分布</h2><div class="panelSubtitleRow"><p>按二级负责人统计</p><span class="inlineLegend goldLegend">客户数量 · ${state.customers.length}</span></div></div></div><div class="chartBox ownerChartBox" style="--owner-count:${Object.keys(byOwner).length}"><canvas id="ownerChart"></canvas></div></article>
       <article class="panel"><div class="panelHead"><div><h2>买卖结构</h2><div class="panelSubtitleRow"><p>交易记录数量</p><span class="inlineLegend up">买入 · ${state.trades.filter(t=>t.side==="buy").length}</span><span class="inlineLegend down">卖出 · ${state.trades.filter(t=>t.side==="sell").length}</span></div></div></div><div class="chartBox"><canvas id="sideChart"></canvas></div></article>
     </section>
-    <section class="reportsLower"><article class="panel"><div class="panelHead"><div><h2>人员客户统计</h2><p>按角色层级计算可见客户数量</p></div></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>人员</th><th>角色</th><th>客户数量</th><th>持仓客户</th></tr></thead><tbody>${staffRows||'<tr><td colspan="4"><div class="empty">暂无人员数据</div></td></tr>'}</tbody></table></div></article><article class="panel monthlyReport"><div class="panelHead"><h2>月度成交额 / 笔数</h2><input id="reportMonth" class="input" type="month" value="${romaniaDateKey().slice(0,7)}"><select id="reportCurrency" class="select"><option>USD</option><option>RON</option></select></div><div class="chartBox" style="height:140px;min-height:100px"><canvas id="monthlyTradeChart"></canvas></div><div class="tableWrap" id="monthlyTradeRows"></div></article></section>`;
-  const renderMonthly=()=>{const monthly=monthlyTradeTotals(state.trades,state.customers),currency=$("#reportCurrency").value,selected=$("#reportMonth").value;const rows=monthly.filter(r=>r.month===selected&&r.currency===currency);$("#monthlyTradeRows").innerHTML=`<table class="dataTable"><thead><tr><th>月份</th><th>买入成交额</th><th>卖出成交额</th><th>笔数</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.month)}</td><td>${money(r.buy,r.currency)}</td><td>${money(r.sell,r.currency)}</td><td>${r.count}</td></tr>`).join("")||'<tr><td colspan="4">该月该币种暂无交易</td></tr>'}</tbody></table>`;const series=monthly.filter(r=>r.currency===currency);state.charts.monthly?.destroy();state.charts.monthly=new Chart($("#monthlyTradeChart"),{type:"bar",data:{labels:series.map(r=>r.month),datasets:[{label:tr("买入",state.lang)+" · "+currency,data:series.map(r=>r.buy),backgroundColor:"#8eafd0"},{label:tr("卖出",state.lang)+" · "+currency,data:series.map(r=>r.sell),backgroundColor:"#ef3456"}]},options:chartOpts()});window.dispatchEvent(new Event("crm-layout"));};
+    <section class="reportsLower"><article class="panel"><div class="panelHead"><div><h2>人员客户统计</h2><p>按角色层级计算可见客户数量</p></div></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>人员</th><th>角色</th><th>客户数量</th><th>持仓客户</th></tr></thead><tbody>${staffRows||'<tr><td colspan="4"><div class="empty">暂无人员数据</div></td></tr>'}</tbody></table></div></article><article class="panel monthlyReport"><div class="panelHead"><h2>月度成交额 / 笔数</h2><input id="reportMonth" class="input" type="month" value="${romaniaDateKey().slice(0,7)}"><select id="reportCurrency" class="select"><option>USD</option><option>RON</option></select></div><p class="reportScope" id="reportScope"></p><div class="chartBox" style="height:140px;min-height:100px"><canvas id="monthlyTradeChart"></canvas></div><div class="tableWrap" id="monthlyTradeRows"></div></article></section>`;
+  const renderMonthly=()=>{const monthly=monthlyTradeTotals(state.trades,state.customers),currency=$("#reportCurrency").value,selected=$("#reportMonth").value;const rows=monthly.filter(r=>r.month===selected&&r.currency===currency);$("#monthlyTradeRows").innerHTML=`<table class="dataTable"><thead><tr><th>月份</th><th>买入成交额</th><th>卖出成交额</th><th>笔数</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.month)}</td><td>${money(r.buy,r.currency)}</td><td>${money(r.sell,r.currency)}</td><td>${r.count}</td></tr>`).join("")||'<tr><td colspan="4">该月该币种暂无交易</td></tr>'}</tbody></table>`;$("#reportScope").textContent=selected.slice(0,4)+" 年按月走势 · "+currency+"；下表为所选月份";const series=monthly.filter(r=>r.currency===currency&&r.month.startsWith(selected.slice(0,4)));state.charts.monthly?.destroy();state.charts.monthly=new Chart($("#monthlyTradeChart"),{type:"bar",data:{labels:series.map(r=>r.month),datasets:[{label:tr("买入",state.lang)+" · "+currency,data:series.map(r=>r.buy),backgroundColor:"#8eafd0"},{label:tr("卖出",state.lang)+" · "+currency,data:series.map(r=>r.sell),backgroundColor:"#ef3456"}]},options:chartOpts()});window.dispatchEvent(new Event("crm-layout"));};
   $("#reportMonth").onchange=renderMonthly;$("#reportCurrency").onchange=renderMonthly;renderMonthly();
-  state.charts.owner=new Chart($("#ownerChart"),{type:"bar",data:{labels:Object.keys(byOwner),datasets:[{label:tr("客户数量",state.lang),data:Object.values(byOwner),backgroundColor:"#8eafd0",maxBarThickness:36}]},options:{...chartOpts(),plugins:{...chartOpts().plugins,legend:{display:false}},scales:{...chartOpts().scales,y:{...chartOpts().scales.y,beginAtZero:true,max:Math.max(10,Math.ceil(Math.max(0,...Object.values(byOwner))/10)*10),ticks:{...chartOpts().scales.y.ticks,precision:0,stepSize:10}}}}});
-  state.charts.side=new Chart($("#sideChart"),{type:"doughnut",data:{labels:[tr("买入",state.lang),tr("卖出",state.lang)],datasets:[{data:[state.trades.filter(t=>t.side==="buy").length,state.trades.filter(t=>t.side==="sell").length],backgroundColor:["#00d59b","#ef3456"],borderColor:"#061722",borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:"72%",plugins:{...chartOpts().plugins,legend:{display:false}}}});
+  state.charts.owner=new Chart($("#ownerChart"),{type:"bar",data:{labels:Object.keys(byOwner),datasets:[{label:tr("客户数量",state.lang),data:Object.values(byOwner),backgroundColor:"#8eafd0",maxBarThickness:36}]},options:{...chartOpts(),plugins:{...chartOpts().plugins,legend:{display:false}},indexAxis:"y",scales:{x:{...chartOpts().scales.x,beginAtZero:true,ticks:{...chartOpts().scales.x.ticks,precision:0}},y:{...chartOpts().scales.y,ticks:{...chartOpts().scales.y.ticks,autoSkip:false}}}}});
+  state.charts.side=new Chart($("#sideChart"),{type:"doughnut",data:{labels:[tr("买入",state.lang),tr("卖出",state.lang)],datasets:[{data:[state.trades.filter(t=>t.side==="buy").length,state.trades.filter(t=>t.side==="sell").length],backgroundColor:["#00d59b","#ef3456"],borderColor:"#fffefa",borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"72%",plugins:{...chartOpts().plugins,legend:{display:false}}}});
 }
 
 async function renderSettings(){
@@ -1651,19 +1656,28 @@ function translatedModalTitle(title){
 }
 function modal(title,html){
   const root=$("#modalRoot");
-  const markup=`<div class="modal nestedModal"><div class="modalCard"><div class="modalHead"><h2>${esc(translatedModalTitle(title))}</h2><button class="close modalCloseBtn">×</button></div><div class="modalBody">${html}</div></div></div>`;
+  const markup=`<div class="modal nestedModal" role="dialog" aria-modal="true" aria-label="${esc(translatedModalTitle(title))}"><div class="modalCard"><div class="modalHead"><h2>${esc(translatedModalTitle(title))}</h2><button class="close modalCloseBtn" type="button" aria-label="${tr("关闭",state.lang)}">×</button></div><div class="modalBody">${html}</div></div></div>`;
   const client=root.querySelector("#clientSharePage");
   if(client)root.insertAdjacentHTML("beforeend",markup);
   else root.innerHTML=markup;
   const close=[...root.querySelectorAll(".modalCloseBtn")].at(-1);
-  if(close)close.onclick=closeModal;
+  if(close)close.onclick=()=>closeModal();
+  const current=root.querySelector('.nestedModal:last-child');
+  current.querySelectorAll('.field').forEach((field,index)=>{
+    const label=field.querySelector('label'),control=field.querySelector('input,select,textarea');
+    if(label&&control){if(!control.id)control.id='modal-field-'+Date.now()+'-'+index;label.htmlFor=control.id;}
+  });
   translateUI(root,state.lang);
+  queueMicrotask(()=>root.querySelector('.nestedModal:last-child input,.nestedModal:last-child select,.nestedModal:last-child button')?.focus());
 }
-function closeModal(){
+function closeModal(all=false){
   const root=$("#modalRoot");
   const nested=[...root.querySelectorAll(".nestedModal")].at(-1);
-  if(nested&&root.querySelector("#clientSharePage")){nested.remove();return}
+  if(!all&&nested&&root.querySelector("#clientSharePage")){nested.remove();return}
   if(state.customerMarketTimer){clearInterval(state.customerMarketTimer);state.customerMarketTimer=null}
+  if(state.customerCaptureEscapeHandler){document.removeEventListener('keydown',state.customerCaptureEscapeHandler);state.customerCaptureEscapeHandler=null}
+  document.body.classList.remove('screenshotCaptureMode');
+  state.activeCustomer=null;
   root.innerHTML="";
 }
 

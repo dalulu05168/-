@@ -38,6 +38,7 @@ test("new Canva/milk-white CSS files are actually served as CSS, never HTML", {t
   assert.ok(ready,"Local application server must start");
   const themes=[
     "/styles.css",
+    "/delivery-layout.css?v=20261011-remediation-7",
     "/reference-theme.css?v=20261009-brighter",
     "/unified-ui.css?v=20261009-brighter",
     "/canva-market-light.css?v=20261010-canva-final-v1",

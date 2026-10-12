@@ -1,4 +1,4 @@
-// Keep desktop pages in a shared 16:9 frame; paginate long lists instead of clipping rows.
+// Paginate long lists within the responsive document flow. Legacy frame metrics remain exported for compatibility.
 export function desktopFrameMetrics(width,height){const scale=Math.min(width/1600,height/900);return {scale,width:1600,height:900,left:(width-1600*scale)/2,top:(height-900*scale)/2};}
 export function pageBounds(total,size,page=0){const count=Math.max(1,Math.ceil(total/size)),index=Math.max(0,Math.min(count-1,page));return {page:index,count,start:index*size,end:Math.min(total,(index+1)*size)};}
 export function installViewportLayout({getLanguage=()=> 'zh'}={}){
@@ -17,10 +17,10 @@ export function installViewportLayout({getLanguage=()=> 'zh'}={}){
    let state=tableStates.get(table);if(!state){state={page:0};tableStates.set(table,state)}
    const peers=[...wrapper.querySelectorAll('.dataTable')].filter(t=>t.closest('.tableWrap')===wrapper).length||1;
    const height=wrapper.clientHeight||260,head=table.tHead?.offsetHeight||28,rowHeight=Math.max(30,...rows.slice(0,3).map(r=>r.offsetHeight||32));
-   const size=Math.max(1,Math.floor((height/peers-head-30)/rowHeight));
+   const size=12;
    const apply=()=>{const b=pagerFor(table.parentElement,state,rows.length,size,apply);rows.forEach((row,i)=>{row.hidden=i<b.start||i>=b.end})};apply();
   });
-  const list=document.querySelector('#main .marketList');if(list){const rows=[...list.querySelectorAll('.marketRow')];if(rows.length){let state=listStates.get(list);if(!state){state={page:0};listStates.set(list,state)}const gap=parseFloat(getComputedStyle(list).rowGap)||0;const rowHeight=Math.max(48,rows.find(r=>!r.hidden)?.offsetHeight||65);const size=Math.max(1,Math.floor(((list.clientHeight||450)-30+gap)/(rowHeight+gap)));const apply=()=>{const b=pagerFor(list,state,rows.length,size,apply);rows.forEach((r,i)=>r.hidden=i<b.start||i>=b.end)};apply();}}
+  const list=document.querySelector('#main .marketList');if(list){const rows=[...list.querySelectorAll('.marketRow')];if(rows.length){let state=listStates.get(list);if(!state){state={page:0};listStates.set(list,state)}const gap=parseFloat(getComputedStyle(list).rowGap)||0;const rowHeight=Math.max(48,rows.find(r=>!r.hidden)?.offsetHeight||65);const size=10;const apply=()=>{const b=pagerFor(list,state,rows.length,size,apply);rows.forEach((r,i)=>r.hidden=i<b.start||i>=b.end)};apply();}}
  }
  function paginateCollections(){
   for(const [selector,itemSelector] of [['#clientSharePage .shareServiceTimeline',':scope > div'],['#main .level1TeamGrid',':scope > .level1StaffCard'],['#main .terminalPositionList',':scope > .terminalPositionCard']]){
@@ -44,9 +44,15 @@ export function installViewportLayout({getLanguage=()=> 'zh'}={}){
    const applyRows=()=>{const range=pagerFor(group,rowState,rows.length,size,applyRows);rows.forEach((row,i)=>row.hidden=i<range.start||i>=range.end)};applyRows();
   };apply();
  }
- function layout(){queued=false;const on=window.innerWidth>=900&&window.innerHeight>=500;document.body.classList.toggle('desktopFrame',on);if(!on){document.querySelectorAll('.viewportPager:not([data-managed-pagination])').forEach(p=>p.hidden=true);document.querySelectorAll('.dataTable:not([data-managed-pagination]) tr[hidden],.marketRow[hidden],[data-viewport-row][hidden],.portfolioCurrencyGroup[hidden],.holdingBreakdownRow[hidden]').forEach(r=>r.hidden=false);return;}
-  const frame=desktopFrameMetrics(window.innerWidth,window.innerHeight);const root=document.documentElement;root.style.setProperty('--frame-scale',String(frame.scale));root.style.setProperty('--frame-left',frame.left+'px');root.style.setProperty('--frame-top',frame.top+'px');paginateTables();paginateCollections();paginatePortfolio();
+ function layout(){
+  queued=false;
+  document.body.classList.remove('desktopFrame');
+  document.documentElement.style.removeProperty('--frame-scale');
+  document.documentElement.style.removeProperty('--frame-left');
+  document.documentElement.style.removeProperty('--frame-top');
+  paginateTables();paginateCollections();paginatePortfolio();
  }
+
  function schedule(){if(!queued){queued=true;requestAnimationFrame(layout)}}
  const observer=new MutationObserver(records=>{if(records.some(r=>!r.target.closest?.('.viewportPager')&&[...r.addedNodes].some(n=>n.nodeType===1)))schedule()});observer.observe(document.body,{childList:true,subtree:true});
  window.addEventListener('resize',schedule);window.addEventListener('crm-layout',schedule);schedule();return ()=>{observer.disconnect();window.removeEventListener('resize',schedule);window.removeEventListener('crm-layout',schedule)};
