@@ -1,10 +1,11 @@
-import {installViewportLayout} from './viewport-layout.js?v=20261012-remediation-11';
+import {exportPagePNG} from './page-export.js?v=20261012-export-4';
+import {installViewportLayout} from './viewport-layout.js?v=20261012-remediation-16';
 
 import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-brighter";
-import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261012-remediation-11";
+import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261012-remediation-16";
 const demoMode=new URLSearchParams(location.search).get("demo")==="1";
 import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-brighter";
-import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261012-remediation-11";
+import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261012-remediation-16";
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
@@ -260,7 +261,7 @@ function renderShell(){
       <header class="topbar">
         <div class="brand"><img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-brand-correct" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
         <div class="navFrame"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}" title="${tr(label,state.lang)}" aria-label="${tr(label,state.lang)}">${tr(label,state.lang)}</button>`).join("")}</nav></div>
-        <form id="globalSearchForm" class="globalSearch" role="search"><span aria-hidden="true">⌕</span><input id="globalSearchInput" type="search" autocomplete="off" placeholder="搜索客户、项目或股票…" aria-label="搜索客户、项目或股票"><button type="submit" aria-label="搜索">↵</button></form><div id="dashboardAccountSlot" hidden></div><div class="userArea"><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><button class="chip" id="editAccountName" title="修改账号名称">${esc(state.profile.display_name)}</button><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
+        <form id="globalSearchForm" class="globalSearch" role="search"><span aria-hidden="true">⌕</span><input id="globalSearchInput" type="search" autocomplete="off" placeholder="搜索客户、项目或股票…" aria-label="搜索客户、项目或股票"><button type="submit" aria-label="搜索">↵</button></form><div id="dashboardAccountSlot" hidden></div><div class="userArea"><button id="toggleNavigation" class="btn" aria-pressed="false">隐藏导航</button><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><button class="chip" id="editAccountName" title="修改账号名称">${esc(state.profile.display_name)}</button><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
       </header>
       ${demoMode?'<div class="previewNotice" role="status">隔离验收预览 · 全部数据为模拟数据 · 不连接生产写入</div>':''}<main id="main" data-view="${state.activeView}"></main>
     </div></div>
@@ -292,6 +293,7 @@ function renderShell(){
     const field=$("#marketSymbols");
     if(field){field.value=query.toUpperCase();field.dispatchEvent(new Event("change",{bubbles:true}));}
   };
+  const navToggle=$("#toggleNavigation");navToggle.onclick=()=>{const hidden=document.body.classList.toggle("navigationHidden");navToggle.textContent=hidden?"显示导航":"隐藏导航";navToggle.setAttribute("aria-pressed",String(hidden));};
   $("#editAccountName").onclick=openAccountNameForm;
   $("#globalLang").onchange=async e=>{state.lang=setLang(e.target.value);renderShell();await switchView(state.activeView)};
   $("#logoutBtn").onclick=async()=>{exitProjectPresentation(featureCtx());clearMarketRefreshTimers();await supabase.auth.signOut();state.profile=null;state.session=null;state.allocationProjects=[];state.allocationRecords=[];state.allocationOwnerId=null;state.activeCustomer=null;state.activeView="dashboard";renderLogin(true)};
@@ -1042,8 +1044,7 @@ async function openCustomer(id){
   document.addEventListener('keydown',state.customerCaptureEscapeHandler);
   if(capture)capture.onclick=e=>{
     e.preventDefault();e.stopPropagation();
-    $('#clientSharePage').classList.add('clientCaptureMode');
-    document.body.classList.add('screenshotCaptureMode');
+    exportPagePNG($('#clientSharePage'),{filename:'Brantone-Veylor-'+c.name,button:capture,notify:toast});
   };
   const note=$("#clientSharePage .shareNote");if(note&&c.notes){note.dataset.hasNotes="true";note.onclick=()=>modal("客户备注",`<p data-no-i18n style="white-space:pre-wrap;line-height:1.6">${esc(c.notes)}</p>`);}
   drawCustomerShareCharts(pos,chartTrades,q,primary,realized,unreal);

@@ -45,7 +45,7 @@ test("Screenshot logo band blends into identical cream canvas and original SVG i
  assert.ok(qa.includes("border:0!important"));
  assert.ok(qa.includes("box-shadow:none!important"));
  assert.ok(qa.includes("object-fit:contain!important"));
- assert.ok(project.includes("body.classList.add('projectCaptureMode')"));
+ assert.ok(project.includes("exportPagePNG($('.shell')"));
 });
 test("All 3 project gauges use new warm-gold, brighter deep-green, brighter deep-blue palette",async()=>{
  const [js,qa]=await Promise.all(["allocation-projects.js","canva-fullsite-qa.css"].map(load));

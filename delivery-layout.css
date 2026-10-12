@@ -284,3 +284,12 @@ body #root#root#root#root#root#root#root#root#root#root .projectLauncher {paddin
 body #root#root#root#root#root#root#root#root#root#root .projectPresentationHeader {justify-content:flex-end!important;}
 @media(min-width:900px){body #root#root#root#root#root#root#root#root#root#root .navFrame {top:var(--app-header-height,88px)!important;height:calc(100dvh - var(--app-header-height,88px))!important;padding-top:16px!important;}}
 @media(max-width:899px){body #root#root#root#root#root#root#root#root#root#root #dashboardAccountSlot {order:3!important;flex-basis:100%!important;}body #root#root#root#root#root#root#root#root#root#root #dashboardAccountSlot .projectAccountLabel {justify-content:flex-end!important;}}
+
+/* Capture actions remain at the top; export itself never changes the live page. */
+body #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot .shareInternalActions {margin-left:auto!important;display:flex!important;flex-wrap:wrap!important;justify-content:flex-end!important;gap:8px!important;}
+body #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot .sideBadge.buy {background:#08764e!important;color:white!important;}
+body #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot .sideBadge.sell {background:#b43348!important;color:white!important;}
+body #root#root#root#root#root#root#root#root#root#root #toggleNavigation {display:none!important;}
+body:has(#main[data-view="shareboard"]) #root#root#root#root#root#root#root#root#root#root :is(#projectCaptureButton,#toggleNavigation) {display:inline-flex!important;align-items:center!important;justify-content:center!important;}
+body.navigationHidden #root#root#root#root#root#root#root#root#root#root .navFrame {display:none!important;}
+body.navigationHidden #root#root#root#root#root#root#root#root#root#root .shell {padding-left:0!important;}
