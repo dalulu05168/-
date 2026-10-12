@@ -6,7 +6,8 @@ test('Delivery stylesheet is last and project navigation never requests fullscre
  const [html,app,projects,css]=await Promise.all(['index.html','app.js','allocation-projects.js','delivery-layout.css'].map(read));
  const links=[...html.matchAll(/rel="stylesheet"[^>]+href="([^"]+)"/g)].map(m=>m[1]);
  assert.match(links.at(-2),/^\/delivery-layout\.css\?v=/);
- assert.match(links.at(-1),/^\/ellery-premium-ui\.css\?v=/);
+ assert.match(links.at(-2),/^\/ellery-premium-ui\.css\?v=/);
+ assert.match(links.at(-1),/^\/ellery-login-v3\.css\?v=/);
  assert.doesNotMatch(app+projects,/requestFullscreen\(/);
  const stripped=css.replace(/\/\*[\s\S]*?\*\//g,'');
  assert.equal([...stripped].filter(x=>x==='{').length,[...stripped].filter(x=>x==='}').length);
