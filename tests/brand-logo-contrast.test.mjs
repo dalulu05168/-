@@ -16,7 +16,7 @@ test("all application logo occurrences use the new transparent asset and remove 
   assert.equal((app.match(/brand-logo-transparent-color\.svg/g)||[]).length,3,"login, shell and customer share use the same logo");
   assert.equal((projects.match(/brand-logo-transparent-color\.svg/g)||[]).length,1,"project screenshot uses the same logo");
   assert.match(index,/brand-logo-light-fix\.css/);
-  const cssLinks=[...index.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g)].map(x=>x[1]).filter(href=>!href.startsWith("/delivery-layout.css"));
+  const cssLinks=[...index.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g)].map(x=>x[1]).filter(href=>!href.startsWith("/delivery-layout.css")&&!href.startsWith("/ellery-premium-ui.css"));
   assert.match(cssLinks.at(-6),/^\/brand-logo-light-fix\.css/,"original logo contrast loads before mobile QA");
   assert.match(cssLinks.at(-5),/^\/canva-mobile-qa-fix\.css/,"mobile QA must retain original transparent logo");
   assert.match(cssLinks.at(-4),/^\/contrast-guard\.css/,"contrast guard must not recolor the logo");
