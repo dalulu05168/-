@@ -1,4 +1,4 @@
-import {customerProject,attachCustomerRanking,editCustomerReservation} from './customer-reservations.js?v=20261012-remediation-10';
+import {customerProject,attachCustomerRanking,editCustomerReservation} from './customer-reservations.js?v=20261012-remediation-11';
 import {localeFor} from './ui-features.js?v=20261009-brighter';
 
 const copy={
@@ -44,6 +44,7 @@ export function attachProjectLauncher(ctx){
  const action=main.querySelector('.terminalActionGrid');
  if(action)action.insertAdjacentHTML('afterend',projectLauncherHTML(ctx));
  else main.insertAdjacentHTML('afterbegin',projectLauncherHTML(ctx));
+ const label=main.querySelector(".projectAccountLabel"),slot=ctx.$("#dashboardAccountSlot");if(label&&slot){slot.replaceChildren(label);slot.hidden=false;}
  bindLauncher(ctx);
 }
 function bindLauncher(ctx){

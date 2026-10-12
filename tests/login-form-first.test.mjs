@@ -20,7 +20,7 @@ test("The login form is the first action, with secondary utilities below submit"
  assert.ok(js.includes('email:username+"@crm.nuvexapro.com"'));
  assert.ok(js.includes("supabase.auth.signInWithPassword"));
  assert.match(html,/login-redesign\.css\?v=20261010-form-first-v2/);
- assert.match(html,/app\.js\?v=20261012-remediation-10/);
+ assert.match(html,/app\.js\?v=20261012-remediation-11/);
  assert.match(css,/\.loginUtilities/);
  assert.match(css,/@media \(max-width:899px\)/);
  assert.match(css,/font-size:16px!important/);

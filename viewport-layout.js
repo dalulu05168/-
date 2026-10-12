@@ -47,6 +47,7 @@ export function installViewportLayout({getLanguage=()=> 'zh'}={}){
  function layout(){
   queued=false;
   document.body.classList.remove('desktopFrame');
+  const header=document.querySelector('.topbar');if(header)document.documentElement.style.setProperty('--app-header-height',header.offsetHeight+'px');
   document.documentElement.style.removeProperty('--frame-scale');
   document.documentElement.style.removeProperty('--frame-left');
   document.documentElement.style.removeProperty('--frame-top');

@@ -273,3 +273,14 @@ body #root#root#root#root#root#root#root#root#root#root .projectPanelHeading>div
 body #root#root#root#root#root#root#root#root#root#root .projectInternalLabel {position:static!important;flex:0 0 auto!important;margin-left:auto!important;}
 body #root#root#root#root#root#root#root#root#root#root .projectEnergySmoke {display:none!important;}
 body #root#root#root#root#root#root#root#root#root#root .projectEnergyRingButton {box-shadow:none!important;}
+
+/* User layout: account selector in header; navigation begins below it. */
+body #root#root#root#root#root#root#root#root#root#root #dashboardAccountSlot {flex:0 1 auto!important;min-width:0!important;}
+body #root#root#root#root#root#root#root#root#root#root #dashboardAccountSlot .projectAccountLabel {display:flex!important;align-items:center!important;gap:8px!important;white-space:nowrap!important;font-size:13px!important;}
+body #root#root#root#root#root#root#root#root#root#root #dashboardAccountSlot select {width:150px!important;max-width:100%!important;height:40px!important;padding:8px!important;}
+body #root#root#root#root#root#root#root#root#root#root :is(.projectLauncherHead,.projectPageTitle,.unifiedModuleHead>div:first-child,.referenceMarketHero>div:first-child) {display:none!important;}
+body #root#root#root#root#root#root#root#root#root#root .unifiedModuleHead {justify-content:flex-end!important;}
+body #root#root#root#root#root#root#root#root#root#root .projectLauncher {padding-top:16px!important;}
+body #root#root#root#root#root#root#root#root#root#root .projectPresentationHeader {justify-content:flex-end!important;}
+@media(min-width:900px){body #root#root#root#root#root#root#root#root#root#root .navFrame {top:var(--app-header-height,88px)!important;height:calc(100dvh - var(--app-header-height,88px))!important;padding-top:16px!important;}}
+@media(max-width:899px){body #root#root#root#root#root#root#root#root#root#root #dashboardAccountSlot {order:3!important;flex-basis:100%!important;}body #root#root#root#root#root#root#root#root#root#root #dashboardAccountSlot .projectAccountLabel {justify-content:flex-end!important;}}
