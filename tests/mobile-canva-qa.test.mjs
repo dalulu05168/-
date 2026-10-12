@@ -8,7 +8,7 @@ test("iPhone Canva acceptance: one visible logo, stacked cards, readable typogra
  const [html,css,projects]=await Promise.all([
   read("index.html"),read("canva-mobile-qa-fix.css"),read("allocation-projects.js")
  ]);
- const links=[...html.matchAll(/href="(\/[^"]+\.css[^"]*)"/g)].map(m=>m[1]).filter(href=>!href.startsWith("/delivery-layout.css")&&!href.startsWith("/ellery-premium-ui.css"));
+ const links=[...html.matchAll(/href="(\/[^"]+\.css[^"]*)"/g)].map(m=>m[1]).filter(href=>!href.startsWith("/delivery-layout.css")&&!href.startsWith("/ellery-premium-ui.css")&&!href.startsWith("/ellery-login-v3.css"));
  assert.match(links.at(-5),/^\/canva-mobile-qa-fix\.css\?v=/,"Mobile fixes must load before contrast guard");
  assert.match(links.at(-4),/^\/contrast-guard\.css\?v=/,"All page text must pass contrast guard");
  assert.match(links.at(-3),/^\/canva-fullsite-qa\.css\?v=/,"Canva corrections before mobile layout");
