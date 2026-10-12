@@ -160,13 +160,13 @@ async function checkBootstrap(){
 
 function renderLogin(initialized){
   $("#root").innerHTML=`
-    <section class="loginPage" aria-label="Brantone Veylor 系统登录">
+    <section class="loginPage" aria-label="ELLERY WESTCOTT CAPITAL MARKETS 系统登录">
       <div class="loginHero">
-        <div class="heroMark"><img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-brand-correct" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
+        <div class="heroMark"><img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-brand-correct" alt="ELLERY WESTCOTT CAPITAL MARKETS · Private Capital Advisory · 1996"></div>
         <div class="heroRule" aria-hidden="true"></div>
-        <div class="loginEyebrow">BRANTONE VEYLOR · PRIVATE WORKSPACE</div>
+        <div class="loginEyebrow">ELLERY WESTCOTT · CAPITAL MARKETS</div>
         <h1>客户管理<br>清晰而有序</h1>
-        <p>Brantone Veylor 专属管理工作台。客户档案、持仓、交易记录及项目进度，在同一个入口安全访问。</p>
+        <p>ELLERY WESTCOTT CAPITAL MARKETS 专属管理工作台。客户档案、持仓、交易记录及项目进度，在同一个入口安全访问。</p>
         <div class="loginHeroModules" aria-label="系统业务模块"><span>客户管理</span><span>持仓与交易</span><span>项目预留份额</span></div>
       </div>
       <div class="loginSide">
@@ -259,7 +259,7 @@ function renderShell(){
   $("#root").innerHTML=`
     <div class="app"><div class="shell">
       <header class="topbar">
-        <div class="brand"><img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-brand-correct" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
+        <div class="brand"><img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-brand-correct" alt="ELLERY WESTCOTT CAPITAL MARKETS · Private Capital Advisory · 1996"></div>
         <div class="navFrame"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}" title="${tr(label,state.lang)}" aria-label="${tr(label,state.lang)}">${tr(label,state.lang)}</button>`).join("")}</nav></div>
         <form id="globalSearchForm" class="globalSearch" role="search"><span aria-hidden="true">⌕</span><input id="globalSearchInput" type="search" autocomplete="off" placeholder="搜索客户、项目或股票…" aria-label="搜索客户、项目或股票"><button type="submit" aria-label="搜索">↵</button></form><div id="dashboardAccountSlot" hidden></div><div class="userArea"><button id="toggleNavigation" class="btn" aria-pressed="false">隐藏导航</button><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><button class="chip" id="editAccountName" title="修改账号名称">${esc(state.profile.display_name)}</button><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
       </header>
@@ -663,7 +663,7 @@ async function renderDashboard(){
         <div class="terminalTicker">
           <div class="tickerIdentity">
             <span class="tickerDot"></span>
-            <div><span class="tickerSymbol">CRM · PORTFOLIO</span><small>Brantone Veylor</small></div>
+            <div><span class="tickerSymbol">CRM · PORTFOLIO</span><small>ELLERY WESTCOTT CAPITAL MARKETS</small></div>
           </div>
           <div class="tickerStat"><small>客户</small><span>${state.customers.length}</span></div>
           <div class="tickerStat"><small>当前持仓</small><span>${openPositions.length}</span></div>
@@ -955,7 +955,7 @@ async function openCustomer(id){
     <section class="customerDetail clientPortfolioDetail shareReady" id="clientSharePage">
       <div class="shareTopbar">
         <div class="shareBrand">
-          <img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-brand-correct" alt="Brantone Veylor · Private Capital Advisory · 1996">
+          <img class="brandLogo" src="/assets/brand-logo-transparent-color.svg?v=20261010-brand-correct" alt="ELLERY WESTCOTT CAPITAL MARKETS · Private Capital Advisory · 1996">
         </div>
         <div class="shareTimeBlock">
 
