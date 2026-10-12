@@ -97,3 +97,23 @@ html body #root#root#root#root#root#root .loginHero .heroMark{width:300px!import
 html body #root#root#root#root#root#root .loginSide{height:auto!important;padding:14px!important}
 }
 @media(prefers-reduced-motion:reduce){html body *{transition-duration:0s!important;animation-duration:0s!important;scroll-behavior:auto!important}}
+
+/* Browser acceptance repair: explicit opaque color behind card gradients. */
+html body #root#root#root#root#root#root #main :is(.panel,.projectPanel,.settingsCard,.level2Metric,.level1StaffCard,.modulePanel,.kpi){
+  background-color:#ffffff!important;
+}
+@media(max-width:899px){
+ html body #root#root#root#root#root#root .loginPage .loginHero{
+  display:flex!important;position:relative!important;visibility:visible!important;
+  min-height:205px!important;padding:20px!important;
+ }
+ html body #root#root#root#root#root#root .loginPage .heroMark{
+  display:flex!important;width:min(350px,100%)!important;height:100px!important;
+  margin:0 0 10px!important;visibility:visible!important;
+ }
+ html body #root#root#root#root#root#root .loginPage .brandLogo{display:block!important;visibility:visible!important}
+ html body #root#root#root#root#root#root .loginPage .loginHero h1{font-size:24px!important;margin:4px 0!important}
+ html body #root#root#root#root#root#root .loginPage .loginHero p{font-size:12px!important;line-height:1.5!important}
+ html body #root#root#root#root#root#root .loginPage .loginHeroModules{display:none!important}
+ html body #root#root#root#root#root#root .loginPage :is(input,select,textarea){font-size:16px!important}
+}
