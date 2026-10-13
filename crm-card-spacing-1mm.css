@@ -102,3 +102,12 @@ body #root#root#root#root#root#root#root#root#root#root #main :is(
     transition: none !important;
   }
 }
+
+/* Restore login form legibility: the legacy delivery theme's 14px rule
+   overrides the mobile 16px input requirement and its primary CTA teal. */
+body #root#root#root#root#root#root#root#root#root#root .loginPage .loginFields :is(input, .input) {
+  font-size: 16px !important;
+}
+body #root#root#root#root#root#root#root#root#root#root .loginPage .loginFields .loginSubmit.btn.primary {
+  background: #12887a !important;
+}
