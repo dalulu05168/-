@@ -32,7 +32,8 @@ test('CRM desktop navigation contracts to 64px, expands to 200px and keeps route
   assert.match(css,/body\.navigationHidden[^\{]+\.shell/);
   assert.match(app,/id="crmNavigation"/);
   assert.match(app,/aria-controls="crmNavigation"/);
-  assert.match(app,/navToggle\.onclick=.*classList\.toggle\("navigationHidden"\)/);
+  assert.match(app,/appRoot\.addEventListener\("click"/,'Sidebar toggle must be delegated from persistent application root');
+  assert.match(app,/document\.body\.classList\.toggle\("navigationHidden"\)/);
   for(const route of ['dashboard','customers','personnel','trades','positions','market','reports','shareboard','settings']){
     assert.ok(css.includes('.nav button[data-view="'+route+'"]::before'),'Missing collapsed navigation icon: '+route);
   }
