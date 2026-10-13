@@ -7,6 +7,13 @@
 :root { --crm-card-gap: 1mm; --crm-sidebar-open: 200px; --crm-sidebar-closed: 64px; }
 
 @media (min-width: 900px) {
+  /* The legacy delivery stylesheet concealed this control outside the shareboard.
+     The user requires the rail to collapse on EVERY desktop module. */
+  body #root#root#root#root#root#root#root#root#root#root #toggleNavigation {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
   /* Preserve the fixed navigation rail while giving the content its space back. */
   body #root#root#root#root#root#root#root#root#root#root .shell {
     padding-left: var(--crm-sidebar-open) !important;
