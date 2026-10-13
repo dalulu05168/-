@@ -27,6 +27,7 @@ test('CRM desktop navigation contracts to 64px, expands to 200px and keeps route
   assert.match(css,/--crm-sidebar-open:\s*200px/);
   assert.match(css,/--crm-sidebar-closed:\s*64px/);
   assert.match(css,/@media\s*\(min-width:\s*900px\)/);
+  assert.match(css,/#toggleNavigation\s*\{\s*display:\s*inline-flex\s*!important/,'Collapse control must appear on every desktop page');
   assert.match(css,/body\.navigationHidden[^\{]+\.navFrame/);
   assert.match(css,/body\.navigationHidden[^\{]+\.shell/);
   assert.match(app,/id="crmNavigation"/);
