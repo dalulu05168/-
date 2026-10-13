@@ -40,6 +40,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Read-only phone/tablet browser QA (3 roles, all real screens)
         run: node scripts/mobile-browser-qa.mjs
+      - name: Check 16:9 desktop navigation and 1mm card gap in real Chromium
+        run: node scripts/crm-layout-desktop-qa.mjs
       - name: Upload viewport captures and QA report
         if: always()
         uses: actions/upload-artifact@v4
