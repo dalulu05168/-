@@ -6,7 +6,7 @@ const load=async name=>readFile(new URL("../"+name,import.meta.url),"utf8");
 
 test("cream UI remains the final stylesheet and includes whole-page overrides",async()=>{
  const [index,cream]=await Promise.all([load("index.html"),load("cream-shell-correction.css")]);
- const links=[...index.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g)].map(m=>m[1]).filter(href=>!href.startsWith("/delivery-layout.css"));
+ const links=[...index.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g)].map(m=>m[1]).filter(href=>!href.startsWith("/delivery-layout.css")&&!href.startsWith("/crm-card-spacing-1mm.css"));
  assert.ok(links.some(x=>x.startsWith("/cream-shell-correction.css?")),"cream shell stylesheet must load");
  const creamIndex=links.findIndex(x=>x.startsWith("/cream-shell-correction.css?"));
  const logoIndex=links.findIndex(x=>x.startsWith("/brand-logo-light-fix.css?"));

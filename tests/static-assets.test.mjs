@@ -39,6 +39,7 @@ test("new Canva/milk-white CSS files are actually served as CSS, never HTML", {t
   const themes=[
     "/styles.css",
     "/delivery-layout.css?v=20261011-remediation-7",
+    "/crm-card-spacing-1mm.css?v=20261013-nav-card-gap-v1",
     "/reference-theme.css?v=20261009-brighter",
     "/unified-ui.css?v=20261009-brighter",
     "/canva-market-light.css?v=20261010-canva-final-v1",

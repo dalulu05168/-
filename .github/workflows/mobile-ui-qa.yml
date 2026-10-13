@@ -8,6 +8,7 @@ on:
     paths:
       - "responsive-mobile-system.css"
       - "app.js"
+      - "crm-card-spacing-1mm.css"
       - "viewport-layout.js"
       - "allocation-projects.js"
       - "index.html"
@@ -37,6 +38,8 @@ jobs:
         run: npm test
       - name: Install browser and OS dependencies
         run: npx playwright install --with-deps chromium
+      - name: Check 16:9 desktop navigation and 1mm card gap in real Chromium
+        run: node scripts/crm-layout-desktop-qa.mjs
       - name: Read-only phone/tablet browser QA (3 roles, all real screens)
         run: node scripts/mobile-browser-qa.mjs
       - name: Upload viewport captures and QA report
