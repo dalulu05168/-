@@ -76,6 +76,12 @@ try{
   await page.locator('#toggleNavigation').click();
   await page.waitForTimeout(350);
   expanded=await measure();
+  console.log('CRM_NAV_DEBUG',JSON.stringify({
+    before:collapsed,after:expanded,
+    toggleExpanded:await page.locator('#toggleNavigation').getAttribute('aria-expanded'),
+    toggleText:await page.locator('#toggleNavigation').textContent(),
+    bodyClasses:await page.locator('body').getAttribute('class')
+  }));
   approx(expanded.navWidth,200,'Navigation width after re-expanding');
   approx(expanded.shellPadding,200,'Shell offset after re-expanding');
   if(await page.locator('#toggleNavigation').getAttribute('aria-expanded')!=='true')throw Error('ARIA state out of sync after expansion');
