@@ -1,0 +1,32 @@
+name: CRM 1mm card layout and collapsible sidebar QA
+on:
+  pull_request:
+    paths:
+      - 'app.js'
+      - 'index.html'
+      - 'crm-1mm-module-spacing.css'
+      - 'scripts/crm-spacing-nav-browser-qa.mjs'
+      - 'tests/crm-spacing-nav.test.mjs'
+      - '.github/workflows/crm-1mm-layout-qa.yml'
+jobs:
+  card-spacing-and-sidebar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: |
+          npm install --no-audit --no-fund
+          npm install --no-save playwright@1.56.1 --no-audit --no-fund
+      - name: Syntax and scoped 1mm contract
+        run: |
+          node --check app.js
+          node --check scripts/crm-spacing-nav-browser-qa.mjs
+          node --test tests/crm-spacing-nav.test.mjs tests/delivery-layout.test.mjs
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Read-only 1440px and 390px browser acceptance
+        run: node scripts/crm-spacing-nav-browser-qa.mjs
