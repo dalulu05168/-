@@ -1,0 +1,31 @@
+name: CRM original vector logo clarity QA
+on:
+  pull_request:
+    paths:
+      - 'brand-logo-sharp-header.css'
+      - 'index.html'
+      - 'assets/brand-logo-transparent-color.svg'
+      - 'tests/crm-logo-fidelity.test.mjs'
+      - 'scripts/crm-logo-fidelity-browser-qa.mjs'
+      - '.github/workflows/crm-logo-fidelity-qa.yml'
+jobs:
+  high-definition-brand:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install test dependencies
+        run: |
+          npm install --no-audit --no-fund
+          npm install --no-save playwright@1.56.1 --no-audit --no-fund
+      - name: Source integrity and no-filter style contract
+        run: |
+          node --check scripts/crm-logo-fidelity-browser-qa.mjs
+          node --test tests/crm-logo-fidelity.test.mjs
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Headless phone, desktop, 4K vector clarity verification
+        run: node scripts/crm-logo-fidelity-browser-qa.mjs
