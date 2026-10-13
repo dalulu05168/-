@@ -53,6 +53,7 @@ try{
     if(Math.abs(before.mainGap-(96/25.4))>0.08)throw Error(width+": 1mm gap not applied "+JSON.stringify(before));
     if(width===1440 && Math.abs(before.navWidth-200)>2)throw Error("Expanded sidebar not 200px: "+JSON.stringify(before));
     await toggle.click();
+    await page.waitForTimeout(330);
     const compact=await layout();
     if(!compact.compact||compact.expanded!=="false")throw Error(width+": compact toggle not applied "+JSON.stringify(compact));
     if(width===1440 && (Math.abs(compact.navWidth-64)>2||Math.abs(compact.shellPadding-64)>2))
@@ -63,6 +64,7 @@ try{
     const stillCompact=await layout();
     if(!stillCompact.compact)throw Error(width+": navigation state lost on page switch");
     await toggle.click();
+    await page.waitForTimeout(330);
     const after=await layout();
     if(after.compact||after.expanded!=="true")throw Error(width+": expand toggle not restored");
     if(width===1440 && Math.abs(after.navWidth-200)>2)throw Error("Sidebar did not restore 200px width");
