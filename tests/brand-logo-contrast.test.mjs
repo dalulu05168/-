@@ -13,10 +13,11 @@ test("the original logo shapes are preserved while dark text matches the user-su
 });
 test("all application logo occurrences use the new transparent asset and remove blue plaque",async()=>{
   const [app,projects,css,index]=await Promise.all([read("app.js"),read("allocation-projects.js"),read("brand-logo-light-fix.css"),read("index.html")]);
-  assert.equal((app.match(/brand-logo-transparent-color\.svg/g)||[]).length,3,"login, shell and customer share use the same logo");
+  assert.equal((app.match(/brand-logo-transparent-color\.svg/g)||[]).length,2,"shell and customer share retain legacy logo until their separate visual phase");
+  assert.equal((app.match(/ellery-westcott-logo\.svg/g)||[]).length,1,"login exclusively uses new Ellery branding");
   assert.equal((projects.match(/brand-logo-transparent-color\.svg/g)||[]).length,1,"project screenshot uses the same logo");
   assert.match(index,/brand-logo-light-fix\.css/);
-  const cssLinks=[...index.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g)].map(x=>x[1]).filter(href=>!href.startsWith("/delivery-layout.css"));
+  const cssLinks=[...index.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g)].map(x=>x[1]).filter(href=>!href.startsWith("/delivery-layout.css")&&!href.startsWith("/ellery-premium-ui.css")&&!href.startsWith("/ellery-login-v3.css")&&!href.startsWith("/ellery-premium-ui.css")&&!href.startsWith("/ellery-login-v3.css"));
   assert.match(cssLinks.at(-6),/^\/brand-logo-light-fix\.css/,"original logo contrast loads before mobile QA");
   assert.match(cssLinks.at(-5),/^\/canva-mobile-qa-fix\.css/,"mobile QA must retain original transparent logo");
   assert.match(cssLinks.at(-4),/^\/contrast-guard\.css/,"contrast guard must not recolor the logo");

@@ -1,0 +1,119 @@
+/* ELLERY WESTCOTT CAPITAL MARKETS · premium gray/white financial workspace
+ * Isolated design overlay; the CRM's role checks, event handlers and data remain unchanged.
+ * Loaded after delivery-layout.css to retire conflicting dark, green and cream legacy palettes.
+ */
+:root{--ew-navy:#103361;--ew-blue:#1c5799;--ew-mid:#517fab;--ew-ink:#122a4c;--ew-muted:#647995;--ew-line:#dbe5f0;--ew-paper:#fff;--ew-frost:#f2f6fb;--ew-shadow:0 8px 27px rgba(28,67,120,.082);--delivery-ink:#122a4c;--delivery-muted:#61738b;--delivery-line:#dbe5f0;--delivery-paper:#fff;--delivery-accent:#14518f;--login-cream:#f5f8fb;--login-paper:#fff;--login-outer:#eaf0f8;--login-ink:#122a4c;--login-muted:#687b94;--login-line:#dbe5f0;--login-accent:#14518f;--mobile-page:#f3f7fc;--mobile-paper:#fff;--mobile-soft:#f3f6fa;--mobile-line:#dae5f0;--mobile-ink:#122a4c;--mobile-muted:#60748d;--mobile-teal:#225c9b}
+html body{background:linear-gradient(135deg,#f8fafc,#eaf1f8 53%,#f5f8fc)!important;color:var(--ew-ink)!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .shell{padding:0 0 16px 240px!important;min-height:100dvh!important;height:auto!important;background:linear-gradient(139deg,#f8fafc 0%,#eaf1f8 55%,#f4f7fb 100%)!important;box-shadow:none!important;max-width:none!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .topbar{position:sticky!important;top:0!important;z-index:70!important;display:flex!important;flex-wrap:nowrap!important;gap:20px!important;width:100%!important;min-height:84px!important;height:84px!important;padding:9px 24px!important;background:linear-gradient(100deg,rgba(255,255,255,.98),rgba(235,242,249,.97))!important;border-bottom:1px solid #d6e1ec!important;box-shadow:0 2px 18px rgba(12,40,79,.055)!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .brand{width:275px!important;min-width:260px!important;max-width:285px!important;flex:0 0 275px!important;height:65px!important;padding:0!important;overflow:visible!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .brandLogo{width:100%!important;height:100%!important;max-width:100%!important;object-fit:contain!important;object-position:left center!important;filter:none!important;mix-blend-mode:multiply!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .navFrame{position:fixed!important;left:0!important;top:84px!important;bottom:0!important;z-index:30!important;width:240px!important;height:calc(100dvh - 84px)!important;padding:24px 13px!important;border-right:1px solid #d6e3f0!important;background:linear-gradient(165deg,#f9fbfd 0%,#e7f0f9 55%,#f3f7fc 100%)!important;box-shadow:5px 0 22px rgba(16,51,97,.045)!important;overflow-y:auto!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .navFrame::before{content:"WORKSPACE";display:block;color:#9aabc2;letter-spacing:2px;font-size:10px;font-weight:700;margin:3px 12px 16px}
+body #root#root#root#root#root#root#root#root#root#root#root#root .nav{display:flex!important;flex-direction:column!important;gap:5px!important;overflow:visible!important;height:auto!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .nav button{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;min-height:48px!important;height:auto!important;width:100%!important;max-width:100%!important;padding:12px 15px!important;text-align:left!important;font-size:14px!important;font-weight:600!important;white-space:normal!important;line-height:1.32!important;border-radius:9px!important;border:1px solid transparent!important;background:transparent!important;color:#405877!important;box-shadow:none!important;transform:none!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .nav button:hover{background:rgba(216,231,247,.85)!important;color:#174b83!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .nav button.active{background:linear-gradient(135deg,#3676b7,#0c3569)!important;border-color:#3970ab!important;color:#fff!important;box-shadow:0 8px 18px rgba(17,63,117,.16)!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .nav button .ew-nav-icon{width:20px;height:20px;flex:0 0 20px;display:inline-flex;align-items:center;justify-content:center}
+body #root#root#root#root#root#root#root#root#root#root#root#root .nav button .ew-nav-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.85}
+body #root#root#root#root#root#root#root#root#root#root#root#root .globalSearch{display:flex!important;flex:1 1 250px!important;width:auto!important;max-width:470px!important;height:44px!important;min-width:110px!important;background:#f6f9fc!important;border:1px solid #d5e0eb!important;border-radius:10px!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .globalSearch input{background:transparent!important;color:#283f60!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .userArea{display:flex!important;gap:8px!important;flex-wrap:nowrap!important;flex:0 0 auto!important;align-items:center!important;min-width:0!important;margin-left:auto!important;max-width:50vw!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .userArea .chip,body #root#root#root#root#root#root#root#root#root#root#root#root .userArea .iconBtn,body #root#root#root#root#root#root#root#root#root#root#root#root .userArea .btn,body #root#root#root#root#root#root#root#root#root#root#root#root .userArea .langSwitch{white-space:nowrap!important;font-size:12px!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .romaniaClock{border:1px solid #d8e4ef!important;background:#f5f8fc!important;color:#345575!important;border-radius:8px!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main{min-width:0!important;width:100%!important;min-height:calc(100dvh - 84px)!important;padding:22px 24px!important;display:flex!important;flex-direction:column!important;gap:16px!important;background:transparent!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .pageHead,body #root#root#root#root#root#root#root#root#root#root#root#root #main .quoteHeader{padding:3px 3px 9px!important;min-height:55px!important;flex-shrink:0!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .pageHead h1,body #root#root#root#root#root#root#root#root#root#root#root#root #main h1{font-family:Georgia,"Times New Roman","Microsoft YaHei",serif!important;font-size:27px!important;line-height:1.2!important;font-weight:700!important;color:#122d55!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main h2{font-family:Georgia,"Times New Roman","Microsoft YaHei",serif!important;font-size:19px!important;font-weight:700!important;line-height:1.25!important;color:#122d55!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main h3{font-size:15px!important;font-weight:700!important;color:#122d55!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .pageHead p,body #root#root#root#root#root#root#root#root#root#root#root#root #main .muted,body #root#root#root#root#root#root#root#root#root#root#root#root #main .metricLabel,body #root#root#root#root#root#root#root#root#root#root#root#root #main .metricFoot{color:#617794!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:15px!important;margin-bottom:0!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main :is(.kpi,.panel,.projectPanel,.settingsCard,.level2Metric,.level1StaffCard,.modulePanel,.listItem){background:linear-gradient(150deg,#fff 0%,#f9fbfd 100%)!important;border:1px solid var(--ew-line)!important;border-radius:13px!important;box-shadow:var(--ew-shadow)!important;color:var(--ew-ink)!important;overflow:hidden!important;transition:box-shadow .18s ease,transform .18s ease,border-color .18s ease!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main :is(.kpi,.panel,.projectPanel,.settingsCard,.listItem):hover{border-color:#bed2e8!important;box-shadow:0 13px 33px rgba(28,67,120,.12)!important;transform:translateY(-1px)!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .kpi{min-height:116px!important;padding:19px!important;border-left:1px solid var(--ew-line)!important;position:relative!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .kpi::before{content:"";position:absolute;right:14px;bottom:14px;width:70px;height:40px;opacity:.12;border-radius:10px;background:linear-gradient(140deg,#2469ab,transparent)}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .kpi label{font-size:12px!important;color:#617994!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .kpi strong,body #root#root#root#root#root#root#root#root#root#root#root#root #main .metricValue{font-size:29px!important;line-height:1.3!important;font-weight:700!important;color:#102a50!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .panelHead{min-height:60px!important;padding:15px 19px!important;background:transparent!important;border-bottom:1px solid #e1eaf3!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .panelBody{padding:19px!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main :is(.grid2,.grid3,.reportsLower,.level1ContentGrid,.level2ContentGrid){gap:15px!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .dataTable{width:100%!important;border-collapse:separate!important;border-spacing:0!important;color:#28415f!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .dataTable th{background:#f0f5fa!important;color:#60758e!important;font-size:12px!important;letter-spacing:.1px!important;border-bottom:1px solid #dae5f1!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .dataTable td{background:transparent!important;color:#243b59!important;border-bottom:1px solid #e9eef5!important;font-size:13px!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .dataTable tbody tr:hover td{background:#edf5fd!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .dataTable tbody tr:hover td:first-child{box-shadow:inset 3px 0 #2468b0!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main :is(.btn.primary,button.primary,#newCustomer,#newStaff){border-color:#154b85!important;background:linear-gradient(130deg,#3678b8,#103f7a)!important;color:#fff!important;box-shadow:0 5px 14px rgba(22,72,133,.12)!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main :is(.btn,.chip,.select,.input,button,select,input){border-radius:9px!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main :is(.btn,button):not(.primary):not(.active){color:#244466!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main :is(input,select,textarea,.input,.select,.textarea){background:#fafdff!important;border-color:#cfdfed!important;color:#193654!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main :is(.tabs button.active,.marketRangeTabs button.active){background:#e7f0fa!important;color:#0f4b8c!important;border-color:#bcd4ed!important;box-shadow:inset 0 -2px #2268ab!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .chartBox{background:linear-gradient(#fff,#f9fbfe)!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main :is(.up,.up span){color:#0c946d!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main :is(.down,.down span){color:#ce4556!important}
+html body #root#root#root#root#root#root .loginPage{min-height:100dvh!important;height:100dvh!important;display:grid!important;grid-template-columns:minmax(0,1.2fr) minmax(370px,.8fr)!important;gap:0!important;padding:0!important;background:linear-gradient(120deg,#e4eef8,#f7f9fc 45%,#d9e7f6)!important;overflow:hidden!important}
+html body #root#root#root#root#root#root .loginHero{min-height:100%!important;border:0!important;border-radius:0!important;padding:clamp(28px,5vw,80px)!important;background:linear-gradient(135deg,rgba(248,251,255,.86),rgba(234,243,253,.81)),radial-gradient(ellipse at 25% 100%,#b4cce5 0,transparent 60%)!important;box-shadow:none!important}
+html body #root#root#root#root#root#root .loginHero::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(132deg,transparent 0 95px,rgba(97,149,198,.07) 96px 98px,transparent 99px 190px);pointer-events:none}
+html body #root#root#root#root#root#root .loginHero .heroMark{width:min(520px,100%)!important;height:185px!important;margin-bottom:25px!important}
+html body #root#root#root#root#root#root .loginHero .brandLogo{width:100%!important;height:100%!important;object-fit:contain!important;object-position:left center!important;filter:none!important;mix-blend-mode:multiply!important}
+html body #root#root#root#root#root#root .loginHero h1{font-family:Georgia,"Times New Roman","Microsoft YaHei",serif!important;font-weight:700!important;font-size:clamp(34px,3.5vw,55px)!important;line-height:1.12!important;color:#12305c!important;max-width:600px!important}
+html body #root#root#root#root#root#root .loginHero p{max-width:520px!important;color:#4b6787!important;line-height:1.9!important;font-size:15px!important}
+html body #root#root#root#root#root#root .loginHero .heroRule{width:68px!important;background:#3b8dc5!important}
+html body #root#root#root#root#root#root .loginHero .loginHeroModules span{border:1px solid #cbdff1!important;background:rgba(255,255,255,.72)!important;color:#345779!important}
+html body #root#root#root#root#root#root .loginSide{height:100%!important;min-height:0!important;padding:clamp(18px,3vw,52px)!important;background:transparent!important}
+html body #root#root#root#root#root#root .loginCard{background:rgba(255,255,255,.94)!important;border:1px solid #d7e4f2!important;border-radius:18px!important;padding:clamp(22px,2.9vw,44px)!important;box-shadow:0 30px 60px rgba(37,72,123,.11)!important;color:#122f56!important;max-width:560px!important}
+html body #root#root#root#root#root#root .loginCard h2{font-family:Georgia,"Microsoft YaHei",serif!important;font-size:30px!important;color:#122f56!important}
+html body #root#root#root#root#root#root .loginCard .loginSubmit{background:linear-gradient(120deg,#3476b7,#103f79)!important;border:0!important;color:white!important;min-height:52px!important;border-radius:9px!important;font-size:17px!important}
+html body #root#root#root#root#root#root .loginCard :is(.input,.select,input,select){border:1px solid #cddceb!important;background:#f9fbfe!important;color:#173957!important;min-height:46px!important;border-radius:9px!important}
+html body #root#root#root#root#root#root .loginCard :is(label,p,small){color:#5c738c!important}
+html body #root#root#root#root#root#root .loginCard .loginFoot{color:#7189a0!important;border-top:1px solid #e4eaf3!important}
+#modalRoot :is(.modalCard,.customerDetail){background:#f8fbff!important;color:#132c50!important;border-color:#d9e3f0!important}
+#modalRoot :is(.modalHead,.detailTop){background:#edf4fb!important;color:#16365e!important;border-color:#d9e3f0!important}
+#modalRoot :is(input,select,textarea){background:#fff!important;color:#15375b!important}
+@media (min-width:900px) and (max-width:1350px){
+body #root#root#root#root#root#root#root#root#root#root#root#root .shell{padding-left:206px!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .navFrame{width:206px!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .brand{min-width:180px!important;width:188px!important;flex-basis:188px!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .topbar{gap:9px!important;padding:8px 13px!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .userArea{gap:4px!important;max-width:58vw!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main{padding:18px!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media (max-width:899px){
+body #root#root#root#root#root#root#root#root#root#root#root#root .shell{padding:0!important;width:100%!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .topbar{height:auto!important;min-height:64px!important;position:relative!important;flex-wrap:wrap!important;gap:9px!important;padding:9px 12px!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .brand{flex:0 0 190px!important;width:190px!important;min-width:0!important;height:49px!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .navFrame{position:relative!important;top:auto!important;bottom:auto!important;left:auto!important;width:100%!important;height:auto!important;min-height:0!important;padding:8px!important;order:3!important;overflow-x:auto!important;background:rgba(255,255,255,.8)!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .navFrame::before{display:none!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .nav{flex-direction:row!important;width:max-content!important;min-width:100%!important;gap:4px!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .nav button{width:auto!important;min-height:42px!important;white-space:nowrap!important;padding:9px!important;font-size:12px!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .globalSearch{order:2!important;max-width:none!important;width:100%!important;flex:1 0 100%!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root .userArea{margin-left:auto!important;max-width:none!important;flex-wrap:wrap!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main{padding:13px!important;min-height:0!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+body #root#root#root#root#root#root#root#root#root#root#root#root #main .grid2,body #root#root#root#root#root#root#root#root#root#root#root#root #main .grid3{grid-template-columns:minmax(0,1fr)!important}
+html body #root#root#root#root#root#root .loginPage{height:auto!important;grid-template-columns:1fr!important;overflow:auto!important}
+html body #root#root#root#root#root#root .loginHero{min-height:300px!important;padding:25px!important}
+html body #root#root#root#root#root#root .loginHero .heroMark{width:300px!important;height:130px!important}
+html body #root#root#root#root#root#root .loginSide{height:auto!important;padding:14px!important}
+}
+@media(prefers-reduced-motion:reduce){html body *{transition-duration:0s!important;animation-duration:0s!important;scroll-behavior:auto!important}}
+
+/* Browser acceptance repair: explicit opaque color behind card gradients. */
+html body #root#root#root#root#root#root #main :is(.panel,.projectPanel,.settingsCard,.level2Metric,.level1StaffCard,.modulePanel,.kpi){
+  background-color:#ffffff!important;
+}
+@media(max-width:899px){
+ html body #root#root#root#root#root#root .loginPage .loginHero{
+  display:flex!important;position:relative!important;visibility:visible!important;
+  min-height:205px!important;padding:20px!important;
+ }
+ html body #root#root#root#root#root#root .loginPage .heroMark{
+  display:flex!important;width:min(350px,100%)!important;height:100px!important;
+  margin:0 0 10px!important;visibility:visible!important;
+ }
+ html body #root#root#root#root#root#root .loginPage .brandLogo{display:block!important;visibility:visible!important}
+ html body #root#root#root#root#root#root .loginPage .loginHero h1{font-size:24px!important;margin:4px 0!important}
+ html body #root#root#root#root#root#root .loginPage .loginHero p{font-size:12px!important;line-height:1.5!important}
+ html body #root#root#root#root#root#root .loginPage .loginHeroModules{display:none!important}
+ html body #root#root#root#root#root#root .loginPage :is(input,select,textarea){font-size:16px!important}
+}

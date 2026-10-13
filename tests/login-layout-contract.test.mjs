@@ -11,7 +11,7 @@ function contrast(a,b){const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.
 
 test("Login design is separate from shared CRM and honors Canva cream contrast",async()=>{
  const [css,html,app]=await Promise.all(["login-redesign.css","index.html","app.js"].map(read));
- const links=[...html.matchAll(/href="(\/[^"]+\.css[^"]*)"/g)].map(m=>m[1]).filter(href=>!href.startsWith("/delivery-layout.css"));
+ const links=[...html.matchAll(/href="(\/[^"]+\.css[^"]*)"/g)].map(m=>m[1]).filter(href=>!href.startsWith("/delivery-layout.css")&&!href.startsWith("/ellery-premium-ui.css")&&!href.startsWith("/ellery-login-v3.css"));
  assert.equal(links.at(-1),"/login-redesign.css?v=20261010-form-first-v2");
  for(const token of ["--login-cream:#FAF9F5","--login-paper:#FFFEFA","--login-ink:#25352F","--login-accent:#12887A"]){
   assert.ok(css.includes(token),"Missing color "+token);
@@ -27,7 +27,7 @@ test("Login design is separate from shared CRM and honors Canva cream contrast",
  assert.ok(app.includes('demoMode&&new URLSearchParams(location.search).get("loginPreview")==="1"'),"Preview must be confined to simulated demo client");
  assert.ok(app.includes('email:username+"@crm.nuvexapro.com"'),"Original login email mapping unchanged");
  assert.ok(app.includes("supabase.auth.signInWithPassword"),"Use original Supabase authentication");
- assert.ok(app.includes("brand-logo-transparent-color.svg"),"Preserve original vector logo");
+ assert.ok(app.includes("ellery-westcott-logo.svg"),"Use Ellery Westcott sign-in identity");
  assert.ok(!css.includes("filter:blur"),"Do not blur logo");
 });
 test("Styling has balanced CSS braces and no fictional market numbers",async()=>{

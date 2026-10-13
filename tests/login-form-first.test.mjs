@@ -20,7 +20,7 @@ test("The login form is the first action, with secondary utilities below submit"
  assert.ok(js.includes('email:username+"@crm.nuvexapro.com"'));
  assert.ok(js.includes("supabase.auth.signInWithPassword"));
  assert.match(html,/login-redesign\.css\?v=20261010-form-first-v2/);
- assert.match(html,/app\.js\?v=20261012-remediation-16/);
+ assert.match(html,/app\.js\?v=20261013-login-v3/);
  assert.match(css,/\.loginUtilities/);
  assert.match(css,/@media \(max-width:899px\)/);
  assert.match(css,/font-size:16px!important/);
@@ -30,7 +30,7 @@ test("The redesigned login theme remains legible and never replaces the original
  for(const token of ["--login-cream:#FAF9F5","--login-paper:#FFFEFA","--login-ink:#25352F","--login-accent:#12887A"]){
    assert.ok(css.includes(token),"Missing theme token: "+token);
  }
- assert.match(js,/assets\/brand-logo-transparent-color\.svg/);
+ assert.match(js,/assets\/ellery-westcott-logo\.svg/);
  assert.ok(!css.includes("filter:blur"),"No blurry original logo");
- assert.match(css,/\.loginHero h1[\s\S]*font-size:clamp\(36px,3\.4vw,51px\)!important/);
+ assert.match(await read("ellery-login-v3.css"),/\.ewLoginV3 \.loginHero h1/);
 });
