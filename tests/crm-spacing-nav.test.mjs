@@ -21,14 +21,21 @@ test("adjacent module boxes, not inner text padding, use one millimeter spacing"
   assert.match(css, /gap:var\(--crm-module-gap\)!important/);
 });
 
-test("navigation remains in DOM, expands and compacts without being hidden", () => {
-  assert.match(app, /id="sideNavigation"/);
+test("navigation is permanently icon-only and cannot expand", () => {
+  assert.match(app, /classList\.add\("navigationCompact"\)/);
   assert.match(app, /class="navGlyph"/);
   assert.match(app, /class="navLabel"/);
-  assert.match(app, /aria-controls="sideNavigation"/);
-  assert.match(app, /classList\.toggle\("navigationCompact"\)/);
-  assert.doesNotMatch(app, /classList\.toggle\("navigationHidden"\)/);
-  assert.match(css, /--crm-sidebar-expanded:\s*200px/);
-  assert.match(css, /--crm-sidebar-collapsed:\s*64px/);
-  assert.match(css, /navigationCompact[\s\S]*\.navFrame/);
+  assert.doesNotMatch(app, /id="toggleNavigation"/);
+  assert.doesNotMatch(app, /classList\.toggle\("navigationCompact"\)/);
+  assert.match(css, /--crm-sidebar-collapsed:\s*72px/);
+  assert.match(css, /\.nav \.navLabel[\s\S]*display:none!important/);
+  assert.match(css, /padding-left:var\(--crm-sidebar-collapsed\)!important/);
+});
+
+test("module content starts immediately below toolbar with no empty back-arrow header", () => {
+  const projects=read("allocation-projects.js");
+  assert.doesNotMatch(projects, /projectPresentationExit|class="projectExit"/);
+  assert.doesNotMatch(projects, /<header class="projectPresentationHeader"/);
+  assert.match(css, /#main\s*\{[\s\S]*?padding:4px 24px 12px!important/);
+  assert.match(css, /\.projectOverviewCards[\s\S]*?margin-top:0!important/);
 });
