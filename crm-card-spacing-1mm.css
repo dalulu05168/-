@@ -1,0 +1,104 @@
+/*
+ * Brantone Veylor CRM | 2026-10-13 acceptance update
+ * One millimetre is the spacing BETWEEN bordered business boxes.
+ * Do not apply this token to form controls, text lines or card padding.
+ * Loaded after delivery-layout.css to override older !important rules.
+ */
+:root { --crm-card-gap: 1mm; --crm-sidebar-open: 200px; --crm-sidebar-closed: 64px; }
+
+@media (min-width: 900px) {
+  /* Preserve the fixed navigation rail while giving the content its space back. */
+  body #root#root#root#root#root#root#root#root#root#root .shell {
+    padding-left: var(--crm-sidebar-open) !important;
+    transition: padding-left .25s ease !important;
+    min-width: 0 !important;
+  }
+  body #root#root#root#root#root#root#root#root#root#root .navFrame {
+    width: var(--crm-sidebar-open) !important;
+    transition: width .25s ease !important;
+    overflow-x: hidden !important;
+  }
+  body #root#root#root#root#root#root#root#root#root#root .nav button {
+    padding: 0 14px !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    cursor: pointer !important;
+  }
+  body.navigationHidden #root#root#root#root#root#root#root#root#root#root .shell {
+    padding-left: var(--crm-sidebar-closed) !important;
+  }
+  body.navigationHidden #root#root#root#root#root#root#root#root#root#root .navFrame {
+    width: var(--crm-sidebar-closed) !important;
+    visibility: visible !important;
+    display: block !important;
+  }
+  /* Retain a discoverable and keyboard accessible control for every module:
+     button labels stay in the DOM via title / aria-label. */
+  body.navigationHidden #root#root#root#root#root#root#root#root#root#root .nav button {
+    font-size: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+    overflow: hidden !important;
+  }
+  body.navigationHidden #root#root#root#root#root#root#root#root#root#root .nav button::before {
+    content: "▦";
+    display: inline-block;
+    font-size: 22px;
+    line-height: 1;
+    vertical-align: middle;
+  }
+  body.navigationHidden #root#root#root#root#root#root#root#root#root#root .nav button[data-view="dashboard"]::before { content: "▦"; }
+  body.navigationHidden #root#root#root#root#root#root#root#root#root#root .nav button[data-view="customers"]::before { content: "♙"; }
+  body.navigationHidden #root#root#root#root#root#root#root#root#root#root .nav button[data-view="personnel"]::before { content: "♟"; }
+  body.navigationHidden #root#root#root#root#root#root#root#root#root#root .nav button[data-view="trades"]::before { content: "⇄"; }
+  body.navigationHidden #root#root#root#root#root#root#root#root#root#root .nav button[data-view="positions"]::before { content: "▤"; }
+  body.navigationHidden #root#root#root#root#root#root#root#root#root#root .nav button[data-view="market"]::before { content: "⌁"; }
+  body.navigationHidden #root#root#root#root#root#root#root#root#root#root .nav button[data-view="reports"]::before { content: "▥"; }
+  body.navigationHidden #root#root#root#root#root#root#root#root#root#root .nav button[data-view="shareboard"]::before { content: "◇"; }
+  body.navigationHidden #root#root#root#root#root#root#root#root#root#root .nav button[data-view="settings"]::before { content: "⚙"; }
+}
+
+/* The immediate module panes and the grids containing adjacent cards. */
+body #root#root#root#root#root#root#root#root#root#root #main {
+  gap: var(--crm-card-gap) !important;
+  min-width: 0 !important;
+}
+body #root#root#root#root#root#root#root#root#root#root #main :is(
+  .grid2, .grid3, .kpis, .executiveKpis, .executiveMain,
+  .executiveSide, .recentOrderGrid, .executiveDashboard,
+  .level1Workspace, .level2Workspace, .level1MetricGrid,
+  .level2MetricGrid, .level1ContentGrid, .level2ContentGrid,
+  .level1BodyGrid, .level2BodyGrid, .level2MainGrid, .level2SideStack,
+  .clientMetricStrip, .clientPortfolioGrid, .clientBottomGrid,
+  .tradeflareCanvas, .terminalGrid, .reportsLower, .reportGrid,
+  .marketUnifiedGrid, .referenceFeatureCards,
+  .projectLauncherList, .projectOverview, .projectOverviewCards,
+  .projectOverviewLower, .projectPresentation, .projectRecordGrid
+) {
+  gap: var(--crm-card-gap) !important;
+  min-width: 0 !important;
+}
+/* Reset exterior spacing on adjacent, framed cards but leave inner padding
+   and intentional heading/form/row separation unchanged. */
+body #root#root#root#root#root#root#root#root#root#root #main :is(
+  .grid2, .grid3, .executiveKpis, .executiveMain, .executiveSide,
+  .level1MetricGrid, .level2MetricGrid, .marketUnifiedGrid,
+  .projectOverviewCards, .projectOverviewLower, .projectLauncherList,
+  .referenceFeatureCards
+) > :is(.panel, .projectPanel, .projectOverviewCard, .projectLauncherRow,
+       .execStat, .level2Metric, .level1StaffCard, .referenceFeatureCard) {
+  margin: 0 !important;
+}
+@media (max-width: 899px) {
+  /* Mobile keeps its original accessible horizontal/stacked navigation. */
+  body #root#root#root#root#root#root#root#root#root#root #toggleNavigation {
+    display: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body #root#root#root#root#root#root#root#root#root#root :is(.shell, .navFrame) {
+    transition: none !important;
+  }
+}
