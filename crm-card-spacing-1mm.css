@@ -108,6 +108,7 @@ body #root#root#root#root#root#root#root#root#root#root #main :is(
 body #root#root#root#root#root#root#root#root#root#root .loginPage .loginFields :is(input, .input) {
   font-size: 16px !important;
 }
-body #root#root#root#root#root#root#root#root#root#root .loginPage .loginFields .loginSubmit.btn.primary {
+/* The older global primary-button selector uses :is(#id) specificity (11 IDs). */
+body #root#root#root#root#root#root#root#root#root#root#root .loginPage .loginFields .loginSubmit.btn.primary {
   background: #12887a !important;
 }
