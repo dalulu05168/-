@@ -293,22 +293,34 @@ function renderShell(){
     const field=$("#marketSymbols");
     if(field){field.value=query.toUpperCase();field.dispatchEvent(new Event("change",{bubbles:true}));}
   };
-  const navToggle=$("#toggleNavigation");
-  const navLabels={
-    zh:["收缩导航","展开导航"],
-    en:["Collapse sidebar","Expand sidebar"],
-    ro:["Restrânge meniul","Extinde meniul"]
-  };
+  /* Delegate the toggle from the persistent root: business screen renders can
+     replace header children, but the root element and its listener survive. */
+  const appRoot=$("#root");
   const updateNavToggleLabel=()=>{
+    const navToggle=appRoot.querySelector("#toggleNavigation");
+    if(!navToggle)return;
     const collapsed=document.body.classList.contains("navigationHidden");
-    const [collapseLabel,expandLabel]=navLabels[state.lang]||navLabels.zh;
+    const labels={
+      zh:["收缩导航","展开导航"],
+      en:["Collapse sidebar","Expand sidebar"],
+      ro:["Restrânge meniul","Extinde meniul"]
+    };
+    const [collapseLabel,expandLabel]=labels[state.lang]||labels.zh;
     navToggle.textContent=collapsed?expandLabel:collapseLabel;
     navToggle.title=collapsed?expandLabel:collapseLabel;
     navToggle.setAttribute("aria-pressed",String(collapsed));
     navToggle.setAttribute("aria-expanded",String(!collapsed));
   };
+  if(!appRoot.dataset.navToggleDelegated){
+    appRoot.dataset.navToggleDelegated="true";
+    appRoot.addEventListener("click",event=>{
+      const button=event.target.closest("#toggleNavigation");
+      if(!button||!appRoot.contains(button))return;
+      document.body.classList.toggle("navigationHidden");
+      updateNavToggleLabel();
+    },true);
+  }
   updateNavToggleLabel();
-  navToggle.onclick=()=>{document.body.classList.toggle("navigationHidden");updateNavToggleLabel();};
   $("#editAccountName").onclick=openAccountNameForm;
   $("#globalLang").onchange=async e=>{state.lang=setLang(e.target.value);renderShell();await switchView(state.activeView)};
   $("#logoutBtn").onclick=async()=>{exitProjectPresentation(featureCtx());clearMarketRefreshTimers();await supabase.auth.signOut();state.profile=null;state.session=null;state.allocationProjects=[];state.allocationRecords=[];state.allocationOwnerId=null;state.activeCustomer=null;state.activeView="dashboard";renderLogin(true)};
