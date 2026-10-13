@@ -2,7 +2,7 @@
    Scope: spacing BETWEEN adjacent module cards/boxes, not their interior padding,
    and a true icon-only collapsed sidebar (never removes navigation).
    Loaded AFTER delivery-layout.css to win its legacy !important overrides. */
-:root { --crm-module-gap:1mm; --crm-sidebar-expanded:200px; --crm-sidebar-collapsed:64px; }
+:root { --crm-module-gap:1mm; --crm-sidebar-expanded:200px; --crm-sidebar-collapsed:72px; }
 body #root#root#root#root#root#root#root#root#root#root #main {
   gap:var(--crm-module-gap)!important;
 }
@@ -32,74 +32,76 @@ body #root#root#root#root#root#root#root#root#root#root #main > :is(
 body #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot :is(
   .shareKpiRow,.shareMainGrid,.shareLowerGrid,.grid2,.grid3
 ) { gap:var(--crm-module-gap)!important; row-gap:var(--crm-module-gap)!important; column-gap:var(--crm-module-gap)!important; }
-/* The control is always available, unlike the old shareboard-only toggle. */
+/* FINAL: permanent icon-only rail. There is no expand, collapse, or hide action. */
 body #root#root#root#root#root#root#root#root#root#root #toggleNavigation {
-  display:inline-flex!important; align-items:center!important; justify-content:center!important;
-  white-space:nowrap!important; cursor:pointer!important;
-}
-body #root#root#root#root#root#root#root#root#root#root .nav button {
-  display:flex!important; align-items:center!important; justify-content:flex-start!important;
-  gap:8px!important; min-width:0!important; text-align:left!important;
-  overflow:hidden!important; white-space:nowrap!important;
-}
-body #root#root#root#root#root#root#root#root#root#root .nav .navGlyph {
-  display:inline-flex!important; flex:0 0 24px!important; width:24px!important;
-  align-items:center!important; justify-content:center!important; font-size:19px!important;
-  line-height:1!important; color:inherit!important;
+  display:none!important;
 }
 body #root#root#root#root#root#root#root#root#root#root .nav .navLabel {
-  display:inline!important; min-width:0!important; white-space:nowrap!important;
-  overflow:hidden!important; text-overflow:ellipsis!important; color:inherit!important;
+  display:none!important;
 }
-@media (min-width:900px) {
+body #root#root#root#root#root#root#root#root#root#root .nav .navGlyph {
+  display:inline-flex!important;
+  flex:0 0 24px!important;
+  align-items:center!important; justify-content:center!important;
+  width:24px!important; font-size:19px!important; line-height:1!important;
+  color:inherit!important;
+}
+body #root#root#root#root#root#root#root#root#root#root .nav button {
+  display:flex!important; align-items:center!important; justify-content:center!important;
+  gap:0!important; text-align:center!important; overflow:hidden!important;
+  padding:0 8px!important; white-space:nowrap!important; min-width:0!important;
+}
+body #root#root#root#root#root#root#root#root#root#root #main {
+  /* Collapse the former 24px inset and keep content immediately below the toolbar. */
+  padding:4px 24px 12px!important;
+  margin-top:0!important;
+  min-width:0!important;
+}
+/* With the obsolete project arrow removed, no empty 48-64px title row should remain. */
+body #root#root#root#root#root#root#root#root#root#root #main :is(
+  .projectPresentationHeader,.projectPageTitle
+) { display:none!important; height:0!important; min-height:0!important;
+    padding:0!important; margin:0!important; border:0!important; }
+body #root#root#root#root#root#root#root#root#root#root :is(
+  #main>.projectPresentation,#main .projectOverview,#main .projectOverviewCards
+) {
+  margin-top:0!important;
+  padding-top:0!important;
+}
+body #root#root#root#root#root#root#root#root#root#root #main .projectLauncher {
+  padding-top:4px!important;
+}
+body #root#root#root#root#root#root#root#root#root#root #main :is(
+  .pageActions:empty,.projectLauncherHead:empty
+) {display:none!important; height:0!important; min-height:0!important; margin:0!important; padding:0!important;}
+@media(min-width:900px) {
   body #root#root#root#root#root#root#root#root#root#root .shell {
-    padding-left:var(--crm-sidebar-expanded)!important;
-    transition:padding-left .25s ease!important;
+    padding-left:var(--crm-sidebar-collapsed)!important;
+    transition:none!important;
   }
   body #root#root#root#root#root#root#root#root#root#root .navFrame {
-    display:block!important; width:var(--crm-sidebar-expanded)!important;
-    max-width:var(--crm-sidebar-expanded)!important;
-    transition:width .25s ease,max-width .25s ease!important;
+    display:block!important;
+    width:var(--crm-sidebar-collapsed)!important;
+    max-width:var(--crm-sidebar-collapsed)!important;
+    transition:none!important;
     overflow-x:hidden!important;
   }
   body #root#root#root#root#root#root#root#root#root#root .nav button {
     width:100%!important; height:48px!important; min-height:48px!important;
-    padding:0 12px!important;
-  }
-  body.navigationCompact #root#root#root#root#root#root#root#root#root#root .shell {
-    padding-left:var(--crm-sidebar-collapsed)!important;
-  }
-  body.navigationCompact #root#root#root#root#root#root#root#root#root#root .navFrame {
-    display:block!important; width:var(--crm-sidebar-collapsed)!important;
-    max-width:var(--crm-sidebar-collapsed)!important;
-  }
-  body.navigationCompact #root#root#root#root#root#root#root#root#root#root .nav button {
-    padding:0 8px!important; justify-content:center!important;
-  }
-  body.navigationCompact #root#root#root#root#root#root#root#root#root#root .nav .navLabel {
-    display:none!important;
+    justify-content:center!important;
   }
 }
-/* Mobile keeps an accessible horizontal menu; the same button compacts it to icons. */
-@media (max-width:899px) {
+@media(max-width:899px) {
+  body #root#root#root#root#root#root#root#root#root#root #main {
+    padding:4px 6px 12px!important;
+  }
+  /* Mobile retains horizontal access, but has icons ONLY (never full labels). */
+  body #root#root#root#root#root#root#root#root#root#root .navFrame {
+    display:block!important;
+  }
   body #root#root#root#root#root#root#root#root#root#root .nav button {
-    display:inline-flex!important; justify-content:center!important;
-    height:100%!important; width:auto!important; min-width:88px!important;
-    padding:8px!important;
-  }
-  body #root#root#root#root#root#root#root#root#root#root .nav .navGlyph {
-    display:none!important;
-  }
-  body.navigationCompact #root#root#root#root#root#root#root#root#root#root .nav button {
-    min-width:48px!important; width:48px!important;
-  }
-  body.navigationCompact #root#root#root#root#root#root#root#root#root .nav .navGlyph {
     display:inline-flex!important;
+    width:48px!important; min-width:48px!important;
+    height:100%!important; padding:0 8px!important;
   }
-  body.navigationCompact #root#root#root#root#root#root#root#root#root#root .nav .navLabel {
-    display:none!important;
-  }
-}
-@media (prefers-reduced-motion:reduce) {
-  body #root#root#root#root#root#root#root#root#root#root :is(.shell,.navFrame) {transition:none!important;}
 }
