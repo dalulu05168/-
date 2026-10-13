@@ -8,6 +8,7 @@ on:
     paths:
       - "responsive-mobile-system.css"
       - "app.js"
+      - "crm-card-spacing-1mm.css"
       - "viewport-layout.js"
       - "allocation-projects.js"
       - "index.html"
