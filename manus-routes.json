@@ -1,0 +1,1 @@
+{"routes":[{"path":"/","title":"仓库工作台"},{"path":"/inventory","title":"库存总览"},{"path":"/inbound","title":"入库管理"},{"path":"/outbound","title":"出库管理"},{"path":"/count","title":"库存盘点"},{"path":"/audit","title":"库存流水"},{"path":"/settings","title":"系统设置"}]}

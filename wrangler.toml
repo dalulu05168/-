@@ -1,0 +1,11 @@
+﻿name = "wmsystem"
+compatibility_date = "2026-10-04"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "./client/dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "wmsystem-db"
+database_id = "937f2db9-a613-4076-91cb-72f1ae165056"
+migrations_dir = "migrations"
+
