@@ -1,5 +1,5 @@
 import {exportPagePNG} from './page-export.js?v=20261012-export-4';
-import {customerProject,attachCustomerRanking,editCustomerReservation} from './customer-reservations.js?v=20261012-remediation-16';
+import {customerProject,attachCustomerRanking,editCustomerReservation} from './customer-reservations.js?v=20261018-remediation-17';
 import {localeFor} from './ui-features.js?v=20261009-brighter';
 
 const copy={

@@ -22,7 +22,7 @@ test("iPhone Canva acceptance: one visible logo, stacked cards, readable typogra
  assert.match(css,/\.projectOverviewLower\s*\{\s*display:flex!important;flex-direction:column!important/,"Trend and detail are stacked");
  assert.match(css,/\.projectRecordPanel\s*\{\s*display:none!important/,"Old bottom record row stays hidden");
  assert.ok(css.includes("var(--mobile-card)"),"Cream cards must be retained");
- assert.equal((projects.match(/brand-logo-transparent-color\.svg/g)||[]).length,1,"Screenshot logo remains available in capture mode");
+ assert.equal((projects.match(/brand-logo-approved\.png/g)||[]).length,1,"Screenshot logo remains available in capture mode");
 });
 test("Mobile visual CSS is syntactically balanced and cannot embed mock business data",async()=>{
  const css=await read("canva-mobile-qa-fix.css");

@@ -26,7 +26,7 @@ test("Canva visual contract: final stylesheet, readable cream tokens and origina
  }
  assert.ok(css.includes("border:1px solid var(--bv-line)"),"Uniform hairline border");
  assert.ok(css.includes("@media(max-width:899px)"),"Mobile layout must be accessible");
- assert.match(app,/brand-logo-transparent-color\.svg/,"Existing BV logo must remain");
+ assert.match(app,/brand-logo-approved\.png/,"Existing BV logo must remain");
  assert.match(legacyLogo,/mix-blend-mode:normal/,"Logo remains unfiltered and visible");
  assert.doesNotMatch(css,/https?:\/\/|price:\s*[0-9]/,"Presentation styles should not fabricate data or embed external resources");
 });

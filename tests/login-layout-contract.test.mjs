@@ -27,7 +27,7 @@ test("Login design is separate from shared CRM and honors Canva cream contrast",
  assert.ok(app.includes('demoMode&&new URLSearchParams(location.search).get("loginPreview")==="1"'),"Preview must be confined to simulated demo client");
  assert.ok(app.includes('email:username+"@crm.nuvexapro.com"'),"Original login email mapping unchanged");
  assert.ok(app.includes("supabase.auth.signInWithPassword"),"Use original Supabase authentication");
- assert.ok(app.includes("brand-logo-transparent-color.svg"),"Preserve original vector logo");
+ assert.ok(app.includes("brand-logo-approved.png"),"Preserve original vector logo");
  assert.ok(!css.includes("filter:blur"),"Do not blur logo");
 });
 test("Styling has balanced CSS braces and no fictional market numbers",async()=>{

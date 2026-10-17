@@ -15,7 +15,7 @@ test("Historical mobile themes remain ordered and pagination uses responsive flo
  assert.match(css,/@media \(max-width:359px\)/);
  assert.doesNotMatch(viewport,/classList\.add\(["']desktopFrame/);
  assert.match(viewport,/width:1600,height:900/);
- assert.match(app,/brand-logo-transparent-color\.svg/);
+ assert.match(app,/brand-logo-approved\.png/);
  assert.doesNotMatch(css,/https?:\/\/|fetch\(|supabase\./,"CSS cannot mutate business data");
 });
 
