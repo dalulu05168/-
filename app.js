@@ -767,7 +767,7 @@ async function renderDashboard(){
   drawDashboardCharts(7);
   $$(".tradeflareRail [data-view], .terminalTab[data-view], .terminalSecondary[data-view], .terminalSegment [data-view]").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
   const trendBtn=$('.terminalTab[data-action="trend"]');
-  if(trendBtn)trendBtn.onclick=()=>{drawDashboardCharts(7);toast("已切换业务趋势")};
+  if(trendBtn)trendBtn.onclick=()=>{$(".terminalIntervals [data-days]").forEach(b=>b.classList.toggle("active",b.dataset.days==="7"));drawDashboardCharts(7);toast("已切换业务趋势")};
   $$(".terminalIntervals [data-days]").forEach(b=>b.onclick=()=>{
     $$(".terminalIntervals [data-days]").forEach(x=>x.classList.toggle("active",x===b));
     drawDashboardCharts(Number(b.dataset.days)||7);
@@ -1164,8 +1164,8 @@ function drawCustomerShareCharts(pos,trades,q,primary,realized,unreal){
   const quote=q[primary.symbol];
   const pts=(quote.points||[]).filter(p=>p.close!=null);
   const labels=pts.map(p=>new Date(p.t).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}));
-  const buys=trades.filter(t=>t.symbol===primary.symbol&&t.side==="buy");
-  const sells=trades.filter(t=>t.symbol===primary.symbol&&t.side==="sell");
+  const buys=trades.filter(t=>t.symbol===primary.symbol&&pts.length&&new Date(t.traded_at).getTime()>=pts[0].t&&new Date(t.traded_at).getTime()<=pts.at(-1).t&&t.side==="buy");
+  const sells=trades.filter(t=>t.symbol===primary.symbol&&pts.length&&new Date(t.traded_at).getTime()>=pts[0].t&&new Date(t.traded_at).getTime()<=pts.at(-1).t&&t.side==="sell");
   if(pEl){
     state.charts.customerPrice=new Chart(pEl,{type:"line",data:{labels,datasets:[
       {label:primary.symbol,data:pts.map(p=>p.close),borderColor:"#00d59b",backgroundColor:"rgba(20,231,109,.08)",fill:true,tension:.18,pointRadius:0,pointHoverRadius:4},
@@ -1182,12 +1182,15 @@ function drawCustomerShareCharts(pos,trades,q,primary,realized,unreal){
 
 
 function updateCustomerShareMarketCharts(pos,trades,q,primary,realized,unreal){
-  if(!primary||!q[primary.symbol]||q[primary.symbol].error)return;
+  if(!primary||!q[primary.symbol]||q[primary.symbol].error){
+    for(const key of ["customerPrice","customerReturn"]){const chart=state.charts[key];if(chart){chart.data.labels=[];chart.data.datasets.forEach(d=>d.data=[]);chart.update("none");}}
+    return;
+  }
   const quote=q[primary.symbol];
   const pts=(quote.points||[]).filter(p=>p.close!=null);
   const labels=pts.map(p=>new Date(p.t).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}));
-  const buys=trades.filter(t=>t.symbol===primary.symbol&&t.side==="buy");
-  const sells=trades.filter(t=>t.symbol===primary.symbol&&t.side==="sell");
+  const buys=trades.filter(t=>t.symbol===primary.symbol&&pts.length&&new Date(t.traded_at).getTime()>=pts[0].t&&new Date(t.traded_at).getTime()<=pts.at(-1).t&&t.side==="buy");
+  const sells=trades.filter(t=>t.symbol===primary.symbol&&pts.length&&new Date(t.traded_at).getTime()>=pts[0].t&&new Date(t.traded_at).getTime()<=pts.at(-1).t&&t.side==="sell");
   const priceChart=state.charts.customerPrice;
   if(priceChart){
     priceChart.data.labels=labels;
@@ -1549,7 +1552,9 @@ async function renderMarket(){
   await load();
   state.marketRefreshTimer=setInterval(()=>{if(state.activeView==="market")load().catch(()=>{})},60000);
 }
-function drawMarket(x){
+let marketChartRequest=0;
+async function drawMarket(x){
+ const request=++marketChartRequest,selectedRange=marketRange;
   const usable=x&&!x.error&&Number.isFinite(Number(x.price));
   $("#mSymbol").textContent=x?.symbol||"--";
   $("#mName").textContent=usable?(x.name||x.symbol):"暂无可用行情";
@@ -1569,20 +1574,27 @@ function drawMarket(x){
   const volumes=today.map(p=>p.volume).filter(available).map(Number);
   const metrics=[["今开",fmt(today[0]?.open)],["最高",fmt(highs.length?Math.max(...highs):null)],["最低",fmt(lows.length?Math.min(...lows):null)],["成交量",volumes.length?num(volumes.reduce((a,b)=>a+b,0),0):"—"],["成交额","—"],["昨收",fmt(x?.previousClose)]];
   $("#marketMetrics").innerHTML=metrics.map(([label,value],i)=>`<div class="marketMetric"><img class="metricIcon metricIcon${i}" src="/assets/${["coin","arrow-up","arrow-down","bar-chart","database","clock"][i]}.svg" alt=""><div><label>${tr(label,state.lang)}</label><strong>${esc(value)}</strong></div></div>`).join("");
-  if(!usable)return;
-  const days={"1D":1,"1W":7,"1M":30,"3M":90,"6M":180,"1Y":365}[marketRange];
-  const last=sourcePoints.at(-1)?.t||Date.now();
-  const pts=days?sourcePoints.filter(p=>p.t>=last-days*86400000):sourcePoints;
-  $("#marketRangeNote").textContent=x.symbol+" "+tr("行情价",state.lang);
-  const labels=pts.map(p=>new Date(p.t).toLocaleTimeString(localeFor(state.lang),{timeZone:ROMANIA_TZ,hour:"2-digit",minute:"2-digit"}));
-  if(state.charts.market&&state.charts.market.$bvSymbol===x.symbol){
-    state.charts.market.data.labels=labels;
-    state.charts.market.data.datasets[0].label=x.symbol+" 行情价";
-    state.charts.market.data.datasets[0].data=pts.map(p=>p.close);
-    state.charts.market.update("none");
-    return;
-  }
-  if(state.charts.market)state.charts.market.destroy();
+  state.charts.market?.destroy();state.charts.market=null;
+  const note=$("#marketRangeNote"),canvas=$("#marketChart");
+  canvas.removeAttribute("aria-label");
+  if(!usable){note.textContent="暂无可用行情";return;}
+  note.textContent=x.symbol+" · "+selectedRange+" · 加载历史数据…";
+  let pts=[];
+  try{
+    if(demoMode){pts=selectedRange==="1D"?sourcePoints:[];}
+    else{
+      const response=await fetch("/api/market?symbols="+encodeURIComponent(x.symbol)+"&range="+encodeURIComponent(selectedRange));
+      const data=await response.json(),row=data.rows?.[0];
+      if(!response.ok||row?.error)throw new Error("历史行情不可用");
+      pts=(row?.points||[]).filter(p=>p.close!=null&&Number.isFinite(Number(p.close)));
+    }
+  }catch(error){if(request===marketChartRequest&&canvas.isConnected)note.textContent=x.symbol+" · "+selectedRange+" · 历史行情暂不可用，请重试";return;}
+  if(request!==marketChartRequest||!canvas.isConnected)return;
+  if(!pts.length){note.textContent=x.symbol+" · "+selectedRange+" · "+(demoMode?"模拟环境未提供该周期历史数据":"该周期暂无历史数据");return;}
+  const options=selectedRange==="1D"?{hour:"2-digit",minute:"2-digit"}:{year:"numeric",month:"2-digit",day:"2-digit",...(selectedRange==="1W"?{hour:"2-digit",minute:"2-digit"}:{})};
+  const labels=pts.map(p=>new Date(p.t).toLocaleString(localeFor(state.lang),{timeZone:ROMANIA_TZ,...options}));
+  note.textContent=x.symbol+" · "+selectedRange+" · "+pts.length+" 个数据点 · "+labels[0]+" — "+labels.at(-1);
+  canvas.setAttribute("role","img");canvas.setAttribute("aria-label",note.textContent);
   state.charts.market=new Chart($("#marketChart"),{
     type:"line",
     data:{labels,datasets:[{label:x.symbol+" "+tr("行情价",state.lang),data:pts.map(p=>p.close),borderColor:"#ef3456",backgroundColor:"rgba(239,52,86,.18)",fill:true,tension:.35,pointRadius:0,pointHoverRadius:4}]},

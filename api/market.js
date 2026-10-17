@@ -157,8 +157,10 @@ async function bvbDelayed(symbol) {
   };
 }
 
-async function yahooQuote(symbol) {
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1d&interval=1m&includePrePost=false`;
+export const HISTORY_RANGES = {"1D":["1d","1m"],"1W":["5d","30m"],"1M":["1mo","1d"],"3M":["3mo","1d"],"6M":["6mo","1d"],"1Y":["1y","1d"],"全部":["max","1wk"]};
+async function yahooQuote(symbol, range="1D") {
+  const [period, interval] = HISTORY_RANGES[range];
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=${period}&interval=${interval}&includePrePost=false`;
   const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(7000) });
   if (!r.ok) return { symbol, error: `HTTP ${r.status}` };
   const j = await r.json();
@@ -252,7 +254,9 @@ export default async function handler(req, res) {
     const symbols = raw.split(",").map(s => s.trim().toUpperCase()).filter(s => /^[A-Z0-9.^=-]{1,24}$/.test(s)).slice(0, 40);
     if (!symbols.length) return res.status(400).json({ error: "缺少有效股票代码" });
 
-    const rows = await Promise.all(symbols.map(getQuote));
+    const range = req.query.range;
+    if (range && !Object.hasOwn(HISTORY_RANGES, range)) return res.status(400).json({error:"无效图表周期"});
+    const rows = await Promise.all(symbols.map(symbol => range ? yahooQuote(symbol, range) : getQuote(symbol)));
     const normalized = rows.map(row => {
       if (realtimeOnly && !row.error && row.realtime !== true) {
         return {
