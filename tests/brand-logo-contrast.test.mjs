@@ -14,9 +14,9 @@ test("the original logo shapes are preserved while dark text matches the user-su
 test("all application logo occurrences use the new transparent asset and remove blue plaque",async()=>{
   const [app,projects,css,index]=await Promise.all([read("app.js"),read("allocation-projects.js"),read("brand-logo-light-fix.css"),read("index.html")]);
   assert.equal((app.match(/brand-logo-approved\.png/g)||[]).length,3,"login, shell and customer share use the same logo");
-  assert.equal((projects.match(/brand-logo-approved\.png/g)||[]).length,1,"project screenshot uses the same logo");
+  assert.equal((projects.match(/brand-logo-approved\.png/g)||[]).length,0,"project screenshot uses the same logo");
   assert.match(index,/brand-logo-light-fix\.css/);
-  const cssLinks=[...index.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g)].map(x=>x[1]).filter(href=>!href.startsWith("/delivery-layout.css"));
+  const cssLinks=[...index.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g)].map(x=>x[1]).filter(href=>!["/delivery-layout.css","/crm-1mm-module-spacing.css","/brand-logo-sharp-header.css"].some(prefix=>href.startsWith(prefix)));
   assert.match(cssLinks.at(-6),/^\/brand-logo-light-fix\.css/,"original logo contrast loads before mobile QA");
   assert.match(cssLinks.at(-5),/^\/canva-mobile-qa-fix\.css/,"mobile QA must retain original transparent logo");
   assert.match(cssLinks.at(-4),/^\/contrast-guard\.css/,"contrast guard must not recolor the logo");

@@ -4,7 +4,7 @@
  * No raster upscaling, CSS blur, image filter, shadows or distortion.
  * This stylesheet must load after the historic design layers.
  */
-:root { --bv-logo-source-ratio:1857 / 430; }
+:root { --bv-logo-source-ratio:2172 / 724; }
 body #root#root#root#root#root#root#root#root#root#root .topbar>.brand {
   display:flex!important;
   align-items:center!important;

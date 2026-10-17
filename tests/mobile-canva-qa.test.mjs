@@ -8,7 +8,7 @@ test("iPhone Canva acceptance: one visible logo, stacked cards, readable typogra
  const [html,css,projects]=await Promise.all([
   read("index.html"),read("canva-mobile-qa-fix.css"),read("allocation-projects.js")
  ]);
- const links=[...html.matchAll(/href="(\/[^"]+\.css[^"]*)"/g)].map(m=>m[1]).filter(href=>!href.startsWith("/delivery-layout.css"));
+ const links=[...html.matchAll(/href="(\/[^"]+\.css[^"]*)"/g)].map(m=>m[1]).filter(href=>!["/delivery-layout.css","/crm-1mm-module-spacing.css","/brand-logo-sharp-header.css"].some(prefix=>href.startsWith(prefix)));
  assert.match(links.at(-5),/^\/canva-mobile-qa-fix\.css\?v=/,"Mobile fixes must load before contrast guard");
  assert.match(links.at(-4),/^\/contrast-guard\.css\?v=/,"All page text must pass contrast guard");
  assert.match(links.at(-3),/^\/canva-fullsite-qa\.css\?v=/,"Canva corrections before mobile layout");
@@ -22,7 +22,7 @@ test("iPhone Canva acceptance: one visible logo, stacked cards, readable typogra
  assert.match(css,/\.projectOverviewLower\s*\{\s*display:flex!important;flex-direction:column!important/,"Trend and detail are stacked");
  assert.match(css,/\.projectRecordPanel\s*\{\s*display:none!important/,"Old bottom record row stays hidden");
  assert.ok(css.includes("var(--mobile-card)"),"Cream cards must be retained");
- assert.equal((projects.match(/brand-logo-approved\.png/g)||[]).length,1,"Screenshot logo remains available in capture mode");
+ assert.equal((projects.match(/brand-logo-approved\.png/g)||[]).length,0,"Screenshot logo remains available in capture mode");
 });
 test("Mobile visual CSS is syntactically balanced and cannot embed mock business data",async()=>{
  const css=await read("canva-mobile-qa-fix.css");

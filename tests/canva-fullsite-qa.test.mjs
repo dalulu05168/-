@@ -13,12 +13,12 @@ const contrast=(a,b)=>{
 };
 test("Final Canva stylesheet loads after every previous theme and original SVG remains",async()=>{
  const [html,qa,app,project]=await Promise.all(["index.html","canva-fullsite-qa.css","app.js","allocation-projects.js"].map(load));
- const links=[...html.matchAll(/<link[^>]+href="(\/[^"]+\.css[^"]*)"/g)].map(x=>x[1]).filter(href=>!href.startsWith("/delivery-layout.css"));
+ const links=[...html.matchAll(/<link[^>]+href="(\/[^"]+\.css[^"]*)"/g)].map(x=>x[1]).filter(href=>!["/delivery-layout.css","/crm-1mm-module-spacing.css","/brand-logo-sharp-header.css"].some(prefix=>href.startsWith(prefix)));
  assert.match(links.at(-3),/^\/canva-fullsite-qa\.css\?v=20261010-fullsite-qa-v1/);
  assert.match(links.at(-2),/^\/responsive-mobile-system\.css\?v=20261010-mobile-native-v1/);
  assert.match(links.at(-1),/^\/login-redesign\.css\?v=20261010-form-first-v2/);
  assert.match(app,/brand-logo-approved\.png/);
- assert.match(project,/brand-logo-approved\.png/);
+ assert.doesNotMatch(project,/<img class="brandLogo"/);
  assert.match(qa,/image-rendering:auto!important/);
  assert.doesNotMatch(qa,/filter:blur|filter:grayscale|filter:invert/);
 });

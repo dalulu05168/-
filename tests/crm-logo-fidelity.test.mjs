@@ -15,7 +15,7 @@ test("original brand logo remains real navy/red vector geometry, never embedded 
   assert.doesNotMatch(logo,/<image\b|data:image\/|base64|<filter\b/i);
   assert.match(logo,/fill="#001242"/);
   assert.match(logo,/fill="#900006"/);
-  assert.match(app,/class="brandLogo" src="\/assets\/brand-logo-transparent-color\.svg/);
+  assert.match(app,/class="brandLogo" src="\/assets\/brand-logo-approved\.png/);
 });
 
 test("sharp logo styles are the final stylesheet without changing 1mm layout",()=>{

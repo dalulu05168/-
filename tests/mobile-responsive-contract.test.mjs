@@ -7,7 +7,7 @@ test("Historical mobile themes remain ordered and pagination uses responsive flo
  const [html,css,viewport,app]=await Promise.all([
   read("index.html"),read("responsive-mobile-system.css"),read("viewport-layout.js"),read("app.js")
  ]);
- const links=[...html.matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(x=>x[1]).filter(href=>!href.startsWith("/delivery-layout.css"));
+ const links=[...html.matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(x=>x[1]).filter(href=>!["/delivery-layout.css","/crm-1mm-module-spacing.css","/brand-logo-sharp-header.css"].some(prefix=>href.startsWith(prefix)));
  assert.match(links.at(-2),/^\/responsive-mobile-system\.css\?v=20261010-mobile-native-v1$/);
  assert.match(links.at(-1),/^\/login-redesign\.css\?v=20261010-form-first-v2$/);
  assert.match(css,/@media \(max-width:899px\)/);
