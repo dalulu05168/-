@@ -163,7 +163,7 @@ function renderLogin(initialized){
   $("#root").innerHTML=`
     <section class="loginPage" aria-label="Ellery Westcott 系统登录">
       <div class="loginHero">
-        <div class="heroMark"><img class="brandLogo" src="/assets/ellery-westcott-transparent.png?v=1" alt="Ellery Westcott · Capital Markets"></div>
+        <div class="heroMark"><span class="brandLogoFrame"><img class="brandLogo" src="/assets/ellery-westcott-transparent.png?v=1" alt="Ellery Westcott · Capital Markets"><img class="brandLettering" src="/assets/ellery-westcott-transparent.png?v=1" alt="" aria-hidden="true"></span></div>
         <div class="heroRule" aria-hidden="true"></div>
         <div class="loginEyebrow">PRIVATE CLIENT WORKSPACE · 私人客户工作台</div>
         <h1>客户管理<br>清晰而有序</h1>
@@ -265,9 +265,9 @@ function renderShell(){
   $("#root").innerHTML=`
     <div class="app"><div class="shell studioShell">
       <header class="topbar studioTopbar"><div class="studioBreadcrumb"><span>工作台</span><span aria-hidden="true">/</span><strong id="appBreadcrumb">业务总览</strong></div>
-        <div class="brand"><img class="brandLogo" src="/assets/ellery-westcott-transparent.png?v=1" alt="Ellery Westcott · Capital Markets"></div>
-        <div class="navFrame" id="sideNavigation"><div class="sidebarIdentity"><img src="/assets/ellery-westcott-transparent.png?v=1" alt="Ellery Westcott Capital Markets"></div><div class="sidebarSection">工作空间</div><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}" title="${tr(label,state.lang)}" aria-label="${tr(label,state.lang)}"><span class="navGlyph" aria-hidden="true">${navigationIcons[id]||"•"}</span><span class="navLabel">${tr(label,state.lang)}</span></button>`).join("")}</nav><div class="studioSidebarFoot"><span class="studioSidebarRole">${roleName(state.profile.role)}工作台</span><span class="romaniaClock" id="romaniaClock"></span><small>EUROPE / BUCHAREST</small></div></div>
-        <form id="globalSearchForm" class="globalSearch" role="search"><span aria-hidden="true">⌕</span><input id="globalSearchInput" type="search" autocomplete="off" placeholder="搜索客户、项目或股票…" aria-label="搜索客户、项目或股票"><button type="submit" aria-label="搜索">↵</button></form><div class="userArea"><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><button class="chip" id="editAccountName" title="修改账号名称"><span class="studioAvatar" aria-hidden="true">${esc(String(state.profile.display_name||"U").slice(0,1))}</span><span class="studioUserName">${esc(state.profile.display_name)}</span></button><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
+        <div class="brand"><span class="brandLogoFrame"><img class="brandLogo" src="/assets/ellery-westcott-transparent.png?v=1" alt="Ellery Westcott · Capital Markets"><img class="brandLettering" src="/assets/ellery-westcott-transparent.png?v=1" alt="" aria-hidden="true"></span></div>
+        <div class="navFrame" id="sideNavigation"><div class="sidebarIdentity"><span class="brandLogoFrame"><img src="/assets/ellery-westcott-transparent.png?v=1" alt="Ellery Westcott Capital Markets"><img class="brandLettering" src="/assets/ellery-westcott-transparent.png?v=1" alt="" aria-hidden="true"></span></div><div class="sidebarSection">工作空间</div><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}" title="${tr(label,state.lang)}" aria-label="${tr(label,state.lang)}"><span class="navGlyph" aria-hidden="true">${navigationIcons[id]||"•"}</span><span class="navLabel">${tr(label,state.lang)}</span></button>`).join("")}</nav><div class="studioSidebarFoot"><span class="studioSidebarRole">${roleName(state.profile.role)}工作台</span><span class="romaniaClock" id="romaniaClock"></span><small>EUROPE / BUCHAREST</small></div></div>
+        <div id="pageActionsSlot" class="studioPageActions"></div><form id="globalSearchForm" class="globalSearch" role="search"><span aria-hidden="true">⌕</span><input id="globalSearchInput" type="search" autocomplete="off" placeholder="搜索客户、项目或股票…" aria-label="搜索客户、项目或股票"><button type="submit" aria-label="搜索">↵</button></form><div class="userArea"><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><button class="chip" id="editAccountName" title="修改账号名称"><span class="studioAvatar" aria-hidden="true">${esc(String(state.profile.display_name||"U").slice(0,1))}</span><span class="studioUserName">${esc(state.profile.display_name)}</span></button><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
       </header>
       ${demoMode?'<div class="previewNotice" role="status">隔离验收预览 · 全部数据为模拟数据 · 不连接生产写入</div>':''}<main id="main" data-view="${state.activeView}"></main>
     </div></div>
@@ -398,6 +398,7 @@ async function renderView(token=0){
   state.charts={};
   const main=$("#main");
   if(!main)return;
+  $("#pageActionsSlot")?.replaceChildren();
   main.className="viewBusy";
   main.dataset.view=state.activeView;
   const captureButton=$("#projectCaptureButton");if(captureButton)captureButton.style.setProperty("display",state.activeView==="shareboard"?"inline-flex":"none","important");
@@ -418,7 +419,10 @@ async function renderView(token=0){
   try{
     await renderer();
     if(state.activeView==="dashboard")attachProjectLauncher(featureCtx());
+    const actions=main.querySelector(".studioHeadingActions, .unifiedActions, .marketControls");
+    if(actions&&$("#pageActionsSlot"))$("#pageActionsSlot").append(actions);
     translateUI(main,state.lang);
+    if($("#pageActionsSlot"))translateUI($("#pageActionsSlot"),state.lang);
   }catch(err){
     console.error("renderView failed",state.activeView,err);
     main.innerHTML='<div class="empty" style="padding:40px">页面加载失败，请点击顶部导航重新进入。</div>';
@@ -745,7 +749,7 @@ async function openCustomer(id){
     <section class="customerDetail clientPortfolioDetail shareReady" id="clientSharePage">
       <div class="shareTopbar">
         <div class="shareBrand">
-          <img class="brandLogo" src="/assets/ellery-westcott-transparent.png?v=1" alt="Ellery Westcott · Capital Markets">
+          <span class="brandLogoFrame"><img class="brandLogo" src="/assets/ellery-westcott-transparent.png?v=1" alt="Ellery Westcott · Capital Markets"><img class="brandLettering" src="/assets/ellery-westcott-transparent.png?v=1" alt="" aria-hidden="true"></span>
         </div>
         <div class="shareTimeBlock">
 
@@ -1252,7 +1256,7 @@ async function renderMarket(){
       </article>
       <article class="panel marketListPanel">
         <div class="panelHead"><div><h2><img class="sectionIcon" src="/assets/bar-chart.svg" alt="">股票列表</h2><p>罗马尼亚、美国、法国、德国、英国、意大利、西班牙、荷兰、瑞士、波兰、日本</p></div></div>
-        <div class="referenceMarketTabs" id="referenceMarketTabs"><button data-market-preset="RO" class="active" type="button">罗马尼亚</button><button data-market-preset="US" type="button">美国</button><button data-market-preset="FR" type="button">法国</button><button data-market-preset="DE" type="button">德国</button><button data-market-preset="GB" type="button">英国</button><button data-market-preset="IT" type="button">意大利</button><button data-market-preset="ES" type="button">西班牙</button><button data-market-preset="NL" type="button">荷兰</button><button data-market-preset="CH" type="button">瑞士</button><button data-market-preset="PL" type="button">波兰</button><button data-market-preset="JP" type="button">日本</button></div><div class="referenceMarketFilters"><button class="active" type="button" data-market-sort="original">默认顺序</button><button type="button" data-market-sort="gain">涨幅最高</button><button type="button" data-market-sort="loss">跌幅最高</button><input id="marketListFilter" class="input" type="search" placeholder="搜索当前列表…" aria-label="筛选股票列表"></div><div class="marketListHead"><span>代码</span><span>公司名称</span><span>交易所</span><span>价格</span><span>涨跌幅</span><span>更新时间</span></div><div class="panelBody marketList" id="marketRows"></div>
+        <div class="referenceMarketTabs" id="referenceMarketTabs"><button data-market-preset="RO" class="active" type="button">罗马尼亚</button><button data-market-preset="US" type="button">美国</button><button data-market-preset="FR" type="button">法国</button><button data-market-preset="DE" type="button">德国</button><button data-market-preset="GB" type="button">英国</button><button data-market-preset="IT" type="button">意大利</button><button data-market-preset="ES" type="button">西班牙</button><button data-market-preset="NL" type="button">荷兰</button><button data-market-preset="CH" type="button">瑞士</button><button data-market-preset="PL" type="button">波兰</button><button data-market-preset="JP" type="button">日本</button></div><div class="referenceMarketFilters"><button class="active" type="button" data-market-sort="original">默认顺序</button><button type="button" data-market-sort="gain">涨幅最高</button><button type="button" data-market-sort="loss">跌幅最高</button><input id="marketListFilter" class="input" type="search" placeholder="搜索当前列表…" aria-label="筛选股票列表"></div><div class="marketListHead"><span>股票 / 公司</span><span>价格</span><span>涨跌 / 时间</span></div><div class="panelBody marketList" id="marketRows"></div>
       </article>
       <article class="panel marketChartPanel">
         <div class="panelHead marketChartHeader"><div class="marketRangeBar" role="group" aria-label="图表时间范围">${["1D","1W","1M","3M","6M","1Y","全部"].map((r,i)=>`<button type="button" data-range="${r}" class="${i===0?"active":""}" aria-pressed="${i===0}">${r}</button>`).join("")}<span class="marketRangeNote" id="marketRangeNote"></span></div></div><div class="chartBox"><div class="marketCanvas"><canvas id="marketChart"></canvas></div></div>
@@ -1281,7 +1285,7 @@ async function renderMarket(){
     $("#marketRows").innerHTML=rows.map(x=>{
       const usable=!x.error&&Number.isFinite(Number(x.price));
       const stamp=usable&&x.lastTradeAt?dt(x.lastTradeAt):"--";
-      return `<button type="button" class="marketRow referenceMarketRow marketPick" data-symbol="${esc(x.symbol)}" data-initial-index="${syms.indexOf(x.symbol)}" data-change-pct="${usable&&x.changePct!=null?Number(x.changePct):0}" aria-pressed="false"><span class="link">${esc(x.symbol)}</span><span class="marketCompany">${esc(x.name||x.symbol)}<small>${esc(x.country||"--")}</small></span><span class="marketExchange">${esc(x.exchange||"--")}</span><span>${usable?num(x.price):"--"}<small class="muted"> ${esc(x.currency||"")}</small></span><span class="${usable&&Number(x.changePct)>=0?"up":usable?"down":""}">${usable&&x.changePct!=null?((Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%"):"--"}</span><span class="quoteTimeBadge">${esc(stamp)}</span></button>`;
+      return `<button type="button" class="marketRow referenceMarketRow marketPick" data-symbol="${esc(x.symbol)}" data-initial-index="${syms.indexOf(x.symbol)}" data-change-pct="${usable&&x.changePct!=null?Number(x.changePct):0}" aria-pressed="false"><span class="marketCompany"><strong class="link">${esc(x.symbol)}</strong><small>${esc(x.name||x.symbol)}</small><small>${esc(x.exchange||"--")}</small></span><span>${usable?num(x.price):"--"}<small class="muted"> ${esc(x.currency||"")}</small></span><span class="${usable&&Number(x.changePct)>=0?"up":usable?"down":""}">${usable&&x.changePct!=null?((Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%"):"--"}<small class="quoteTimeBadge">${esc(stamp)}</small></span></button>`;
     }).join("")||'<div class="empty">暂无行情数据</div>';
     $$(".marketPick").forEach(r=>r.onclick=()=>drawMarket(q[r.dataset.symbol]));
     const marketText=$("#marketListFilter")?.value.trim().toLowerCase()||"";

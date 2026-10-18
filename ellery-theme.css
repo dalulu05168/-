@@ -211,3 +211,72 @@ body :is(#root#root#root#root#root#root#root#root#root#root#root#root,#modalRoot
  & :is(.studioMetrics,.studioAnalytics,.studioBottomGrid,.kpis,.grid2,.grid3,.executiveKpis,.executiveMain,.executiveDashboard,.level1Workspace,.level2Workspace,.level1MetricGrid,.level2MetricGrid,.level1ContentGrid,.level2ContentGrid,.level1BodyGrid,.level2MainGrid,.settingsGrid,.reportsLower,.marketUnifiedGrid,.marketMetrics,.referenceFeatureCards,.projectLauncherList,.projectOverview,.projectOverviewCards,.projectOverviewLower,.projectOverviewTotals,.projectSummaryMetrics,.shareKpiRow,.shareMainGrid,.shareLowerGrid,.terminalGrid,.terminalTicker,.terminalMainGrid,.formGrid){gap:var(--crm-module-gap)!important;row-gap:var(--crm-module-gap)!important;column-gap:var(--crm-module-gap)!important;}
  & .studioMetric:hover{transform:none!important;}
 }
+
+/* 2.2 compact navigation, header actions and circular allocations. */
+body :is(#root#root#root#root#root#root#root#root#root#root#root#root,#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot){
+ & :is(.studioBreadcrumb,.studioPageHeading,.pageHead,.referenceMarketHero,.unifiedModuleHead){display:none!important;}
+ & .topbar{display:flex!important;flex-wrap:wrap!important;height:auto!important;min-height:64px!important;padding:10px 16px!important;gap:10px!important;}
+ & .studioPageActions{display:flex!important;align-items:center!important;min-width:0!important;flex:1 1 auto!important;}
+ & .studioPageActions:empty{display:none!important;}
+ & .studioPageActions :is(.studioHeadingActions,.unifiedActions,.marketControls){display:flex!important;align-items:center!important;flex-wrap:wrap!important;width:auto!important;gap:7px!important;margin:0!important;}
+ & .studioPageActions :is(input,select,button){font-size:11px!important;min-height:32px!important;height:32px!important;}
+ & .studioPageActions input{width:180px!important;min-width:90px!important;}
+ & .globalSearch{margin-left:auto!important;flex:0 1 210px!important;}
+ & .brandLogoFrame{display:block!important;position:relative!important;width:100%!important;aspect-ratio:1448 / 1086!important;height:auto!important;max-height:100%!important;}
+ & .brandLogoFrame img{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;}
+ & .brandLogoFrame img.brandLettering{position:absolute!important;inset:0!important;filter:brightness(0) invert(1)!important;clip-path:inset(65.5% 0 0 0)!important;}
+ & .sidebarIdentity{height:auto!important;margin:0 0 15px!important;}
+ & .projectOverviewCards{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+ & .projectOverviewBalance{display:grid!important;grid-template-columns:112px minmax(0,1fr)!important;gap:12px!important;align-items:center!important;min-height:176px!important;padding:18px!important;}
+ & .projectRingDock{display:block!important;width:112px!important;height:112px!important;aspect-ratio:1!important;}
+ & .projectEnergyRingButton{appearance:none!important;display:block!important;position:relative!important;width:112px!important;height:112px!important;min-height:0!important;padding:0!important;border:0!important;border-radius:50%!important;background:transparent!important;box-shadow:none!important;overflow:visible!important;}
+ & .projectProgressRing{display:block!important;width:100%!important;height:100%!important;overflow:visible!important;}
+ & .projectProgressRing text{fill:var(--project-accent)!important;}
+ & .projectBalanceRatio{display:none!important;}
+ & .projectOverviewNumbers{min-width:0!important;text-align:left!important;}
+ & .projectOverviewNumbers strong{display:block!important;color:var(--project-accent)!important;font-size:23px!important;overflow-wrap:anywhere!important;}
+ & .canvaReferenceMarket{display:grid!important;grid-template-columns:340px minmax(0,1fr)!important;grid-template-rows:auto auto 1fr!important;grid-template-areas:'features features' 'list quote' 'list chart'!important;width:100%!important;gap:var(--crm-module-gap)!important;}
+ & .referenceFeatureCards{grid-area:features!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:var(--crm-module-gap)!important;}
+ & .referenceFeatureCard{appearance:none!important;min-height:110px!important;height:auto!important;padding:14px 18px!important;text-align:left!important;background:linear-gradient(125deg,#1c3454,#15243b)!important;border:1px solid #2d4667!important;border-radius:9px!important;color:#edf3fc!important;}
+ & .referenceFeatureValue{font-size:25px!important;}
+ & .marketListPanel{grid-area:list!important;min-width:0!important;align-self:stretch!important;}
+ & .marketOverviewPanel{grid-area:quote!important;min-width:0!important;}
+ & .marketChartPanel{grid-area:chart!important;min-width:0!important;}
+ & :is(.referenceMarketTabs,.marketListPanel .panelHead p){display:none!important;}
+ & .referenceMarketFilters{display:flex!important;flex-wrap:wrap!important;padding:12px!important;gap:6px!important;}
+ & .referenceMarketFilters button{font-size:10px!important;padding:6px 9px!important;min-height:28px!important;border:1px solid #304866!important;border-radius:5px!important;background:#1b304c!important;color:#b5c9e3!important;}
+ & .referenceMarketFilters input{width:100%!important;flex-basis:100%!important;min-width:0!important;}
+ & :is(.marketListHead,.referenceMarketRow){display:grid!important;grid-template-columns:minmax(0,1fr) 76px 85px!important;gap:7px!important;padding:12px!important;min-width:0!important;}
+ & .marketListHead{font-size:10px!important;}
+ & .marketRows,& #marketRows{max-height:550px!important;overflow-y:auto!important;padding:0!important;}
+ & .referenceMarketRow{width:100%!important;border:0!important;border-top:1px solid #293b56!important;border-radius:0!important;background:transparent!important;color:#dce8f8!important;text-align:right!important;font-size:11px!important;align-items:center!important;}
+ & .referenceMarketRow[aria-pressed=true]{background:#26466c70!important;box-shadow:inset 3px 0 #72a6ff!important;}
+ & .marketCompany{text-align:left!important;min-width:0!important;}
+ & .marketCompany small{display:block!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:9px!important;color:#8ca4c1!important;}
+ & .quoteTimeBadge{display:block!important;font-size:8px!important;white-space:normal!important;color:#8ca4c1!important;}
+ & .marketMetrics{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+ & .marketChartPanel .chartBox,& .marketCanvas{height:350px!important;min-height:0!important;}
+ & .marketRangeBar{display:flex!important;flex-wrap:wrap!important;gap:5px!important;}
+ & .marketRangeBar button{border:1px solid #304866!important;border-radius:5px!important;background:#1b304c!important;color:#b5c9e3!important;padding:5px 10px!important;min-height:28px!important;}
+ & .marketRangeBar button.active{background:#315b8b!important;color:white!important;}
+}
+@media(min-width:1001px){body :is(#root#root#root#root#root#root#root#root#root#root#root#root,#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot){& .shell{padding-left:164px!important;}& .navFrame{width:164px!important;padding:20px 10px!important;}& .nav button{height:39px!important;min-height:39px!important;padding:0 10px!important;gap:9px!important;font-size:12px!important;}& .navGlyph svg{width:16px!important;height:16px!important;}& .studioSidebarFoot{left:18px!important;right:12px!important;}& .sidebarSection{padding-left:10px!important;}}}
+@media(max-width:1100px){body :is(#root#root#root#root#root#root#root#root#root#root#root#root,#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot){& .projectOverviewBalance{grid-template-columns:1fr!important;justify-items:center!important;}& .projectOverviewNumbers{text-align:center!important;}& .canvaReferenceMarket{grid-template-columns:290px minmax(0,1fr)!important;}& .studioPageActions{flex-basis:100%!important;order:3!important;}}}
+@media(max-width:760px){body :is(#root#root#root#root#root#root#root#root#root#root#root#root,#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot){& .canvaReferenceMarket{grid-template-columns:1fr!important;grid-template-areas:'features' 'quote' 'chart' 'list'!important;}& .referenceFeatureCards{grid-template-columns:repeat(2,minmax(0,1fr))!important;}& .projectOverviewCards{grid-template-columns:1fr!important;}& .projectOverviewBalance{grid-template-columns:112px minmax(0,1fr)!important;}& .projectOverviewNumbers{text-align:left!important;}& .topbar{padding:9px 12px!important;}& .studioHeadingActions{width:auto!important;}& .globalSearch{flex:1!important;}& .studioPageActions .unifiedActions{width:100%!important;}& .studioPageActions input{max-width:180px!important;}& .marketControls{width:100%!important;}& #marketSymbols{flex:1!important;min-width:0!important;}}}
+
+body :is(#root#root#root#root#root#root#root#root#root#root#root#root,#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot){
+ & .referenceFeatureCard{display:grid!important;grid-template-columns:1fr auto!important;gap:8px!important;align-content:center!important;}
+ & .referenceFeatureTop{display:flex!important;grid-column:1 / -1!important;align-items:center!important;gap:9px!important;min-width:0!important;}
+ & .referenceFeatureTop>span:last-child{display:grid!important;min-width:0!important;}
+ & .referenceFeatureTop small{font-size:10px!important;color:#91a8c6!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;}
+ & .referenceFeatureIcon{display:grid!important;place-items:center!important;width:28px!important;height:28px!important;flex:none!important;border-radius:8px!important;background:#28496f!important;color:#a9ceff!important;}
+ & .referenceFeatureChange{align-self:center!important;text-align:right!important;font-size:12px!important;}
+ & .marketOverviewPanel .panelBody{padding:16px!important;}
+ & .quoteHeader{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important;}
+ & .quoteHeader h3{margin:6px 0!important;font-size:22px!important;}
+ & .quoteHeader p{margin:0!important;font-size:11px!important;}
+ & .marketMetrics{padding:10px 16px!important;gap:12px!important;}
+ & .marketMetrics>div{display:grid!important;gap:3px!important;font-size:12px!important;}
+ & .sectionIcon{filter:brightness(0) invert(.75)!important;}
+ & .quoteTimeBadge{border:0!important;background:transparent!important;padding:0!important;}
+}
