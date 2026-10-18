@@ -3,7 +3,7 @@ const {execFileSync}=require('node:child_process');
 const {NSIS_PATH,NsisTargetOptions}=require('app-builder-lib/out/targets/nsis/nsisUtil.js');
 (async()=>{
  const root=path.resolve(__dirname,'..');
- execFileSync(process.execPath,[require.resolve('electron-builder/cli.js'),'--win','--x64','--dir'],{cwd:root,stdio:'inherit'});
+ execFileSync(process.execPath,[require.resolve('electron-builder/cli.js'),'--win','--x64','--dir','--publish','never'],{cwd:root,stdio:'inherit'});
  NsisTargetOptions.resolve({});
  const nsis=await NSIS_PATH();
  const compiler=path.join(nsis,process.platform==='win32'?'Bin/makensis.exe':process.platform==='darwin'?'mac/makensis':'linux/makensis');
