@@ -3,7 +3,7 @@
 -- No users or business records are deleted. Former level1 users become level2.
 begin;
 
-alter table public.customers alter column level_one_user_id drop not null;
+-- Legacy column now records the direct administrator, preserving the existing API contract.
 
 create or replace function public.validate_profile_hierarchy()
 returns trigger language plpgsql set search_path=pg_catalog,public,pg_temp as $$
@@ -38,7 +38,9 @@ begin
  or manager.role is distinct from 'admin' or manager.status is distinct from 'active' then
   raise exception '客户负责人必须是启用且直属管理员的二级账户';
  end if;
- new.level_one_user_id=null;
+ if new.level_one_user_id is distinct from owner.parent_user_id then
+  raise exception '客户所属管理员与负责人不一致';
+ end if;
  return new;
 end;$$;
 
@@ -46,7 +48,7 @@ create or replace function public.sync_level2_customer_hierarchy()
 returns trigger language plpgsql security definer set search_path=pg_catalog,public,pg_temp as $$
 begin
  if new.role='level2' and new.parent_user_id is distinct from old.parent_user_id then
-  update public.customers set level_one_user_id=null where owner_user_id=new.id;
+  update public.customers set level_one_user_id=new.parent_user_id where owner_user_id=new.id;
  end if;
  return new;
 end;$$;
@@ -58,7 +60,8 @@ alter table public.customers disable trigger user;
 update public.profiles child set parent_user_id=parent.parent_user_id
 from public.profiles parent where child.role='level2' and child.parent_user_id=parent.id and parent.role='level1';
 update public.profiles set role='level2' where role='level1';
-update public.customers set level_one_user_id=null where level_one_user_id is not null;
+update public.customers c set level_one_user_id=p.parent_user_id from public.profiles p where c.owner_user_id=p.id;
+alter table public.customers alter column level_one_user_id set not null;
 alter table public.profiles enable trigger user;
 alter table public.customers enable trigger user;
 
@@ -92,7 +95,7 @@ create or replace function public.can_read_allocation_owner(target_owner uuid)
 returns boolean language sql stable security definer set search_path=pg_catalog,public,pg_temp as $$
  select exists(select 1 from public.profiles actor join public.profiles owner on owner.id=target_owner
  where actor.id=auth.uid() and actor.status='active' and actor.role in ('admin','level2')
- and owner.role in ('admin','level2')
+ and owner.status='active' and owner.role in ('admin','level2')
  and (actor.id=owner.id or (actor.role='admin' and owner.parent_user_id=actor.id and owner.role='level2')));
 $$;
 revoke all on function public.can_read_allocation_owner(uuid) from public,anon;
@@ -110,11 +113,11 @@ create policy profiles_select on public.profiles for select to authenticated usi
 );
 drop policy if exists customers_insert on public.customers;
 create policy customers_insert on public.customers for insert to authenticated with check(
- level_one_user_id is null and (app_private.is_admin() or (app_private.current_user_role()='level2' and owner_user_id=auth.uid()))
+ level_one_user_id is not null and (app_private.is_admin() or (app_private.current_user_role()='level2' and owner_user_id=auth.uid()))
 );
 -- Explicit ownership in both halves prevents reassignment to a peer.
 drop policy if exists customers_update on public.customers;
 create policy customers_update on public.customers for update to authenticated
  using(app_private.can_access_owner(owner_user_id,null))
- with check(level_one_user_id is null and app_private.can_access_owner(owner_user_id,null));
+ with check(level_one_user_id is not null and app_private.can_access_owner(owner_user_id,null));
 commit;

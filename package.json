@@ -1,7 +1,7 @@
 {
   "name": "ellery-westcott-crm",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.0.1",
   "type": "module",
   "scripts": {
     "dev": "vercel dev",
@@ -9,16 +9,19 @@
     "test": "node --test tests/*.test.mjs",
     "desktop": "electron .",
     "desktop:demo": "electron . --demo",
-    "build:win": "node scripts/build-windows.cjs",
-    "build:linux": "electron-builder --linux dir --x64"
+    "build:win": "npm run build:vendor && node scripts/build-windows.cjs",
+    "build:linux": "electron-builder --linux dir --x64",
+    "build:vendor": "node scripts/build-vendor.cjs"
   },
   "engines": {
     "node": "22.x"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.8",
+    "@supabase/supabase-js": "2.118.0",
     "electron": "39.2.7",
-    "electron-builder": "26.0.12"
+    "electron-builder": "26.0.12",
+    "esbuild": "0.28.2"
   },
   "description": "Ellery Westcott Capital Markets — connected client management workspace",
   "main": "desktop/main.cjs",

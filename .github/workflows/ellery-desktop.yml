@@ -1,4 +1,4 @@
-name: Ellery desktop candidate
+name: Ellery desktop Windows release
 on:
   push:
     branches: ['codex/ellery-desktop-*']
@@ -17,9 +17,16 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build:win
+      - name: Install, launch and uninstall on Windows
+        shell: pwsh
+        run: ./scripts/windows-install-smoke.ps1
       - uses: actions/upload-artifact@v4
         with:
-          name: Ellery-Westcott-CRM-Windows-Candidate
-          path: dist/Ellery-Westcott-CRM-Setup-2.0.0.exe
+          name: Ellery-Westcott-CRM-Windows
+          path: |
+            dist/Ellery-Westcott-CRM-Setup-*.exe
+            dist/windows-acceptance/*.json
+            dist/windows-acceptance/*.png
+            dist/windows-acceptance/SHA256.txt
           if-no-files-found: error
           retention-days: 14

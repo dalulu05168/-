@@ -63,7 +63,8 @@ Deno.serve(async (req) => {
       if (!validUsername(username)) return json({ error: "账号格式不正确" }, 400);
       if (password.length < 8) return json({ error: "密码至少 8 位" }, 400);
       if (!displayName) return json({ error: "请输入姓名" }, 400);
-      if (role !== "level2") return json({ error: "仅支持创建二级账户" }, 400);
+      if (role !== "level2") return json({ error: "角色不正确" }, 400);
+
       parentId = caller.id;
 
       const email = `${username.toLowerCase()}@crm.nuvexapro.com`;
@@ -152,10 +153,11 @@ Deno.serve(async (req) => {
       if (current.role === "admin") {
         parentId = null;
       } else {
-        if (current.role !== "level2") return json({ error: "账户角色不受支持" }, 400);
-        if (body.parent_user_id !== undefined) parentId = String(body.parent_user_id || "");
-        const { data: parent } = await supabase.from("profiles").select("id,role,status").eq("id", parentId).single();
-        if (!parent || parent.role !== "admin" || parent.status !== "active") return json({ error: "请选择有效管理员" }, 400);
+        if (body.parent_user_id !== undefined) parentId = body.parent_user_id ? String(body.parent_user_id) : null;
+        if (!parentId) return json({ error: "二级人员必须选择管理员" }, 400);
+        const { data: parent } = await supabase.from("profiles")
+          .select("id,role,status").eq("id", parentId).single();
+        if (!parent || parent.role !== "admin" || parent.status !== "active") return json({ error: "管理员无效" }, 400);
       }
 
       if (username.toLowerCase() !== String(current.username).toLowerCase()) {
@@ -183,7 +185,7 @@ Deno.serve(async (req) => {
 
       if (current.role === "level2" && oldParentId !== parentId) {
         const { error: customerMoveErr } = await supabase.from("customers")
-          .update({ level_one_user_id: null })
+          .update({ level_one_user_id: parentId })
           .eq("owner_user_id", target);
         if (customerMoveErr) {
           await supabase.from("profiles").update({ parent_user_id: oldParentId }).eq("id", target);

@@ -19,6 +19,7 @@ test('migration preserves accounts, reparents children, removes intermediate aut
  assert.equal((await db.query("select id from profiles where role='level1'")).rows.length,0);
  for(const row of (await db.query("select parent_user_id from profiles where role='level2'")).rows)assert.equal(row.parent_user_id,id(1));
  assert.equal((await db.query('select id from customers')).rows.length,2);
+ for(const row of (await db.query('select level_one_user_id from customers')).rows)assert.equal(row.level_one_user_id,id(1));
  await db.exec(`create trigger profile_hierarchy before insert or update on profiles for each row execute function validate_profile_hierarchy();create trigger customer_hierarchy before insert or update on customers for each row execute function validate_customer_hierarchy();
  create policy customers_read on customers for select to authenticated using(app_private.can_access_owner(owner_user_id,null));`);
  const as=async(n,sql)=>{await db.exec(`reset role;set role authenticated;select set_config('request.jwt.claim.sub','${id(n)}',false);`);return db.query(sql)};
@@ -26,8 +27,8 @@ test('migration preserves accounts, reparents children, removes intermediate aut
  assert.equal((await as(2,'select id from customers')).rows.length,0,'former supervisor no longer sees descendants');
  assert.equal((await as(6,'select id from customers')).rows.length,0,'disabled account cannot read');
  await assert.rejects(()=>as(3,`update customers set owner_user_id='${id(4)}' where id=1`));
- await assert.rejects(()=>as(3,`insert into customers values(3,'${id(4)}',null)`));
- await as(3,`insert into customers values(3,'${id(3)}',null)`);
+ await assert.rejects(()=>as(3,`insert into customers values(3,'${id(4)}','${id(1)}')`));
+ await as(3,`insert into customers values(3,'${id(3)}','${id(1)}')`);
  assert.equal((await as(1,'select id from customers')).rows.length,3,'administrator manages all customers');
  assert.equal((await as(2,`select can_read_allocation_owner('${id(3)}') as allowed`)).rows[0].allowed,false);
  assert.equal((await as(1,`select can_read_allocation_owner('${id(3)}') as allowed`)).rows[0].allowed,true);

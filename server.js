@@ -52,7 +52,7 @@ function makeApiResponse(res){
 
 async function serveStatic(req,res,url){
   const pathname=decodeURIComponent(url.pathname);
-  const allowed=new Set(["/","/index.html","/app.js","/ui-features.js","/allocation-projects.js","/viewport-layout.js","/page-export.js","/vendor-html2canvas.js","/vendor-chart.js","/styles.css","/reference-theme.css","/unified-ui.css","/dashboard-data.js","/customer-reservations.js","/demo-client.js","/demo-data.json"]);
+  const allowed=new Set(["/","/index.html","/app.js","/ui-features.js","/allocation-projects.js","/viewport-layout.js","/page-export.js","/vendor-html2canvas.js","/vendor-chart.js","/vendor-supabase.js","/styles.css","/reference-theme.css","/unified-ui.css","/dashboard-data.js","/customer-reservations.js","/demo-client.js","/demo-data.json"]);
   let target=pathname==="/"?"/index.html":pathname;
   // Serve all safe root-level CSS files, including the Canva/cream themes.
   // The previous strict whitelist silently returned index.html for new CSS files.

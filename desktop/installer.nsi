@@ -11,10 +11,10 @@ RequestExecutionLevel user
 SetCompressor /SOLID lzma
 SetCompressorDictSize 32
 BrandingText "Ellery Westcott Capital Markets"
-VIProductVersion "2.0.0.0"
+VIProductVersion "${APP_VERSION}.0"
 VIAddVersionKey "ProductName" "Ellery Westcott CRM"
 VIAddVersionKey "FileDescription" "Ellery Westcott CRM Setup"
-VIAddVersionKey "FileVersion" "2.0.0"
+VIAddVersionKey "FileVersion" "${APP_VERSION}"
 VIAddVersionKey "LegalCopyright" "Ellery Westcott Capital Markets"
 !define MUI_ICON "${ICON_FILE}"
 !define MUI_UNICON "${ICON_FILE}"
@@ -54,7 +54,7 @@ Section "Application"
  CreateShortcut "$DESKTOP\Ellery Westcott CRM.lnk" "$INSTDIR\Ellery Westcott CRM.exe"
  WriteRegStr HKCU "Software\ElleryWestcottCRM" "InstallDir" "$INSTDIR"
  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\ElleryWestcottCRM" "DisplayName" "Ellery Westcott CRM"
- WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\ElleryWestcottCRM" "DisplayVersion" "2.0.0"
+ WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\ElleryWestcottCRM" "DisplayVersion" "${APP_VERSION}"
  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\ElleryWestcottCRM" "Publisher" "Ellery Westcott Capital Markets"
  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\ElleryWestcottCRM" "UninstallString" '"$INSTDIR\Uninstall.exe"'
  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\ElleryWestcottCRM" "DisplayIcon" "$INSTDIR\Ellery Westcott CRM.exe"

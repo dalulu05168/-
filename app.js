@@ -9,7 +9,7 @@ import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,e
 
 const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
-const supabase = demoMode ? await (await import("./demo-client.js?v=20261009-brighter")).createDemoClient() : (await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")).createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = demoMode ? await (await import("./demo-client.js?v=20261009-brighter")).createDemoClient() : (await import("./vendor-supabase.js")).createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ROMANIA_TZ = "Europe/Bucharest";
 // Share one header legend placement across chart panels, outside the plot area.
@@ -777,7 +777,7 @@ async function saveCustomer(e){
   e.preventDefault();
   const b=Object.fromEntries(new FormData(e.currentTarget).entries());
   const owner=state.staff.find(s=>s.id===b.owner_user_id)||state.profile;
-  b.level_one_user_id=null;
+  b.level_one_user_id=owner.parent_user_id;
   if(!b.age)b.age=null; else b.age=Number(b.age);
   if(!b.capital_amount)b.capital_amount=null; else b.capital_amount=Number(b.capital_amount);
   const {error}=await supabase.from("customers").insert(b);
