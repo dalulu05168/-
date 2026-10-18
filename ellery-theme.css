@@ -282,3 +282,34 @@ body :is(#root#root#root#root#root#root#root#root#root#root#root#root,#modalRoot
 }
 
 body :is(#root#root#root#root#root#root#root#root#root#root#root#root,#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot){& .referenceMarketRow[hidden]{display:none!important;}}
+
+/* 2.2.2 compact single-line section headings; preserve space for charts. */
+body :is(#root#root#root#root#root#root#root#root#root#root#root#root,#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot){
+ & :is(.panelHead,.projectPanelHeading){min-height:42px!important;height:auto!important;padding:6px 14px!important;gap:10px!important;flex-wrap:nowrap!important;}
+ & .studioTrend .panelHead{min-height:42px!important;padding:6px 14px!important;}
+ & :is(.panelHead,.projectPanelHeading)>div:first-child:has(>h2){display:flex!important;flex:1 1 auto!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;min-width:0!important;}
+ & :is(.panelHead,.projectPanelHeading) h2{flex:0 1 auto!important;min-width:0!important;font-size:13px!important;line-height:20px!important;white-space:nowrap!important;margin:0!important;}
+ & :is(.panelHead,.projectPanelHeading) p{flex:1 1 auto!important;min-width:0!important;margin:0!important;line-height:18px!important;text-align:right!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+ & .panelSubtitleRow{display:flex!important;align-items:center!important;justify-content:flex-end!important;flex:1 1 auto!important;gap:9px!important;min-width:0!important;margin:0!important;}
+ & :is(.panelHead,.projectPanelHeading) :is(.btn,.input,.select){min-height:28px!important;height:28px!important;padding:3px 9px!important;font-size:11px!important;}
+ & .projectPanelHeading .projectInternalLabel{font-size:11px!important;flex:none!important;color:#8da7c7!important;}
+ & .projectTrendLegend{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:9px!important;flex:0 1 auto!important;font-size:10px!important;white-space:nowrap!important;}
+ & .projectTrendLegend>span{display:inline-flex!important;align-items:center!important;gap:5px!important;}
+ & .projectTrendLegend i{display:inline-block!important;width:12px!important;height:3px!important;background:#8eafd0!important;}
+ & .projectTrendLegend>span+span i{background:var(--project-accent)!important;}
+ & .projectTrendChart{height:clamp(300px,36vh,420px)!important;min-height:300px!important;max-height:none!important;flex:0 0 auto!important;padding:8px 10px 10px!important;}
+ & .projectChartEmpty{display:grid!important;place-items:center!important;height:100%!important;color:#829ab9!important;font-size:12px!important;}
+ & .projectOverviewLower{align-items:start!important;}
+ & .projectSummaryMetrics{padding:10px 14px!important;gap:24px!important;}
+ & .projectSummaryMetrics>div{display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:10px!important;}
+ & .projectSummaryMetrics span{font-size:11px!important;color:#8ea6c5!important;}
+ & .projectSummaryMetrics strong{font-size:16px!important;}
+ & .studioChart{height:245px!important;padding-top:8px!important;}
+ & .studioChartLegend{padding:0 14px!important;}
+}
+@media(max-width:760px){body :is(#root#root#root#root#root#root#root#root#root#root#root#root,#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot){& :is(.panelHead,.projectPanelHeading){gap:7px!important;padding:6px 10px!important;}& :is(.panelHead,.projectPanelHeading) h2{font-size:11px!important;}& :is(.panelHead,.projectPanelHeading) p{font-size:9px!important;}& .projectTrendPanel .projectPanelHeading{flex-wrap:wrap!important;}& .projectTrendPanel .projectPanelHeading>div:first-child{flex:1 1 100%!important;}& .projectTrendLegend{margin-right:auto!important;}& .projectTrendChart{min-height:280px!important;height:280px!important;}& .studioChart{height:230px!important;}& .panelSubtitleRow .inlineLegend{font-size:9px!important;}}}
+
+body :is(#root#root#root#root#root#root#root#root#root#root#root#root,#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot){& :is(.panelHead,.projectPanelHeading) button{min-height:28px!important;height:28px!important;padding:3px 9px!important;}& .panelHead .studioIntervals{padding:2px!important;}& .panelHead .studioIntervals button{min-height:24px!important;height:24px!important;padding:2px 7px!important;}}
+
+body :is(#root#root#root#root#root#root#root#root#root#root#root#root,#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot){& .headerChartLegend{display:inline-flex!important;align-items:center!important;gap:9px!important;flex:0 0 auto!important;white-space:nowrap!important;margin:0!important;font-size:10px!important;}& .headerChartLegend>span{display:inline-flex!important;align-items:center!important;gap:5px!important;}& .headerChartLegend i{display:inline-block!important;width:12px!important;height:3px!important;flex:none!important;}& .monthlyReport #reportMonth{width:130px!important;flex:0 0 130px!important;min-width:0!important;}& .monthlyReport #reportCurrency{width:64px!important;flex:0 0 64px!important;min-width:0!important;}& .studioProjects .projectLauncherHead{min-height:42px!important;height:42px!important;padding:6px 14px!important;}& .studioProjects .projectLauncherHead h2{font-size:13px!important;line-height:20px!important;}}
+@media(max-width:760px){body :is(#root#root#root#root#root#root#root#root#root#root#root#root,#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot){& .monthlyReport .panelHead{flex-wrap:wrap!important;}& .monthlyReport .panelHead h2{flex:1 1 100%!important;}& .monthlyReport .headerChartLegend{margin-left:auto!important;gap:5px!important;}}}

@@ -66,7 +66,7 @@ function companyHeader(el,p){
  if(!el||!symbol)return;
  fetch('/api/security-info?symbol='+encodeURIComponent(symbol)).then(r=>r.ok?r.json():null).then(info=>{
   if(!el.isConnected||String(info?.symbol||'').toUpperCase()!==symbol)return;
-  const company=info.companyName||info.stockName;if(company&&company!==symbol)el.textContent=[company,info.exchange,info.currency].filter(Boolean).join(' · ');
+  const company=info.companyName||info.stockName;if(company&&company!==symbol){el.textContent=[company,info.exchange,info.currency].filter(Boolean).join(' · ');el.title=el.textContent;}
  }).catch(()=>{});
 }
 export async function renderProjectPresentation(ctx){
