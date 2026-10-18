@@ -1,5 +1,5 @@
-// Desktop-only backend. Intentionally empty until a separate project is provisioned.
-export const backendConfig=Object.freeze({url:'',publishableKey:''});
+// Dedicated desktop project. The original CRM project is explicitly rejected.
+export const backendConfig=Object.freeze({url:'https://xsubbvtngsovcaexkiqi.supabase.co',publishableKey:'sb_publishable_M3X0tn30MLmceTAeYRscQQ_zCEC098f'});
 export function validateBackend(config){
  const url=String(config?.url||'').trim(),key=String(config?.publishableKey||'').trim();
  if(!url||!key)return {ready:false,reason:'桌面版独立数据库尚未配置。请等待管理员完成配置。'};

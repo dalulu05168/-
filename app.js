@@ -189,7 +189,7 @@ function renderLogin(initialized){
           <div class="loginLangRow"><label for="loginLang">界面语言</label><select id="loginLang" class="select">${languageOptions(state.lang)}</select></div>
           <div class="loginClockRow"><span>罗马尼亚时间</span><span class="romaniaClock" id="romaniaClock"></span></div>
           </div>
-          <div class="loginFoot"><span aria-hidden="true">●</span> 授权账号访问 · 原业务数据不变</div>
+          <div class="loginFoot"><span aria-hidden="true">●</span> 独立系统 · 数据独立保存</div>
         </div>
       </div>
     </section>`;
@@ -224,7 +224,7 @@ async function login(e){
   if(errorBox){errorBox.hidden=true;errorBox.textContent="";}
   btn.disabled=true;btn.textContent="正在验证…";
   try{
-    const {data,error}=await supabase.auth.signInWithPassword({email:username+"@crm.nuvexapro.com",password});
+    const {data,error}=await supabase.auth.signInWithPassword({email:username+"@ellery-desktop.invalid",password});
     if(error)throw error;
     state.session=data.session;
     await loadProfileAndStart();

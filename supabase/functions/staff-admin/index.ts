@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
 
       parentId = caller.id;
 
-      const email = `${username.toLowerCase()}@crm.nuvexapro.com`;
+      const email = `${username.toLowerCase()}@ellery-desktop.invalid`;
       const { data: created, error: createErr } = await supabase.auth.admin.createUser({
         email, password, email_confirm: true,
         user_metadata: { username, display_name: displayName }
@@ -163,7 +163,7 @@ Deno.serve(async (req) => {
       if (username.toLowerCase() !== String(current.username).toLowerCase()) {
         const { data: duplicate } = await supabase.from("profiles").select("id").ilike("username", username).neq("id", target).maybeSingle();
         if (duplicate) return json({ error: "该账号已存在" }, 400);
-        const email = `${username.toLowerCase()}@crm.nuvexapro.com`;
+        const email = `${username.toLowerCase()}@ellery-desktop.invalid`;
         const { error: authErr } = await supabase.auth.admin.updateUserById(target, {
           email,
           email_confirm: true,

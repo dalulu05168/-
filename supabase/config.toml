@@ -1,0 +1,8 @@
+project_id = "xsubbvtngsovcaexkiqi"
+[functions.bootstrap-status]
+verify_jwt = false
+[functions.bootstrap-admin]
+verify_jwt = false
+# staff-admin validates bearer tokens with auth.getUser and checks active admin role itself.
+[functions.staff-admin]
+verify_jwt = false

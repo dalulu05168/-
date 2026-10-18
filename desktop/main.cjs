@@ -32,10 +32,10 @@ app.whenReady().then(async()=>{
  if(smoke){
   const result=await window.webContents.executeJavaScript(`(async()=>{
    const deadline=Date.now()+45000;
-   while(!document.querySelector('#loginForm')&&Date.now()<deadline)await new Promise(r=>setTimeout(r,250));
+   while(!document.querySelector('#loginForm,#bootstrapForm')&&Date.now()<deadline)await new Promise(r=>setTimeout(r,250));
    const sdk=await import('/vendor-supabase.js');
    const logo=document.querySelector('.brandLogo');
-   return {loginReady:!!document.querySelector('#loginForm'),sdkReady:typeof sdk.createClient==='function',logoReady:!!logo&&logo.complete&&logo.naturalWidth>0,title:document.title,overflow:document.documentElement.scrollWidth>innerWidth+1};
+   return {loginReady:!!document.querySelector('#loginForm,#bootstrapForm'),initialSetup:!!document.querySelector('#bootstrapForm'),sdkReady:typeof sdk.createClient==='function',logoReady:!!logo&&logo.complete&&logo.naturalWidth>0,title:document.title,overflow:document.documentElement.scrollWidth>innerWidth+1};
   })()`);
   result.errors=smokeErrors;result.platform=process.platform;result.version=app.getVersion();
   fs.writeFileSync(path.join(reportDir,'installed-login.png'),(await window.webContents.capturePage()).toPNG());
