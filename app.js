@@ -1,4 +1,4 @@
-import {exportPagePNG} from './page-export.js?v=20261012-export-4';
+import {exportPagePNG} from './page-export.js?v=2.3.0';
 import {installViewportLayout} from './viewport-layout.js?v=20261018-remediation-17';
 
 import {currencyTotals,monthlyTradeTotals,dailyActivityCounts} from "./dashboard-data.js?v=20261009-brighter";
@@ -118,7 +118,7 @@ if(window.Chart){
   Chart.register(crosshairPlugin);
   Chart.defaults.font.weight="normal";
   Chart.defaults.font.family="Segoe UI, Microsoft YaHei, Arial, sans-serif";
-  Chart.defaults.color="#8faaca";
+  Chart.defaults.color="#c9cdd4";
   Chart.defaults.elements.arc.borderWidth=0;
   Chart.defaults.devicePixelRatio=Math.min(Math.max(window.devicePixelRatio||1,1),2);
   Chart.defaults.animation.duration=180;
@@ -394,6 +394,7 @@ function clearMarketRefreshTimers(){
 }
 async function renderView(token=0){
   clearMarketRefreshTimers();
+  $$(".exportStatus").forEach(el=>el.remove());
   if(state.projectResizeObserver){state.projectResizeObserver.disconnect();state.projectResizeObserver=null;}
   if(state.activeView!=="shareboard")exitProjectPresentation(featureCtx());
   Object.values(state.charts).forEach(x=>{try{x.destroy()}catch{}});
@@ -597,10 +598,10 @@ function chartOpts(){return{
   interaction:{mode:"index",intersect:false},
   hover:{mode:"index",intersect:false},
   plugins:{
-    legend:{position:"top",align:"end",labels:{color:"#9bb0ca",font:{size:12,weight:"normal"},boxWidth:12,boxHeight:4,padding:8}},
+    legend:{position:"top",align:"end",labels:{color:"#c9cdd4",font:{size:12,weight:"normal"},boxWidth:12,boxHeight:4,padding:8}},
     tooltip:{enabled:true,mode:"index",intersect:false,backgroundColor:"#252524",borderColor:"#53595f",borderWidth:1,titleFont:{weight:"normal"},bodyFont:{weight:"normal"}}
   },
-  scales:{x:{ticks:{color:"#9bb0ca",font:{weight:"normal",size:12},maxTicksLimit:7,maxRotation:0,autoSkip:true},grid:{color:"rgba(141,174,210,.12)"}},y:{ticks:{color:"#9bb0ca",font:{weight:"normal",size:12}},grid:{color:"rgba(141,174,210,.12)"}}}
+  scales:{x:{ticks:{color:"#c9cdd4",font:{weight:"normal",size:12},maxTicksLimit:7,maxRotation:0,autoSkip:true},grid:{color:"rgba(141,174,210,.12)"}},y:{ticks:{color:"#c9cdd4",font:{weight:"normal",size:12}},grid:{color:"rgba(141,174,210,.12)"}}}
 }}
 
 function customerTable(rows,full=true){
@@ -763,7 +764,7 @@ async function openCustomer(id){
           ${["admin","level2"].includes(state.profile.role)?'<button class="btn screenshotHide" id="editNoteBtn">编辑客户备注</button>':""}
           ${c.owner_user_id===state.profile.id?'<button class="btn screenshotHide" id="addCustomerProjectBtn">填写参与项目</button>':""}
           ${["admin","level2"].includes(state.profile.role)?'<button class="btn gold screenshotHide" id="addTradeBtn">新增交易</button><button class="btn screenshotHide" id="addFollowBtn">记录跟进</button>':""}
-          <button class="btn primary" id="captureModeBtn">截图模式</button>
+          <button class="btn primary" id="captureModeBtn">导出图片</button>
         </div>
       </div>
 
@@ -840,7 +841,7 @@ async function openCustomer(id){
   document.addEventListener('keydown',state.customerCaptureEscapeHandler);
   if(capture)capture.onclick=e=>{
     e.preventDefault();e.stopPropagation();
-    exportPagePNG($('#clientSharePage'),{filename:'Brantone-Veylor-'+c.name,button:capture,notify:toast});
+    exportPagePNG($('#clientSharePage'),{filename:'Ellery-Westcott-'+c.name,button:capture,notify:toast});
   };
   const note=$("#clientSharePage .shareNote");if(note&&c.notes){note.dataset.hasNotes="true";note.onclick=()=>modal("客户备注",`<p data-no-i18n style="white-space:pre-wrap;line-height:1.6">${esc(c.notes)}</p>`);}
   drawCustomerShareCharts(pos,chartTrades,q,primary,realized,unreal);
@@ -1358,7 +1359,8 @@ async function drawMarket(x){
   const highs=today.map(p=>p.high).filter(available).map(Number),lows=today.map(p=>p.low).filter(available).map(Number);
   const volumes=today.map(p=>p.volume).filter(available).map(Number);
   const metrics=[["今开",fmt(today[0]?.open)],["最高",fmt(highs.length?Math.max(...highs):null)],["最低",fmt(lows.length?Math.min(...lows):null)],["成交量",volumes.length?num(volumes.reduce((a,b)=>a+b,0),0):"—"],["成交额","—"],["昨收",fmt(x?.previousClose)]];
-  $("#marketMetrics").innerHTML=metrics.map(([label,value],i)=>`<div class="marketMetric"><img class="metricIcon metricIcon${i}" src="/assets/${["coin","arrow-up","arrow-down","bar-chart","database","clock"][i]}.svg" alt=""><div><label>${tr(label,state.lang)}</label><strong>${esc(value)}</strong></div></div>`).join("");
+  const metricIcons=["<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"metricIcon metricIcon0\" aria-hidden=\"true\" viewBox=\"0 0 16 16\">\n  <path d=\"M5.5 9.511c.076.954.83 1.697 2.182 1.785V12h.6v-.709c1.4-.098 2.218-.846 2.218-1.932 0-.987-.626-1.496-1.745-1.76l-.473-.112V5.57c.6.068.982.396 1.074.85h1.052c-.076-.919-.864-1.638-2.126-1.716V4h-.6v.719c-1.195.117-2.01.836-2.01 1.853 0 .9.606 1.472 1.613 1.707l.397.098v2.034c-.615-.093-1.022-.43-1.114-.9zm2.177-2.166c-.59-.137-.91-.416-.91-.836 0-.47.345-.822.915-.925v1.76h-.005zm.692 1.193c.717.166 1.048.435 1.048.91 0 .542-.412.914-1.135.982V8.518z\"/>\n  <path d=\"M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16\"/>\n  <path d=\"M8 13.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11m0 .5A6 6 0 1 0 8 2a6 6 0 0 0 0 12\"/>\n</svg>", "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"metricIcon metricIcon1\" aria-hidden=\"true\" viewBox=\"0 0 16 16\">\n  <path fill-rule=\"evenodd\" d=\"M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5\"/>\n</svg>", "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"metricIcon metricIcon2\" aria-hidden=\"true\" viewBox=\"0 0 16 16\">\n  <path fill-rule=\"evenodd\" d=\"M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1\"/>\n</svg>", "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"metricIcon metricIcon3\" aria-hidden=\"true\" viewBox=\"0 0 16 16\">\n  <path d=\"M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1z\"/>\n</svg>", "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"metricIcon metricIcon4\" aria-hidden=\"true\" viewBox=\"0 0 16 16\">\n  <path d=\"M4.318 2.687C5.234 2.271 6.536 2 8 2s2.766.27 3.682.687C12.644 3.125 13 3.627 13 4c0 .374-.356.875-1.318 1.313C10.766 5.729 9.464 6 8 6s-2.766-.27-3.682-.687C3.356 4.875 3 4.373 3 4c0-.374.356-.875 1.318-1.313M13 5.698V7c0 .374-.356.875-1.318 1.313C10.766 8.729 9.464 9 8 9s-2.766-.27-3.682-.687C3.356 7.875 3 7.373 3 7V5.698c.271.202.58.378.904.525C4.978 6.711 6.427 7 8 7s3.022-.289 4.096-.777A5 5 0 0 0 13 5.698M14 4c0-1.007-.875-1.755-1.904-2.223C11.022 1.289 9.573 1 8 1s-3.022.289-4.096.777C2.875 2.245 2 2.993 2 4v9c0 1.007.875 1.755 1.904 2.223C4.978 15.71 6.427 16 8 16s3.022-.289 4.096-.777C13.125 14.755 14 14.007 14 13zm-1 4.698V10c0 .374-.356.875-1.318 1.313C10.766 11.729 9.464 12 8 12s-2.766-.27-3.682-.687C3.356 10.875 3 10.373 3 10V8.698c.271.202.58.378.904.525C4.978 9.71 6.427 10 8 10s3.022-.289 4.096-.777A5 5 0 0 0 13 8.698m0 3V13c0 .374-.356.875-1.318 1.313C10.766 14.729 9.464 15 8 15s-2.766-.27-3.682-.687C3.356 13.875 3 13.373 3 13v-1.302c.271.202.58.378.904.525C4.978 12.71 6.427 13 8 13s3.022-.289 4.096-.777c.324-.147.633-.323.904-.525\"/>\n</svg>", "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"metricIcon metricIcon5\" aria-hidden=\"true\" viewBox=\"0 0 16 16\">\n  <path d=\"M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z\"/>\n  <path d=\"M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0\"/>\n</svg>"];
+  $("#marketMetrics").innerHTML=metrics.map(([label,value],i)=>`<div class="marketMetric">${metricIcons[i]}<div><label>${tr(label,state.lang)}</label><strong>${esc(value)}</strong></div></div>`).join("");
   state.charts.market?.destroy();state.charts.market=null;
   const note=$("#marketRangeNote"),canvas=$("#marketChart");
   canvas.removeAttribute("aria-label");

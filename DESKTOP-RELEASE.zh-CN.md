@@ -1,4 +1,4 @@
-# Ellery Westcott CRM 桌面版 2.2.2（独立后端）
+# Ellery Westcott CRM 桌面版 2.3.0（独立后端）
 
 基于 `dalulu05168/-` 提交 `4d710588bab46e16fd18c7d6940c15b790f419b4` 的源码复制开发。上传的 Brantone-Veylor-CRM-Setup-1.0.7.exe 因附件读取限制尚未提取，因此不声称与 1.0.7 安装包逐文件一致。
 
@@ -17,7 +17,7 @@
 
 开发机使用 Node.js 22，执行 `npm ci`，`npm run desktop`。
 
-Windows 安装包：`npm run build:win`。产物为 `dist/Ellery-Westcott-CRM-Setup-2.2.2.exe`。NSIS 安装器支持选择空目录或现有本应用目录、创建桌面与开始菜单快捷方式及卸载。卸载保留 AppData 下的应用用户数据。
+Windows 安装包：`npm run build:win`。产物为 `dist/Ellery-Westcott-CRM-Setup-2.3.0.exe`。NSIS 安装器支持选择空目录或现有本应用目录、创建桌面与开始菜单快捷方式及卸载。卸载保留 AppData 下的应用用户数据。
 
 应用需要互联网连接到配置的 Supabase 服务和行情数据源。所有用户需要有效授权账号；界面代码不提供额外数据库权限。
 
@@ -42,3 +42,5 @@ Windows 安装包：`npm run build:win`。产物为 `dist/Ellery-Westcott-CRM-Se
 - 未配置 Windows 代码签名证书，安装器未签名。
 
 2.2.2：标题说明改为右侧同行对齐，标题栏压缩至约 42px，增加趋势图展示高度。参见 docs/UI-2.2.2.md。
+
+2.3.0：银亮正文、金黄关键文字、行情图标分色、深色层次与完整业务 PNG 导出修复，见 docs/UI-2.3.0.md。
