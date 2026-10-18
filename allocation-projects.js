@@ -42,8 +42,10 @@ export function projectLauncherHTML(ctx){
 }
 export function attachProjectLauncher(ctx){
  const main=ctx.$('#main');if(!main)return;
+ const dock=main.querySelector('#studioProjects');
  const action=main.querySelector('.terminalActionGrid');
- if(action)action.insertAdjacentHTML('afterend',projectLauncherHTML(ctx));
+ if(dock)dock.innerHTML=projectLauncherHTML(ctx);
+ else if(action)action.insertAdjacentHTML('afterend',projectLauncherHTML(ctx));
  else main.insertAdjacentHTML('afterbegin',projectLauncherHTML(ctx));
  const label=main.querySelector(".projectAccountLabel"),slot=ctx.$("#dashboardAccountSlot");if(label&&slot){slot.replaceChildren(label);slot.hidden=false;}
  bindLauncher(ctx);

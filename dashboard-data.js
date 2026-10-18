@@ -19,3 +19,19 @@ export function monthlyTradeTotals(trades,customers,timeZone='Europe/Bucharest')
  const amount=Number(t.quantity)*Number(t.price);if(!Number.isFinite(amount))continue;const row=groups.get(key)||{month,currency,buy:0,sell:0,count:0};row[t.side]+=amount;row.count++;groups.set(key,row);}
  return [...groups.values()].sort((a,b)=>(a.month+a.currency).localeCompare(b.month+b.currency));
 }
+
+// Group once per render; rescanning every row for each day allocates excessive date formatters.
+export function dailyActivityCounts(customers,trades,keys,timeZone='Europe/Bucharest') {
+ const formatter=new Intl.DateTimeFormat('en-CA',{timeZone,year:'numeric',month:'2-digit',day:'2-digit'});
+ const bucket=(rows,field)=>{
+  const counts=new Map(keys.map(key=>[key,0]));
+  for(const row of rows){
+   const date=new Date(row[field]);if(!Number.isFinite(+date))continue;
+   const parts=Object.fromEntries(formatter.formatToParts(date).map(p=>[p.type,p.value]));
+   const key=parts.year+'-'+parts.month+'-'+parts.day;
+   if(counts.has(key))counts.set(key,counts.get(key)+1);
+  }
+  return keys.map(key=>counts.get(key));
+ };
+ return {customers:bucket(customers,'created_at'),trades:bucket(trades,'traded_at')};
+}

@@ -1,7 +1,7 @@
 import {exportPagePNG} from './page-export.js?v=20261012-export-4';
 import {installViewportLayout} from './viewport-layout.js?v=20261018-remediation-17';
 
-import {currencyTotals,monthlyTradeTotals} from "./dashboard-data.js?v=20261009-brighter";
+import {currencyTotals,monthlyTradeTotals,dailyActivityCounts} from "./dashboard-data.js?v=20261009-brighter";
 import {loadCustomerReservations,editCustomerReservation} from "./customer-reservations.js?v=20261018-remediation-17";
 const demoMode=new URLSearchParams(location.search).get("demo")==="1";
 import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-brighter";
@@ -55,7 +55,8 @@ const esc = (v="") => String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt
 const money = (n,c="USD") => new Intl.NumberFormat(localeFor(state.lang),{style:"currency",currencyDisplay:"code",currency:c||"USD",maximumFractionDigits:2}).format(Number(n||0));
 const num = (n,d=2)=>Number(n||0).toLocaleString(localeFor(state.lang),{maximumFractionDigits:d});
 const dt = (v)=>v?new Date(v).toLocaleString(localeFor(state.lang),{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}):"--";
-const romaniaDateKey = (v=new Date()) => new Intl.DateTimeFormat("en-CA",{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(v));
+const romaniaDateFormatter=new Intl.DateTimeFormat("en-CA",{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit"});
+const romaniaDateKey = (v=new Date()) => romaniaDateFormatter.format(new Date(v));
 const isRomaniaToday = v => romaniaDateKey(v)===romaniaDateKey();
 const romaniaClockText = () => new Intl.DateTimeFormat(localeFor(state.lang),{timeZone:ROMANIA_TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false,timeZoneName:"short"}).format(new Date());
 function romaniaDayKeys(count){
@@ -253,7 +254,8 @@ async function loadProfileAndStart(){
 function renderShell(){
   // Labels remain visible on desktop; the theme adapts navigation on smaller screens.
   document.body.classList.add("navigationCompact");
-  const navigationIcons={dashboard:"▦",customers:"♙",personnel:"♟",trades:"⇄",positions:"▥",market:"⌁",reports:"▤",shareboard:"◇",settings:"⚙"};
+  const iconPaths={dashboard:'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',customers:'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M16 3a4 4 0 0 1 0 8 M22 21v-2a4 4 0 0 0-3-3.87 M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0',personnel:'M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11 M9 12l2 2 4-4',trades:'M3 7h17 M16 3l4 4-4 4 M21 17H4 M8 13l-4 4 4 4',positions:'M4 21V10h4v11 M10 21V3h4v18 M16 21V7h4v14',market:'M3 3v18h18 M6 15l4-5 4 3 6-8',reports:'M6 3h9l4 4v14H6z M14 3v5h5 M9 12h7 M9 16h7',shareboard:'M12 2l10 6-10 6L2 8z M2 12l10 6 10-6 M2 16l10 6 10-6',settings:'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z'};
+  const navigationIcons=Object.fromEntries(Object.entries(iconPaths).map(([id,d])=>[id,`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`]));
   document.body.classList.remove("navigationHidden");
   const items=[
     ["dashboard","总览大盘"],["customers","客户中心"],["personnel","人员中心"],["trades","交易记录"],
@@ -261,11 +263,11 @@ function renderShell(){
     ["shareboard","项目预留份额"],["settings","系统设置"]
   ].filter(x=>x[0]!=="personnel"||canPersonnel());
   $("#root").innerHTML=`
-    <div class="app"><div class="shell">
-      <header class="topbar">
+    <div class="app"><div class="shell studioShell">
+      <header class="topbar studioTopbar"><div class="studioBreadcrumb"><span>工作台</span><span aria-hidden="true">/</span><strong id="appBreadcrumb">业务总览</strong></div>
         <div class="brand"><img class="brandLogo" src="/assets/ellery-westcott-transparent.png?v=1" alt="Ellery Westcott · Capital Markets"></div>
-        <div class="navFrame" id="sideNavigation"><div class="sidebarIdentity"><img src="/assets/ellery-westcott-transparent.png?v=1" alt="Ellery Westcott Capital Markets"></div><div class="sidebarSection">WORKSPACE / 工作空间</div><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}" title="${tr(label,state.lang)}" aria-label="${tr(label,state.lang)}"><span class="navGlyph" aria-hidden="true">${navigationIcons[id]||"•"}</span><span class="navLabel">${tr(label,state.lang)}</span></button>`).join("")}</nav></div>
-        <form id="globalSearchForm" class="globalSearch" role="search"><span aria-hidden="true">⌕</span><input id="globalSearchInput" type="search" autocomplete="off" placeholder="搜索客户、项目或股票…" aria-label="搜索客户、项目或股票"><button type="submit" aria-label="搜索">↵</button></form><div id="dashboardAccountSlot" hidden></div><div class="userArea"><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><button class="chip" id="editAccountName" title="修改账号名称">${esc(state.profile.display_name)}</button><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
+        <div class="navFrame" id="sideNavigation"><div class="sidebarIdentity"><img src="/assets/ellery-westcott-transparent.png?v=1" alt="Ellery Westcott Capital Markets"></div><div class="sidebarSection">工作空间</div><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}" title="${tr(label,state.lang)}" aria-label="${tr(label,state.lang)}"><span class="navGlyph" aria-hidden="true">${navigationIcons[id]||"•"}</span><span class="navLabel">${tr(label,state.lang)}</span></button>`).join("")}</nav><div class="studioSidebarFoot"><span class="studioSidebarRole">${roleName(state.profile.role)}工作台</span><span class="romaniaClock" id="romaniaClock"></span><small>EUROPE / BUCHAREST</small></div></div>
+        <form id="globalSearchForm" class="globalSearch" role="search"><span aria-hidden="true">⌕</span><input id="globalSearchInput" type="search" autocomplete="off" placeholder="搜索客户、项目或股票…" aria-label="搜索客户、项目或股票"><button type="submit" aria-label="搜索">↵</button></form><div class="userArea"><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><button class="chip" id="editAccountName" title="修改账号名称"><span class="studioAvatar" aria-hidden="true">${esc(String(state.profile.display_name||"U").slice(0,1))}</span><span class="studioUserName">${esc(state.profile.display_name)}</span></button><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
       </header>
       ${demoMode?'<div class="previewNotice" role="status">隔离验收预览 · 全部数据为模拟数据 · 不连接生产写入</div>':''}<main id="main" data-view="${state.activeView}"></main>
     </div></div>
@@ -398,6 +400,8 @@ async function renderView(token=0){
   if(!main)return;
   main.className="viewBusy";
   main.dataset.view=state.activeView;
+  const captureButton=$("#projectCaptureButton");if(captureButton)captureButton.style.setProperty("display",state.activeView==="shareboard"?"inline-flex":"none","important");
+  const crumb=$("#appBreadcrumb");if(crumb)crumb.textContent=tr(({dashboard:"业务总览",customers:"客户中心",personnel:"人员中心",trades:"交易记录",positions:"持仓中心",market:"行情中心",reports:"统计报表",shareboard:"项目预留份额",settings:"系统设置"})[state.activeView]||"业务总览",state.lang);
   const accountSlot=$("#dashboardAccountSlot");if(accountSlot){accountSlot.replaceChildren();accountSlot.hidden=true;}
   const renderer={
     dashboard:renderDashboard,
@@ -537,160 +541,43 @@ function drawLevel2Charts(buys,sells){
 }
 
 async function renderDashboard(){
-  $("#main").classList.add("dashboardViewport");
-  if(state.profile?.role==="level2"){renderLevel2Dashboard();return;}
-  $("#main").classList.add("terminalMain");
-
+  $("#main").classList.add("studioDashboard");
   const openPositions=state.positions.filter(p=>Number(p.quantity)>0);
-  const recentTrades=state.trades.slice(0,6);
+  const recentTrades=state.trades.slice(0,4);
   const todayTrades=state.trades.filter(t=>isRomaniaToday(t.traded_at)).length;
-  const dueFollowups=state.followups.filter(f=>f.next_followup_at&&new Date(f.next_followup_at)<=new Date()).length;
-  const totalCost=openPositions.reduce((sum,p)=>sum+(Number(p.quantity)*Number(p.avg_cost)),0);
-  const realized=state.positions.reduce((sum,p)=>sum+Number(p.realized_pnl||0),0);
-  const teamCount=state.profile.role==="admin"
-    ? state.staff.filter(x=>x.role!=="admin"&&x.status==="active").length
-    : state.staff.filter(x=>x.parent_user_id===state.profile.id&&x.status==="active").length;
-
+  const scheduled=state.followups.filter(f=>f.next_followup_at).sort((a,b)=>new Date(a.next_followup_at)-new Date(b.next_followup_at));
+  const due=scheduled.filter(f=>new Date(f.next_followup_at)<=new Date());
+  const metrics=[["客户总数",state.customers.length,"当前权限内的客户档案","customers"],["当前持仓",openPositions.length,"客户 × 持仓标的","positions"],["今日交易",todayTrades,"罗马尼亚当地日期","trades"],["待跟进",due.length,"已到期的客户跟进","customers"]];
   $("#main").innerHTML=`
-    <div class="workspaceHeading"><div><span class="sectionEyebrow">YOUR CAPITAL. CLEARLY CONNECTED.</span><h1>业务总览<span> / Overview</span></h1><p>客户、持仓与业务动态，尽在掌握。</p></div><span class="workspaceStatus"><i></i> 专属管理工作台</span></div><section class="tradeflareShell">
-      <aside class="tradeflareRail">
-        <button class="railBtn active" data-view="dashboard" title="总览">总</button>
-        <button class="railBtn" data-view="customers" title="客户">客</button>
-        <button class="railBtn" data-view="positions" title="持仓">持</button>
-        <button class="railBtn" data-view="trades" title="交易">交</button>
-        <button class="railBtn" data-view="reports" title="报表">报</button>
-        <div class="railSpacer"></div>
-        <button class="railBtn" data-view="settings" title="设置">设</button>
-      </aside>
-
-      <div class="tradeflareCanvas">
-        <div class="terminalTicker">
-          <div class="tickerIdentity">
-            <span class="tickerDot"></span>
-            <div><span class="tickerSymbol">CRM · PORTFOLIO</span><small>Ellery Westcott</small></div>
-          </div>
-          <div class="tickerStat"><small>客户</small><span>${state.customers.length}</span></div>
-          <div class="tickerStat"><small>当前持仓</small><span>${openPositions.length}</span></div>
-          <div class="tickerStat"><small>今日交易</small><span>${todayTrades}</span></div>
-          <div class="tickerStat"><small>待跟进</small><span class="${dueFollowups?"terminalRed":""}">${dueFollowups}</span></div>
-          <div class="tickerStat tickerCost"><small>成本基准</small><span>${formattedTotals(openPositions,p=>Number(p.quantity)*Number(p.avg_cost))}</span></div>
-          <button class="tickerGear" id="terminalRefresh">刷新</button>
-        </div>
-
-        <div class="terminalGrid">
-          <section class="terminalLeft">
-            <article class="terminalChartCard">
-              <div class="terminalChartToolbar">
-                <div class="terminalTabs">
-                  <button class="terminalTab active" data-action="trend">趋势</button>
-                  <button class="terminalTab" data-view="positions">持仓</button>
-                  <button class="terminalTab" data-view="trades">交易</button>
-                  <button class="terminalTab" data-view="customers">客户</button>
-                </div>
-                <div class="terminalIntervals">
-                  <button data-days="1">1D</button><button class="active" data-days="7">7D</button><button data-days="30">1M</button><button data-days="90">3M</button><button data-days="365">1Y</button>
-                </div>
-              </div>
-              <div class="terminalChartSubtitleRow panelSubtitleRow"><span class="chartSubtitle">业务趋势 · 罗马尼亚时间</span><span class="inlineLegend trendCustomerLegend">${tr("新增客户数",state.lang)}</span><span class="inlineLegend trendTradeLegend">交易记录</span></div><div class="terminalChartWrap"><canvas id="trendChart"></canvas></div>
-            </article>
-
-            <div class="terminalPositionList">
-              ${recentTrades.slice(0,2).map(t=>`
-                <article class="terminalPositionCard">
-                  <div class="positionTop">
-                    <div><span class="positionSymbol">${esc(t.symbol)}</span><span class="positionBadge ${t.side}">${t.side==="buy"?"买入":"卖出"}</span></div>
-                    <span class="positionState">${dt(t.traded_at)}</span>
-                  </div>
-                  <div class="positionMetrics">
-                    <div><small>客户</small><span>${esc(t.customers?.name||"--")}</span></div>
-                    <div><small>数量</small><span>${num(t.quantity,4)}</span></div>
-                    <div><small>成交价</small><span>${money(t.price,t.currency)}</span></div>
-                    <div><small>成交金额</small><span>${money(Number(t.quantity)*Number(t.price),t.currency)}</span></div>
-                  </div>
-                </article>`).join("")}
-              ${recentTrades.length===0?`
-                <article class="terminalPositionCard terminalEmptyCard">
-                  <div class="positionTop">
-                    <div><span class="positionSymbol">近期交易</span><span class="positionBadge idle">暂无</span></div>
-                    <span class="positionState">NO ORDERS</span>
-                  </div>
-                  <div class="terminalCardMessage">当前没有可显示的近期交易记录。</div>
-                </article>`:""}
-              ${recentTrades.length<2?`
-                <article class="terminalPositionCard terminalSummaryCard">
-                  <div class="positionTop">
-                    <div><span class="positionSymbol">当前持仓摘要</span><span class="positionBadge summary">CRM</span></div>
-                    <span class="positionState">PORTFOLIO</span>
-                  </div>
-                  <div class="positionMetrics">
-                    <div><small>持仓标的</small><span>${openPositions.length}</span></div>
-                    <div><small>成本基准</small><span>${formattedTotals(openPositions,p=>Number(p.quantity)*Number(p.avg_cost))}</span></div>
-                    <div><small>已实现盈亏</small><span class="${realized>=0?"terminalGreen":"terminalRed"}">${formattedTotals(state.positions,p=>Number(p.realized_pnl||0))}</span></div>
-                    <div><small>今日交易</small><span>${todayTrades}</span></div>
-                  </div>
-                </article>`:""}
-            </div>
-          </section>
-
-          <aside class="terminalOrderPanel">
-            <div class="terminalSegment"><button class="active" data-view="customers">客户</button><button data-view="positions">持仓</button></div>
-            <div class="terminalSegment secondary"><button data-view="dashboard">概览</button><button class="active" data-view="trades">操作</button><button data-view="customers">跟进</button></div>
-
-            <div class="terminalFormCard">
-              <div class="terminalFieldRow"><label>当前账户</label><span>${esc(state.profile.display_name)}</span></div>
-              <div class="terminalFieldRow"><label>角色</label><span>${roleName(state.profile.role)}</span></div>
-              <div class="terminalFieldRow"><label>团队人员</label><span>${teamCount}</span></div>
-              <div class="terminalFieldRow"><label>已实现盈亏</label><span class="${realized>=0?"terminalGreen":"terminalRed"}">${formattedTotals(state.positions,p=>Number(p.realized_pnl||0))}</span></div>
-              <div class="terminalFieldRow"><label>罗马尼亚时间</label><span>${romaniaClockText()}</span></div>
-            </div>
-
-            <div class="terminalActionGrid">
-              <button class="terminalPrimary" id="terminalNewCustomer">新增客户</button>
-              <button class="terminalSecondary" data-view="customers">客户中心</button>
-              <button class="terminalSecondary" data-view="positions">持仓中心</button>
-              <button class="terminalSecondary" data-view="trades">交易记录</button>
-              ${state.profile.role==="admin"?'<button class="terminalSecondary" id="openTimeSettings">交易时段</button>':""}
-            </div>
-
-            <div class="terminalUsage">
-              <h3>业务使用情况</h3>
-              <div class="usageRow"><span>持仓标的</span><span>${openPositions.length}</span></div>
-              <div class="usageRow"><span>客户总数</span><span>${state.customers.length}</span></div>
-              <div class="usageRow"><span>今日交易</span><span>${todayTrades}</span></div>
-              <div class="usageRow"><span>待跟进</span><span class="${dueFollowups?"terminalRed":""}">${dueFollowups}</span></div>
-              <div class="usageBar"><i style="width:${Math.min(100,Math.max(8,state.customers.length*8))}%"></i></div>
-            </div>
-          </aside>
-        </div>
-      </div>
-    </section>`;
-
-  drawDashboardCharts(7);
-  $$(".tradeflareRail [data-view], .terminalTab[data-view], .terminalSecondary[data-view], .terminalSegment [data-view]").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
-  const trendBtn=$('.terminalTab[data-action="trend"]');
-  if(trendBtn)trendBtn.onclick=()=>{$(".terminalIntervals [data-days]").forEach(b=>b.classList.toggle("active",b.dataset.days==="7"));drawDashboardCharts(7);toast("已切换业务趋势")};
-  $$(".terminalIntervals [data-days]").forEach(b=>b.onclick=()=>{
-    $$(".terminalIntervals [data-days]").forEach(x=>x.classList.toggle("active",x===b));
-    drawDashboardCharts(Number(b.dataset.days)||7);
-  });
+    <div class="studioPageHeading"><div><div class="studioEyebrow">WORKSPACE OVERVIEW</div><h1>业务总览</h1><p>客户、持仓与业务进展，清晰呈现。</p></div><div class="studioHeadingActions"><div id="dashboardAccountSlot" hidden></div><button class="btn" id="terminalRefresh" aria-label="刷新业务数据">刷新数据</button><button class="btn primary" id="terminalNewCustomer"><span aria-hidden="true">＋</span> 新增客户</button></div></div>
+    <section class="studioMetrics" aria-label="业务关键指标">${metrics.map(([label,value,detail,view],i)=>`<button class="studioMetric" data-studio-view="${view}"><span class="studioMetricTop"><span>${label}</span><span class="studioMetricIndex">0${i+1}</span></span><strong>${num(value,0)}</strong><span class="studioMetricBottom">${detail}<span aria-hidden="true">↗</span></span></button>`).join("")}</section>
+    <div class="studioAnalytics">
+      <article class="panel studioTrend"><div class="panelHead"><div><h2>业务趋势</h2><p>新增客户与交易笔数</p></div><div class="studioIntervals"><button data-days="7">近 7 日</button><button data-days="30" class="active">近 30 日</button><button data-days="90">近 90 日</button></div></div><div class="studioChartLegend"><span><i></i>新增客户</span><span><i></i>交易记录</span></div><div class="studioChart"><canvas id="trendChart" aria-label="新增客户与交易笔数趋势" role="img"></canvas></div></article>
+      <article class="panel studioFollowups"><div class="panelHead"><div><h2>跟进日程</h2><p>${due.length} 项已到期</p></div><span class="studioCount">${scheduled.length}</span></div><div class="studioTaskList">${scheduled.slice(0,4).map(f=>`<button class="studioTask customerLink" data-id="${f.customer_id}"><span class="studioTaskDot ${new Date(f.next_followup_at)<=new Date()?"isDue":""}"></span><span><strong>${esc(f.customers?.name||state.customers.find(c=>String(c.id)===String(f.customer_id))?.name||"客户跟进")}</strong><small>${esc(f.content||f.notes||f.note||"查看客户跟进记录")}</small></span><time>${dt(f.next_followup_at)}</time></button>`).join("")||'<div class="studioQuiet"><span aria-hidden="true">✓</span><strong>暂无待办跟进</strong><p>在客户档案中添加下次跟进时间</p></div>'}</div><button class="studioPanelLink" data-studio-view="customers">前往客户中心 <span aria-hidden="true">→</span></button></article>
+    </div>
+    <article class="panel studioRecent"><div class="panelHead"><div><h2>近期交易</h2><p>最近 ${recentTrades.length} 笔交易 · 金额按原币种显示</p></div><button class="studioTextButton" data-studio-view="trades">全部交易 <span aria-hidden="true">↗</span></button></div><div class="tableWrap"><table class="dataTable studioTrades"><thead><tr><th>交易时间</th><th>客户</th><th>股票代码</th><th>方向</th><th class="numeric">数量</th><th class="numeric">成交价</th><th class="numeric">成交金额</th></tr></thead><tbody>${recentTrades.map(t=>`<tr><td class="studioDate">${dt(t.traded_at)}</td><td><button class="customerLink studioCustomer" data-id="${t.customer_id}">${esc(t.customers?.name||"--")}</button></td><td><span class="studioSymbol">${esc(t.symbol)}</span></td><td><span class="sideBadge ${t.side}">${t.side==="buy"?"买入":"卖出"}</span></td><td class="numeric">${num(t.quantity,4)}</td><td class="numeric">${money(t.price,t.currency)}</td><td class="numeric">${money(Number(t.quantity)*Number(t.price),t.currency)}</td></tr>`).join("")||'<tr><td colspan="7"><div class="empty">暂无交易记录</div></td></tr>'}</tbody></table></div></article>
+    <section class="studioBottomGrid"><article class="panel studioCost"><div class="panelHead"><div><h2>持仓成本基准</h2><p>按币种独立统计</p></div><button class="studioTextButton" data-studio-view="positions">查看持仓 ↗</button></div><div class="studioCostValue">${formattedTotals(openPositions,p=>Number(p.quantity)*Number(p.avg_cost))||"—"}</div></article><div class="studioProjects" id="studioProjects"></div></section>`;
+  drawDashboardCharts(30);
+  $$("[data-studio-view]").forEach(b=>b.onclick=()=>switchView(b.dataset.studioView));
+  $$(".studioIntervals [data-days]").forEach(b=>b.onclick=()=>{$$(".studioIntervals button").forEach(x=>x.classList.toggle("active",x===b));drawDashboardCharts(Number(b.dataset.days));});
   $("#terminalNewCustomer").onclick=openCustomerForm;
-  const sbc=$("#openShareBoardConfig");if(sbc)sbc.onclick=()=>openShareBoardConfig(featureCtx());
-  const mts=$("#openTimeSettings");if(mts)mts.onclick=()=>openTimeSettings(featureCtx());
   $("#terminalRefresh").onclick=async()=>{toast("正在刷新数据");await refreshAll()};
+  bindCustomerLinks();
 }
+
 function drawDashboardCharts(days=14){
   const count=Math.max(1,Math.min(365,Number(days)||14));
   const keys=romaniaDayKeys(count);
   const labels=keys.map(k=>k.slice(5).replace("-","/"));
-  const newC=keys.map(k=>state.customers.filter(x=>romaniaDateKey(x.created_at)===k).length);
-  const tradeC=keys.map(k=>state.trades.filter(x=>romaniaDateKey(x.traded_at)===k).length);
+  const counts=dailyActivityCounts(state.customers,state.trades,keys,ROMANIA_TZ);
+  const newC=counts.customers,tradeC=counts.trades;
   if(state.charts.trend){try{state.charts.trend.destroy()}catch{};delete state.charts.trend}
   const trendEl=$("#trendChart");
   if(trendEl){
     state.charts.trend=new Chart(trendEl,{type:"line",data:{labels,datasets:[
       {label:tr("新增客户数",state.lang),data:newC,borderColor:"#86b9f1",backgroundColor:"rgba(103,160,225,.12)",tension:.32,fill:true,pointRadius:0,pointHoverRadius:4},
       {label:tr("交易记录",state.lang),data:tradeC,borderColor:"#6e8ba7",backgroundColor:"rgba(110,124,255,.05)",tension:.32,pointRadius:0,pointHoverRadius:4}
-    ]},options:{...chartOpts(),plugins:{...chartOpts().plugins,legend:{display:false}}}});
+    ]},options:{...chartOpts(),scales:{...chartOpts().scales,y:{...chartOpts().scales.y,beginAtZero:true,min:0,suggestedMax:Math.max(1,...newC,...tradeC),ticks:{...chartOpts().scales.y.ticks,precision:0}}},plugins:{...chartOpts().plugins,legend:{display:false}}}});
   }
   const statusEl=$("#statusChart");
   if(statusEl){
