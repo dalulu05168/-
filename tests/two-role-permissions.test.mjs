@@ -1,0 +1,40 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {PGlite} from '@electric-sql/pglite';
+import {readFile} from 'node:fs/promises';
+const id=n=>`00000000-0000-0000-0000-${String(n).padStart(12,'0')}`;
+test('migration preserves accounts, reparents children, removes intermediate authority and isolates peers',async()=>{
+ const db=new PGlite();try{
+ await db.exec(`create role anon;create role authenticated;create schema auth;create schema app_private;grant usage on schema auth,app_private,public to authenticated;
+ create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
+ create table profiles(id uuid primary key,role text,status text,parent_user_id uuid);
+ create table customers(id bigint primary key,owner_user_id uuid,level_one_user_id uuid not null);
+ create function app_private.is_admin() returns boolean language sql stable security definer as $$select exists(select 1 from profiles where id=auth.uid() and role='admin' and status='active')$$;
+ create function app_private.current_parent_id() returns uuid language sql stable security definer as $$select parent_user_id from profiles where id=auth.uid()$$;
+ insert into profiles values('${id(1)}','admin','active',null),('${id(2)}','level1','active','${id(1)}'),('${id(3)}','level2','active','${id(2)}'),('${id(4)}','level2','active','${id(2)}'),('${id(5)}','admin','active',null),('${id(6)}','level2','disabled','${id(1)}');
+ insert into customers values(1,'${id(3)}','${id(2)}'),(2,'${id(4)}','${id(2)}');
+ grant select,insert,update on profiles,customers to authenticated;`);
+ const sql=await readFile(new URL('../two-role-setup.sql',import.meta.url),'utf8');await db.exec(sql);await db.exec(sql);
+ assert.equal((await db.query('select id from profiles')).rows.length,6);
+ assert.equal((await db.query("select id from profiles where role='level1'")).rows.length,0);
+ for(const row of (await db.query("select parent_user_id from profiles where role='level2'")).rows)assert.equal(row.parent_user_id,id(1));
+ assert.equal((await db.query('select id from customers')).rows.length,2);
+ await db.exec(`create trigger profile_hierarchy before insert or update on profiles for each row execute function validate_profile_hierarchy();create trigger customer_hierarchy before insert or update on customers for each row execute function validate_customer_hierarchy();
+ create policy customers_read on customers for select to authenticated using(app_private.can_access_owner(owner_user_id,null));`);
+ const as=async(n,sql)=>{await db.exec(`reset role;set role authenticated;select set_config('request.jwt.claim.sub','${id(n)}',false);`);return db.query(sql)};
+ assert.equal((await as(3,'select id from customers')).rows.length,1);
+ assert.equal((await as(2,'select id from customers')).rows.length,0,'former supervisor no longer sees descendants');
+ assert.equal((await as(6,'select id from customers')).rows.length,0,'disabled account cannot read');
+ await assert.rejects(()=>as(3,`update customers set owner_user_id='${id(4)}' where id=1`));
+ await assert.rejects(()=>as(3,`insert into customers values(3,'${id(4)}',null)`));
+ await as(3,`insert into customers values(3,'${id(3)}',null)`);
+ assert.equal((await as(1,'select id from customers')).rows.length,3,'administrator manages all customers');
+ assert.equal((await as(2,`select can_read_allocation_owner('${id(3)}') as allowed`)).rows[0].allowed,false);
+ assert.equal((await as(1,`select can_read_allocation_owner('${id(3)}') as allowed`)).rows[0].allowed,true);
+ assert.equal((await as(5,`select can_read_allocation_owner('${id(3)}') as allowed`)).rows[0].allowed,false);
+ await db.exec('reset role');
+ await assert.rejects(()=>db.exec(`insert into profiles values('${id(7)}','level1','active','${id(1)}')`));
+ await assert.rejects(()=>db.exec(`insert into profiles values('${id(7)}','level2','active','${id(3)}')`));
+ await db.exec(`insert into profiles values('${id(7)}','level2','active','${id(1)}')`);
+ }finally{await db.close()}
+});

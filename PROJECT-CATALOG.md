@@ -1,3 +1,7 @@
+# 当前开发分支：Ellery Westcott CRM 桌面版
+
+本分支是用户指定品牌的桌面 UI 与两角色改版。交付状态见 `DESKTOP-RELEASE.zh-CN.md`；以下为源仓库原有资料归属说明。
+
 # PROJECT-CATALOG｜Brantone Veylor CRM
 
 **唯一项目：Brantone Veylor CRM｜客户股票跟踪管理系统**（见 `PROJECT_NOTE.zh-CN.md`）。

@@ -15,7 +15,7 @@ async function availablePort(){
   return port;
 }
 
-test("new Canva/milk-white CSS files are actually served as CSS, never HTML", {timeout:20000}, async t=>{
+test("current and legacy CSS assets are served as CSS, never HTML", {timeout:20000}, async t=>{
   const port=await availablePort();
   const origin="http://127.0.0.1:"+port;
   const server=spawn(process.execPath,["server.js"],{
@@ -38,6 +38,7 @@ test("new Canva/milk-white CSS files are actually served as CSS, never HTML", {t
   assert.ok(ready,"Local application server must start");
   const themes=[
     "/styles.css",
+    "/ellery-theme.css",
     "/delivery-layout.css?v=20261011-remediation-7",
     "/reference-theme.css?v=20261009-brighter",
     "/unified-ui.css?v=20261009-brighter",
@@ -68,5 +69,5 @@ test("new Canva/milk-white CSS files are actually served as CSS, never HTML", {t
   const deepLink=await fetch(origin+"/nishizhege");
   assert.equal(deepLink.status,200,"Existing customer-facing route must continue working");
   assert.match(deepLink.headers.get("content-type")||"",/^text\/html\b/);
-  assert.match(await deepLink.text(),/milk-white-theme\.css/);
+  assert.match(await deepLink.text(),/ellery-theme\.css/);
 });

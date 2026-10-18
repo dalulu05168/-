@@ -1,5 +1,5 @@
 // Browser-only test adapter. It has no production credentials or remote writes.
-const STORE='bv-explicit-demo-v2';let tables;
+const STORE='ew-two-role-demo-v1';let tables;
 export async function createDemoClient(){
  const seed=await (await fetch('/demo-data.json?v=20261009-brighter')).json();if(seed.environment!=='test'||seed.is_simulated!==true)throw new Error('Invalid test fixture');
  try{tables=JSON.parse(localStorage.getItem(STORE))||seed;}catch{tables=seed;}
@@ -13,8 +13,8 @@ export async function createDemoClient(){
  let cachedScope=null,cachedVisibleCustomers=null;
  const scope=()=>{
   if(cachedScope)return cachedScope;
-  const ids=new Set([userId]);let changed=true;
-  while(changed){changed=false;for(const p of tables.profiles)if(ids.has(p.parent_user_id)&&!ids.has(p.id)){ids.add(p.id);changed=true;}}
+  const current=actor(),ids=new Set(current&&['admin','level2'].includes(current.role)&&current.status==='active'?[userId]:[]);
+  if(current?.role==='admin'&&current.status==='active')for(const p of tables.profiles)if(p.role==='level2'&&p.parent_user_id===userId)ids.add(p.id);
   cachedScope=ids;return ids;
  };
  const visibleCustomers=()=>{
@@ -25,7 +25,7 @@ export async function createDemoClient(){
  function visible(table,row){if(table==='profiles')return scope().has(row.id);if(table==='customers')return visibleCustomers().has(row.id);if(['trades','positions','customer_followups'].includes(table))return visibleCustomers().has(row.customer_id);if(table.startsWith('allocation_'))return scope().has(row.owner_user_id);return true;}
  const save=()=>{cachedScope=null;cachedVisibleCustomers=null;localStorage.setItem(STORE,JSON.stringify(tables));};
  function from(table){const filters=[],sort=[];let range=null,operation='select',payload,one=false;
- const query={select(){return query},eq(k,v){filters.push(r=>r[k]===v);return query},order(k,o={}){sort.push([k,o.ascending!==false]);return query},range(a,b){range=[a,b];return query},limit(n){range=[0,n-1];return query},maybeSingle(){one=true;return query},single(){one=true;return query},insert(v){operation='insert';payload=v;return query},update(v){operation='update';payload=v;return query},then(resolve,reject){return Promise.resolve().then(()=>{
+ const query={select(){return query},eq(k,v){filters.push(r=>r[k]===v);return query},order(k,o={}){sort.push([k,o.ascending!==false]);return query},range(a,b){range=[a,b];return query},limit(n){range=[0,n-1];return query},maybeSingle(){one="maybe";return query},single(){one=true;return query},insert(v){operation='insert';payload=v;return query},update(v){operation='update';payload=v;return query},then(resolve,reject){return Promise.resolve().then(()=>{
   if(!tables[table])return {data:null,error:{message:'Unknown demo table'}};
   let rows=tables[table].filter(r=>visible(table,r)&&filters.every(f=>f(r)));
   if(operation==='insert'){
@@ -46,7 +46,7 @@ export async function createDemoClient(){
   for(let i=sort.length-1;i>=0;i--){const [key,asc]=sort[i];rows.sort((a,b)=>String(a[key]??'').localeCompare(String(b[key]??''))*(asc?1:-1));}
   if(range)rows=rows.slice(range[0],range[1]+1);
   rows=rows.map(r=>({...r,...(r.customer_id?{customers:tables.customers.find(c=>c.id===r.customer_id)}:{})}));
-  return {data:one?(rows[0]||null):rows,error:one&&!rows.length?{message:'No matching row'}:null};
+  return {data:one?(rows[0]||null):rows,error:one===true&&!rows.length?{message:'No matching row'}:null};
  }).catch(error=>({data:null,error:{message:error.message}})).then(resolve,reject)}};return query;}
  const session=()=>({user:{id:userId}});
  return {from,previewAccounts:()=>tables.profiles.map(p=>({id:p.id,name:p.display_name})),selectPreviewAccount:id=>{if(tables.profiles.some(p=>p.id===id))location.href='/?demo=1&account='+encodeURIComponent(id);},auth:{getSession:async()=>({data:{session:session()}}),onAuthStateChange(){},signOut:async()=>{location.href='/?demo=1';}}};

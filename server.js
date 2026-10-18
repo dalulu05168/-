@@ -52,7 +52,7 @@ function makeApiResponse(res){
 
 async function serveStatic(req,res,url){
   const pathname=decodeURIComponent(url.pathname);
-  const allowed=new Set(["/","/index.html","/app.js","/ui-features.js","/allocation-projects.js","/viewport-layout.js","/page-export.js","/vendor-html2canvas.js","/styles.css","/reference-theme.css","/unified-ui.css","/dashboard-data.js","/customer-reservations.js","/demo-client.js","/demo-data.json"]);
+  const allowed=new Set(["/","/index.html","/app.js","/ui-features.js","/allocation-projects.js","/viewport-layout.js","/page-export.js","/vendor-html2canvas.js","/vendor-chart.js","/styles.css","/reference-theme.css","/unified-ui.css","/dashboard-data.js","/customer-reservations.js","/demo-client.js","/demo-data.json"]);
   let target=pathname==="/"?"/index.html":pathname;
   // Serve all safe root-level CSS files, including the Canva/cream themes.
   // The previous strict whitelist silently returned index.html for new CSS files.
@@ -87,7 +87,7 @@ async function serveStatic(req,res,url){
   }
 }
 
-const server=http.createServer(async(req,res)=>{
+export function createCrmServer(){return http.createServer(async(req,res)=>{
   const url=new URL(req.url||"/",`http://${req.headers.host||"localhost"}`);
   const handler=apiRoutes.get(url.pathname);
   if(handler){
@@ -102,9 +102,14 @@ const server=http.createServer(async(req,res)=>{
     return;
   }
   await serveStatic(req,res,url);
+
+});}
+
+if(process.argv[1]&&path.resolve(process.argv[1])===__filename){
+const server=createCrmServer();
+server.listen(port,"127.0.0.1",()=>{
+  console.log(`Ellery Westcott CRM listening on ${port}`);
 });
 
-server.listen(port,"0.0.0.0",()=>{
-  console.log(`Brantone Veylor CRM listening on ${port}`);
-});
 
+}

@@ -1,0 +1,1 @@
+Historical design contracts for the retired Brantone cream theme and permanent icon-only rail. These are retained as reference and intentionally excluded from the current root test glob. Current design is validated by scripts/desktop-browser-qa.cjs, with permissions and financial logic covered by the active tests.

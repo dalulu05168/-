@@ -161,7 +161,7 @@ export function languageOptions(lang){
   return `<option value="zh" ${lang==="zh"?"selected":""}>中文</option><option value="en" ${lang==="en"?"selected":""}>English</option><option value="ro" ${lang==="ro"?"selected":""}>Română</option>`;
 }
 export function roleLabel(role,lang=getLang()){
-  const zh=role==="admin"?"管理员":role==="level1"?"一级人员":"二级人员";
+  const zh=({admin:"管理员",level2:"二级人员"})[role]||"无权限";
   return tr(zh,lang);
 }
 export function customerStatusLabel(status,lang=getLang()){

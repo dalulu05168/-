@@ -115,7 +115,7 @@ if(window.Chart){
   Chart.register(crosshairPlugin);
   Chart.defaults.font.weight="normal";
   Chart.defaults.font.family="Segoe UI, Microsoft YaHei, Arial, sans-serif";
-  Chart.defaults.color="#52645d";
+  Chart.defaults.color="#8faaca";
   Chart.defaults.elements.arc.borderWidth=0;
   Chart.defaults.devicePixelRatio=Math.min(Math.max(window.devicePixelRatio||1,1),2);
   Chart.defaults.animation.duration=180;
@@ -143,7 +143,7 @@ function toast(msg,error=false){
 
 function roleName(r){return roleLabel(r,state.lang)}
 function customerStatus(s){return customerStatusLabel(s,state.lang)}
-function canPersonnel(){return state.profile?.role==="admin"||state.profile?.role==="level1"}
+function canPersonnel(){return state.profile?.role==="admin"}
 
 async function checkBootstrap(){
   if(demoMode)return true;
@@ -160,13 +160,13 @@ async function checkBootstrap(){
 
 function renderLogin(initialized){
   $("#root").innerHTML=`
-    <section class="loginPage" aria-label="Brantone Veylor 系统登录">
+    <section class="loginPage" aria-label="Ellery Westcott 系统登录">
       <div class="loginHero">
-        <div class="heroMark"><img class="brandLogo" src="/assets/brand-logo-approved.png?v=20261018-original" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
+        <div class="heroMark"><img class="brandLogo" src="/assets/ellery-westcott-transparent.png?v=1" alt="Ellery Westcott · Capital Markets"></div>
         <div class="heroRule" aria-hidden="true"></div>
-        <div class="loginEyebrow">BRANTONE VEYLOR · PRIVATE WORKSPACE</div>
+        <div class="loginEyebrow">PRIVATE CLIENT WORKSPACE · 私人客户工作台</div>
         <h1>客户管理<br>清晰而有序</h1>
-        <p>Brantone Veylor 专属管理工作台。客户档案、持仓、交易记录及项目进度，在同一个入口安全访问。</p>
+        <p>Ellery Westcott 专属管理工作台。客户档案、持仓、交易记录及项目进度，在同一个入口安全访问。</p>
         <div class="loginHeroModules" aria-label="系统业务模块"><span>客户管理</span><span>持仓与交易</span><span>项目预留份额</span></div>
       </div>
       <div class="loginSide">
@@ -238,7 +238,7 @@ async function loadProfileAndStart(){
   if(!session){renderLogin(await checkBootstrap());return}
   state.session=session;
   const {data,error}=await supabase.from("profiles").select("*").eq("id",session.user.id).single();
-  if(error||!data||data.status!=="active"){
+  if(error||!data||data.status!=="active"||!["admin","level2"].includes(data.role)){
     await supabase.auth.signOut();toast("账户未启用或无系统权限",true);renderLogin(true);return;
   }
   if(state.profile?.id!==data.id){state.allocationOwnerId=data.id;state.allocationProjects=[];state.allocationRecords=[];}
@@ -251,7 +251,7 @@ async function loadProfileAndStart(){
 }
 
 function renderShell(){
-  // Approved layout permanently uses the narrow icon-only rail.
+  // Labels remain visible on desktop; the theme adapts navigation on smaller screens.
   document.body.classList.add("navigationCompact");
   const navigationIcons={dashboard:"▦",customers:"♙",personnel:"♟",trades:"⇄",positions:"▥",market:"⌁",reports:"▤",shareboard:"◇",settings:"⚙"};
   document.body.classList.remove("navigationHidden");
@@ -263,8 +263,8 @@ function renderShell(){
   $("#root").innerHTML=`
     <div class="app"><div class="shell">
       <header class="topbar">
-        <div class="brand"><img class="brandLogo" src="/assets/brand-logo-approved.png?v=20261018-original" alt="Brantone Veylor · Private Capital Advisory · 1996"></div>
-        <div class="navFrame" id="sideNavigation"><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}" title="${tr(label,state.lang)}" aria-label="${tr(label,state.lang)}"><span class="navGlyph" aria-hidden="true">${navigationIcons[id]||"•"}</span><span class="navLabel">${tr(label,state.lang)}</span></button>`).join("")}</nav></div>
+        <div class="brand"><img class="brandLogo" src="/assets/ellery-westcott-transparent.png?v=1" alt="Ellery Westcott · Capital Markets"></div>
+        <div class="navFrame" id="sideNavigation"><div class="sidebarIdentity"><img src="/assets/ellery-westcott-transparent.png?v=1" alt="Ellery Westcott Capital Markets"></div><div class="sidebarSection">WORKSPACE / 工作空间</div><nav class="nav">${items.map(([id,label])=>`<button data-view="${id}" class="${id===state.activeView?"active":""}" title="${tr(label,state.lang)}" aria-label="${tr(label,state.lang)}"><span class="navGlyph" aria-hidden="true">${navigationIcons[id]||"•"}</span><span class="navLabel">${tr(label,state.lang)}</span></button>`).join("")}</nav></div>
         <form id="globalSearchForm" class="globalSearch" role="search"><span aria-hidden="true">⌕</span><input id="globalSearchInput" type="search" autocomplete="off" placeholder="搜索客户、项目或股票…" aria-label="搜索客户、项目或股票"><button type="submit" aria-label="搜索">↵</button></form><div id="dashboardAccountSlot" hidden></div><div class="userArea"><button id="projectCaptureButton" class="btn projectCaptureControl" aria-label="${tr("截图模式",state.lang)}">${tr("截图模式",state.lang)}</button><span class="sysok ${state.systemHealth==="error"?"syserror":""}" id="systemHealth">${state.systemHealth==="ok"?"":tr(state.systemHealth==="error"?"数据异常":"连接中",state.lang)}</span><span class="romaniaClock" id="romaniaClock"></span><select id="globalLang" class="langSwitch">${languageOptions(state.lang)}</select><button class="chip" id="editAccountName" title="修改账号名称">${esc(state.profile.display_name)}</button><button id="logoutBtn" class="iconBtn">${tr("退出",state.lang)}</button></div>
       </header>
       ${demoMode?'<div class="previewNotice" role="status">隔离验收预览 · 全部数据为模拟数据 · 不连接生产写入</div>':''}<main id="main" data-view="${state.activeView}"></main>
@@ -437,104 +437,6 @@ function pageHead(title,sub,actions=""){
 
 function formattedTotals(rows,value){return currencyTotals(rows,value).map(([c,n])=>money(n,c)).join(" / ")||"—";}
 
-function renderLevel1Dashboard(){
-  $("#main").classList.add("dashboardViewport","level1Main");
-  const team=state.staff.filter(s=>s.role==="level2"&&s.parent_user_id===state.profile.id&&s.status==="active");
-  const teamIds=new Set(team.map(s=>s.id));
-  const customers=state.customers.filter(c=>teamIds.has(c.owner_user_id));
-  const customerIds=new Set(customers.map(c=>c.id));
-  const positions=state.positions.filter(p=>customerIds.has(p.customer_id));
-  const openPositions=positions.filter(p=>Number(p.quantity)>0);
-  const holdingIds=new Set(openPositions.map(p=>p.customer_id));
-  const trades=state.trades.filter(t=>customerIds.has(t.customer_id));
-  const todayTrades=trades.filter(t=>isRomaniaToday(t.traded_at));
-  const due=state.followups.filter(x=>customerIds.has(x.customer_id)&&x.next_followup_at&&new Date(x.next_followup_at)<=new Date());
-  const realized=positions.reduce((sum,p)=>sum+Number(p.realized_pnl||0),0);
-
-  const teamCards=team.map(s=>{
-    const cs=customers.filter(c=>c.owner_user_id===s.id);
-    const ids=new Set(cs.map(c=>c.id));
-    const ps=positions.filter(p=>ids.has(p.customer_id));
-    const hold=new Set(ps.filter(p=>Number(p.quantity)>0).map(p=>p.customer_id)).size;
-    const day=trades.filter(t=>ids.has(t.customer_id)&&isRomaniaToday(t.traded_at)).length;
-    const follow=state.followups.filter(x=>ids.has(x.customer_id)&&x.next_followup_at&&new Date(x.next_followup_at)<=new Date()).length;
-    const pnl=ps.reduce((sum,p)=>sum+Number(p.realized_pnl||0),0);
-    return `<article class="level1StaffCard" data-staff-id="${s.id}">
-      <div class="level1StaffHead"><div class="staffAvatar">${esc((s.display_name||"L").slice(0,1))}</div><div><h3>${esc(s.display_name)}</h3><p>${esc(s.username)} · LEVEL 2</p></div><span class="statusDot active"></span></div>
-      <div class="level1StaffMetrics">
-        <div><small>客户</small><span>${cs.length}</span></div>
-        <div><small>持仓客户</small><span>${hold}</span></div>
-        <div><small>今日交易</small><span>${day}</span></div>
-        <div><small>待跟进</small><span class="${follow?"down":""}">${follow}</span></div>
-      </div>
-      <div class="level1StaffFoot"><span>已实现盈亏</span><b class="${pnl>=0?"up":"down"}">${formattedTotals(ps,p=>Number(p.realized_pnl||0))}</b><button class="tableAction">查看详情 ↗</button></div>
-    </article>`;
-  }).join("");
-
-  $("#main").innerHTML=`
-    <section class="level1Workspace">
-      <div class="level1MetricGrid">
-        <article class="level2Metric accent"><div class="metricLabel">LEVEL 2 STAFF</div><div class="metricTitle">二级人员</div><div class="metricValue">${team.length}</div><div class="metricFoot">直属当前一级人员</div></article>
-        <article class="level2Metric"><div class="metricLabel">TEAM CLIENTS</div><div class="metricTitle">团队客户</div><div class="metricValue">${customers.length}</div><div class="metricFoot">全部二级人员客户</div></article>
-        <article class="level2Metric"><div class="metricLabel">HOLDING CLIENTS</div><div class="metricTitle">持仓客户</div><div class="metricValue">${holdingIds.size}</div><div class="metricFoot">持有至少一个标的</div></article>
-        <article class="level2Metric"><div class="metricLabel">TODAY ORDERS</div><div class="metricTitle">今日交易</div><div class="metricValue">${todayTrades.length}</div><div class="metricFoot">罗马尼亚交易日</div></article>
-        <article class="level2Metric"><div class="metricLabel">FOLLOW UPS</div><div class="metricTitle">待跟进</div><div class="metricValue">${due.length}</div><div class="metricFoot">到期服务任务</div></article>
-      </div>
-
-      <div class="level1BodyGrid">
-        <article class="panel level1TeamPanel">
-          <div class="panelHead compact"><div><h2>二级人员团队</h2><p>LEVEL 2 TEAM · 点击卡片查看客户和交易</p></div><span class="headMeta">${team.length} ACTIVE</span></div>
-          <div class="level1TeamGrid">${teamCards||'<div class="empty">暂无直属二级人员</div>'}</div>
-        </article>
-        <div class="level1SideStack">
-          <article class="panel">
-            <div class="panelHead compact"><div><h2>团队买卖结构</h2><div class="panelSubtitleRow"><p>TEAM ORDER MIX</p><span class="inlineLegend up">买进 · ${trades.filter(t=>t.side==="buy").length}</span><span class="inlineLegend down">卖出 · ${trades.filter(t=>t.side==="sell").length}</span></div></div></div>
-            <div class="chartBox level1Chart"><canvas id="level1OrderChart"></canvas></div>
-          </article>
-          <article class="panel level1SummaryPanel">
-            <div class="panelHead compact"><div><h2>团队业务摘要</h2><p>TEAM PORTFOLIO</p></div></div>
-            <div class="level2SummaryList">
-              <div><span>当前持仓</span><span>${openPositions.length}</span></div>
-              <div><span>客户总数</span><span>${customers.length}</span></div>
-              <div><span>今日交易</span><span>${todayTrades.length}</span></div>
-              <div><span>已实现盈亏</span><span class="${realized>=0?"up":"down"}">${formattedTotals(state.positions,p=>Number(p.realized_pnl||0))}</span></div>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>`;
-
-  const orderEl=$("#level1OrderChart");
-  if(orderEl){
-    const buys=trades.filter(t=>t.side==="buy").length,sells=trades.filter(t=>t.side==="sell").length;
-    state.charts.level1Order=new Chart(orderEl,{type:"doughnut",data:{labels:[tr("买进",state.lang),tr("卖出",state.lang)],datasets:[{data:[buys,sells],backgroundColor:["#00d59b","#ef3456"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"70%",plugins:{...chartOpts().plugins,legend:{display:false}}}});
-  }
-  $$(".level1StaffCard").forEach(card=>card.onclick=()=>openLevel2Overview(card.dataset.staffId));
-}
-
-function openLevel2Overview(id){
-  const s=state.staff.find(x=>x.id===id&&x.role==="level2");if(!s)return;
-  const customers=state.customers.filter(c=>c.owner_user_id===id);
-  const ids=new Set(customers.map(c=>c.id));
-  const positions=state.positions.filter(p=>ids.has(p.customer_id));
-  const trades=state.trades.filter(t=>ids.has(t.customer_id)).slice(0,10);
-  const holding=new Set(positions.filter(p=>Number(p.quantity)>0).map(p=>p.customer_id)).size;
-  const realized=positions.reduce((sum,p)=>sum+Number(p.realized_pnl||0),0);
-  modal("二级人员详情",`
-    <section class="level1TeamDetail">
-      <div class="teamDetailIdentity"><div class="staffAvatar">${esc((s.display_name||"L").slice(0,1))}</div><div><h3>${esc(s.display_name)}</h3><p>${esc(s.username)} · ${roleName(s.role)}</p></div></div>
-      <div class="teamDetailKpis">
-        <div><small>客户</small><span>${customers.length}</span></div>
-        <div><small>持仓客户</small><span>${holding}</span></div>
-        <div><small>交易记录</small><span>${state.trades.filter(t=>ids.has(t.customer_id)).length}</span></div>
-        <div><small>已实现盈亏</small><span class="${realized>=0?"up":"down"}">${formattedTotals(positions,p=>Number(p.realized_pnl||0))}</span></div>
-      </div>
-      <article class="teamDetailSection"><h3>客户明细</h3><div class="tableWrap">${customerTable(customers)}</div></article>
-      <article class="teamDetailSection"><h3>最近交易</h3><div class="tableWrap"><table class="dataTable"><thead><tr><th>时间</th><th>客户</th><th>股票</th><th>方向</th><th>数量</th><th>成交价</th></tr></thead><tbody>${trades.map(t=>`<tr><td>${dt(t.traded_at)}</td><td>${esc(t.customers?.name||"--")}</td><td class="symbolCell">${esc(t.symbol)}</td><td class="${t.side==="buy"?"up":"down"}">${t.side==="buy"?"买进":"卖出"}</td><td>${num(t.quantity,4)}</td><td>${money(t.price,t.currency)}</td></tr>`).join("")||'<tr><td colspan="6"><div class="empty">暂无交易记录</div></td></tr>'}</tbody></table></div></article>
-    </section>`);
-  bindCustomerLinks();
-}
-
 function renderLevel2Dashboard(){
   $("#main").classList.add("dashboardViewport");
   const customers=state.customers;
@@ -637,7 +539,6 @@ function drawLevel2Charts(buys,sells){
 async function renderDashboard(){
   $("#main").classList.add("dashboardViewport");
   if(state.profile?.role==="level2"){renderLevel2Dashboard();return;}
-  if(state.profile?.role==="level1"){renderLevel1Dashboard();return;}
   $("#main").classList.add("terminalMain");
 
   const openPositions=state.positions.filter(p=>Number(p.quantity)>0);
@@ -651,7 +552,7 @@ async function renderDashboard(){
     : state.staff.filter(x=>x.parent_user_id===state.profile.id&&x.status==="active").length;
 
   $("#main").innerHTML=`
-    <section class="tradeflareShell">
+    <div class="workspaceHeading"><div><span class="sectionEyebrow">YOUR CAPITAL. CLEARLY CONNECTED.</span><h1>业务总览<span> / Overview</span></h1><p>客户、持仓与业务动态，尽在掌握。</p></div><span class="workspaceStatus"><i></i> 专属管理工作台</span></div><section class="tradeflareShell">
       <aside class="tradeflareRail">
         <button class="railBtn active" data-view="dashboard" title="总览">总</button>
         <button class="railBtn" data-view="customers" title="客户">客</button>
@@ -666,7 +567,7 @@ async function renderDashboard(){
         <div class="terminalTicker">
           <div class="tickerIdentity">
             <span class="tickerDot"></span>
-            <div><span class="tickerSymbol">CRM · PORTFOLIO</span><small>Brantone Veylor</small></div>
+            <div><span class="tickerSymbol">CRM · PORTFOLIO</span><small>Ellery Westcott</small></div>
           </div>
           <div class="tickerStat"><small>客户</small><span>${state.customers.length}</span></div>
           <div class="tickerStat"><small>当前持仓</small><span>${openPositions.length}</span></div>
@@ -787,7 +688,7 @@ function drawDashboardCharts(days=14){
   const trendEl=$("#trendChart");
   if(trendEl){
     state.charts.trend=new Chart(trendEl,{type:"line",data:{labels,datasets:[
-      {label:tr("新增客户数",state.lang),data:newC,borderColor:"#00d59b",backgroundColor:"rgba(0,213,155,.10)",tension:.32,fill:true,pointRadius:0,pointHoverRadius:4},
+      {label:tr("新增客户数",state.lang),data:newC,borderColor:"#86b9f1",backgroundColor:"rgba(103,160,225,.12)",tension:.32,fill:true,pointRadius:0,pointHoverRadius:4},
       {label:tr("交易记录",state.lang),data:tradeC,borderColor:"#6e8ba7",backgroundColor:"rgba(110,124,255,.05)",tension:.32,pointRadius:0,pointHoverRadius:4}
     ]},options:{...chartOpts(),plugins:{...chartOpts().plugins,legend:{display:false}}}});
   }
@@ -803,10 +704,10 @@ function chartOpts(){return{
   interaction:{mode:"index",intersect:false},
   hover:{mode:"index",intersect:false},
   plugins:{
-    legend:{position:"top",align:"end",labels:{color:"#52645d",font:{size:12,weight:"normal"},boxWidth:12,boxHeight:4,padding:8}},
+    legend:{position:"top",align:"end",labels:{color:"#9bb0ca",font:{size:12,weight:"normal"},boxWidth:12,boxHeight:4,padding:8}},
     tooltip:{enabled:true,mode:"index",intersect:false,backgroundColor:"#252524",borderColor:"#53595f",borderWidth:1,titleFont:{weight:"normal"},bodyFont:{weight:"normal"}}
   },
-  scales:{x:{ticks:{color:"#52645d",font:{weight:"normal",size:12},maxTicksLimit:7,maxRotation:0,autoSkip:true},grid:{color:"#dce5df"}},y:{ticks:{color:"#52645d",font:{weight:"normal",size:12}},grid:{color:"#dce5df"}}}
+  scales:{x:{ticks:{color:"#9bb0ca",font:{weight:"normal",size:12},maxTicksLimit:7,maxRotation:0,autoSkip:true},grid:{color:"rgba(141,174,210,.12)"}},y:{ticks:{color:"#9bb0ca",font:{weight:"normal",size:12}},grid:{color:"rgba(141,174,210,.12)"}}}
 }}
 
 function customerTable(rows,full=true){
@@ -844,8 +745,7 @@ async function renderCustomers(){
 }
 
 function eligibleOwners(){
-  if(state.profile.role==="admin")return state.staff.filter(s=>s.status==="active"&&["level1","level2"].includes(s.role));
-  if(state.profile.role==="level1")return [state.profile,...state.staff.filter(s=>s.parent_user_id===state.profile.id&&s.status==="active")];
+  if(state.profile.role==="admin")return state.staff.filter(s=>s.status==="active"&&s.role==="level2");
   return [state.profile];
 }
 
@@ -877,7 +777,7 @@ async function saveCustomer(e){
   e.preventDefault();
   const b=Object.fromEntries(new FormData(e.currentTarget).entries());
   const owner=state.staff.find(s=>s.id===b.owner_user_id)||state.profile;
-  b.level_one_user_id=owner.role==="level2"?owner.parent_user_id:null;
+  b.level_one_user_id=null;
   if(!b.age)b.age=null; else b.age=Number(b.age);
   if(!b.capital_amount)b.capital_amount=null; else b.capital_amount=Number(b.capital_amount);
   const {error}=await supabase.from("customers").insert(b);
@@ -958,7 +858,7 @@ async function openCustomer(id){
     <section class="customerDetail clientPortfolioDetail shareReady" id="clientSharePage">
       <div class="shareTopbar">
         <div class="shareBrand">
-          <img class="brandLogo" src="/assets/brand-logo-approved.png?v=20261018-original" alt="Brantone Veylor · Private Capital Advisory · 1996">
+          <img class="brandLogo" src="/assets/ellery-westcott-transparent.png?v=1" alt="Ellery Westcott · Capital Markets">
         </div>
         <div class="shareTimeBlock">
 
@@ -1022,7 +922,7 @@ async function openCustomer(id){
       </div>
 
       <div class="shareFoot">
-        <span>BRANTONE VEYLOR · PRIVATE CAPITAL ADVISORY</span>
+        <span>ELLERY WESTCOTT · PRIVATE CAPITAL ADVISORY</span>
         <span>行情来自免费公开市场数据源；页面以各行情的最新更新时间为准。</span>
         <span data-romania-clock>${romaniaClockText()}</span>
       </div>
@@ -1239,12 +1139,12 @@ function openFollowForm(c){
 
 async function renderPersonnel(){
   if(!canPersonnel()){state.activeView="dashboard";await renderDashboard();return}
-  const rows=state.staff.filter(s=>s.status!=="deleted"&&(state.profile.role==="admin"||s.id===state.profile.id||s.parent_user_id===state.profile.id));
+  const rows=state.staff.filter(s=>s.status!=="deleted"&&["admin","level2"].includes(s.role));
   const createButton=state.profile.role==="admin"?'<button class="btn primary" id="newStaff">新建人员账户</button>':"";
   $("#main").innerHTML=`
     <article class="panel modulePanel">
       <div class="panelHead unifiedModuleHead">
-        <div><h2>人员账户管理</h2><p>${state.profile.role==="admin"?"管理员拥有最高权限：一级人员直属管理员，二级人员直属一级人员；可修改、重置、禁用与删除人员账号":"查看本人及名下二级人员；权限由数据库 RLS 强制执行"}</p></div>
+        <div><h2>人员账户管理</h2><p>管理员统一管理直属二级账户：创建、编辑、重置密码与启停；二级账户仅访问自己的客户和业务数据。</p></div>
         <div class="toolbar unifiedActions">${createButton}</div>
       </div>
       <div class="tableWrap moduleContent personnelModuleContent">
@@ -1278,27 +1178,21 @@ async function renderPersonnel(){
 }
 
 function openStaffForm(){
-  const level1=state.staff.filter(s=>s.role==="level1"&&s.status==="active");
+  if(!canPersonnel())return;
   modal("新建人员账户",`<form id="staffForm" class="formGrid">
     <div class="field"><label>姓名</label><input class="input" name="display_name" required></div>
     <div class="field"><label>账号</label><input class="input" name="username" required></div>
     <div class="field"><label>密码</label><input class="input" type="password" name="password" minlength="8" required></div>
-    <div class="field"><label>角色</label><select class="select" name="role" id="staffRole"><option value="level1">一级人员</option><option value="level2">二级人员</option></select></div>
+    <div class="field"><label>角色</label><div class="input staffReadonly">二级账户</div><input type="hidden" name="role" value="level2"></div>
     <div class="field" id="adminParentField"><label>上级</label><div class="input staffReadonly">管理员 · ${esc(state.profile.display_name)}</div></div>
-    <div class="field" id="level1ParentField" style="display:none"><label>所属一级人员</label><select class="select" name="parent_user_id"><option value="">请选择</option>${level1.map(x=>`<option value="${x.id}">${esc(x.display_name)}</option>`).join("")}</select></div>
     <div class="field"><label>电话</label><input class="input" name="phone"></div>
     <div class="field full"><button class="btn primary" type="submit">创建账户</button></div>
   </form>`);
-  $("#staffRole").onchange=e=>{
-    const isL2=e.target.value==="level2";
-    $("#adminParentField").style.display=isL2?"none":"block";
-    $("#level1ParentField").style.display=isL2?"block":"none";
-  };
   $("#staffForm").onsubmit=async e=>{
     e.preventDefault();
     const b=Object.fromEntries(new FormData(e.currentTarget).entries());
     b.action="create";
-    if(b.role==="level1")b.parent_user_id=state.profile.id;
+    b.role="level2";b.parent_user_id=state.profile.id;
     const j=await callStaffFn(b);
     if(j){closeModal();toast("人员账户已创建");await refreshAll();}
   };
@@ -1306,17 +1200,16 @@ function openStaffForm(){
 
 function openStaffEdit(id){
   const s=state.staff.find(x=>x.id===id&&x.status!=="deleted");if(!s)return;
-  const level1=state.staff.filter(x=>x.role==="level1"&&x.status==="active"&&x.id!==s.id);
+  if(!canPersonnel()||!["admin","level2"].includes(s.role))return;
+  const admins=state.staff.filter(x=>x.role==="admin"&&x.status==="active");
   const parent=state.staff.find(x=>x.id===s.parent_user_id);
   modal("编辑人员账号",`<form id="staffEditForm" class="formGrid">
     <div class="field"><label>账号</label><input class="input" name="username" value="${esc(s.username)}" required></div>
     <div class="field"><label>姓名</label><input class="input" name="display_name" value="${esc(s.display_name)}" required></div>
     <div class="field"><label>角色</label><div class="input staffReadonly">${roleName(s.role)}</div></div>
     ${s.role==="admin"
-      ? `<div class="field"><label>上级</label><div class="input staffReadonly">最高管理员</div></div>`
-      : s.role==="level1"
-        ? `<div class="field"><label>上级</label><div class="input staffReadonly">管理员 · ${esc(parent?.display_name||state.profile.display_name)}</div></div>`
-        : `<div class="field"><label>所属一级人员</label><select class="select" name="parent_user_id" required>${level1.map(x=>`<option value="${x.id}" ${x.id===s.parent_user_id?"selected":""}>${esc(x.display_name)}</option>`).join("")}</select></div>`}
+      ? `<div class="field"><label>上级</label><div class="input staffReadonly">管理员</div></div>`
+      : `<div class="field"><label>所属管理员</label><select class="select" name="parent_user_id" required>${admins.map(x=>`<option value="${x.id}" ${x.id===s.parent_user_id?"selected":""}>${esc(x.display_name)}</option>`).join("")}</select></div>`}
     <div class="field"><label>电话</label><input class="input" name="phone" value="${esc(s.phone||"")}"></div>
     <div class="field"><label>当前状态</label><div class="input staffReadonly">${esc(s.status)}</div></div>
     <div class="field full"><button class="btn primary" type="submit">保存账号修改</button></div>
@@ -1325,7 +1218,6 @@ function openStaffEdit(id){
     e.preventDefault();
     const b=Object.fromEntries(new FormData(e.currentTarget).entries());
     b.action="update";b.user_id=s.id;
-    if(s.role==="level1")b.parent_user_id=state.profile.id;
     if(s.role==="admin")delete b.parent_user_id;
     const j=await callStaffFn(b);
     if(j){closeModal();toast("账号资料已更新");await refreshAll();}
@@ -1612,14 +1504,10 @@ async function renderReports(){
 
   const reportStaff=state.profile.role==="admin"
     ? state.staff.filter(s=>s.status==="active"&&s.role!=="admin")
-    : state.profile.role==="level1"
-      ? state.staff.filter(s=>s.status==="active"&&s.role==="level2"&&s.parent_user_id===state.profile.id)
-      : [state.profile];
+    : [state.profile];
 
   const staffRows=reportStaff.map(s=>{
-    const cs=s.role==="level1"
-      ? state.customers.filter(c=>c.level_one_user_id===s.id)
-      : state.customers.filter(c=>c.owner_user_id===s.id);
+    const cs=state.customers.filter(c=>c.owner_user_id===s.id);
     const ids=new Set(cs.map(c=>c.id));
     const holding=new Set(state.positions.filter(p=>Number(p.quantity)>0&&ids.has(p.customer_id)).map(p=>p.customer_id));
     return `<tr><td>${esc(s.display_name)}</td><td>${roleName(s.role)}</td><td>${cs.length}</td><td>${holding.size}</td></tr>`;
