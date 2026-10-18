@@ -148,13 +148,13 @@ function canPersonnel(){return state.profile?.role==="admin"}
 async function checkBootstrap(){
   if(demoMode)return true;
   try{
-    const r=await fetch(SUPABASE_URL+"/functions/v1/bootstrap-status",{headers:{"apikey":SUPABASE_KEY}});
+    const r=await fetch(SUPABASE_URL+"/functions/v1/bootstrap-status",{headers:{"apikey":SUPABASE_KEY},signal:AbortSignal.timeout(15000)});
     const j=await r.json();
     if(!r.ok) throw new Error(j.error||"读取失败");
     return !!j.initialized;
   }catch(err){
-    toast("初始化状态读取失败："+err.message,true);
-    return false;
+    toast("网络连接失败，请检查网络后重试登录",true);
+    return true;
   }
 }
 
