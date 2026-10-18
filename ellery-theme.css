@@ -367,3 +367,6 @@ body :is(#root#root#root#root#root#root#root#root#root#root#root#root,#modalRoot
  & :is(.shareProfileGrid>div,.shareNote,.shareServiceTimeline>div){background:#102036!important;border-color:#40546d!important;}
  & .shareProfileGrid span{color:#e8ebef!important;}
 }
+
+/* Project values and percentages intentionally follow each ring color. */
+body :is(#root#root#root#root#root#root#root#root#root#root#root#root,#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot){& .projectOverviewCard .projectOverviewNumbers strong{color:var(--project-accent)!important;}& .projectOverviewCard .projectProgressRing text{fill:var(--project-accent)!important;}}
