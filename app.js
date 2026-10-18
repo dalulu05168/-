@@ -7,9 +7,11 @@ const demoMode=new URLSearchParams(location.search).get("demo")==="1";
 import { getLang,setLang,localeFor,tr,translateUI,languageOptions,roleLabel,customerStatusLabel,renderShareBoard as renderShareBoardFeature,openTimeSettings,openShareBoardConfig,miniCandlesHTML,miniRSIHTML } from "./ui-features.js?v=20261009-brighter";
 import {loadAllocationProjects,attachProjectLauncher,renderProjectPresentation,exitProjectPresentation,editProject} from "./allocation-projects.js?v=20261018-remediation-17";
 
-const SUPABASE_URL = "https://igcmvzoxminzvcgwimwi.supabase.co";
-const SUPABASE_KEY = "sb_publishable_QHLv3UtA1eKEgTAKfQ2ZNg_hWbfRaNx";
-const supabase = demoMode ? await (await import("./demo-client.js?v=20261009-brighter")).createDemoClient() : (await import("./vendor-supabase.js")).createClient(SUPABASE_URL, SUPABASE_KEY);
+import {backendConfig,validateBackend} from './backend-config.js';
+const desktopBackend=validateBackend(backendConfig);
+const SUPABASE_URL=desktopBackend.ready?desktopBackend.url:'';
+const SUPABASE_KEY=desktopBackend.ready?desktopBackend.publishableKey:'';
+const supabase=demoMode?await(await import('./demo-client.js?v=20261009-brighter')).createDemoClient():desktopBackend.ready?(await import('./vendor-supabase.js')).createClient(SUPABASE_URL,SUPABASE_KEY):null;
 
 const ROMANIA_TZ = "Europe/Bucharest";
 // Share one header legend placement across chart panels, outside the plot area.
@@ -1478,6 +1480,6 @@ function closeModal(all=false){
 }
 
 window.addEventListener("popstate",()=>{if(!state.profile)return;const route=location.hash.match(/^#allocation\/([123])$/);if(route){state.activeProjectNumber=Number(route[1]);switchView("shareboard")}else if(state.activeView==="shareboard")switchView("dashboard")});
-supabase.auth.onAuthStateChange(async(event,session)=>{if(event==="SIGNED_OUT"){exitProjectPresentation(featureCtx());clearMarketRefreshTimers();state.allocationProjects=[];state.allocationRecords=[];state.allocationOwnerId=null;state.session=null;state.profile=null;state.activeView="dashboard";renderLogin(true)}});
+supabase?.auth.onAuthStateChange(async(event,session)=>{if(event==="SIGNED_OUT"){exitProjectPresentation(featureCtx());clearMarketRefreshTimers();state.allocationProjects=[];state.allocationRecords=[];state.allocationOwnerId=null;state.session=null;state.profile=null;state.activeView="dashboard";renderLogin(true)}});
 installViewportLayout({getLanguage:()=>state.lang});
-if(demoMode&&new URLSearchParams(location.search).get("loginPreview")==="1"){renderLogin(true)}else{(async()=>{const {data:{session}}=await supabase.auth.getSession();if(session){state.session=session;await loadProfileAndStart()}else renderLogin(await checkBootstrap())})()}
+if(!demoMode&&!desktopBackend.ready){$("#root").innerHTML=`<main class="backendPending" style="max-width:560px;margin:15vh auto;padding:32px"><h1>独立系统配置中</h1><p>${esc(desktopBackend.reason)}</p><p>当前未连接业务数据库，登录与数据操作已停用。</p></main>`}else if(demoMode&&new URLSearchParams(location.search).get("loginPreview")==="1"){renderLogin(true)}else{(async()=>{const {data:{session}}=await supabase.auth.getSession();if(session){state.session=session;await loadProfileAndStart()}else renderLogin(await checkBootstrap())})()}

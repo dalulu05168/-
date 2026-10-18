@@ -1,4 +1,4 @@
-# Ellery Westcott CRM 桌面版 2.1.1
+# Ellery Westcott CRM 桌面版 2.2.0（独立后端待配置）
 
 基于 `dalulu05168/-` 提交 `4d710588bab46e16fd18c7d6940c15b790f419b4` 的源码复制开发。上传的 Brantone-Veylor-CRM-Setup-1.0.7.exe 因附件读取限制尚未提取，因此不声称与 1.0.7 安装包逐文件一致。
 
@@ -17,7 +17,7 @@
 
 开发机使用 Node.js 22，执行 `npm ci`，`npm run desktop`。
 
-Windows 安装包：`npm run build:win`。产物为 `dist/Ellery-Westcott-CRM-Setup-2.1.1.exe`。NSIS 安装器支持选择空目录或现有本应用目录、创建桌面与开始菜单快捷方式及卸载。卸载保留 AppData 下的应用用户数据。
+Windows 安装包：`npm run build:win`。产物为 `dist/Ellery-Westcott-CRM-Setup-2.2.0.exe`。NSIS 安装器支持选择空目录或现有本应用目录、创建桌面与开始菜单快捷方式及卸载。卸载保留 AppData 下的应用用户数据。
 
 应用需要互联网连接到配置的 Supabase 服务和行情数据源。所有用户需要有效授权账号；界面代码不提供额外数据库权限。
 
@@ -25,7 +25,7 @@ Windows 安装包：`npm run build:win`。产物为 `dist/Ellery-Westcott-CRM-Se
 
 本分支未部署到原网站，也未修改生产账户或执行生产 schema 迁移。2026-10-18 核查发现现有后端已经只支持 admin/level2，staff-admin 已是匹配的第 6 版，因此本次修正桌面客户端以适配现有服务，无需再切换后台。
 
-`app.js` 指向现有 Supabase 项目 `igcmvzoxminzvcgwimwi`。新旧客户端共用业务数据；网站的排版和配色不由本分支修改。`two-role-setup.sql` 为旧三角色库的迁移参考，需完整备份并检查目标 schema 后使用；不要为了安装桌面程序在已迁移的生产库重复执行。旧字段 `customers.level_one_user_id` 现存直接管理员 ID，不能清空。邮箱登录后缀保持不变。
+桌面版现已取消原 Supabase 连接，`backend-config.js` 等待独立项目配置。配置缺失时登录和业务操作停用，Windows 构建也会阻止生成安装包；Electron 另行拦截原项目地址。原网站和原数据库保持不变。之前生成的共享后端安装包不满足独立系统要求，不应作为本次交付。
 
 线上验证使用事务临时插入并更新测试客户，检查同级账户不可读，随后回滚；没有保留测试客户或改动真实客户。当前开发环境的 HTTPS 代理禁止直连 Supabase 登录服务，因此提供账号的完整登录业务测试尚未通过，不能以模拟界面检查代替。
 

@@ -3,6 +3,9 @@ const {execFileSync}=require('node:child_process');
 const {NSIS_PATH,NsisTargetOptions}=require('app-builder-lib/out/targets/nsis/nsisUtil.js');
 (async()=>{
  const root=path.resolve(__dirname,'..');
+ const {backendConfig,validateBackend}=await import('../backend-config.js');
+ const backend=validateBackend(backendConfig);
+ if(!backend.ready)throw Error('Installation package blocked: '+backend.reason);
  const version=require('../package.json').version;
  execFileSync(process.execPath,[require.resolve('electron-builder/cli.js'),'--win','--x64','--dir','--publish','never'],{cwd:root,stdio:'inherit'});
  NsisTargetOptions.resolve({});

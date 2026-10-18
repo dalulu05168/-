@@ -16,6 +16,9 @@ app.whenReady().then(async()=>{
  server=createCrmServer();
  await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
  const origin=`http://127.0.0.1:${server.address().port}`;
+ // Block the original CRM backend even if stale application code is loaded.
+ const {session}=require('electron');
+ session.defaultSession.webRequest.onBeforeRequest({urls:['*://igcmvzoxminzvcgwimwi.supabase.co/*']},(_details,callback)=>callback({cancel:true}));
  window=new BrowserWindow({width:1480,height:980,minWidth:1060,minHeight:700,title:'Ellery Westcott · Capital Markets CRM',backgroundColor:'#071426',icon:path.join(__dirname,'../assets/app-icon.png'),show:false,webPreferences:{nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,devTools:!app.isPackaged}});
  window.once('ready-to-show',()=>window.show());
  if(smoke)window.webContents.on('console-message',(_event,level,message)=>{if(level===3)smokeErrors.push(message);});
