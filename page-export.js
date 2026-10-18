@@ -49,7 +49,9 @@ export async function exportPagePNG(element,{filename='Ellery-Westcott',button,n
     style.textContent=`
      [data-png-export] :is(.tableWrap,.panelBody,.shareMainGrid,.shareLowerGrid,.shareServiceTimeline){height:auto!important;max-height:none!important;overflow:visible!important;}
      [data-png-export] .projectOverviewCards{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
-     [data-png-export] .projectOverviewLower{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;}
+     [data-png-export] .projectOverviewLower{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+     [data-png-export] .projectTrendPanel{grid-column:span 2!important;}
+     [data-png-export] .projectOverviewSummary{grid-column:span 1!important;}
      [data-png-export] .exportBrandHeader{display:flex!important;align-items:center!important;justify-content:space-between!important;margin:0 0 16px!important;padding:0 10px 12px!important;border-bottom:1px solid #496078!important;}
      [data-png-export] .exportBrandHeader>img{width:160px!important;height:120px!important;object-fit:contain!important;}
      [data-png-export] .exportBrandHeader>div{display:grid!important;gap:8px!important;text-align:right!important;}

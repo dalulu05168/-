@@ -1,4 +1,4 @@
-import {exportPagePNG} from './page-export.js?v=2.3.0';
+import {exportPagePNG} from './page-export.js?v=2.3.2';
 import {customerProject,attachCustomerRanking,editCustomerReservation} from './customer-reservations.js?v=20261018-remediation-17';
 import {localeFor} from './ui-features.js?v=20261009-brighter';
 

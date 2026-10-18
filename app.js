@@ -1,4 +1,4 @@
-import {exportPagePNG} from './page-export.js?v=2.3.0';
+import {exportPagePNG} from './page-export.js?v=2.3.2';
 import {installViewportLayout} from './viewport-layout.js?v=20261018-remediation-17';
 
 import {currencyTotals,monthlyTradeTotals,dailyActivityCounts} from "./dashboard-data.js?v=20261009-brighter";
