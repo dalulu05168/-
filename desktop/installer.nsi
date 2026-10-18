@@ -47,7 +47,7 @@ FunctionEnd
 Section "Application"
  SetShellVarContext current
  SetOutPath "$INSTDIR"
- File /r "${APP_DIRECTORY}/*"
+ File /r "${APP_FILES}"
  WriteUninstaller "$INSTDIR\Uninstall.exe"
  CreateDirectory "$SMPROGRAMS\Ellery Westcott CRM"
  CreateShortcut "$SMPROGRAMS\Ellery Westcott CRM\Ellery Westcott CRM.lnk" "$INSTDIR\Ellery Westcott CRM.exe"
