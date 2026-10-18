@@ -280,3 +280,5 @@ body :is(#root#root#root#root#root#root#root#root#root#root#root#root,#modalRoot
  & .sectionIcon{filter:brightness(0) invert(.75)!important;}
  & .quoteTimeBadge{border:0!important;background:transparent!important;padding:0!important;}
 }
+
+body :is(#root#root#root#root#root#root#root#root#root#root#root#root,#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot){& .referenceMarketRow[hidden]{display:none!important;}}
