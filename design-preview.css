@@ -1,4 +1,4 @@
-/* Scoped trial: default desktop and all unselected pages keep their current UI. */
+/* Shared visual treatment for login, market and project pages only. */
 body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root){
  & .loginPage{position:relative!important;isolation:isolate!important;background:radial-gradient(ellipse at 18% 18%,#24496855,transparent 55%),#081321!important;overflow:hidden!important;}
  & .loginHero{position:relative!important;isolation:isolate!important;background:linear-gradient(145deg,#102a42cc,#091728)!important;padding:48px 8%!important;justify-content:center!important;}
@@ -67,3 +67,20 @@ body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#r
  & .heroMark,& .loginHero::before,& .loginHero h1,& .loginHero>p,& .loginEyebrow,& .loginCard,& .trialDisplay::after,& .trialLiveDot{animation:none!important;}
  & .projectEnergyRingButton,& .referenceFeatureCard,& .loginSubmit{transition:none!important;}
 }}
+
+body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .projectOverviewNumbers strong{font-size:clamp(17px,1.5vw,23px)!important;}& .projectEnergyRingButton:hover:not(:focus-visible){outline:none!important;}}
+
+@media(min-width:1001px){body.designPreview.projectScreenTrial :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root){
+ & .navFrame{overflow-y:auto!important;overflow-x:hidden!important;}
+ & .trialToolbar{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important;margin:16px 0 0!important;padding:14px 0!important;border-top:1px solid #34485d!important;border-bottom:0!important;background:transparent!important;}
+ & .trialToolbar .globalSearch{width:100%!important;max-width:100%!important;margin:0!important;min-width:0!important;flex:none!important;}
+ & .trialToolbar .globalSearch input{width:100%!important;min-width:0!important;font-size:10px!important;}
+ & .trialToolbar .userArea{display:flex!important;flex-wrap:wrap!important;gap:8px!important;width:100%!important;}
+ & .trialToolbar .userArea :is(.chip,.langSwitch){width:100%!important;max-width:100%!important;justify-content:flex-start!important;}
+ & .trialToolbar .studioPageActions{width:100%!important;max-width:100%!important;}
+ & .trialToolbar .studioPageActions :is(.unifiedActions,.studioHeadingActions){flex-wrap:wrap!important;justify-content:flex-start!important;}
+ & .trialToolbar .studioPageActions :is(input,select){width:100%!important;max-width:100%!important;}
+ & .studioSidebarFoot{position:static!important;margin-top:16px!important;}
+}}
+
+body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .metricIcon5{color:#c0a3f2!important;}}

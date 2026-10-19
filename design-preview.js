@@ -1,12 +1,13 @@
-// Opt-in visual trial. Uses the isolated simulator only; no backend changes.
+// Shared visual layer; simulated login behavior is restricted to the explicit trial.
 const params=new URLSearchParams(location.search);
-if(params.get('designPreview')==='1' && params.get('demo')==='1'){
+const trialMode=params.get('designPreview')==='1' && params.get('demo')==='1';
+{
  document.body.classList.add('designPreview');
- const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href='/design-preview.css';document.head.append(sheet);
  let homes=[],toolbar,screen;
  function sync(){
+  if(toolbar?.isConnected){const nav=document.querySelector('.nav');const topbar=document.querySelector('.topbar');const anchor=matchMedia('(min-width:1001px)').matches?nav:topbar;if(anchor&&toolbar.previousElementSibling!==anchor)anchor.after(toolbar);}
   const form=document.querySelector('#loginForm');
-  if(form&&!form.dataset.trial){
+  if(trialMode&&form&&!form.dataset.trial){
    form.dataset.trial='true';
    const title=document.querySelector('.loginCardDescription');if(title)title.textContent='界面试览 · 使用模拟数据，不连接业务数据库';
    const button=form.querySelector('[type="submit"]');button.textContent='进入模拟工作台 ↗';button.type='button';
@@ -21,8 +22,8 @@ if(params.get('designPreview')==='1' && params.get('demo')==='1'){
     screen=document.createElement('div');screen.className='trialDisplay';screen.setAttribute('aria-label','项目动态信息屏');
     screen.innerHTML='<div class="trialDisplayIdentity"><span class="trialLiveDot"></span><span>PROJECT MONITOR</span><small>项目预留份额</small></div><div class="trialDisplayReadings"></div><time class="trialDisplayTime"></time>';
     top.append(screen);
-    toolbar=document.createElement('div');toolbar.className='trialToolbar';toolbar.setAttribute('aria-label','项目功能工具栏');top.after(toolbar);
-    const replay=document.createElement('a');replay.className='trialReplay';replay.href='/?demo=1&loginPreview=1&designPreview=1';replay.textContent='查看登录动画';toolbar.append(replay);
+    toolbar=document.createElement('div');toolbar.className='trialToolbar';toolbar.setAttribute('aria-label','项目功能工具栏');if(matchMedia('(min-width:1001px)').matches){document.querySelector('.nav').after(toolbar);}else{top.after(toolbar);}
+    const replay=document.createElement('a');replay.className='trialReplay';replay.href='/?demo=1&loginPreview=1&designPreview=1';replay.textContent='查看登录动画';if(trialMode)toolbar.append(replay);
     homes=[];
     for(const node of top.querySelectorAll(':scope > #pageActionsSlot,:scope > .globalSearch,:scope > .userArea')){
      const marker=document.createComment('trial-toolbar-home');node.before(marker);homes.push([node,marker]);toolbar.append(node);
@@ -40,6 +41,7 @@ if(params.get('designPreview')==='1' && params.get('demo')==='1'){
   const chart=window.Chart?.getChart(document.querySelector('#marketChart'));
   if(chart&&!chart.$trialPalette){chart.$trialPalette=true;for(const d of chart.data.datasets){d.borderColor='#efc45f';d.backgroundColor='rgba(239,196,95,.10)';d.borderWidth=2;d.tension=.2;}chart.update('none');}
  }
+ addEventListener('resize',()=>requestAnimationFrame(sync));
  let pending=false;
  new MutationObserver(()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;sync();});}).observe(document.querySelector('#root'),{childList:true,subtree:true});
  setInterval(()=>{const time=screen?.querySelector('time');if(time)time.textContent=new Date().toLocaleTimeString('en-GB',{timeZone:'Europe/Bucharest'})+' · BUCHAREST';},1000);

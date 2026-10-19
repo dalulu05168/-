@@ -1,0 +1,7 @@
+# 2.3.5 — apply selected redesign to normal entry
+
+The shared login/market/project visual layer is now loaded from the normal desktop URL. Previously its styles only loaded with both demo=1 and designPreview=1, leaving normal users on the old appearance. The original login form and submit handler remain intact; simulated login behavior is still gated by the explicit demo trial.
+
+Normal login has a 380px original logo, perspective/light treatment, entrance animation, slow ambient light and gold submit button. Market metrics place colored icons beside labels/values; the stock-list heading has a 10px icon gap, the four feature cards lift on hover and the chart uses gold. Project pages replace the top toolbar with an animated monitor using current project figures and a Bucharest clock. Existing controls move below the left navigation menu on desktop (below the top bar on narrow layouts). Rings are 136px desktop / 120px mobile, lift on hover and retain matching gold/green/blue figures. Allocation font sizing is reduced to avoid broken amount/unit layout. Unselected pages retain their layout. Logo files, authentication, role policies, backend settings and business data are unchanged.
+
+Verified normal-login loading with a mocked bootstrap-status response (no credentials or live auth), desktop/mobile navigation for both roles, scoped interactions, reduced-motion behavior and project/customer PNG exports. Public preview screenshots were not uploaded.
