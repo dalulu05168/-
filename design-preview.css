@@ -145,3 +145,15 @@ body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#r
 
 body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& :is(.projectOverviewCards,.projectOverviewLower){margin-bottom:0!important;}}
 body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& :is(.studioMetrics,.studioAnalytics,.studioBottomGrid,.kpis,.grid2,.grid3,.settingsGrid,.reportsLower,.projectOverviewCards,.projectOverviewLower){margin:0!important;}}
+/* Match the content frame bottom to the fixed navigation frame. */
+html:has(.shell),body:has(.shell){height:100%!important;overflow:hidden!important;}
+body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root){
+ & .shell{display:flex!important;flex-direction:column!important;height:100dvh!important;max-height:100dvh!important;min-height:0!important;overflow:hidden!important;padding-bottom:0!important;}
+ & :is(.topbar,.trialToolbar,.previewNotice){flex-shrink:0!important;}
+ & #main{flex:1 1 0!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;padding-bottom:0!important;scrollbar-gutter:stable;}
+ & #main>:last-child{margin-bottom:0!important;}
+ & #main>:is(.studioBottomGrid,.settingsGrid,.reportsLower):last-child{flex:1 0 auto!important;align-items:stretch!important;}
+ & .studioBottomGrid>.panel{height:auto!important;min-height:0!important;align-self:stretch!important;}
+ & #main>.panel:last-child{flex:1 0 auto!important;}
+}
+@media(max-width:560px){body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .shell{padding-bottom:66px!important;}}body.designPreview.navCollapsed :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .shell{padding-bottom:0!important;}}}

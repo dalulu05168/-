@@ -63,7 +63,7 @@ const trialMode=params.get('designPreview')==='1' && params.get('demo')==='1';
  addEventListener('resize',()=>requestAnimationFrame(sync));
  window.elleryPreferences?.getNavigationHidden().then(value=>{collapsed=value;sync();dispatchEvent(new Event('resize'));}).catch(()=>{});
  let pending=false;
- new MutationObserver(()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;sync();});}).observe(document.querySelector('#root'),{childList:true,subtree:true});
+ new MutationObserver(records=>{if(records.some(r=>r.target.id==='main'&&r.addedNodes.length)){const main=document.querySelector('#main');if(main)main.scrollTop=0;}if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;sync();});}).observe(document.querySelector('#root'),{childList:true,subtree:true});
  setInterval(()=>{const time=screen?.querySelector('time');if(time)time.textContent=new Date().toLocaleTimeString('en-GB',{timeZone:'Europe/Bucharest'})+' · BUCHAREST';},1000);
  sync();
 }
