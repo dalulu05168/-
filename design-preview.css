@@ -219,3 +219,52 @@ body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#r
 }
 
 body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .sysok.syswaiting{background:#efc45f!important;box-shadow:none!important;}& .sysok.syserror{background:#f09a9f!important;box-shadow:none!important;}}
+
+/* Customer detail uses the same delivery theme as the main workspace. */
+body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot {
+ & #clientSharePage{background:linear-gradient(180deg,#193047 0%,#142a40 55%,#112438 100%)!important;color:#e8ebef!important;padding:1mm!important;box-sizing:border-box!important;display:grid!important;grid-template-columns:220px minmax(0,1fr)!important;gap:1mm!important;align-content:start!important;overflow:auto!important;}
+ & #clientSharePage>*{min-width:0!important;margin:0!important;}
+ & #clientSharePage>.shareTopbar{grid-column:1!important;grid-row:1 / span 5!important;position:sticky!important;top:0!important;align-self:start!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:14px!important;padding:14px!important;min-height:calc(100dvh - 2mm)!important;background:transparent!important;border:0!important;border-right:1px solid #69819735!important;}
+ & #clientSharePage>:not(.shareTopbar){grid-column:2!important;}
+ & #clientSharePage .shareBrand{width:100%!important;max-width:180px!important;align-self:center!important;}
+ & #clientSharePage .shareTimeBlock{order:3!important;padding:0!important;background:transparent!important;border:0!important;}
+ & #clientSharePage .shareInternalActions{display:grid!important;grid-template-columns:1fr!important;gap:1mm!important;width:100%!important;}
+ & #clientSharePage :is(.panel,.shareKpiRow>article,.shareProfileGrid>div,.shareNote,.shareServiceTimeline>div,.portfolioCurrencyGroup){background:linear-gradient(135deg,#20394e,#192e44 60%,#1c344a)!important;border:1px solid #70879c50!important;border-radius:9px!important;box-shadow:0 4px 14px #07182718,inset 0 1px #e2eef805!important;transition:transform .26s ease,box-shadow .26s ease,border-color .26s ease!important;}
+ & #clientSharePage :is(.shareKpiRow,.shareMainGrid,.shareLowerGrid){padding:0!important;gap:1mm!important;}
+ & #clientSharePage .shareKpiRow{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+ & #clientSharePage .shareKpiRow>article{min-height:104px!important;height:auto!important;padding:14px!important;display:grid!important;gap:8px!important;align-content:start!important;}
+ & #clientSharePage .panelHead{background:#20394e!important;border-color:#70879c50!important;}
+ & #clientSharePage .panelHead>div:first-child{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;flex:1!important;}
+ & #clientSharePage .panelHead p{margin:0!important;color:#efc45f!important;overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important;}
+ & #clientSharePage :is(label,small,.headMeta,.shareFoot){color:#c4cdd3!important;}
+ & #clientSharePage :is(.sharePriceChart,.shareReturnChart,.portfolioBreakdown){min-height:220px!important;height:250px!important;}
+ & #clientSharePage :is(.btn,.input,.select){background:#142a40!important;border-color:#70879c65!important;color:#efc45f!important;}
+ & #clientSharePage .dataTable th{background:#172d42!important;color:#efc45f!important;}
+ & #clientSharePage .dataTable td{background:transparent!important;color:#e8ebef!important;}
+ & #clientSharePage .shareFoot{padding:10px 14px!important;background:transparent!important;}
+ & #clientSharePage.clientCaptureMode{display:block!important;}
+ & #clientSharePage.clientCaptureMode>.shareTopbar{position:static!important;min-height:0!important;display:flex!important;flex-direction:row!important;justify-content:space-between!important;align-items:center!important;border-bottom:1px solid #70879c50!important;}
+ & #clientSharePage.clientCaptureMode>:not(.shareTopbar){margin-top:1mm!important;}
+}
+@media(hover:hover){body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage:not(.clientCaptureMode) :is(.panel,.shareKpiRow>article):hover{transform:translateY(-3px)!important;border-color:#dfbc6f!important;box-shadow:0 10px 22px #0004!important;}}
+@media(max-width:1000px){body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage{grid-template-columns:180px minmax(0,1fr)!important;}body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage .shareMainGrid{grid-template-columns:1fr!important;}}
+@media(max-width:600px){body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage{display:block!important;}body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage>.shareTopbar{position:static!important;min-height:0!important;}body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage .shareInternalActions{grid-template-columns:repeat(2,minmax(0,1fr))!important;}body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage :is(.shareKpiRow,.shareLowerGrid){grid-template-columns:1fr!important;}body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage>*{margin-bottom:1mm!important;}}
+@media(prefers-reduced-motion:reduce){body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage :is(.panel,.shareKpiRow>article){transition:none!important;transform:none!important;}}
+body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage{
+ &>.shareTopbar{justify-content:flex-start!important;}
+ & .shareTimeBlock{margin-top:auto!important;}
+ & .shareMainGrid{height:auto!important;min-height:310px!important;align-items:stretch!important;}
+ & .shareMainGrid>.panel{height:auto!important;min-height:310px!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;}
+ & .shareMainGrid .chartBox{flex:1!important;min-height:250px!important;}
+ & .panelHead h2{white-space:nowrap!important;flex-shrink:0!important;}
+ & .panelHead p{margin-left:10px!important;}
+ & .shareLowerGrid{min-height:300px!important;}
+ & .shareLowerGrid>.panel{height:auto!important;min-height:300px!important;}
+}
+body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage{
+ grid-template-rows:auto auto auto auto!important;
+ & .shareKpiRow{height:auto!important;min-height:212px!important;grid-template-rows:repeat(2,minmax(104px,auto))!important;overflow:visible!important;}
+ & .shareBrand{display:block!important;min-height:120px!important;height:120px!important;flex:none!important;}
+ & .shareBrand .brandLogoFrame{height:120px!important;max-height:120px!important;width:100%!important;}
+}
+@media(max-width:600px){body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage .shareKpiRow{grid-template-rows:none!important;}}
