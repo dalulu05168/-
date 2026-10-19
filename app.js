@@ -1,3 +1,4 @@
+import {publishUIData} from './ui-feedback.js?v=2.3.8';
 import {exportPagePNG} from './page-export.js?v=2.3.2';
 import {installViewportLayout} from './viewport-layout.js?v=20261018-remediation-17';
 
@@ -349,6 +350,8 @@ async function fetchPagedRows(makeQuery,{pageSize=1000,maxPages=25}={}){
 }
 
 async function refreshAll(){
+  publishUIData("business",{status:"loading"});
+  try{
   const q=[
     fetchPagedRows((from,to)=>supabase.from("customers").select("*").order("created_at",{ascending:false}).range(from,to)),
     fetchPagedRows((from,to)=>supabase.from("trades").select("*,customers(name,customer_code)").order("traded_at",{ascending:false}).range(from,to)),
@@ -361,6 +364,7 @@ async function refreshAll(){
   const [c,t,p,f,s,settings,board]=await Promise.all(q);
   const loadError=[c,t,p,f,s,settings,board].find(x=>x?.error)?.error;
   state.systemHealth=loadError?"error":"ok";
+  publishUIData("business",{status:loadError?"error":"ok"});
   const health=$("#systemHealth");
   if(health){
     health.textContent=loadError?tr("数据异常",state.lang):"";health.setAttribute("aria-label",tr(loadError?"数据异常":"系统正常",state.lang));
@@ -382,7 +386,9 @@ async function refreshAll(){
   }else state.shareSlots=[];
   await loadAllocationProjects(featureCtx());
   await loadCustomerReservations(featureCtx());
+  if(state.customerReservationError)publishUIData("projects",{status:"error"});
   await renderView(0);
+  }catch(error){publishUIData("business",{status:"error"});throw error;}
 }
 
 function featureCtx(){
@@ -1266,10 +1272,12 @@ async function renderMarket(){
       </article>
     </section>`;
   const load=async()=>{
+    publishUIData("market",{status:"loading"});
     const selectedSymbol=$("#mSymbol")?.textContent||"";
     const syms=$("#marketSymbols").value.split(",").map(x=>x.trim().toUpperCase()).filter(Boolean);
     const q=await fetchQuotes(syms,{realtimeOnly:false});
     const rows=syms.map(s=>q[s]).filter(Boolean);
+    for(const row of rows)row.uiReceivedAt=Date.now();
 
     const featureCards=$("#referenceFeatureCards");
     if(featureCards){
@@ -1297,6 +1305,7 @@ async function renderMarket(){
     if(first) drawMarket(first);
     else {
       $("#mSymbol").textContent=syms[0]||"--";
+      publishUIData("market",{status:"error"});
       $("#mName").textContent="当前股票暂无可用行情";
       $("#mExchange").textContent="请更换股票或市场";
       $("#mPrice").textContent="--";
@@ -1335,8 +1344,8 @@ async function renderMarket(){
     load().catch(()=>{});
   };
   $("#marketSymbols").onchange=load;
-  await load();
-  state.marketRefreshTimer=setInterval(()=>{if(state.activeView==="market")load().catch(()=>{})},60000);
+  await load().catch(error=>{publishUIData("market",{status:"error"});throw error;});
+  state.marketRefreshTimer=setInterval(()=>{if(state.activeView==="market")load().catch(()=>publishUIData("market",{status:"error"}))},60000);
 }
 let marketChartRequest=0;
 async function drawMarket(x){
@@ -1349,6 +1358,7 @@ async function drawMarket(x){
   $("#mChange").textContent=usable&&x.changePct!=null?(Number(x.changePct)>=0?"+":"")+num(x.changePct)+"%":"--";
   $("#mChange").className="quoteChange "+(usable&&x.changePct!=null?(Number(x.changePct)>=0?"up":"down"):"");
   currentMarketQuote=x;
+  publishUIData("market",{status:usable?"ok":"error",receivedAt:x?.uiReceivedAt,quoteAt:x?.lastTradeAt||null,marketState:x?.marketState||"",realtime:x?.realtime,delaySeconds:x?.delaySeconds||0});
   $("#mCurrency").textContent=x?.currency||"";
   $("#mExchangeBadge").textContent=x?.exchange||"—";
   $$(".marketPick").forEach(r=>{const active=r.dataset.symbol===x?.symbol;r.classList.toggle("active",active);r.setAttribute("aria-pressed",String(active))});

@@ -1,3 +1,4 @@
+import {publishUIData} from './ui-feedback.js?v=2.3.8';
 import {exportPagePNG} from './page-export.js?v=2.3.2';
 import {customerProject,attachCustomerRanking,editCustomerReservation} from './customer-reservations.js?v=20261018-remediation-17';
 import {localeFor} from './ui-features.js?v=20261009-brighter';
@@ -21,16 +22,17 @@ export function allocationAccountIds(profile,staff=[]){
  return allowed;
 }
 export async function loadAllocationProjects(ctx){
- const {state,supabase}=ctx;state.projectLoadError=null;
+ const {state,supabase}=ctx;state.projectLoadError=null;publishUIData("projects",{status:"loading"});
  const projects=await ctx.fetchPagedRows((from,to)=>supabase.from('allocation_projects').select('*').order('project_number',{ascending:true}).order('id',{ascending:true}).range(from,to));
- if(projects.error){state.allocationProjects=[];state.allocationRecords=[];state.projectLoadError=projects.error;return;}
+ if(projects.error){state.allocationProjects=[];state.allocationRecords=[];state.projectLoadError=projects.error;publishUIData("projects",{status:"error"});return;}
  const ids=allocationAccountIds(state.profile,state.staff);
  state.allocationProjects=(projects.data||[]).filter(p=>ids.has(p.owner_user_id));
- if(!state.allocationProjects.length){state.allocationRecords=[];return;}
+ if(!state.allocationProjects.length){state.allocationRecords=[];publishUIData("projects",{status:"ok"});return;}
  const records=await ctx.fetchPagedRows((from,to)=>supabase.from('allocation_reservations').select('*').order('slot_at',{ascending:true}).order('id',{ascending:true}).range(from,to));
- if(records.error){state.projectLoadError=records.error;state.allocationRecords=[];return;}
+ if(records.error){state.projectLoadError=records.error;state.allocationRecords=[];publishUIData("projects",{status:"error"});return;}
  const projectIds=new Set(state.allocationProjects.map(p=>p.id));
  state.allocationRecords=(records.data||[]).filter(r=>ids.has(r.owner_user_id)&&projectIds.has(r.project_id));
+ publishUIData("projects",{status:"ok"});
 }
 const own=(ctx)=>ctx.state.allocationOwnerId===ctx.state.profile.id||!ctx.state.allocationOwnerId;
 function projectFor(ctx,n){return customerProject(ctx,(ctx.state.allocationProjects||[]).find(p=>p.owner_user_id===(ctx.state.allocationOwnerId||ctx.state.profile.id)&&p.project_number===n));}
