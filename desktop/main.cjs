@@ -1,4 +1,4 @@
-const {app,BrowserWindow,Menu,shell,dialog}=require('electron');
+const {app,BrowserWindow,Menu,shell,dialog,ipcMain}=require('electron');
 const path=require('node:path');
 const fs=require('node:fs');
 const smoke=process.argv.includes('--smoke-test');
@@ -16,10 +16,14 @@ app.whenReady().then(async()=>{
  server=createCrmServer();
  await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
  const origin=`http://127.0.0.1:${server.address().port}`;
+ const preferenceFile=path.join(app.getPath('userData'),'ui-preferences.json');
+ const readNavigationPreference=()=>{try{return JSON.parse(fs.readFileSync(preferenceFile,'utf8')).navigationHidden===true;}catch{return false;}};
+ ipcMain.handle('ui:get-navigation-hidden',event=>{if(new URL(event.senderFrame.url).origin!==origin)throw Error('Invalid preference origin');return readNavigationPreference();});
+ ipcMain.handle('ui:set-navigation-hidden',(event,value)=>{if(new URL(event.senderFrame.url).origin!==origin||typeof value!=='boolean')throw Error('Invalid preference');fs.mkdirSync(path.dirname(preferenceFile),{recursive:true});fs.writeFileSync(preferenceFile,JSON.stringify({navigationHidden:value}));return value;});
  // Block the original CRM backend even if stale application code is loaded.
  const {session}=require('electron');
  session.defaultSession.webRequest.onBeforeRequest({urls:['*://igcmvzoxminzvcgwimwi.supabase.co/*']},(_details,callback)=>callback({cancel:true}));
- window=new BrowserWindow({width:1480,height:980,minWidth:1060,minHeight:700,title:'Ellery Westcott · Capital Markets CRM',backgroundColor:'#071426',icon:path.join(__dirname,'../assets/app-icon.png'),show:false,webPreferences:{nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,devTools:!app.isPackaged}});
+ window=new BrowserWindow({width:1480,height:980,minWidth:1060,minHeight:700,title:'Ellery Westcott · Capital Markets CRM',backgroundColor:'#071426',icon:path.join(__dirname,'../assets/app-icon.png'),show:false,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,devTools:!app.isPackaged}});
  window.once('ready-to-show',()=>window.show());
  if(smoke)window.webContents.on('console-message',(_event,level,message)=>{if(level===3)smokeErrors.push(message);});
  window.webContents.setWindowOpenHandler(({url})=>{if(url.startsWith('https://'))shell.openExternal(url);return {action:'deny'};});
@@ -27,7 +31,7 @@ app.whenReady().then(async()=>{
  window.webContents.session.setPermissionRequestHandler((_wc,_permission,callback)=>callback(false));
  window.webContents.session.on('will-download',(_event,item)=>{item.once('done',(_e,state)=>{if(state!=='completed')dialog.showErrorBox('下载未完成','请检查网络后重试。');});});
  const openDesignTrial=async()=>{
-  const trial=new BrowserWindow({width:1480,height:980,minWidth:1060,minHeight:700,title:'Ellery Westcott · 新界面试览（模拟数据）',backgroundColor:'#081321',webPreferences:{nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,partition:'ellery-ui-trial'}});
+  const trial=new BrowserWindow({width:1480,height:980,minWidth:1060,minHeight:700,title:'Ellery Westcott · 新界面试览（模拟数据）',backgroundColor:'#081321',webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,partition:'ellery-ui-trial'}});
   trial.webContents.session.setPermissionRequestHandler((_wc,_permission,callback)=>callback(false));
   trial.webContents.session.webRequest.onBeforeRequest((details,callback)=>callback({cancel:!details.url.startsWith(origin+'/')}));
   trial.webContents.setWindowOpenHandler(()=>({action:'deny'}));
@@ -42,12 +46,14 @@ app.whenReady().then(async()=>{
    const deadline=Date.now()+45000;
    while(!document.querySelector('#loginForm,#bootstrapForm')&&Date.now()<deadline)await new Promise(r=>setTimeout(r,250));
    const sdk=await import('/vendor-supabase.js');
+   let navigationPreferenceReady=false;
+   if(window.elleryPreferences){const previous=await window.elleryPreferences.getNavigationHidden();await window.elleryPreferences.setNavigationHidden(!previous);navigationPreferenceReady=(await window.elleryPreferences.getNavigationHidden())===!previous;await window.elleryPreferences.setNavigationHidden(previous);}
    const logo=document.querySelector('.brandLogo');
-   return {loginReady:!!document.querySelector('#loginForm,#bootstrapForm'),initialSetup:!!document.querySelector('#bootstrapForm'),sdkReady:typeof sdk.createClient==='function',logoReady:!!logo&&logo.complete&&logo.naturalWidth>0,title:document.title,overflow:document.documentElement.scrollWidth>innerWidth+1};
+   return {navigationPreferenceReady,loginReady:!!document.querySelector('#loginForm,#bootstrapForm'),initialSetup:!!document.querySelector('#bootstrapForm'),sdkReady:typeof sdk.createClient==='function',logoReady:!!logo&&logo.complete&&logo.naturalWidth>0,title:document.title,overflow:document.documentElement.scrollWidth>innerWidth+1};
   })()`);
   result.errors=smokeErrors;result.platform=process.platform;result.version=app.getVersion();
   fs.writeFileSync(path.join(reportDir,'installed-login.png'),(await window.webContents.capturePage()).toPNG());
-  result.pass=result.loginReady&&result.sdkReady&&result.logoReady&&!result.overflow&&!smokeErrors.length;
+  result.pass=result.navigationPreferenceReady&&result.loginReady&&result.sdkReady&&result.logoReady&&!result.overflow&&!smokeErrors.length;
   fs.writeFileSync(path.join(reportDir,'runtime.json'),JSON.stringify(result,null,2));
   app.exit(result.pass?0:1);
  }
