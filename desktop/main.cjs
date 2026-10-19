@@ -26,7 +26,15 @@ app.whenReady().then(async()=>{
  window.webContents.on('will-navigate',(e,url)=>{if(new URL(url).origin!==origin){e.preventDefault();if(url.startsWith('https://'))shell.openExternal(url);}});
  window.webContents.session.setPermissionRequestHandler((_wc,_permission,callback)=>callback(false));
  window.webContents.session.on('will-download',(_event,item)=>{item.once('done',(_e,state)=>{if(state!=='completed')dialog.showErrorBox('下载未完成','请检查网络后重试。');});});
- Menu.setApplicationMenu(Menu.buildFromTemplate([{label:'应用',submenu:[{label:'重新加载',role:'reload'},{label:'放大',role:'zoomIn'},{label:'缩小',role:'zoomOut'},{label:'重置缩放',role:'resetZoom'},{type:'separator'},{label:'退出',role:'quit'}]},{label:'编辑',submenu:[{label:'撤销',role:'undo'},{label:'重做',role:'redo'},{type:'separator'},{label:'剪切',role:'cut'},{label:'复制',role:'copy'},{label:'粘贴',role:'paste'},{label:'全选',role:'selectAll'}]}]));
+ const openDesignTrial=async()=>{
+  const trial=new BrowserWindow({width:1480,height:980,minWidth:1060,minHeight:700,title:'Ellery Westcott · 新界面试览（模拟数据）',backgroundColor:'#081321',webPreferences:{nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,partition:'ellery-ui-trial'}});
+  trial.webContents.session.setPermissionRequestHandler((_wc,_permission,callback)=>callback(false));
+  trial.webContents.session.webRequest.onBeforeRequest((details,callback)=>callback({cancel:!details.url.startsWith(origin+'/')}));
+  trial.webContents.setWindowOpenHandler(()=>({action:'deny'}));
+  trial.webContents.on('will-navigate',(event,url)=>{if(new URL(url).origin!==origin)event.preventDefault();});
+  await trial.loadURL(origin+'/?demo=1&loginPreview=1&designPreview=1');
+ };
+ Menu.setApplicationMenu(Menu.buildFromTemplate([{label:'应用',submenu:[{label:'新界面试览（模拟数据）',click:openDesignTrial},{type:'separator'},{label:'重新加载',role:'reload'},{label:'放大',role:'zoomIn'},{label:'缩小',role:'zoomOut'},{label:'重置缩放',role:'resetZoom'},{type:'separator'},{label:'退出',role:'quit'}]},{label:'编辑',submenu:[{label:'撤销',role:'undo'},{label:'重做',role:'redo'},{type:'separator'},{label:'剪切',role:'cut'},{label:'复制',role:'copy'},{label:'粘贴',role:'paste'},{label:'全选',role:'selectAll'}]}]));
  const preview=process.argv.includes('--demo')?'/?demo=1&account=TEST-ADMIN':'/';
  await window.loadURL(origin+preview);
  if(smoke){

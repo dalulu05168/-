@@ -1,7 +1,7 @@
 {
   "name": "ellery-westcott-crm",
   "private": true,
-  "version": "2.3.3",
+  "version": "2.3.4",
   "type": "module",
   "scripts": {
     "dev": "vercel dev",
@@ -42,9 +42,8 @@
       "index.html",
       "package.json",
       "!work/**",
-      "!demo-client.js",
-      "!demo-data.json",
-      "!*-setup.sql"
+      "!*-setup.sql",
+      "demo-data.json"
     ],
     "win": {
       "target": [
