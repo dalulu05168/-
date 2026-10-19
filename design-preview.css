@@ -70,7 +70,7 @@ body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#r
 
 body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .projectOverviewNumbers strong{font-size:clamp(17px,1.5vw,23px)!important;}& .projectEnergyRingButton:hover:not(:focus-visible){outline:none!important;}}
 
-@media(min-width:1001px){body.designPreview.projectScreenTrial :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root){
+@media(min-width:1001px){body.designPreview.sidebarToolsDocked :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root){
  & .navFrame{overflow-y:auto!important;overflow-x:hidden!important;}
  & .trialToolbar{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important;margin:16px 0 0!important;padding:14px 0!important;border-top:1px solid #34485d!important;border-bottom:0!important;background:transparent!important;}
  & .trialToolbar .globalSearch{width:100%!important;max-width:100%!important;margin:0!important;min-width:0!important;flex:none!important;}
@@ -84,3 +84,46 @@ body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#r
 }}
 
 body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .metricIcon5{color:#c0a3f2!important;}}
+/* 2.3.6 shared continuous blue surfaces and navigation controls. */
+html,body{background:linear-gradient(180deg,#193047 0%,#142a40 55%,#112438 100%) fixed!important;}
+body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root){
+ & .shell{background:transparent!important;}
+ & .navFrame{background:linear-gradient(180deg,#193047 0%,#142a40 55%,#112438 100%)!important;border-right:1px solid #69819735!important;transition:transform .28s ease!important;}
+ & .topbar{background:#193047b8!important;border-color:#69819735!important;min-height:48px!important;height:auto!important;padding:10px 18px!important;}
+ & :is(.panel,.projectPanel,.studioMetric,.referenceFeatureCard,.kpi,.level2Metric,.terminalCard,.shareKpi,.settingsCard,.marketMetric,.projectLauncherItem,.terminalPositionCard){background:linear-gradient(135deg,#20394e,#192e44 60%,#1c344a)!important;border-color:#70879c50!important;box-shadow:0 4px 14px #07182718,inset 0 1px #e2eef805!important;transition:transform .26s ease,box-shadow .26s ease,border-color .26s ease,background-position .4s ease!important;background-size:160% 160%!important;}
+ & :is(.panel,.projectPanel,.studioMetric,.referenceFeatureCard,.kpi,.level2Metric,.terminalCard,.shareKpi,.settingsCard,.marketMetric,.projectLauncherItem,.terminalPositionCard):hover{transform:translateY(-2px)!important;border-color:#a1b7c57a!important;box-shadow:0 10px 24px #07182738,inset 0 1px #e2eef812!important;background-position:100% 100%!important;}
+ & :is(.panel,.projectPanel,.studioMetric,.referenceFeatureCard,.kpi,.level2Metric,.terminalCard,.shareKpi,.settingsCard,.marketMetric,.projectLauncherItem,.terminalPositionCard):focus-within{border-color:#d2b97799!important;}
+ & :is(.panelHead,.projectPanelHeading){background:#25405780!important;border-color:#70879c35!important;}
+ & :is(.projectOverviewTotals,.projectSummaryMetrics,.marketMetric,.dataTable th){background:#172e4380!important;border-color:#70879c35!important;}
+ & .trialDisplay{background:linear-gradient(110deg,#193247,#203b50,#193247)!important;border-color:#70879c65!important;display:grid!important;grid-template-columns:170px minmax(0,1fr) 150px!important;gap:20px!important;min-height:100px!important;}
+ & .trialDisplayReadings{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:18px!important;justify-items:stretch!important;}
+ & .trialDisplayReadings>div{padding:5px 12px!important;border-left:1px solid #94adbf30!important;text-align:center!important;}
+ & .trialDisplayReadings strong{font-size:clamp(13px,1.25vw,18px)!important;}
+ & .trialDisplayTime{text-align:right!important;}
+ & .trialToolbar{border-color:#70879c45!important;background:#19324780!important;}
+ & .trialToolbar :is(.btn,.input,.select,.langSwitch,.globalSearch){background:#1a3248!important;border-color:#70879c55!important;}
+ & .navigationToggle{position:fixed!important;left:132px!important;top:8px!important;z-index:90!important;display:grid!important;place-items:center!important;width:26px!important;height:26px!important;min-height:26px!important;padding:0!important;border:1px solid #8ca4b65c!important;border-radius:7px!important;background:#203c52!important;color:#efc45f!important;font-size:20px!important;box-shadow:0 3px 8px #07182728!important;}
+ & .studioSidebarFoot{position:static!important;margin-top:16px!important;}
+}
+body.designPreview.navCollapsed :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root){
+ & .navFrame{transform:translateX(-105%)!important;visibility:hidden!important;pointer-events:none!important;}
+ & .shell{padding-left:0!important;}
+ & .navigationToggle{left:12px!important;}
+ & .topbar{padding-left:48px!important;}
+ & .trialToolbar{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;align-items:center!important;padding:10px 14px!important;gap:12px!important;}
+ & .trialToolbar .studioPageActions{margin-right:auto!important;flex-basis:auto!important;}
+}
+body.designPreview.sidebarToolsDocked :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root){
+ & .trialToolbar{padding:14px 0!important;background:transparent!important;}
+ & .trialToolbar .studioPageActions{margin:0!important;flex:none!important;}
+ & .trialToolbar #pageActionsSlot:empty{display:none!important;}
+ & .trialToolbar :is(.studioHeadingActions,.unifiedActions,.marketControls){display:grid!important;grid-template-columns:1fr!important;gap:8px!important;width:100%!important;}
+ & .trialToolbar :is(.btn,.select,.langSwitch,.globalSearch,.input){width:100%!important;max-width:100%!important;}
+ & .trialToolbar .userArea{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;}
+ & .trialToolbar .userArea .sysok{justify-self:center!important;}
+ & .trialToolbar :is(.chip,.iconBtn){justify-content:flex-start!important;padding:7px 9px!important;min-height:32px!important;}
+}
+@media(max-width:1000px){body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .navigationToggle{left:43px!important;}& .trialDisplay{grid-template-columns:140px minmax(0,1fr)!important;}& .trialDisplayTime{display:none!important;}}}
+@media(max-width:560px){body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .navigationToggle{left:auto!important;right:12px!important;top:10px!important;}& .topbar{padding-right:50px!important;}& .trialDisplay{grid-template-columns:1fr!important;padding:14px!important;gap:10px!important;}& .trialDisplayReadings{gap:4px!important;}& .trialDisplayReadings>div{padding:4px!important;}& .trialDisplayReadings strong{font-size:11px!important;}}body.designPreview.navCollapsed :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .navFrame{transform:translateY(110%)!important;}& .shell{padding-bottom:20px!important;}& .navigationToggle{left:auto!important;right:12px!important;}& .topbar{padding-left:12px!important;}}}
+@media(prefers-reduced-motion:reduce){body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& :is(.navFrame,.panel,.projectPanel,.studioMetric,.referenceFeatureCard,.kpi,.level2Metric,.terminalCard,.shareKpi,.settingsCard,.marketMetric,.projectLauncherItem,.terminalPositionCard){transition:none!important;}& :is(.panel,.projectPanel,.studioMetric,.referenceFeatureCard,.kpi,.level2Metric,.terminalCard,.shareKpi,.settingsCard,.marketMetric,.projectLauncherItem,.terminalPositionCard):hover{transform:none!important;}}}
+body.designPreview.sidebarToolsDocked :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .trialToolbar label:has(select,input){display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:6px!important;width:100%!important;font-size:11px!important;}& .trialToolbar :focus-visible{outline-color:#efc45f!important;}}

@@ -3,9 +3,27 @@ const params=new URLSearchParams(location.search);
 const trialMode=params.get('designPreview')==='1' && params.get('demo')==='1';
 {
  document.body.classList.add('designPreview');
- let homes=[],toolbar,screen;
+ let toolbar,screen,toggle;
+ let collapsed=false;
+ try{collapsed=localStorage.getItem('ellery-navigation-hidden')==='1';}catch{}
  function sync(){
-  if(toolbar?.isConnected){const nav=document.querySelector('.nav');const topbar=document.querySelector('.topbar');const anchor=matchMedia('(min-width:1001px)').matches?nav:topbar;if(anchor&&toolbar.previousElementSibling!==anchor)anchor.after(toolbar);}
+  const top=document.querySelector('.topbar'),nav=document.querySelector('.nav');
+  if(top&&nav){
+   if(!toggle?.isConnected){
+    toggle=document.createElement('button');toggle.className='navigationToggle';toggle.type='button';toggle.setAttribute('aria-controls','sideNavigation');
+    toggle.onclick=()=>{collapsed=!collapsed;try{localStorage.setItem('ellery-navigation-hidden',collapsed?'1':'0');}catch{}sync();requestAnimationFrame(()=>{dispatchEvent(new Event('resize'));dispatchEvent(new Event('crm-layout'));});};
+    top.append(toggle);
+   }
+   document.body.classList.toggle('navCollapsed',collapsed);
+   if(toggle.dataset.collapsed!==String(collapsed)){toggle.dataset.collapsed=String(collapsed);toggle.textContent=collapsed?'☰':'‹';}toggle.setAttribute('aria-label',collapsed?'展开导航栏':'隐藏导航栏');toggle.title=collapsed?'展开导航栏':'隐藏导航栏';toggle.setAttribute('aria-expanded',String(!collapsed));
+   if(!toolbar?.isConnected){
+    toolbar=document.createElement('div');toolbar.className='trialToolbar';toolbar.setAttribute('aria-label','页面功能工具栏');
+    for(const node of top.querySelectorAll(':scope > #pageActionsSlot,:scope > .globalSearch,:scope > .userArea'))toolbar.append(node);
+   }
+   const docked=matchMedia('(min-width:1001px)').matches&&!collapsed;
+   document.body.classList.toggle('sidebarToolsDocked',docked);
+   const anchor=docked?nav:top;if(toolbar.previousElementSibling!==anchor)anchor.after(toolbar);
+  }
   const form=document.querySelector('#loginForm');
   if(trialMode&&form&&!form.dataset.trial){
    form.dataset.trial='true';
@@ -14,30 +32,22 @@ const trialMode=params.get('designPreview')==='1' && params.get('demo')==='1';
    button.onclick=()=>{location.href='/?demo=1&account=TEST-A002&designPreview=1#allocation/1';};
    form.addEventListener('submit',event=>{event.preventDefault();event.stopImmediatePropagation();button.click();},true);
   }
-  const top=document.querySelector('.topbar');
   const isProject=document.querySelector('#main')?.dataset.view==='shareboard';
   document.body.classList.toggle('projectScreenTrial',!!isProject);
   if(top&&isProject){
    if(!screen?.isConnected){
     screen=document.createElement('div');screen.className='trialDisplay';screen.setAttribute('aria-label','项目动态信息屏');
     screen.innerHTML='<div class="trialDisplayIdentity"><span class="trialLiveDot"></span><span>PROJECT MONITOR</span><small>项目预留份额</small></div><div class="trialDisplayReadings"></div><time class="trialDisplayTime"></time>';
-    top.append(screen);
-    toolbar=document.createElement('div');toolbar.className='trialToolbar';toolbar.setAttribute('aria-label','项目功能工具栏');if(matchMedia('(min-width:1001px)').matches){document.querySelector('.nav').after(toolbar);}else{top.after(toolbar);}
-    const replay=document.createElement('a');replay.className='trialReplay';replay.href='/?demo=1&loginPreview=1&designPreview=1';replay.textContent='查看登录动画';if(trialMode)toolbar.append(replay);
-    homes=[];
-    for(const node of top.querySelectorAll(':scope > #pageActionsSlot,:scope > .globalSearch,:scope > .userArea')){
-     const marker=document.createComment('trial-toolbar-home');node.before(marker);homes.push([node,marker]);toolbar.append(node);
-    }
+    top.append(screen);screen.querySelector('time').textContent=new Date().toLocaleTimeString('en-GB',{timeZone:'Europe/Bucharest'})+' · BUCHAREST';
+
    }
    const readings=screen.querySelector('.trialDisplayReadings');
    const cards=[...document.querySelectorAll('.projectOverviewCard')].slice(0,3);
    const values=cards.map(card=>({name:card.querySelector('h2,h3')?.textContent||'PROJECT',amount:card.querySelector('.projectOverviewNumbers strong')?.textContent||'—',color:getComputedStyle(card).getPropertyValue('--project-accent')}));
    const key=JSON.stringify(values);
    if(readings.dataset.values!==key){readings.dataset.values=key;readings.replaceChildren(...values.map(v=>{const item=document.createElement('div'),name=document.createElement('small'),amount=document.createElement('strong');name.textContent=v.name;amount.textContent=v.amount;amount.style.setProperty("--trial-reading-color",v.color);item.append(name,amount);return item;}));}
-  }else if(screen){
-   for(const [node,marker] of homes){if(marker.isConnected)marker.replaceWith(node);}
-   toolbar?.remove();screen.remove();screen=null;homes=[];
-  }
+  }else if(screen){screen.remove();screen=null;}
+
   const chart=window.Chart?.getChart(document.querySelector('#marketChart'));
   if(chart&&!chart.$trialPalette){chart.$trialPalette=true;for(const d of chart.data.datasets){d.borderColor='#efc45f';d.backgroundColor='rgba(239,196,95,.10)';d.borderWidth=2;d.tension=.2;}chart.update('none');}
  }
