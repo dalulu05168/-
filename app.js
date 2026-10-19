@@ -1,5 +1,5 @@
 import {publishUIData} from './ui-feedback.js?v=2.3.8';
-import {exportPagePNG} from './page-export.js?v=2.3.2';
+import {exportPagePNG} from './page-export.js?v=2.3.10';
 import {installViewportLayout} from './viewport-layout.js?v=20261018-remediation-17';
 
 import {currencyTotals,monthlyTradeTotals,dailyActivityCounts} from "./dashboard-data.js?v=20261009-brighter";
@@ -760,11 +760,7 @@ async function openCustomer(id){
         <div class="shareBrand">
           <span class="brandLogoFrame"><img class="brandLogo" src="/assets/ellery-westcott-transparent.png?v=1" alt="Ellery Westcott · Capital Markets"><img class="brandLettering" src="/assets/ellery-westcott-transparent.png?v=1" alt="" aria-hidden="true"></span>
         </div>
-        <div class="shareTimeBlock">
 
-          <strong data-romania-clock>${romaniaClockText()}</strong>
-          <small id="customerDataUpdated">页面生成：${dt(new Date())}</small>
-        </div>
         <div class="shareInternalActions">
           <button class="btn" id="backCustomers">返回</button>
           ${["admin","level2"].includes(state.profile.role)?'<button class="btn screenshotHide" id="editNoteBtn">编辑客户备注</button>':""}
@@ -794,10 +790,7 @@ async function openCustomer(id){
           <div class="panelHead compact"><div><h2>持仓收益走势</h2><p>POSITION P/L · 基于当前行情序列</p></div><span class="headerChartLegend"><span><i style="background:#8eafd0"></i>${tr("持仓浮动盈亏",state.lang)}</span></span></div>
           <div class="chartBox shareReturnChart"><canvas id="customerReturnChart"></canvas></div>
         </article>
-        <article class="panel shareAllocationPanel">
-          <div class="panelHead compact"><div><h2>持仓结构 / 收益构成</h2><p>ALLOCATION & P/L MIX</p></div></div>
-          <div class="portfolioBreakdown" id="customerPortfolioBreakdown"></div>
-        </article>
+
       </div>
 
       <div class="shareLowerGrid">
@@ -817,15 +810,11 @@ async function openCustomer(id){
           <div class="shareServiceTimeline">
             ${serviceRows.map(f=>`<div><span>${dt(f.created_at)}</span><p data-no-i18n>${esc(f.content)}</p></div>`).join("")||'<div><span>—</span><p>暂无服务纪要</p></div>'}
           </div>
-          <div class="clientOwnerInternal screenshotHide">内部归属：${esc(owner?.display_name||"--")}</div>
+
         </article>
       </div>
 
-      <div class="shareFoot">
-        <span>ELLERY WESTCOTT · PRIVATE CAPITAL ADVISORY</span>
-        <span>行情来自免费公开市场数据源；页面以各行情的最新更新时间为准。</span>
-        <span data-romania-clock>${romaniaClockText()}</span>
-      </div>
+
     </section>`;
 
   translateUI($("#clientSharePage"),state.lang);
@@ -874,8 +863,6 @@ async function openCustomer(id){
       if(kpis[1])kpis[1].textContent=priced.length?portfolioAmount(priced,p=>Number(p.quantity)*Number(freshQ[p.symbol].price)):"—";
       if(kpis[2]){kpis[2].textContent=priced.length?portfolioAmount(priced,p=>Number(p.quantity)*(Number(freshQ[p.symbol].price)-Number(p.avg_cost))):"—";kpis[2].className=freshUnreal>=0?"up":"down";}
       if(kpis[4]){kpis[4].textContent=mixedCurrency?"按币种分列":(freshReturn>=0?"+":"")+num(freshReturn,2)+"%";kpis[4].className=freshReturn>=0?"up":"down";}
-      const timeSmall=$("#customerDataUpdated");
-      if(timeSmall)timeSmall.textContent=dt(new Date());
       const liveTable=$("#customerPositionLive");
       if(liveTable)liveTable.innerHTML=positionTable(pos,freshQ);
       const primaryNow=openPos.find(p=>freshQ[p.symbol]?.points?.length)||primary;
@@ -975,11 +962,16 @@ function drawCustomerShareCharts(pos,trades,q,primary,realized,unreal){
   }
   if(rEl){
     const qty=Number(primary.quantity),avg=Number(primary.avg_cost);
-    state.charts.customerReturn=new Chart(rEl,{type:"line",data:{labels,datasets:[{label:tr("持仓浮动盈亏",state.lang),data:pts.map(p=>(Number(p.close)-avg)*qty),borderColor:"#8eafd0",backgroundColor:"rgba(142,175,208,.10)",fill:true,tension:.18,pointRadius:0,pointHoverRadius:4}]},options:headerLegendChartOpts()});
+    state.charts.customerReturn=new Chart(rEl,{type:"line",data:{labels,datasets:[{label:tr("持仓浮动盈亏",state.lang),data:pts.map(p=>(Number(p.close)-avg)*qty),borderColor:"#8eafd0",backgroundColor:"rgba(142,175,208,.10)",fill:true,tension:.18,pointRadius:0,pointHoverRadius:4}]},options:customerReturnChartOptions()});
   }
 }
 
-
+function customerReturnChartOptions(){
+ const options=headerLegendChartOpts();
+ options.scales.y.ticks={...options.scales.y.ticks,callback:value=>new Intl.NumberFormat("en-US",{notation:"compact",maximumFractionDigits:3}).format(Number(value))};
+ options.scales.x.ticks={...options.scales.x.ticks,maxTicksLimit:6,maxRotation:0,minRotation:0};
+ return options;
+}
 
 function updateCustomerShareMarketCharts(pos,trades,q,primary,realized,unreal){
   if(!primary||!q[primary.symbol]||q[primary.symbol].error){

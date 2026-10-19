@@ -13,9 +13,34 @@ const trialMode=params.get('designPreview')==='1' && params.get('demo')==='1';
  }
 
  let toolbar,screen,toggle;
+ const enteredShells=new WeakSet();
  let collapsed=false;
  try{collapsed=localStorage.getItem('ellery-navigation-hidden')==='1';}catch{}
  function sync(){
+  const shell=document.querySelector('.shell');
+  if(shell&&!enteredShells.has(shell)){
+   enteredShells.add(shell);
+   if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    const entry=document.createElement('div');entry.className='workspaceEntry';entry.setAttribute('aria-hidden','true');
+    entry.innerHTML='<span class="brandLogoFrame"><img class="brandLogo" src="/assets/ellery-westcott-transparent.png" alt=""><img class="brandLettering" src="/assets/ellery-westcott-transparent.png" alt=""></span>';
+    document.body.append(entry);setTimeout(()=>entry.remove(),1050);
+   }
+  }
+  const customer=document.querySelector('#clientSharePage');
+  if(customer){
+   customer.classList.toggle('customerNavCollapsed',collapsed);
+   if(!customer.querySelector('.customerQuickActions')){
+    const controls=document.createElement('div');controls.className='customerQuickActions screenshotHide';
+    const button=document.createElement('button');button.type='button';button.className='btn customerNavigationToggle';
+    button.onclick=()=>{collapsed=!collapsed;try{localStorage.setItem('ellery-navigation-hidden',collapsed?'1':'0');}catch{}window.elleryPreferences?.setNavigationHidden(collapsed).catch(()=>{});sync();requestAnimationFrame(()=>dispatchEvent(new Event('resize')));};
+    const capture=document.createElement('button');capture.type='button';capture.className='btn customerQuickExport';capture.textContent='导出图片';capture.onclick=()=>customer.querySelector('#captureModeBtn')?.click();
+    controls.append(button,capture);customer.prepend(controls);
+   }
+   const button=customer.querySelector('.customerNavigationToggle');const label=collapsed?'展开导航栏':'隐藏导航栏';
+   if(button.textContent!==(collapsed?'☰':'‹'))button.textContent=collapsed?'☰':'‹';
+   button.setAttribute('aria-label',label);button.setAttribute('aria-expanded',String(!collapsed));button.title=label;
+  }
+
   const top=document.querySelector('.topbar'),nav=document.querySelector('.nav');
   if(top&&nav){
    if(!toggle?.isConnected){

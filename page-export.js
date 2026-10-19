@@ -38,16 +38,20 @@ export async function exportPagePNG(element,{filename='Ellery-Westcott',button,n
     const target=doc.querySelector(`[data-png-export="${marker}"]`),root=doc.querySelector('#root');
     // Isolate the business section from the fixed sidebar and sticky application toolbar.
     target.remove();root.replaceChildren(target);doc.body.replaceChildren(root);
+    target.classList.remove('customerNavCollapsed');
+    if(target.id==='clientSharePage')target.classList.add('clientCaptureMode');
     for(const node of [doc.documentElement,doc.body,root]){node.style.setProperty('width',LAYOUT_WIDTH+'px','important');node.style.setProperty('min-height','0','important');node.style.setProperty('height','auto','important');node.style.setProperty('margin','0','important');node.style.setProperty('padding','0','important');node.style.setProperty('overflow','visible','important');}
     for(const[key,value]of Object.entries({position:'relative',inset:'auto',transform:'none',width:LAYOUT_WIDTH+'px','max-width':'none',height:'auto','min-height':'0','max-height':'none',margin:'0',padding:'20px',overflow:'visible',background:'#08121f','box-sizing':'border-box'}))target.style.setProperty(key,value,'important');
     target.querySelectorAll('svg').forEach((svg,i)=>{const img=doc.createElement('img');img.src=svgImages[i];img.className=svg.getAttribute('class')||'';img.setAttribute('alt',svg.getAttribute('aria-label')||'');img.style.cssText=svg.style.cssText;svg.replaceWith(img);});
     target.querySelectorAll('.brandLogoFrame').forEach(frame=>{const img=frame.querySelector('img');img.src=logo;frame.querySelectorAll('.brandLettering').forEach(el=>el.remove());});
     if(target.classList.contains('projectOverview')){const header=doc.createElement('div');header.className='exportBrandHeader';header.innerHTML='<img src="'+logo+'" alt="Ellery Westcott Capital Markets"><div><strong>项目预留份额'+(new URLSearchParams(location.search).get('demo')==='1'?' · 模拟数据':'')+'</strong><span>'+new Intl.DateTimeFormat('zh-CN',{timeZone:'Europe/Bucharest',dateStyle:'medium',timeStyle:'short'}).format(new Date())+' · Europe/Bucharest</span></div>';target.prepend(header);}
-    target.querySelectorAll('.navFrame,.topbar,.viewportPager,.shareInternalActions,.projectPresentationHeader,.screenshotHide,.previewNotice,#projectAddRecord,.projectEditButton,.projectNameEditor,.projectRecordActionColumn,.exportStatus').forEach(el=>el.remove());
+    target.querySelectorAll('.customerQuickActions,.navFrame,.topbar,.viewportPager,.shareInternalActions,.projectPresentationHeader,.screenshotHide,.previewNotice,#projectAddRecord,.projectEditButton,.projectNameEditor,.projectRecordActionColumn,.exportStatus').forEach(el=>el.remove());
     target.querySelectorAll('.dataTable tr[hidden],[data-viewport-row][hidden],.portfolioCurrencyGroup[hidden],.holdingBreakdownRow[hidden]').forEach(el=>el.removeAttribute('hidden'));
     const style=doc.createElement('style'),scope='body :is('+'#root'.repeat(14)+','+'#modalRoot'.repeat(14)+') ';
     style.textContent=`
      [data-png-export] :is(.tableWrap,.panelBody,.shareMainGrid,.shareLowerGrid,.shareServiceTimeline){height:auto!important;max-height:none!important;overflow:visible!important;}
+     [data-png-export] .shareMainGrid{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)!important;}
+     [data-png-export] .brandLogoFrame img{clip-path:none!important;object-position:center!important;}
      [data-png-export] .projectOverviewCards{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
      [data-png-export] .projectOverviewLower{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
      [data-png-export] .projectTrendPanel{grid-column:span 2!important;}

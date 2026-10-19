@@ -268,3 +268,35 @@ body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#
  & .shareBrand .brandLogoFrame{height:120px!important;max-height:120px!important;width:100%!important;}
 }
 @media(max-width:600px){body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage .shareKpiRow{grid-template-rows:none!important;}}
+
+/* 2.3.10 customer layout corrections from annotated review. */
+body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage {
+ & .shareMainGrid{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)!important;}
+ & .shareKpiRow>article{grid-template-rows:auto auto auto!important;}
+ & .shareKpiRow>article>span{position:static!important;display:block!important;height:auto!important;min-height:20px!important;max-height:none!important;line-height:20px!important;margin:0!important;overflow:visible!important;white-space:normal!important;overflow-wrap:anywhere!important;align-self:start!important;}
+ & .shareBrand .brandLogoFrame img{position:absolute!important;inset:0!important;object-position:center!important;width:100%!important;height:100%!important;}
+ & .shareBrand .brandLogoFrame .brandLogo{clip-path:inset(0 0 34.5% 0)!important;}
+ & .shareBrand .brandLogoFrame .brandLettering{clip-path:inset(65.5% 0 0 0)!important;filter:brightness(0) invert(1)!important;}
+ & .customerQuickActions{grid-column:1 / -1!important;position:fixed!important;left:190px!important;top:7px!important;z-index:110!important;display:flex!important;gap:1mm!important;}
+ & .customerNavigationToggle{width:26px!important;min-height:26px!important;padding:0!important;}
+ & .customerQuickExport{display:none!important;}
+ & .sharePositions .tableWrap{overflow:auto!important;}
+ & .sharePositions .dataTable{min-width:1050px!important;}
+}
+body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage.customerNavCollapsed{grid-template-columns:minmax(0,1fr)!important;padding-top:42px!important;}
+body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage.customerNavCollapsed>.shareTopbar{display:none!important;}
+body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage.customerNavCollapsed>:not(.shareTopbar){grid-column:1!important;}
+body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage.customerNavCollapsed .customerQuickActions{left:8px!important;}
+body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage.customerNavCollapsed .customerQuickExport{display:block!important;}
+body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage.clientCaptureMode{padding-top:1mm!important;}
+body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage.clientCaptureMode>.shareTopbar{display:flex!important;}
+@media(max-width:1000px){body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage .shareMainGrid{grid-template-columns:1fr!important;}body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage .customerQuickActions{left:150px!important;}}
+@media(max-width:600px){body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage .customerQuickActions{left:auto!important;right:8px!important;}body.designPreview #modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot#modalRoot #clientSharePage.customerNavCollapsed .customerQuickActions{left:8px!important;right:auto!important;}}
+.workspaceEntry{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:radial-gradient(ellipse at center,#25465d,#142a40 65%);pointer-events:none;animation:workspaceArrival 1s ease both;}
+.workspaceEntry .brandLogoFrame{position:relative;display:block;width:300px;max-width:65vw;aspect-ratio:4 / 3;filter:drop-shadow(0 12px 18px #0005);animation:workspaceBrand .8s ease both;}
+.workspaceEntry .brandLogoFrame img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;}
+.workspaceEntry .brandLogo{clip-path:inset(0 0 34.5% 0);}
+.workspaceEntry .brandLettering{clip-path:inset(65.5% 0 0 0);filter:brightness(0) invert(1);}
+@keyframes workspaceArrival{0%,55%{opacity:1}100%{opacity:0}}
+@keyframes workspaceBrand{from{opacity:0;transform:perspective(900px) rotateY(-12deg) translateY(12px) scale(.94)}to{opacity:1;transform:perspective(900px) rotateY(0) translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.workspaceEntry{display:none!important;animation:none!important;}}
