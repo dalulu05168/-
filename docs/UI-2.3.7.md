@@ -1,0 +1,9 @@
+# 2.3.7 — remove empty toolbar and oversized allocation space
+
+Moving controls into navigation had left a 48px toolbar shell with no visible content on ordinary pages. That shell now occupies zero height while preserving the fixed navigation and its toggle. Project pages retain their actual information display. Feature-card wrapper padding and project header padding no longer stack extra gaps onto module spacing. A legacy 10px shell flex gap was also removed; otherwise an empty toolbar still left a gap and the simulated-data banner caused two extra gaps.
+
+Allocation balance areas now size to content (156px desktop minimum instead of 270px); rings are 120px desktop, 104px narrow screen. Allocation amounts use 20px regular-weight text on wide screens (18px on narrower screens), and ring percentages use 18px. This is an intentional exception to the previous global 13px rule, following feedback that allocation figures were too small. Other typography remains uniform and unbolded. Gold/green/blue correspondence and hover effects are retained.
+
+The dashboard's lower-right .studioProjects wrapper previously stretched but its inner .projectLauncher did not fill it. The bottom row is kept compact at 128px on desktop, with extra viewport height assigned to the business trend chart. Both wrapper and launcher now stretch together; its header matches the neighboring panel and project tiles fill its remaining height. The actual launcher border is included in alignment checks, rather than only checking the outer wrapper/left panel. Stacked mobile panels are not required to share a bottom edge.
+
+The compact-layout browser check measures border gaps as 1 CSS mm (96/25.4 pixels), verifies zero empty header height on ordinary pages, allocation dimensions/font sizes and actual dashboard bottom borders. The explicit simulated-data banner is excluded from the production header-gap calculation. Normal authentication and backend configuration are unchanged.

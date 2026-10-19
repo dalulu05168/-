@@ -157,3 +157,40 @@ body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#r
  & #main>.panel:last-child{flex:1 0 auto!important;}
 }
 @media(max-width:560px){body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .shell{padding-bottom:66px!important;}}body.designPreview.navCollapsed :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .shell{padding-bottom:0!important;}}}
+
+/* 2.3.7 remove abandoned header space and size allocations to their content. */
+body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root){
+ & .topbar:not(:has(.trialDisplay)){height:0!important;min-height:0!important;padding:0!important;border:0!important;overflow:visible!important;background:transparent!important;}
+ & .topbar:not(:has(.trialDisplay)) .studioBreadcrumb{display:none!important;}
+ & .topbar:has(.trialDisplay){padding:1mm 1mm 0!important;border:0!important;background:transparent!important;min-height:0!important;}
+ & #main{padding:1mm 1mm 0!important;gap:1mm!important;}
+ & .referenceFeatureCards{padding:0!important;margin:0!important;gap:1mm!important;}
+ & .projectOverviewCards{align-items:stretch!important;gap:1mm!important;}
+ & .projectOverviewBalance{min-height:156px!important;grid-template-columns:120px minmax(0,1fr)!important;padding:14px!important;gap:14px!important;align-items:center!important;}
+ & :is(.projectRingDock,.projectEnergyRingButton){width:120px!important;height:120px!important;}
+ & .projectOverviewNumbers strong{font-size:clamp(18px,1.4vw,20px)!important;font-weight:400!important;line-height:1.35!important;white-space:nowrap!important;}
+ & .projectProgressRing text{font-size:18px!important;font-weight:400!important;}
+ & .projectOverviewTotals{padding:10px 14px!important;}
+ & .studioBottomGrid{gap:1mm!important;}
+ & .studioCost{display:flex!important;flex-direction:column!important;}
+ & .studioCostValue{flex:1!important;display:flex!important;align-items:center!important;padding:14px!important;}
+ & .studioProjects{display:flex!important;align-items:stretch!important;min-height:0!important;}
+ & .studioProjects .projectLauncher{display:flex!important;flex-direction:column!important;flex:1!important;width:100%!important;height:auto!important;min-height:0!important;}
+ & .studioProjects .projectLauncherHead{display:flex!important;align-items:center!important;min-height:42px!important;padding:6px 14px!important;border-bottom:1px solid #70879c35!important;}
+ & .studioProjects .projectLauncherList{flex:1!important;align-items:stretch!important;grid-template-rows:minmax(0,1fr)!important;padding:1mm!important;gap:1mm!important;}
+ & .studioProjects .projectLauncherRow{height:auto!important;min-height:64px!important;}
+}
+@media(min-width:761px) and (max-width:1100px){body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .projectOverviewBalance{grid-template-columns:1fr!important;justify-items:center!important;gap:8px!important;}& .projectOverviewNumbers{text-align:center!important;}& .projectOverviewNumbers strong{font-size:18px!important;}}}
+@media(max-width:760px){body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .projectOverviewBalance{min-height:140px!important;grid-template-columns:104px minmax(0,1fr)!important;}& :is(.projectRingDock,.projectEnergyRingButton){width:104px!important;height:104px!important;}& .projectOverviewNumbers{text-align:left!important;}& .projectOverviewNumbers strong{font-size:18px!important;}}}
+
+body.designPreview.navCollapsed :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .trialToolbar{padding-left:48px!important;}& .topbar:has(.trialDisplay){padding-left:48px!important;}}
+@media(max-width:560px){body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .trialToolbar{padding-right:48px!important;}}}
+body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .shell{gap:0!important;}}
+
+body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root){
+ & .studioBottomGrid{flex:0 0 auto!important;height:128px!important;min-height:128px!important;}
+ & .studioAnalytics{flex:1 0 auto!important;align-items:stretch!important;}
+ & .studioTrend{display:flex!important;flex-direction:column!important;}
+ & .studioChart{flex:1 1 auto!important;min-height:200px!important;height:auto!important;}
+}
+@media(max-width:760px){body.designPreview :is(#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root#root){& .studioBottomGrid{height:auto!important;min-height:0!important;}& .studioBottomGrid :is(.studioCost,.projectLauncher){min-height:120px!important;}}}

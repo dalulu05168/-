@@ -1,7 +1,11 @@
-# Ellery Westcott CRM 桌面版 2.3.6（独立后端）
+# Ellery Westcott CRM 桌面版 2.3.7（独立后端）
 
 
-## 当前交付（2.3.6）
+## 当前交付（2.3.7）
+
+安装文件为 `Ellery-Westcott-CRM-Setup-2.3.7.exe`，最新下载链接随本次聊天交付。修复空顶部工具栏、外壳叠加间距、预留卡片过高、关键数字过小及主页右下角面板没有填满的问题。模块间距保持 1 CSS mm；预留金额改为常规字重 20px（窄屏 18px），其余文字仍为 13px。参见 [2.3.7 记录](docs/UI-2.3.7.md)。
+
+## 上一版交付（2.3.6，历史记录）
 
 [Windows 安装包下载（ZIP）](https://github.com/dalulu05168/-/actions/runs/39236463437/artifacts/12178997450)。关闭旧程序后解压运行 EXE，正常启动即加载当前界面。该 GitHub 构建附件保存到 2026-11-02；界面及安装源码保存在独立分支中。
 
@@ -33,7 +37,7 @@
 
 开发机使用 Node.js 22，执行 `npm ci`，`npm run desktop`。
 
-Windows 安装包：`npm run build:win`。产物为 `dist/Ellery-Westcott-CRM-Setup-2.3.6.exe`。NSIS 安装器支持选择空目录或现有本应用目录、创建桌面与开始菜单快捷方式及卸载。卸载保留 AppData 下的应用用户数据。
+Windows 安装包：`npm run build:win`。产物为 `dist/Ellery-Westcott-CRM-Setup-2.3.7.exe`。NSIS 安装器支持选择空目录或现有本应用目录、创建桌面与开始菜单快捷方式及卸载。卸载保留 AppData 下的应用用户数据。
 
 应用需要互联网连接到配置的 Supabase 服务和行情数据源。所有用户需要有效授权账号；界面代码不提供额外数据库权限。
 
